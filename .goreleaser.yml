@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# goreleaser v2 config
+version: 2
+
+project_name: ironrun
+
+before:
+  hooks:
+    - go mod tidy
+    - go generate ./...
+
+builds:
+  - id: ironrun
+    main: ./cmd/ironrun
+    binary: ironrun
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X github.com/generalized-labs/ironrun/internal/buildinfo.Version={{.Version}}
+      - -X github.com/generalized-labs/ironrun/internal/buildinfo.Commit={{.Commit}}
+      - -X github.com/generalized-labs/ironrun/internal/buildinfo.Date={{.Date}}
+
+archives:
+  - id: ironrun
+    ids:
+      - ironrun
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "arm64" }}arm64
+      {{- else }}{{ .Arch }}{{ end }}
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - README.md
+      - LICENSE
+      - ironrun.example.yml
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: "New Features"
+      regexp: "^feat"
+      order: 0
+    - title: "Bug Fixes"
+      regexp: "^fix"
+      order: 1
+    - title: "Security"
+      regexp: "^sec"
+      order: 2
+    - title: Other
+      order: 999
+
+brews:
+  # Homebrew tap publishing is enabled once generalized-labs/homebrew-tap is created
+  # and HOMEBREW_TAP_GITHUB_TOKEN is set as a repo secret.
+  # Uncomment and configure when ready:
+  #
+  # - name: ironrun
+  #   repository:
+  #     owner: generalized-labs
+  #     name: homebrew-tap
+  #     token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+  #   homepage: "https://github.com/generalized-labs/ironrun"
+  #   description: "Agent-safe sealed command execution. Secrets injected below AI context windows."
+  #   license: "MIT"
+  #   install: |
+  #     bin.install "ironrun"
+  #   test: |
+  #     system "#{bin}/ironrun", "version"
+
+release:
+  github:
+    owner: generalized-labs
+    name: ironrun
+  draft: false
+  prerelease: auto
+  name_template: "ironrun {{.Tag}}"
+  header: |
+    ## ironrun {{.Tag}}
+
+    Agent-safe sealed command execution for AI coding agents.
+    Secrets are injected below agent visibility and redacted from all output.
+
+    ### Quick install
+
+    ```bash
+    # Homebrew (macOS/Linux)
+    brew install generalized-labs/tap/ironrun
+
+    # curl (Linux/macOS)
+    curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/install.sh | bash
+
+    # Go
+    go install github.com/generalized-labs/ironrun/cmd/ironrun@{{.Tag}}
+    ```
+  footer: |
+    **Full Changelog**: https://github.com/generalized-labs/ironrun/compare/{{.PreviousTag}}...{{.Tag}}

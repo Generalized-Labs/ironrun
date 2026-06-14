@@ -1,0 +1,26 @@
+# Binaries
+bin/
+*.test
+*.out
+coverage.out
+
+# Compiled objects
+*.o
+*.a
+*.so
+
+# Policy files (user-specific, contain real secret refs)
+ironrun.yml
+!ironrun.example.yml
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# goreleaser
+dist/

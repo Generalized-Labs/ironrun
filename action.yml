@@ -1,0 +1,74 @@
+# ironrun GitHub Action
+# Runs a sealed command from your ironrun.yml policy inside GitHub Actions.
+# Secrets are injected into the child process and redacted from all logs —
+# they never appear in CI output, environment dumps, or fork-PR-visible logs.
+#
+# Inputs:
+#   command_id  (required)  The policy command ID to execute
+#   policy      (optional)  Path to policy file (default: ironrun.yml)
+#   version     (optional)  ironrun version to install (default: latest)
+#
+# Outputs:
+#   exit_code   Exit code of the command
+#   duration_ms Execution time in milliseconds
+#   truncated   "true" if output was capped at max_bytes
+#
+# Example:
+#   - uses: generalized-labs/ironrun@v0
+#     with:
+#       command_id: deploy
+#       policy: ironrun.yml
+#     env:
+#       OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+
+name: ironrun
+description: Sealed command execution for AI agents — secrets never leak to logs or LLMs
+author: generalized-labs
+
+branding:
+  icon: lock
+  color: gray-dark
+
+inputs:
+  command_id:
+    description: The policy command ID to execute (must exist in your policy file)
+    required: true
+  policy:
+    description: Path to ironrun policy file
+    required: false
+    default: ironrun.yml
+  version:
+    description: ironrun version to install (a released tag, or "latest")
+    required: false
+    default: latest
+
+outputs:
+  exit_code:
+    description: Exit code of the executed command
+    value: ${{ steps.run.outputs.exit_code }}
+  duration_ms:
+    description: Execution time in milliseconds
+    value: ${{ steps.run.outputs.duration_ms }}
+  truncated:
+    description: Whether output was truncated at max_bytes
+    value: ${{ steps.run.outputs.truncated }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: "1.26"
+
+    - name: Install ironrun
+      shell: bash
+      run: go install "github.com/generalized-labs/ironrun/cmd/ironrun-action@${{ inputs.version }}"
+
+    - name: Run sealed command
+      id: run
+      shell: bash
+      env:
+        INPUT_COMMAND_ID: ${{ inputs.command_id }}
+        INPUT_POLICY: ${{ inputs.policy }}
+      run: ironrun-action
