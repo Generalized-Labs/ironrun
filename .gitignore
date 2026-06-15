@@ -1,8 +1,13 @@
 # Binaries
 bin/
+/ironrun
+/ironrun-action
 *.test
 *.out
 coverage.out
+
+# Hermes agent working files (plans, notes — not for public repo)
+.hermes/
 
 # Compiled objects
 *.o
