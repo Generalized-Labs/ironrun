@@ -3,7 +3,10 @@
 // the defaults below are what you get from a plain `go build` / `go install`.
 package buildinfo
 
-import "runtime/debug"
+import (
+	"runtime/debug"
+	"strings"
+)
 
 var (
 	// Version is the semantic version, e.g. "1.2.3". Set by goreleaser.
@@ -24,5 +27,8 @@ func String() string {
 			v = bi.Main.Version
 		}
 	}
-	return v
+	// Normalize to a bare version: goreleaser stamps "0.2.0" while a module
+	// build records "v0.2.0". Strip the leading "v" so callers can format it
+	// consistently (e.g. "ironrun 0.2.0", never "ironrun vv0.2.0").
+	return strings.TrimPrefix(v, "v")
 }

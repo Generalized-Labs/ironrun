@@ -141,7 +141,7 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("ironrun v%s\n", buildinfo.String())
+			fmt.Printf("ironrun %s\n", buildinfo.String())
 			if verbose {
 				fmt.Printf("  commit: %s\n", buildinfo.Commit)
 				fmt.Printf("  built:  %s\n", buildinfo.Date)
