@@ -21,6 +21,7 @@ ironrun v0 targets a specific, well-scoped threat: **accidental secret exposure 
 | Vector | Status |
 |---|---|
 | Network exfiltration by approved binary | Best-effort via `no_network: true` (Linux: network namespace; macOS: sandbox-exec). Not enforced on other platforms. |
+| Encoded/transformed secret in output (base64, hex, URL-encoded) | Not redacted — the redactor matches the *literal* value only. An approved binary that emits an encoded form of a secret bypasses it (the stdout analog of network exfil by an approved binary). |
 | Secrets written to disk by child | Not prevented |
 | Side-channel leaks (timing, cache) | Not prevented |
 | Malicious binary substitution | Not prevented (PATH is inherited) |
@@ -30,14 +31,16 @@ ironrun v0 targets a specific, well-scoped threat: **accidental secret exposure 
 
 The rolling-buffer redactor holds back `(max_secret_len - 1)` bytes at each Write boundary, ensuring secrets split across write calls are still caught. After the child exits, all buffered bytes are flushed and redacted.
 
-Empty strings are not registered as secrets (they would match everything). Secrets resolved to empty strings from your provider will log a warning and be skipped.
+The redactor matches the **literal** secret bytes. It does not catch transformed forms — a process that base64-, hex-, or URL-encodes a secret before printing it defeats redaction. This is the stdout analog of the "network exfiltration by approved binary" limit above: ironrun guards against accidental literal leakage, not an actively hostile binary that re-encodes the value.
+
+Empty strings are not registered as secrets (they would match everything). Secrets resolved to empty strings from your provider log a warning and are skipped. Values shorter than 4 bytes are likewise skipped with a warning — redacting a 1-3 byte value would corrupt unrelated output while protecting nothing real (genuine credentials are never that short).
 
 ### Network isolation
 
 `no_network: true` is best-effort:
 
 - **Linux**: Uses `CLONE_NEWNET` (new network namespace with no interfaces). Requires unprivileged user namespaces (default on ubuntu-latest, Debian 11+, Fedora). The loopback interface exists but has no external connectivity.
-- **macOS**: Uses `sandbox-exec` with a deny-all network Seatbelt profile. Can be bypassed by privileged processes.
+- **macOS**: Uses `sandbox-exec` with a deny-all *network* Seatbelt profile. This restricts network only — the child can still read and write the filesystem. Can be bypassed by privileged processes.
 - **Other platforms**: No isolation applied; a warning is emitted to stderr.
 
 ### Reporting vulnerabilities

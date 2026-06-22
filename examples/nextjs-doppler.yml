@@ -1,0 +1,29 @@
+# A Next.js app with secrets in Doppler.
+# Requires the `doppler` CLI installed and authenticated (`doppler login`).
+#
+# Short references like `DATABASE_URL` resolve from the project/config Doppler
+# is currently set up for (doppler.yaml or DOPPLER_* env). Use the full
+# doppler://project/config/NAME form to pin a specific environment.
+version: "1"
+provider: doppler
+
+commands:
+  - id: dev
+    argv: [pnpm, dev]
+    ttl: 0
+    env:
+      DATABASE_URL:        DATABASE_URL
+      NEXTAUTH_SECRET:     NEXTAUTH_SECRET
+      STRIPE_SECRET_KEY:   STRIPE_SECRET_KEY
+
+  - id: build
+    argv: [pnpm, build]
+    ttl: 10m
+    env:
+      DATABASE_URL: "doppler://myapp/prod/DATABASE_URL"
+
+  - id: migrate
+    argv: [pnpm, prisma, migrate, deploy]
+    ttl: 5m
+    env:
+      DATABASE_URL: "doppler://myapp/prod/DATABASE_URL"

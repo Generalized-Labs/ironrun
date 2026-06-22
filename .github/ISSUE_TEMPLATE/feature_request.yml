@@ -1,0 +1,29 @@
+name: Feature request
+description: Propose a new capability (e.g. a provider or command)
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What can't you do today? What's the use case?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should ironrun do? For a new provider, include the reference format you'd expect (e.g. `awssm://region/secret#key`).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This keeps secret values out of the agent's context (ironrun's core guarantee)
+        - label: I'm willing to help implement it

@@ -82,23 +82,32 @@ changelog:
     - title: Other
       order: 999
 
-brews:
-  # Homebrew tap publishing is enabled once generalized-labs/homebrew-tap is created
-  # and HOMEBREW_TAP_GITHUB_TOKEN is set as a repo secret.
-  # Uncomment and configure when ready:
-  #
-  # - name: ironrun
-  #   repository:
-  #     owner: generalized-labs
-  #     name: homebrew-tap
-  #     token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-  #   homepage: "https://github.com/generalized-labs/ironrun"
-  #   description: "Agent-safe sealed command execution. Secrets injected below AI context windows."
-  #   license: "MIT"
-  #   install: |
-  #     bin.install "ironrun"
-  #   test: |
-  #     system "#{bin}/ironrun", "version"
+# Homebrew auto-publish is intentionally left disabled — it needs a maintainer
+# decision + secret. The tap currently carries a hand-maintained formula at
+# generalized-labs/homebrew-tap (Formula/ironrun.rb), which `brew install
+# generalized-labs/tap/ironrun` resolves on both macOS and Linux today.
+#
+# To automate it, uncomment ONE of the blocks below and:
+#   1. add a HOMEBREW_TAP_GITHUB_TOKEN repo secret with write access to the tap
+#      (release.yml already passes it through), and
+#   2. delete the hand-maintained Formula/ironrun.rb so there's no ambiguity.
+#
+# goreleaser v2 deprecated `brews` (formulae) in favor of `homebrew_casks`.
+# Trade-off: casks are macOS-only, so a cask drops Linux `brew install` (Linux
+# users would use the curl installer or `go install`, both already documented).
+#
+# homebrew_casks:        # macOS only, future-proof
+#   - name: ironrun
+#     repository:
+#       owner: generalized-labs
+#       name: homebrew-tap
+#       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+#     homepage: "https://github.com/generalized-labs/ironrun"
+#     description: "Agent-safe sealed command execution. Secrets injected below AI context windows."
+#     hooks:
+#       post:
+#         install: |
+#           system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/ironrun"]
 
 release:
   github:

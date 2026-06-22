@@ -1,5 +1,5 @@
 // Package provider resolves secret references to their values.
-// Providers are pluggable: 1password, doppler, infisical, env, passthrough.
+// Providers are pluggable: 1password, vault, doppler, infisical, env, passthrough.
 package provider
 
 import (
@@ -19,6 +19,16 @@ type Provider interface {
 	Name() string
 }
 
+// HealthChecker is an optional interface a Provider may implement so that
+// `ironrun doctor` can verify the provider is installed and authenticated.
+// Providers that need no external CLI (env, envfile, passthrough) do not
+// implement it and are treated as always ready.
+type HealthChecker interface {
+	// Check returns nil if the provider is ready to resolve secrets, or an
+	// error describing what is wrong (CLI missing, not authenticated).
+	Check() error
+}
+
 var (
 	ErrNotConfigured    = errors.New("provider not configured")
 	ErrResolve          = errors.New("provider: resolve failed")
@@ -26,10 +36,18 @@ var (
 	ErrOpAuth           = errors.New("1password: not authenticated (run: op signin)")
 	ErrDopplerMissing   = errors.New("doppler: doppler CLI not found in PATH")
 	ErrInfisicalMissing = errors.New("infisical: infisical CLI not found in PATH")
+	ErrVaultMissing     = errors.New("vault: vault CLI not found in PATH")
+	ErrVaultAuth        = errors.New("vault: not authenticated (set VAULT_ADDR and VAULT_TOKEN, or run: vault login)")
+)
+
+// Indirection points over os/exec so tests can stub the CLI layer.
+var (
+	lookPath    = exec.LookPath
+	execCommand = exec.Command
 )
 
 // New returns a Provider for the given name.
-// Supported: "1password", "doppler", "infisical", "env", "envfile", "passthrough"
+// Supported: "1password", "vault", "doppler", "infisical", "env", "envfile", "passthrough"
 // For envfile, pass the path as: "envfile:/path/to/.secrets"
 func New(name string) (Provider, error) {
 	nameLower := strings.ToLower(name)
@@ -42,6 +60,8 @@ func New(name string) (Provider, error) {
 	switch nameLower {
 	case "1password", "op":
 		return &onePasswordProvider{}, nil
+	case "vault", "hashicorp":
+		return &vaultProvider{}, nil
 	case "doppler":
 		return &dopplerProvider{}, nil
 	case "infisical":
@@ -51,7 +71,7 @@ func New(name string) (Provider, error) {
 	case "passthrough", "":
 		return &passthroughProvider{}, nil
 	default:
-		return nil, fmt.Errorf("%w: unknown provider %q (supported: 1password, doppler, infisical, env, envfile:/path, passthrough)", ErrNotConfigured, name)
+		return nil, fmt.Errorf("%w: unknown provider %q (supported: 1password, vault, doppler, infisical, env, envfile:/path, passthrough)", ErrNotConfigured, name)
 	}
 }
 
@@ -75,15 +95,25 @@ type onePasswordProvider struct{}
 
 func (o *onePasswordProvider) Name() string { return "1password" }
 
+func (o *onePasswordProvider) Check() error {
+	if _, err := lookPath("op"); err != nil {
+		return ErrOpMissing
+	}
+	if err := execCommand("op", "whoami").Run(); err != nil {
+		return ErrOpAuth
+	}
+	return nil
+}
+
 func (o *onePasswordProvider) Resolve(ref string) (string, error) {
-	opBin, err := exec.LookPath("op")
+	opBin, err := lookPath("op")
 	if err != nil {
 		return "", ErrOpMissing
 	}
 
 	// ref format: "op://vault/item/field" or plain item name
 	// We use: op read --no-newline <ref>
-	cmd := exec.Command(opBin, "read", "--no-newline", ref)
+	cmd := execCommand(opBin, "read", "--no-newline", ref)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -97,6 +127,66 @@ func (o *onePasswordProvider) Resolve(ref string) (string, error) {
 		return "", fmt.Errorf("%w: op read %q: %v", ErrResolve, ref, err)
 	}
 	return string(out), nil
+}
+
+// --- HashiCorp Vault provider ---
+// Resolves refs of the form "vault://<path>#<field>" against a KV v2 mount using
+// the vault CLI. The "vault://" prefix is optional. The vault CLI reads VAULT_ADDR
+// and VAULT_TOKEN from the environment (or ~/.vault-token), so no extra config is
+// needed here.
+//
+// Example policy:
+//   provider: vault
+//   commands:
+//     - id: deploy
+//       argv: [./deploy.sh]
+//       env:
+//         DATABASE_URL: vault://secret/myapp#DATABASE_URL
+//         API_KEY:      secret/myapp#API_KEY   # vault:// prefix optional
+
+type vaultProvider struct{}
+
+func (v *vaultProvider) Name() string { return "vault" }
+
+func (v *vaultProvider) Check() error {
+	if _, err := lookPath("vault"); err != nil {
+		return ErrVaultMissing
+	}
+	if err := execCommand("vault", "token", "lookup").Run(); err != nil {
+		return ErrVaultAuth
+	}
+	return nil
+}
+
+func (v *vaultProvider) Resolve(ref string) (string, error) {
+	path, field, ok := strings.Cut(strings.TrimPrefix(ref, "vault://"), "#")
+	if !ok || path == "" || field == "" {
+		return "", fmt.Errorf("%w: vault ref %q must be vault://<path>#<field> (e.g. vault://secret/myapp#API_KEY)", ErrResolve, ref)
+	}
+
+	vaultBin, err := lookPath("vault")
+	if err != nil {
+		return "", ErrVaultMissing
+	}
+
+	// vault kv get -field=FIELD PATH  (KV v2)
+	cmd := execCommand(vaultBin, "kv", "get", "-field="+field, path)
+	out, err := cmd.Output()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			stderr := strings.TrimSpace(string(exitErr.Stderr))
+			low := strings.ToLower(stderr)
+			if strings.Contains(low, "missing client token") ||
+				strings.Contains(low, "permission denied") ||
+				strings.Contains(low, "403") {
+				return "", ErrVaultAuth
+			}
+			return "", fmt.Errorf("%w: vault kv get %q: %s", ErrResolve, path, stderr)
+		}
+		return "", fmt.Errorf("%w: vault kv get %q: %v", ErrResolve, path, err)
+	}
+	return strings.TrimRight(string(out), "\n"), nil
 }
 
 // --- Doppler provider ---
@@ -116,8 +206,18 @@ type dopplerProvider struct{}
 
 func (d *dopplerProvider) Name() string { return "doppler" }
 
+func (d *dopplerProvider) Check() error {
+	if _, err := lookPath("doppler"); err != nil {
+		return ErrDopplerMissing
+	}
+	if err := execCommand("doppler", "me").Run(); err != nil {
+		return errors.New("doppler: not authenticated (run: doppler login)")
+	}
+	return nil
+}
+
 func (d *dopplerProvider) Resolve(ref string) (string, error) {
-	dopplerBin, err := exec.LookPath("doppler")
+	dopplerBin, err := lookPath("doppler")
 	if err != nil {
 		return "", ErrDopplerMissing
 	}
@@ -139,7 +239,7 @@ func (d *dopplerProvider) Resolve(ref string) (string, error) {
 		args = []string{"secrets", "get", ref, "--plain", "--no-read-env"}
 	}
 
-	cmd := exec.Command(dopplerBin, args...)
+	cmd := execCommand(dopplerBin, args...)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -169,8 +269,17 @@ type infisicalProvider struct{}
 
 func (i *infisicalProvider) Name() string { return "infisical" }
 
+func (i *infisicalProvider) Check() error {
+	if _, err := lookPath("infisical"); err != nil {
+		return ErrInfisicalMissing
+	}
+	// Infisical auth is token/login-dependent and varies by setup; the reliable
+	// signal here is that the CLI is installed. Auth is verified at resolve time.
+	return nil
+}
+
 func (i *infisicalProvider) Resolve(ref string) (string, error) {
-	infisicalBin, err := exec.LookPath("infisical")
+	infisicalBin, err := lookPath("infisical")
 	if err != nil {
 		return "", ErrInfisicalMissing
 	}
@@ -192,7 +301,7 @@ func (i *infisicalProvider) Resolve(ref string) (string, error) {
 		args = []string{"secrets", "get", ref, "--plain", "--silent"}
 	}
 
-	cmd := exec.Command(infisicalBin, args...)
+	cmd := execCommand(infisicalBin, args...)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError

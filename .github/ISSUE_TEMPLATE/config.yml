@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/generalized-labs/ironrun/security/policy
+    about: Do NOT open a public issue for security bugs. Report privately per SECURITY.md.
+  - name: Question / discussion
+    url: https://github.com/generalized-labs/ironrun/discussions
+    about: Ask usage questions or propose ideas before filing a feature request.

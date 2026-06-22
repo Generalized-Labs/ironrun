@@ -1,0 +1,26 @@
+# Local development with secrets in a file — no cloud secret manager needed.
+#
+# Store secrets in ~/.secrets/myapp.env (chmod 600), one KEY=value per line,
+# and do NOT export them into your shell. ironrun reads them from the file at
+# exec time, so the agent can't reach them via printenv/echo even though it
+# can run the commands.
+version: "1"
+provider: "envfile:~/.secrets/myapp.env"
+
+commands:
+  - id: dev
+    argv: [npm, run, dev]
+    ttl: 0            # 0 = no timeout (long-running dev server)
+    env:
+      DATABASE_URL: DATABASE_URL
+      STRIPE_KEY:   STRIPE_SECRET_KEY
+
+  - id: test
+    argv: [npm, test]
+    ttl: 5m
+
+  - id: migrate
+    argv: [npm, run, migrate]
+    ttl: 2m
+    env:
+      DATABASE_URL: DATABASE_URL

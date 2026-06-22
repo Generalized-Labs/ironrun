@@ -34,6 +34,24 @@ This isn't hypothetical. From the Claude Code issue tracker:
 
 The agents don't redact their own output, and the secret managers you already use (`op run`, `doppler run`, `infisical run`) inject secrets but don't redact either. ironrun adds the missing piece: it sits between the agent and the command so secrets flow **in** but never flow back **out**.
 
+### The threat you probably haven't seen yet
+
+When Claude Code runs a command that uses a secret — a `curl` with an Authorization header, a deploy script that reads DATABASE_URL — that command invocation is logged verbatim to:
+
+```
+~/.claude/projects/<hash>/YYYYMMDD_HHMMSS_*.jsonl
+```
+
+These JSONL files are Claude Code's conversation history. They contain every tool call, every shell command, every piece of output — including the secret values that appeared in those outputs. They persist between sessions and across project restarts.
+
+One developer found this by accident:
+
+> *"It will just grep the logs and try to find a working secret from other projects/past sessions"*
+
+The logs are readable by any process with access to your home directory. If you've ever run a command through Claude Code that touched a secret, assume that value is in those logs.
+
+ironrun redacts secret values from command output before it reaches the agent — so the values never enter the conversation, and never end up in the JSONL logs.
+
 ---
 
 ## How it works
@@ -66,6 +84,8 @@ The agents don't redact their own output, and the secret managers you already us
 ```
 
 The agent can only run commands you've listed — it can't ask ironrun to run an arbitrary shell command, and there's no tool that returns a secret's value.
+
+> ironrun adds approximately 5-10ms per command invocation: ~2ms for provider lookup (env/envfile) up to ~100ms for a 1Password CLI call. The redaction layer adds under 1ms for typical output sizes.
 
 ---
 
@@ -102,8 +122,8 @@ ironrun init
 This looks at your project and writes three files:
 
 - **`ironrun.yml`** — a starter policy. It detects your stack (npm/pnpm/yarn/bun, Go, Rust, Python) and your `.env`, and pre-fills commands like `test`, `dev`, and `build` with the env vars it found.
-- **`.claude/mcp.json`** — wires Claude Code up to ironrun.
-- **`CLAUDE.md`** — tells the agent to run commands via `run_sealed` instead of typing them into a shell.
+- **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
+- **`CLAUDE.md`, `AGENTS.md`, `.cursorrules`** — tell the agent (Claude Code, Codex, Cursor) to run commands via `run_sealed` instead of typing them into a shell.
 
 For a Node project, the generated `ironrun.yml` looks like this:
 
@@ -151,6 +171,47 @@ ironrun run test
 ```
 
 Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool and uses it to run `test`, `dev`, and `build` — without ever holding the secret values.
+
+### Using with Codex
+
+Add ironrun to Codex's MCP server list:
+
+```bash
+codex mcp add ironrun -- ironrun mcp
+```
+
+Or add manually to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.ironrun]
+enabled = true
+command = "ironrun"
+args = ["mcp"]
+```
+
+Then add to your project's CODEX.md (equivalent of CLAUDE.md):
+
+```
+Use run_sealed for all commands that need credentials.
+Do not run printenv, cat .env, or echo $VAR.
+```
+
+### Using with Cursor
+
+Add ironrun to `~/.cursor/mcp.json` (merge, don't replace existing entries):
+
+```json
+{
+  "mcpServers": {
+    "ironrun": {
+      "command": "ironrun",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+Cursor loads this global MCP config for all projects. You'll also need a `CURSOR.md` or `.cursorrules` file in your project telling Cursor to use `run_sealed` instead of direct shell commands.
 
 ---
 
@@ -209,6 +270,7 @@ Set `provider:` once, then reference each secret in `env:`.
 |---|---|---|
 | `envfile` | `envfile:<path>` (set on `provider:`) | `provider: "envfile:~/.secrets/myapp.env"` |
 | `1password` | `op://vault/item/field` | `op://Engineering/stripe/secret_key` |
+| `vault` | `vault://<path>#<field>` (KV v2; reads `VAULT_ADDR`/`VAULT_TOKEN`) | `vault://secret/myapp#DATABASE_URL` |
 | `doppler` | `doppler://project/config/NAME` or just `NAME` | `doppler://myapp/prod/STRIPE_KEY` |
 | `infisical` | `infisical://projectId/env/NAME` or just `NAME` | `infisical://abc123/prod/DB_URL` |
 | `env` | `env:NAME` or just `NAME` | `env:DATABASE_URL` |
@@ -235,6 +297,36 @@ chmod 600 ~/.secrets/myapp.env
 ```
 
 Now `ironrun run test` still has every secret, but the agent's shell has none of them — `printenv` and `cat .env` come up empty.
+
+### envfile — secrets stored in a file, not shell environment
+
+The safest setup for local development with AI agents. Secrets are read from a file that the agent's shell process never inherits.
+
+```bash
+# One-time setup
+mkdir -p ~/.secrets && chmod 700 ~/.secrets
+cat > ~/.secrets/myproject.env << 'EOF'
+DATABASE_URL=postgres://user:***@localhost/mydb
+API_KEY=sk_live_...
+EOF
+chmod 600 ~/.secrets/myproject.env
+```
+
+```yaml
+# ironrun.yml
+version: "1"
+provider: "envfile:~/.secrets/myproject.env"
+
+commands:
+  - id: test
+    argv: [go, test, ./...]
+    ttl: 10m
+    env:
+      DATABASE_URL: DATABASE_URL   # reads from the file
+      API_KEY: API_KEY
+```
+
+The agent running `printenv DATABASE_URL` sees nothing — the var isn't in the shell environment. ironrun reads it from the file at execution time.
 
 ---
 
@@ -333,6 +425,50 @@ Those tools resolve your secrets and inject them as environment variables — wh
 | Works across 1Password, Doppler, Infisical, env files | ✓ | each is tied to its own backend |
 
 Doppler does ship an MCP server, but it [gives agents direct read access to secret values](https://docs.doppler.com/docs/mcp) — the opposite goal. ironrun's MCP server lets agents *run commands*, never *read secrets*.
+
+---
+
+## Troubleshooting
+
+**Start with `ironrun doctor`.** It runs read-only checks in one shot: the policy parses, the provider CLI is installed and authenticated, the redactor strips a known secret, and every command's binary resolves on PATH. It exits non-zero and points at whatever is broken.
+
+```bash
+ironrun doctor
+```
+```
+  ✓ ironrun.yml valid (v1, 3 command(s))
+  ✓ provider 1password (ready)
+  ✓ redaction self-test passed
+  ✓ command "test": "go" resolves
+  ✗ command "deploy": "./deploy.sh" not found on PATH
+```
+
+**`op: command not found`**
+The 1Password CLI isn't installed or not in your PATH. Install it from [1password.com/downloads/command-line](https://1password.com/downloads/command-line/) and run `op signin`.
+
+**`secret resolution failed`**
+Run `ironrun doctor` — it validates the policy and checks that your provider is installed and authenticated (`op`, `vault`, `doppler`, `infisical`). (`ironrun validate` only parses the policy file; it does not check provider auth.)
+
+**`command timed out`**
+The command ran longer than its `ttl`. Increase it in `ironrun.yml`:
+```yaml
+- id: slow-test
+  argv: [go, test, ./...]
+  ttl: 30m   # was 10m
+```
+
+**`shell commands are not allowed`**
+You can't use `sh`, `bash`, or other shells as `argv[0]`. If your command needs a shell, wrap it in a script file and call the script instead:
+```yaml
+- id: deploy
+  argv: [./scripts/deploy.sh]   # not: [bash, -c, ./scripts/deploy.sh]
+```
+
+**`secret resolved to empty value — it cannot be redacted`**
+Your provider returned an empty string for a secret. This usually means the secret reference is wrong (typo in the 1Password path, env var name doesn't match). Fix the reference in `ironrun.yml`.
+
+**The agent ignores `run_sealed` and runs shell commands directly**
+Check that `CLAUDE.md` (or `CODEX.md` / `.cursorrules`) exists in your project root and contains clear instructions to use `run_sealed`. Agents respect these files strongly for explicit directives.
 
 ---
 
