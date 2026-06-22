@@ -19,6 +19,16 @@ type Provider interface {
 	Name() string
 }
 
+// HealthChecker is an optional interface a Provider may implement so that
+// `ironrun doctor` can verify the provider is installed and authenticated.
+// Providers that need no external CLI (env, envfile, passthrough) do not
+// implement it and are treated as always ready.
+type HealthChecker interface {
+	// Check returns nil if the provider is ready to resolve secrets, or an
+	// error describing what is wrong (CLI missing, not authenticated).
+	Check() error
+}
+
 var (
 	ErrNotConfigured    = errors.New("provider not configured")
 	ErrResolve          = errors.New("provider: resolve failed")
@@ -79,6 +89,16 @@ type onePasswordProvider struct{}
 
 func (o *onePasswordProvider) Name() string { return "1password" }
 
+func (o *onePasswordProvider) Check() error {
+	if _, err := exec.LookPath("op"); err != nil {
+		return ErrOpMissing
+	}
+	if err := exec.Command("op", "whoami").Run(); err != nil {
+		return ErrOpAuth
+	}
+	return nil
+}
+
 func (o *onePasswordProvider) Resolve(ref string) (string, error) {
 	opBin, err := exec.LookPath("op")
 	if err != nil {
@@ -121,6 +141,16 @@ func (o *onePasswordProvider) Resolve(ref string) (string, error) {
 type vaultProvider struct{}
 
 func (v *vaultProvider) Name() string { return "vault" }
+
+func (v *vaultProvider) Check() error {
+	if _, err := exec.LookPath("vault"); err != nil {
+		return ErrVaultMissing
+	}
+	if err := exec.Command("vault", "token", "lookup").Run(); err != nil {
+		return ErrVaultAuth
+	}
+	return nil
+}
 
 func (v *vaultProvider) Resolve(ref string) (string, error) {
 	path, field, ok := strings.Cut(strings.TrimPrefix(ref, "vault://"), "#")
@@ -169,6 +199,16 @@ func (v *vaultProvider) Resolve(ref string) (string, error) {
 type dopplerProvider struct{}
 
 func (d *dopplerProvider) Name() string { return "doppler" }
+
+func (d *dopplerProvider) Check() error {
+	if _, err := exec.LookPath("doppler"); err != nil {
+		return ErrDopplerMissing
+	}
+	if err := exec.Command("doppler", "me").Run(); err != nil {
+		return errors.New("doppler: not authenticated (run: doppler login)")
+	}
+	return nil
+}
 
 func (d *dopplerProvider) Resolve(ref string) (string, error) {
 	dopplerBin, err := exec.LookPath("doppler")
@@ -222,6 +262,15 @@ func (d *dopplerProvider) Resolve(ref string) (string, error) {
 type infisicalProvider struct{}
 
 func (i *infisicalProvider) Name() string { return "infisical" }
+
+func (i *infisicalProvider) Check() error {
+	if _, err := exec.LookPath("infisical"); err != nil {
+		return ErrInfisicalMissing
+	}
+	// Infisical auth is token/login-dependent and varies by setup; the reliable
+	// signal here is that the CLI is installed. Auth is verified at resolve time.
+	return nil
+}
 
 func (i *infisicalProvider) Resolve(ref string) (string, error) {
 	infisicalBin, err := exec.LookPath("infisical")

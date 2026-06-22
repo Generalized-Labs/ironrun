@@ -32,6 +32,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(runCmd())
 	root.AddCommand(mcpCmd())
 	root.AddCommand(validateCmd())
+	root.AddCommand(doctorCmd())
 	root.AddCommand(initCmd())
 	root.AddCommand(versionCmd())
 

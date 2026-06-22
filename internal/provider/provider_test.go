@@ -41,6 +41,20 @@ func TestNew_unknownProvider(t *testing.T) {
 	}
 }
 
+func TestHealthCheckerImplementations(t *testing.T) {
+	// CLI-backed providers expose a health check; CLI-free ones do not.
+	for _, p := range []Provider{&onePasswordProvider{}, &vaultProvider{}, &dopplerProvider{}, &infisicalProvider{}} {
+		if _, ok := p.(HealthChecker); !ok {
+			t.Errorf("%s should implement HealthChecker", p.Name())
+		}
+	}
+	for _, p := range []Provider{&envProvider{}, &passthroughProvider{}} {
+		if _, ok := p.(HealthChecker); ok {
+			t.Errorf("%s should not implement HealthChecker", p.Name())
+		}
+	}
+}
+
 func TestVaultProvider_name(t *testing.T) {
 	p := &vaultProvider{}
 	if p.Name() != "vault" {

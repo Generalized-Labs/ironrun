@@ -90,7 +90,7 @@ If you need a command not in ironrun.yml, ask the user to add it.
 			fmt.Println("  1. Edit ironrun.yml — add your commands and env var names")
 			fmt.Println("  2. If using envfile provider, store secrets in ~/.secrets/<project>.env")
 			fmt.Println("     (chmod 600) and do not export them to shell.")
-			fmt.Println("  3. Validate: ironrun validate")
+			fmt.Println("  3. Check your setup: ironrun doctor")
 			fmt.Println("  4. Test: ironrun run <command-id>")
 			fmt.Println()
 			fmt.Println("Then start your AI agent — it will use run_sealed() via MCP automatically.")

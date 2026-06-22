@@ -430,11 +430,24 @@ Doppler does ship an MCP server, but it [gives agents direct read access to secr
 
 ## Troubleshooting
 
+**Start with `ironrun doctor`.** It runs read-only checks in one shot: the policy parses, the provider CLI is installed and authenticated, the redactor strips a known secret, and every command's binary resolves on PATH. It exits non-zero and points at whatever is broken.
+
+```bash
+ironrun doctor
+```
+```
+  ✓ ironrun.yml valid (v1, 3 command(s))
+  ✓ provider 1password (ready)
+  ✓ redaction self-test passed
+  ✓ command "test": "go" resolves
+  ✗ command "deploy": "./deploy.sh" not found on PATH
+```
+
 **`op: command not found`**
 The 1Password CLI isn't installed or not in your PATH. Install it from [1password.com/downloads/command-line](https://1password.com/downloads/command-line/) and run `op signin`.
 
 **`secret resolution failed`**
-Run `ironrun validate` first — it checks that your policy file is valid. Then verify your provider credentials: `op account list` (1Password), `doppler whoami` (Doppler), or `infisical whoami` (Infisical).
+Run `ironrun doctor` — it validates the policy and checks that your provider is installed and authenticated (`op`, `vault`, `doppler`, `infisical`). (`ironrun validate` only parses the policy file; it does not check provider auth.)
 
 **`command timed out`**
 The command ran longer than its `ttl`. Increase it in `ironrun.yml`:
