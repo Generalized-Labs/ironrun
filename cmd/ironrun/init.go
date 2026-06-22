@@ -16,7 +16,7 @@ func initCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Initialize ironrun in the current project",
-		Long: `Creates ironrun.yml, .claude/mcp.json, and CLAUDE.md in the current directory.
+		Long: `Creates ironrun.yml, .mcp.json, and CLAUDE.md in the current directory.
 Also registers ironrun with Codex (~/.codex/config.toml) and Cursor (~/.cursor/mcp.json).
 This sets up sealed command execution so AI agents use ironrun for all commands
 that need credentials.`,
@@ -41,28 +41,12 @@ that need credentials.`,
 				fmt.Println("  • Created ironrun.yml")
 			}
 
-			// 2. Write .claude/mcp.json
-			claudeDir := filepath.Join(cwd, ".claude")
-			mcpPath := filepath.Join(claudeDir, "mcp.json")
-			if _, err := os.Stat(mcpPath); err == nil {
-				fmt.Println("  • .claude/mcp.json already exists — skipping")
-			} else {
-				if err := os.MkdirAll(claudeDir, 0755); err != nil {
-					return err
-				}
-				mcpConfig := map[string]any{
-					"mcpServers": map[string]any{
-						"ironrun": map[string]any{
-							"command": "ironrun",
-							"args":    []string{"mcp"},
-						},
-					},
-				}
-				data, _ := json.MarshalIndent(mcpConfig, "", "  ")
-				if err := os.WriteFile(mcpPath, append(data, '\n'), 0644); err != nil {
-					return fmt.Errorf("failed to write .claude/mcp.json: %w", err)
-				}
-				fmt.Println("  • Created .claude/mcp.json")
+			// 2. Write/merge .mcp.json at the repo root. Claude Code reads
+			//    project-scoped MCP servers from .mcp.json at the project root —
+			//    NOT from .claude/mcp.json — so this is the file that actually
+			//    registers run_sealed with Claude Code.
+			if err := registerClaudeMCP(cwd); err != nil {
+				fmt.Printf("  ⚠  Could not update .mcp.json: %v\n", err)
 			}
 
 			// 3. Write CLAUDE.md (agent instructions)
@@ -110,12 +94,52 @@ If you need a command not in ironrun.yml, ask the user to add it.
 			fmt.Println("  4. Test: ironrun run <command-id>")
 			fmt.Println()
 			fmt.Println("Then start your AI agent — it will use run_sealed() via MCP automatically.")
-			fmt.Println("  • Claude Code: uses .claude/mcp.json (per-project, already set up)")
+			fmt.Println("  • Claude Code: uses .mcp.json (per-project, already set up)")
 			fmt.Println("  • Codex:       uses ~/.codex/config.toml (global, registered above)")
 			fmt.Println("  • Cursor:      uses ~/.cursor/mcp.json (global, merged above)")
 			return nil
 		},
 	}
+}
+
+// registerClaudeMCP merges ironrun into ./.mcp.json — the project-root file
+// Claude Code reads for project-scoped MCP servers — preserving any existing
+// entries. (.claude/mcp.json is NOT read by Claude Code.)
+func registerClaudeMCP(cwd string) error {
+	mcpPath := filepath.Join(cwd, ".mcp.json")
+
+	config := map[string]any{"mcpServers": map[string]any{}}
+	if existing, err := os.ReadFile(mcpPath); err == nil {
+		if err := json.Unmarshal(existing, &config); err != nil {
+			return fmt.Errorf("could not parse .mcp.json: %w", err)
+		}
+	}
+
+	servers, ok := config["mcpServers"].(map[string]any)
+	if !ok {
+		servers = map[string]any{}
+		config["mcpServers"] = servers
+	}
+
+	if _, exists := servers["ironrun"]; exists {
+		fmt.Println("  • Claude Code: ironrun already in .mcp.json — skipping")
+		return nil
+	}
+
+	servers["ironrun"] = map[string]any{
+		"command": "ironrun",
+		"args":    []string{"mcp"},
+	}
+
+	data, err := json.MarshalIndent(config, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(mcpPath, append(data, '\n'), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  • Wrote .mcp.json (Claude Code project MCP)")
+	return nil
 }
 
 // registerCodex adds ironrun to the Codex MCP config if the codex binary is available.

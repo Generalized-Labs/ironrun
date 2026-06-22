@@ -13,6 +13,8 @@ func TestNew_validProviders(t *testing.T) {
 	}{
 		{"1password", "1password"},
 		{"op", "1password"},
+		{"vault", "vault"},
+		{"hashicorp", "vault"},
 		{"doppler", "doppler"},
 		{"infisical", "infisical"},
 		{"env", "env"},
@@ -33,9 +35,26 @@ func TestNew_validProviders(t *testing.T) {
 }
 
 func TestNew_unknownProvider(t *testing.T) {
-	_, err := New("vault")
+	_, err := New("definitely-not-a-real-provider")
 	if err == nil {
 		t.Fatal("expected error for unknown provider")
+	}
+}
+
+func TestVaultProvider_name(t *testing.T) {
+	p := &vaultProvider{}
+	if p.Name() != "vault" {
+		t.Errorf("got %q want vault", p.Name())
+	}
+}
+
+func TestVaultProvider_badRef(t *testing.T) {
+	p := &vaultProvider{}
+	// Missing the #field portion — should fail before invoking the CLI.
+	for _, ref := range []string{"secret/myapp", "vault://secret/myapp", "#FIELD", "vault://#FIELD"} {
+		if _, err := p.Resolve(ref); err == nil {
+			t.Errorf("expected error for malformed vault ref %q", ref)
+		}
 	}
 }
 

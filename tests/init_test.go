@@ -63,7 +63,7 @@ func runInit(t *testing.T, dir string) (string, error) {
 }
 
 // TestInit_CreatesExpectedFiles verifies that ironrun init creates
-// ironrun.yml, .claude/mcp.json, and CLAUDE.md in the project directory.
+// ironrun.yml, .mcp.json, and CLAUDE.md in the project directory.
 func TestInit_CreatesExpectedFiles(t *testing.T) {
 	dir := t.TempDir()
 
@@ -74,7 +74,7 @@ func TestInit_CreatesExpectedFiles(t *testing.T) {
 
 	files := []string{
 		"ironrun.yml",
-		filepath.Join(".claude", "mcp.json"),
+		".mcp.json",
 		"CLAUDE.md",
 	}
 
@@ -160,8 +160,8 @@ func TestInit_YmlContainsProvider(t *testing.T) {
 	}
 }
 
-// TestInit_ClaudeMcpJsonValid verifies that .claude/mcp.json is valid JSON
-// with mcpServers.ironrun.command == "ironrun".
+// TestInit_ClaudeMcpJsonValid verifies that .mcp.json (the project-root file
+// Claude Code actually reads) is valid JSON with mcpServers.ironrun.command == "ironrun".
 func TestInit_ClaudeMcpJsonValid(t *testing.T) {
 	dir := t.TempDir()
 
@@ -170,19 +170,19 @@ func TestInit_ClaudeMcpJsonValid(t *testing.T) {
 		t.Fatalf("ironrun init failed: %v\noutput: %s", err, out)
 	}
 
-	data, err := os.ReadFile(filepath.Join(dir, ".claude", "mcp.json"))
+	data, err := os.ReadFile(filepath.Join(dir, ".mcp.json"))
 	if err != nil {
-		t.Fatalf("could not read .claude/mcp.json: %v", err)
+		t.Fatalf("could not read .mcp.json: %v", err)
 	}
 
 	var config map[string]any
 	if err := json.Unmarshal(data, &config); err != nil {
-		t.Fatalf(".claude/mcp.json is not valid JSON: %v\ncontent:\n%s", err, data)
+		t.Fatalf(".mcp.json is not valid JSON: %v\ncontent:\n%s", err, data)
 	}
 
 	mcpServers, ok := config["mcpServers"].(map[string]any)
 	if !ok {
-		t.Fatalf("mcpServers key missing or wrong type in .claude/mcp.json\ncontent:\n%s", data)
+		t.Fatalf("mcpServers key missing or wrong type in .mcp.json\ncontent:\n%s", data)
 	}
 
 	ironrun, ok := mcpServers["ironrun"].(map[string]any)
@@ -196,5 +196,45 @@ func TestInit_ClaudeMcpJsonValid(t *testing.T) {
 	}
 	if command != "ironrun" {
 		t.Errorf("expected mcpServers.ironrun.command=ironrun, got %q", command)
+	}
+}
+
+// TestInit_MergesExistingMcpJson verifies that init preserves MCP servers a user
+// already has in .mcp.json and adds ironrun alongside them (no clobber).
+func TestInit_MergesExistingMcpJson(t *testing.T) {
+	dir := t.TempDir()
+
+	existing := `{
+  "mcpServers": {
+    "other": { "command": "other-server", "args": ["serve"] }
+  }
+}
+`
+	if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(existing), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := runInit(t, dir)
+	if err != nil {
+		t.Fatalf("ironrun init failed: %v\noutput: %s", err, out)
+	}
+
+	data, err := os.ReadFile(filepath.Join(dir, ".mcp.json"))
+	if err != nil {
+		t.Fatalf("could not read .mcp.json: %v", err)
+	}
+	var config map[string]any
+	if err := json.Unmarshal(data, &config); err != nil {
+		t.Fatalf(".mcp.json is not valid JSON: %v\ncontent:\n%s", err, data)
+	}
+	servers, ok := config["mcpServers"].(map[string]any)
+	if !ok {
+		t.Fatalf("mcpServers missing\ncontent:\n%s", data)
+	}
+	if _, ok := servers["other"]; !ok {
+		t.Errorf("existing 'other' MCP server was dropped on init\ncontent:\n%s", data)
+	}
+	if _, ok := servers["ironrun"]; !ok {
+		t.Errorf("ironrun was not added to existing .mcp.json\ncontent:\n%s", data)
 	}
 }

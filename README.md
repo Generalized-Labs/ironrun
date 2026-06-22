@@ -122,7 +122,7 @@ ironrun init
 This looks at your project and writes three files:
 
 - **`ironrun.yml`** — a starter policy. It detects your stack (npm/pnpm/yarn/bun, Go, Rust, Python) and your `.env`, and pre-fills commands like `test`, `dev`, and `build` with the env vars it found.
-- **`.claude/mcp.json`** — wires Claude Code up to ironrun.
+- **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
 - **`CLAUDE.md`** — tells the agent to run commands via `run_sealed` instead of typing them into a shell.
 
 For a Node project, the generated `ironrun.yml` looks like this:
@@ -177,7 +177,7 @@ Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool a
 Add ironrun to Codex's MCP server list:
 
 ```bash
-codex mcp add ironrun --command ironrun --args mcp
+codex mcp add ironrun -- ironrun mcp
 ```
 
 Or add manually to `~/.codex/config.toml`:
@@ -270,6 +270,7 @@ Set `provider:` once, then reference each secret in `env:`.
 |---|---|---|
 | `envfile` | `envfile:<path>` (set on `provider:`) | `provider: "envfile:~/.secrets/myapp.env"` |
 | `1password` | `op://vault/item/field` | `op://Engineering/stripe/secret_key` |
+| `vault` | `vault://<path>#<field>` (KV v2; reads `VAULT_ADDR`/`VAULT_TOKEN`) | `vault://secret/myapp#DATABASE_URL` |
 | `doppler` | `doppler://project/config/NAME` or just `NAME` | `doppler://myapp/prod/STRIPE_KEY` |
 | `infisical` | `infisical://projectId/env/NAME` or just `NAME` | `infisical://abc123/prod/DB_URL` |
 | `env` | `env:NAME` or just `NAME` | `env:DATABASE_URL` |

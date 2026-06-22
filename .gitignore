@@ -29,3 +29,4 @@ ironrun.yml
 
 # goreleaser
 dist/
+.gstack/

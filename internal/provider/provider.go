@@ -1,5 +1,5 @@
 // Package provider resolves secret references to their values.
-// Providers are pluggable: 1password, doppler, infisical, env, passthrough.
+// Providers are pluggable: 1password, vault, doppler, infisical, env, passthrough.
 package provider
 
 import (
@@ -26,10 +26,12 @@ var (
 	ErrOpAuth           = errors.New("1password: not authenticated (run: op signin)")
 	ErrDopplerMissing   = errors.New("doppler: doppler CLI not found in PATH")
 	ErrInfisicalMissing = errors.New("infisical: infisical CLI not found in PATH")
+	ErrVaultMissing     = errors.New("vault: vault CLI not found in PATH")
+	ErrVaultAuth        = errors.New("vault: not authenticated (set VAULT_ADDR and VAULT_TOKEN, or run: vault login)")
 )
 
 // New returns a Provider for the given name.
-// Supported: "1password", "doppler", "infisical", "env", "envfile", "passthrough"
+// Supported: "1password", "vault", "doppler", "infisical", "env", "envfile", "passthrough"
 // For envfile, pass the path as: "envfile:/path/to/.secrets"
 func New(name string) (Provider, error) {
 	nameLower := strings.ToLower(name)
@@ -42,6 +44,8 @@ func New(name string) (Provider, error) {
 	switch nameLower {
 	case "1password", "op":
 		return &onePasswordProvider{}, nil
+	case "vault", "hashicorp":
+		return &vaultProvider{}, nil
 	case "doppler":
 		return &dopplerProvider{}, nil
 	case "infisical":
@@ -51,7 +55,7 @@ func New(name string) (Provider, error) {
 	case "passthrough", "":
 		return &passthroughProvider{}, nil
 	default:
-		return nil, fmt.Errorf("%w: unknown provider %q (supported: 1password, doppler, infisical, env, envfile:/path, passthrough)", ErrNotConfigured, name)
+		return nil, fmt.Errorf("%w: unknown provider %q (supported: 1password, vault, doppler, infisical, env, envfile:/path, passthrough)", ErrNotConfigured, name)
 	}
 }
 
@@ -97,6 +101,56 @@ func (o *onePasswordProvider) Resolve(ref string) (string, error) {
 		return "", fmt.Errorf("%w: op read %q: %v", ErrResolve, ref, err)
 	}
 	return string(out), nil
+}
+
+// --- HashiCorp Vault provider ---
+// Resolves refs of the form "vault://<path>#<field>" against a KV v2 mount using
+// the vault CLI. The "vault://" prefix is optional. The vault CLI reads VAULT_ADDR
+// and VAULT_TOKEN from the environment (or ~/.vault-token), so no extra config is
+// needed here.
+//
+// Example policy:
+//   provider: vault
+//   commands:
+//     - id: deploy
+//       argv: [./deploy.sh]
+//       env:
+//         DATABASE_URL: vault://secret/myapp#DATABASE_URL
+//         API_KEY:      secret/myapp#API_KEY   # vault:// prefix optional
+
+type vaultProvider struct{}
+
+func (v *vaultProvider) Name() string { return "vault" }
+
+func (v *vaultProvider) Resolve(ref string) (string, error) {
+	path, field, ok := strings.Cut(strings.TrimPrefix(ref, "vault://"), "#")
+	if !ok || path == "" || field == "" {
+		return "", fmt.Errorf("%w: vault ref %q must be vault://<path>#<field> (e.g. vault://secret/myapp#API_KEY)", ErrResolve, ref)
+	}
+
+	vaultBin, err := exec.LookPath("vault")
+	if err != nil {
+		return "", ErrVaultMissing
+	}
+
+	// vault kv get -field=FIELD PATH  (KV v2)
+	cmd := exec.Command(vaultBin, "kv", "get", "-field="+field, path)
+	out, err := cmd.Output()
+	if err != nil {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			stderr := strings.TrimSpace(string(exitErr.Stderr))
+			low := strings.ToLower(stderr)
+			if strings.Contains(low, "missing client token") ||
+				strings.Contains(low, "permission denied") ||
+				strings.Contains(low, "403") {
+				return "", ErrVaultAuth
+			}
+			return "", fmt.Errorf("%w: vault kv get %q: %s", ErrResolve, path, stderr)
+		}
+		return "", fmt.Errorf("%w: vault kv get %q: %v", ErrResolve, path, err)
+	}
+	return strings.TrimRight(string(out), "\n"), nil
 }
 
 // --- Doppler provider ---

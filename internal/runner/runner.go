@@ -68,10 +68,19 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	// cannot be redacted (it would match nothing), so warn — this usually means
 	// a misconfigured provider reference, and the variable will be injected
 	// without redaction coverage.
+	// Values shorter than this are not treated as redactable: a 1-3 byte
+	// "secret" matches so much ordinary output that redacting it corrupts the
+	// stream (and can mask real leaks) while protecting nothing real. Real
+	// credentials are never this short, so warn and skip rather than redact.
+	const minRedactableSecretLen = 4
 	secretValues := make([]string, 0, len(opts.Secrets))
 	for name, v := range opts.Secrets {
 		if v == "" {
 			fmt.Fprintf(os.Stderr, "[ironrun] warning: secret %q resolved to an empty value — it cannot be redacted\n", name)
+			continue
+		}
+		if len(v) < minRedactableSecretLen {
+			fmt.Fprintf(os.Stderr, "[ironrun] warning: secret %q resolved to a very short value (<%d bytes) — skipping redaction to avoid corrupting output; check the provider reference\n", name, minRedactableSecretLen)
 			continue
 		}
 		secretValues = append(secretValues, v)
