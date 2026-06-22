@@ -7,7 +7,7 @@ body:
       value: |
         Thanks for the report. **Do not paste real secret values** anywhere in
         this issue. If this is a security vulnerability, stop and follow
-        [SECURITY.md](../blob/main/SECURITY.md) instead.
+        [SECURITY.md](https://github.com/generalized-labs/ironrun/blob/main/SECURITY.md) instead.
   - type: textarea
     id: what-happened
     attributes:
