@@ -40,6 +40,12 @@ var (
 	ErrVaultAuth        = errors.New("vault: not authenticated (set VAULT_ADDR and VAULT_TOKEN, or run: vault login)")
 )
 
+// Indirection points over os/exec so tests can stub the CLI layer.
+var (
+	lookPath    = exec.LookPath
+	execCommand = exec.Command
+)
+
 // New returns a Provider for the given name.
 // Supported: "1password", "vault", "doppler", "infisical", "env", "envfile", "passthrough"
 // For envfile, pass the path as: "envfile:/path/to/.secrets"
@@ -90,24 +96,24 @@ type onePasswordProvider struct{}
 func (o *onePasswordProvider) Name() string { return "1password" }
 
 func (o *onePasswordProvider) Check() error {
-	if _, err := exec.LookPath("op"); err != nil {
+	if _, err := lookPath("op"); err != nil {
 		return ErrOpMissing
 	}
-	if err := exec.Command("op", "whoami").Run(); err != nil {
+	if err := execCommand("op", "whoami").Run(); err != nil {
 		return ErrOpAuth
 	}
 	return nil
 }
 
 func (o *onePasswordProvider) Resolve(ref string) (string, error) {
-	opBin, err := exec.LookPath("op")
+	opBin, err := lookPath("op")
 	if err != nil {
 		return "", ErrOpMissing
 	}
 
 	// ref format: "op://vault/item/field" or plain item name
 	// We use: op read --no-newline <ref>
-	cmd := exec.Command(opBin, "read", "--no-newline", ref)
+	cmd := execCommand(opBin, "read", "--no-newline", ref)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -143,10 +149,10 @@ type vaultProvider struct{}
 func (v *vaultProvider) Name() string { return "vault" }
 
 func (v *vaultProvider) Check() error {
-	if _, err := exec.LookPath("vault"); err != nil {
+	if _, err := lookPath("vault"); err != nil {
 		return ErrVaultMissing
 	}
-	if err := exec.Command("vault", "token", "lookup").Run(); err != nil {
+	if err := execCommand("vault", "token", "lookup").Run(); err != nil {
 		return ErrVaultAuth
 	}
 	return nil
@@ -158,13 +164,13 @@ func (v *vaultProvider) Resolve(ref string) (string, error) {
 		return "", fmt.Errorf("%w: vault ref %q must be vault://<path>#<field> (e.g. vault://secret/myapp#API_KEY)", ErrResolve, ref)
 	}
 
-	vaultBin, err := exec.LookPath("vault")
+	vaultBin, err := lookPath("vault")
 	if err != nil {
 		return "", ErrVaultMissing
 	}
 
 	// vault kv get -field=FIELD PATH  (KV v2)
-	cmd := exec.Command(vaultBin, "kv", "get", "-field="+field, path)
+	cmd := execCommand(vaultBin, "kv", "get", "-field="+field, path)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -201,17 +207,17 @@ type dopplerProvider struct{}
 func (d *dopplerProvider) Name() string { return "doppler" }
 
 func (d *dopplerProvider) Check() error {
-	if _, err := exec.LookPath("doppler"); err != nil {
+	if _, err := lookPath("doppler"); err != nil {
 		return ErrDopplerMissing
 	}
-	if err := exec.Command("doppler", "me").Run(); err != nil {
+	if err := execCommand("doppler", "me").Run(); err != nil {
 		return errors.New("doppler: not authenticated (run: doppler login)")
 	}
 	return nil
 }
 
 func (d *dopplerProvider) Resolve(ref string) (string, error) {
-	dopplerBin, err := exec.LookPath("doppler")
+	dopplerBin, err := lookPath("doppler")
 	if err != nil {
 		return "", ErrDopplerMissing
 	}
@@ -233,7 +239,7 @@ func (d *dopplerProvider) Resolve(ref string) (string, error) {
 		args = []string{"secrets", "get", ref, "--plain", "--no-read-env"}
 	}
 
-	cmd := exec.Command(dopplerBin, args...)
+	cmd := execCommand(dopplerBin, args...)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError
@@ -264,7 +270,7 @@ type infisicalProvider struct{}
 func (i *infisicalProvider) Name() string { return "infisical" }
 
 func (i *infisicalProvider) Check() error {
-	if _, err := exec.LookPath("infisical"); err != nil {
+	if _, err := lookPath("infisical"); err != nil {
 		return ErrInfisicalMissing
 	}
 	// Infisical auth is token/login-dependent and varies by setup; the reliable
@@ -273,7 +279,7 @@ func (i *infisicalProvider) Check() error {
 }
 
 func (i *infisicalProvider) Resolve(ref string) (string, error) {
-	infisicalBin, err := exec.LookPath("infisical")
+	infisicalBin, err := lookPath("infisical")
 	if err != nil {
 		return "", ErrInfisicalMissing
 	}
@@ -295,7 +301,7 @@ func (i *infisicalProvider) Resolve(ref string) (string, error) {
 		args = []string{"secrets", "get", ref, "--plain", "--silent"}
 	}
 
-	cmd := exec.Command(infisicalBin, args...)
+	cmd := execCommand(infisicalBin, args...)
 	out, err := cmd.Output()
 	if err != nil {
 		var exitErr *exec.ExitError

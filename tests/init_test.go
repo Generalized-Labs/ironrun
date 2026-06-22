@@ -76,6 +76,8 @@ func TestInit_CreatesExpectedFiles(t *testing.T) {
 		"ironrun.yml",
 		".mcp.json",
 		"CLAUDE.md",
+		"AGENTS.md",
+		".cursorrules",
 	}
 
 	for _, f := range files {

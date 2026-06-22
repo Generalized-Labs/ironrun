@@ -123,7 +123,7 @@ This looks at your project and writes three files:
 
 - **`ironrun.yml`** — a starter policy. It detects your stack (npm/pnpm/yarn/bun, Go, Rust, Python) and your `.env`, and pre-fills commands like `test`, `dev`, and `build` with the env vars it found.
 - **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
-- **`CLAUDE.md`** — tells the agent to run commands via `run_sealed` instead of typing them into a shell.
+- **`CLAUDE.md`, `AGENTS.md`, `.cursorrules`** — tell the agent (Claude Code, Codex, Cursor) to run commands via `run_sealed` instead of typing them into a shell.
 
 For a Node project, the generated `ironrun.yml` looks like this:
 

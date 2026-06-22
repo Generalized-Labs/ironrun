@@ -35,7 +35,11 @@ type Provider interface {
 }
 ```
 
-Register it in `internal/provider/registry.go`.
+Register it in the `New()` switch in `internal/provider/provider.go`. If it
+shells out to a CLI, also implement the optional `HealthChecker` interface
+(`Check() error`) so `ironrun doctor` can verify it's installed and
+authenticated. Add it to the provider table in the README and a row in the
+`TestNew_validProviders` table test.
 
 ## Security
 

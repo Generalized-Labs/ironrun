@@ -16,7 +16,8 @@ func initCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "init",
 		Short: "Initialize ironrun in the current project",
-		Long: `Creates ironrun.yml, .mcp.json, and CLAUDE.md in the current directory.
+		Long: `Creates ironrun.yml, .mcp.json, and agent instructions
+(CLAUDE.md, AGENTS.md, .cursorrules) in the current directory.
 Also registers ironrun with Codex (~/.codex/config.toml) and Cursor (~/.cursor/mcp.json).
 This sets up sealed command execution so AI agents use ironrun for all commands
 that need credentials.`,
@@ -49,31 +50,11 @@ that need credentials.`,
 				fmt.Printf("  ⚠  Could not update .mcp.json: %v\n", err)
 			}
 
-			// 3. Write CLAUDE.md (agent instructions)
-			claudeMdPath := filepath.Join(cwd, "CLAUDE.md")
-			if _, err := os.Stat(claudeMdPath); err == nil {
-				fmt.Println("  • CLAUDE.md already exists — skipping")
-			} else {
-				claudeMd := `# Project Instructions
-
-## Commands
-
-All commands that require credentials MUST be run through ironrun.
-Use the run_sealed MCP tool instead of running shell commands directly.
-
-Available commands (defined in ironrun.yml):
-- run_sealed("test") — run the test suite
-- run_sealed("dev") — start the dev server
-- run_sealed("build") — production build
-
-Do NOT run printenv, cat .env, or echo $VAR to read credential values.
-Do NOT hardcode credential values in any file.
-If you need a command not in ironrun.yml, ask the user to add it.
-`
-				if err := os.WriteFile(claudeMdPath, []byte(claudeMd), 0644); err != nil {
-					return fmt.Errorf("failed to write CLAUDE.md: %w", err)
-				}
-				fmt.Println("  • Created CLAUDE.md")
+			// 3. Write agent-instruction files so the "use run_sealed" guardrail
+			//    fires across agents: CLAUDE.md (Claude Code), AGENTS.md (Codex,
+			//    and the emerging cross-agent convention), .cursorrules (Cursor).
+			for _, name := range []string{"CLAUDE.md", "AGENTS.md", ".cursorrules"} {
+				writeAgentInstructions(cwd, name)
 			}
 
 			// 4. Register ironrun with Codex (~/.codex/config.toml)
@@ -100,6 +81,41 @@ If you need a command not in ironrun.yml, ask the user to add it.
 			return nil
 		},
 	}
+}
+
+// agentInstructions is the guardrail nudge written to each agent's project
+// instructions file so the agent routes credential-bearing commands through
+// ironrun's run_sealed tool instead of typing them into a shell.
+const agentInstructions = `# Project Instructions
+
+## Commands
+
+All commands that require credentials MUST be run through ironrun.
+Use the run_sealed MCP tool instead of running shell commands directly.
+
+Available commands (defined in ironrun.yml):
+- run_sealed("test") — run the test suite
+- run_sealed("dev") — start the dev server
+- run_sealed("build") — production build
+
+Do NOT run printenv, cat .env, or echo $VAR to read credential values.
+Do NOT hardcode credential values in any file.
+If you need a command not in ironrun.yml, ask the user to add it.
+`
+
+// writeAgentInstructions writes agentInstructions to cwd/name unless the file
+// already exists, printing a status line either way.
+func writeAgentInstructions(cwd, name string) {
+	path := filepath.Join(cwd, name)
+	if _, err := os.Stat(path); err == nil {
+		fmt.Printf("  • %s already exists — skipping\n", name)
+		return
+	}
+	if err := os.WriteFile(path, []byte(agentInstructions), 0644); err != nil {
+		fmt.Printf("  ⚠  Could not write %s: %v\n", name, err)
+		return
+	}
+	fmt.Printf("  • Created %s\n", name)
 }
 
 // registerClaudeMCP merges ironrun into ./.mcp.json — the project-root file

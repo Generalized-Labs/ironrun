@@ -1,0 +1,24 @@
+# A Python service with secrets in HashiCorp Vault (KV v2).
+# Requires the `vault` CLI installed, with VAULT_ADDR and VAULT_TOKEN set in the
+# environment (ironrun does not see or log the token — the vault CLI reads it).
+version: "1"
+provider: vault
+
+commands:
+  - id: test
+    argv: [python, -m, pytest]
+    ttl: 10m
+    no_network: true        # block outbound network during tests (Linux/macOS, best-effort)
+
+  - id: worker
+    argv: [python, -m, app.worker]
+    ttl: 0
+    env:
+      DATABASE_URL: "vault://secret/myapp#DATABASE_URL"
+      REDIS_URL:    "vault://secret/myapp#REDIS_URL"
+
+  - id: migrate
+    argv: [alembic, upgrade, head]
+    ttl: 5m
+    env:
+      DATABASE_URL: "vault://secret/myapp#DATABASE_URL"

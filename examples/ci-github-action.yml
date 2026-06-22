@@ -1,0 +1,32 @@
+# Example GitHub Actions workflow that runs a sealed ironrun command in CI.
+#
+# This is a WORKFLOW file, not a policy. Put it at .github/workflows/deploy.yml
+# in your repo. Your ironrun.yml policy lives at the repo root (see the other
+# examples in this directory).
+#
+# Secrets are injected into the command and redacted from all logs — they never
+# appear in CI output, environment dumps, or logs visible to fork PRs.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runs the `deploy` command from ironrun.yml. The provider CLI resolves
+      # secrets from the token below; the values are redacted from the logs.
+      - uses: generalized-labs/ironrun@v0
+        with:
+          command_id: deploy
+          policy: ironrun.yml
+        env:
+          # For a 1Password policy, a service-account token:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          # For a Vault policy instead, you would set:
+          # VAULT_ADDR:  ${{ secrets.VAULT_ADDR }}
+          # VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}

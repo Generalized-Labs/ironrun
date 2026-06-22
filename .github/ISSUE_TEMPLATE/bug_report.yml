@@ -1,0 +1,68 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. **Do not paste real secret values** anywhere in
+        this issue. If this is a security vulnerability, stop and follow
+        [SECURITY.md](../blob/main/SECURITY.md) instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you do, and what went wrong?
+      placeholder: I ran `ironrun run deploy` and ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: A minimal `ironrun.yml` (with secret values redacted) and the commands you ran.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ironrun version
+      description: Output of `ironrun version`
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Secret provider
+      options:
+        - "1password"
+        - vault
+        - doppler
+        - infisical
+        - env
+        - envfile
+        - passthrough
+        - other / not applicable
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS / arch
+      placeholder: macOS 14 arm64 / Ubuntu 22.04 amd64
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`ironrun doctor` output"
+      description: Paste the output of `ironrun doctor` (it resolves no secret values).
+      render: shell
