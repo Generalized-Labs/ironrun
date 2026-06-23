@@ -17,7 +17,7 @@ commands:
     argv: [echo, hello]
     ttl: 5s
 `)
-	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath)
+	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath, "IRONRUN_SECCOMP=off")
 
 	run := exec.Command(cliBin, "--policy", policy, "run", "greet")
 	run.Env = env
@@ -76,23 +76,25 @@ commands:
     env:
       MYSECRET: env:MYSECRET
 `)
-	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath, "MYSECRET="+canary)
+	// Seccomp is irrelevant to what this test checks (audit content), so disable
+	// it for determinism — the dedicated seccomp tests cover that path.
+	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath, "MYSECRET="+canary, "IRONRUN_SECCOMP=off")
 
 	run := exec.Command(cliBin, "--policy", policy, "run", "dump")
 	run.Env = env
-	out, _ := run.CombinedOutput() // printenv exits 0; output is redacted
+	out, runErr := run.CombinedOutput() // printenv exits 0; output is redacted
 	if strings.Contains(string(out), canary) {
 		t.Errorf("canary value leaked in command output: %s", out)
 	}
 
 	data, err := os.ReadFile(logPath)
 	if err != nil {
-		t.Fatalf("read audit log: %v", err)
+		t.Fatalf("read audit log: %v (run err=%v, output=%s)", err, runErr, out)
 	}
 	if strings.Contains(string(data), canary) {
 		t.Errorf("SECURITY: canary VALUE found in audit log: %s", data)
 	}
 	if !strings.Contains(string(data), "MYSECRET") {
-		t.Errorf("expected secret NAME 'MYSECRET' in audit log, got: %s", data)
+		t.Errorf("expected secret NAME 'MYSECRET' in audit log; log=%q runErr=%v output=%s", data, runErr, out)
 	}
 }

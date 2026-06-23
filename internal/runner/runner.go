@@ -191,8 +191,8 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		hits := redact.ScanHighEntropy(stdoutBuf.String())
 		hits = append(hits, redact.ScanHighEntropy(stderrBuf.String())...)
 		entropyWarnings = len(hits)
-		for _, h := range hits {
-			fmt.Fprintf(os.Stderr, "[ironrun] warning: output contains a high-entropy token that may be an unredacted secret (offset %d, ~%.1f bits/char); if it is a secret, add it to your policy so it gets redacted\n", h.Offset, h.Entropy)
+		if entropyWarnings > 0 {
+			fmt.Fprintf(os.Stderr, "[ironrun] warning: %d high-entropy token(s) in output may be an unredacted secret (first at offset %d, ~%.1f bits/char); if any is a secret, add it to your policy so it gets redacted\n", entropyWarnings, hits[0].Offset, hits[0].Entropy)
 		}
 	}
 
