@@ -13,20 +13,15 @@ import (
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
-	"github.com/generalized-labs/ironrun/internal/sealedexec"
 	ironmcp "github.com/generalized-labs/ironrun/mcp"
 )
 
 var policyPath string
 
 func main() {
-	// If we were re-executed as the sealed-exec shim, install the seccomp filter
-	// and execve the real target. This must run before cobra parses os.Args.
-	if sealedexec.IsShim(os.Args) {
-		sealedexec.Run(os.Args)
-		return // unreachable: Run execve's or exits
-	}
-
+	// Note: when this binary is re-executed as the sealed-exec shim, the
+	// sealedexec package's init() intercepts it (installing the seccomp filter
+	// and execve'ing the target) before main runs — see internal/sealedexec.
 	root := &cobra.Command{
 		Use:   "ironrun",
 		Short: "Sealed command execution for AI agents",

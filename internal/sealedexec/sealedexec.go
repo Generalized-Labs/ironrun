@@ -30,6 +30,18 @@ func IsShim(args []string) bool {
 	return len(args) > 0 && args[0] == Sentinel && os.Getenv(EnvSentinel) == "1"
 }
 
+// init dispatches the shim as early as possible — before any main() or test
+// main runs. This is what makes the re-exec safe even when the running binary is
+// not the ironrun CLI (e.g. a `go test` binary that transitively imports this
+// package via the runner): without it, such a binary would re-run its own main
+// on re-exec and recurse. Any binary that can request seccomp imports this
+// package, so the dispatch always fires.
+func init() {
+	if IsShim(os.Args) {
+		Run(os.Args)
+	}
+}
+
 // Run is the shim entry point. It expects:
 //
 //	args[0]  = Sentinel
