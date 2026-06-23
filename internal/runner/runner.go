@@ -11,20 +11,23 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/redact"
 )
 
 // Result holds the outcome of a sealed command execution.
 type Result struct {
-	ExitCode   int
-	Stdout     string
-	Stderr     string
-	DurationMs int64
-	Truncated  bool // true if output was capped by max_bytes
+	ExitCode        int
+	Stdout          string
+	Stderr          string
+	DurationMs      int64
+	Truncated       bool // true if output was capped by max_bytes
+	EntropyWarnings int  // count of high-entropy tokens flagged in (redacted) output
 }
 
 // Options configures an execution.
@@ -34,6 +37,16 @@ type Options struct {
 	Env     []string          // additional env vars for the child (KEY=VALUE)
 	Secrets map[string]string // resolved secret values to inject
 	WorkDir string
+
+	// Seccomp, when non-nil and true, requests the Linux seccomp syscall filter.
+	// Callers resolve it from policy (Command.SeccompEnabled) and the
+	// IRONRUN_SECCOMP env kill-switch. Leave nil to skip (e.g. unit tests that
+	// call Run directly — see applySeccomp's note on the re-exec requirement).
+	Seccomp *bool
+	// Audit, when non-nil, receives one append-only entry per run. nil disables.
+	Audit *audit.Logger
+	// SessionID correlates audit entries from the same agent session / invocation.
+	SessionID string
 }
 
 var (
@@ -73,6 +86,10 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	// stream (and can mask real leaks) while protecting nothing real. Real
 	// credentials are never this short, so warn and skip rather than redact.
 	const minRedactableSecretLen = 4
+	// Only derive encoded variants (base64/hex/url) for secrets at least this
+	// long, so the derivations stay specific enough not to over-redact ordinary
+	// output.
+	const minEncodableSecretLen = 8
 	secretValues := make([]string, 0, len(opts.Secrets))
 	for name, v := range opts.Secrets {
 		if v == "" {
@@ -84,6 +101,11 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 			continue
 		}
 		secretValues = append(secretValues, v)
+		// Also redact common encodings (base64/hex/url) of the value so a process
+		// that transforms a secret before printing it can't bypass redaction.
+		if len(v) >= minEncodableSecretLen {
+			secretValues = append(secretValues, redact.Encodings(v, minEncodableSecretLen)...)
+		}
 	}
 
 	// Set up output writers.
@@ -128,6 +150,13 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		applyNetworkIsolation(c)
 	}
 
+	// Apply seccomp syscall filtering (Linux; best-effort, fails open). Must come
+	// after network isolation so it wraps the final target.
+	seccompRequested := false
+	if opts.Seccomp != nil && *opts.Seccomp {
+		seccompRequested = applySeccomp(c)
+	}
+
 	start := time.Now()
 	runErr := c.Run()
 	elapsed := time.Since(start)
@@ -137,24 +166,84 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	stderrW.Flush()
 
 	exitCode := 0
+	var retErr error
+	startFailed := false
 	if runErr != nil {
 		if errors.Is(runCtx.Err(), context.DeadlineExceeded) {
-			return nil, ErrTimeout
-		}
-		var exitErr *exec.ExitError
-		if errors.As(runErr, &exitErr) {
-			exitCode = exitErr.ExitCode()
+			retErr = ErrTimeout
 		} else {
-			return nil, fmt.Errorf("runner: exec error: %w", runErr)
+			var exitErr *exec.ExitError
+			if errors.As(runErr, &exitErr) {
+				exitCode = exitErr.ExitCode()
+			} else {
+				retErr = fmt.Errorf("runner: exec error: %w", runErr)
+				startFailed = true
+			}
 		}
 	}
 
+	truncated := maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes)
+
+	// Entropy warn pass (warn-only — never alters output). Runs on the already
+	// redacted buffers, so it only flags tokens that survived redaction.
+	entropyWarnings := 0
+	if os.Getenv("IRONRUN_ENTROPY_SCAN") != "off" {
+		hits := redact.ScanHighEntropy(stdoutBuf.String())
+		hits = append(hits, redact.ScanHighEntropy(stderrBuf.String())...)
+		entropyWarnings = len(hits)
+		for _, h := range hits {
+			fmt.Fprintf(os.Stderr, "[ironrun] warning: output contains a high-entropy token that may be an unredacted secret (offset %d, ~%.1f bits/char); if it is a secret, add it to your policy so it gets redacted\n", h.Offset, h.Entropy)
+		}
+	}
+
+	// Record an audit entry (best-effort; never fails the run). Skip when the
+	// process never started — there is nothing meaningful to record.
+	if opts.Audit != nil && !startFailed {
+		killReason := ""
+		switch {
+		case errors.Is(runCtx.Err(), context.DeadlineExceeded):
+			killReason = "timeout"
+		case errors.Is(runCtx.Err(), context.Canceled):
+			killReason = "cancelled"
+		}
+		names := make([]string, 0, len(opts.Secrets))
+		for k := range opts.Secrets {
+			names = append(names, k)
+		}
+		sort.Strings(names)
+		cwd, _ := os.Getwd()
+		entry := audit.Entry{
+			Timestamp:        time.Now().UTC(),
+			SessionID:        opts.SessionID,
+			Cwd:              cwd,
+			CommandID:        cmd.ID,
+			Argv:             cmd.Argv,
+			SecretNames:      names,
+			RedactionCount:   int(stdoutW.RedactionCount() + stderrW.RedactionCount()),
+			EntropyWarnings:  entropyWarnings,
+			ExitCode:         exitCode,
+			DurationMs:       elapsed.Milliseconds(),
+			Truncated:        truncated,
+			KillReason:       killReason,
+			SeccompRequested: seccompRequested,
+			NoNetwork:        cmd.NoNetwork,
+		}
+		if err := opts.Audit.Append(entry); err != nil {
+			fmt.Fprintf(os.Stderr, "[ironrun] warning: audit append failed: %v\n", err)
+		}
+	}
+
+	if retErr != nil {
+		return nil, retErr
+	}
+
 	return &Result{
-		ExitCode:   exitCode,
-		Stdout:     stdoutBuf.String(),
-		Stderr:     stderrBuf.String(),
-		DurationMs: elapsed.Milliseconds(),
-		Truncated:  maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes),
+		ExitCode:        exitCode,
+		Stdout:          stdoutBuf.String(),
+		Stderr:          stderrBuf.String(),
+		DurationMs:      elapsed.Milliseconds(),
+		Truncated:       truncated,
+		EntropyWarnings: entropyWarnings,
 	}, nil
 }
 

@@ -11,6 +11,7 @@ import (
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
@@ -20,6 +21,15 @@ import (
 // Serve starts the MCP stdio server using the given policy.
 // It blocks until the client disconnects or the process exits.
 func Serve(f *policy.File) error {
+	// One audit logger and session id for the life of this server process, so
+	// every run_sealed call from the same agent session shares a session id.
+	auditLog, err := audit.Open(audit.ResolvePath(f.AuditLog))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", err)
+	}
+	defer auditLog.Close()
+	sessionID := audit.NewSessionID()
+
 	s := server.NewMCPServer(
 		"ironrun",
 		buildinfo.String(),
@@ -51,7 +61,7 @@ func Serve(f *policy.File) error {
 			mcplib.Description("The policy command ID to execute (use list_commands to discover IDs)"),
 		),
 	)
-	s.AddTool(runTool, makeRunHandler(f))
+	s.AddTool(runTool, makeRunHandler(f, auditLog, sessionID))
 
 	// Tool: validate_policy — sanity-check the loaded policy.
 	validateTool := mcplib.NewTool("validate_policy",
@@ -65,7 +75,7 @@ func Serve(f *policy.File) error {
 	return server.ServeStdio(s)
 }
 
-func makeRunHandler(f *policy.File) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		cmdID, err := req.RequireString("command_id")
 		if err != nil {
@@ -88,10 +98,14 @@ func makeRunHandler(f *policy.File) func(context.Context, mcplib.CallToolRequest
 			return mcplib.NewToolResultError("secret resolution failed — check provider configuration"), nil
 		}
 
+		seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
 		res, runErr := runner.Run(ctx, pCmd, runner.Options{
-			Stdout:  os.Stderr, // live stream to stderr (agent won't see it)
-			Stderr:  os.Stderr,
-			Secrets: secrets,
+			Stdout:    os.Stderr, // live stream to stderr (agent won't see it)
+			Stderr:    os.Stderr,
+			Secrets:   secrets,
+			Seccomp:   &seccompOn,
+			Audit:     auditLog,
+			SessionID: sessionID,
 		})
 		if runErr != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("execution error: %v", runErr)), nil
@@ -101,12 +115,19 @@ func makeRunHandler(f *policy.File) func(context.Context, mcplib.CallToolRequest
 		if res.Truncated {
 			truncNote = "\n[output truncated at max_bytes limit]"
 		}
+		// Tell the agent (a count only — never the token) if output held a token
+		// that looks like a secret but wasn't a registered value.
+		entropyNote := ""
+		if res.EntropyWarnings > 0 {
+			entropyNote = fmt.Sprintf("\n[ironrun] note: %d high-entropy token(s) in the output may be an unredacted secret", res.EntropyWarnings)
+		}
 
 		out := fmt.Sprintf(
-			"exit_code: %d\nduration_ms: %d%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
+			"exit_code: %d\nduration_ms: %d%s%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
 			res.ExitCode,
 			res.DurationMs,
 			truncNote,
+			entropyNote,
 			res.Stdout,
 			res.Stderr,
 		)

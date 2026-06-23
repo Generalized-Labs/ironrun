@@ -16,6 +16,13 @@ type File struct {
 	Version  string    `yaml:"version"`
 	Provider string    `yaml:"provider"` // "1password" | "env" | "doppler"
 	Commands []Command `yaml:"commands"`
+
+	// SeccompDefault sets the policy-wide default for the per-command seccomp
+	// syscall filter (Linux). nil means "on". A command's own Seccomp overrides it.
+	SeccompDefault *bool `yaml:"seccomp_default"`
+	// AuditLog overrides the audit log path ("off" disables auditing). When empty,
+	// the IRONRUN_AUDIT_LOG env var or the per-user default location is used.
+	AuditLog string `yaml:"audit_log"`
 }
 
 // Command defines one allowed invocation and the secrets it needs.
@@ -27,6 +34,22 @@ type Command struct {
 	MaxBytes  int64             `yaml:"max_bytes"`  // cap on total output bytes (0=unlimited)
 	NoNetwork bool              `yaml:"no_network"` // block child network (best-effort)
 	WorkDir   string            `yaml:"workdir"`    // optional working directory
+	// Seccomp toggles the Linux seccomp syscall filter for this command. nil
+	// means "use the policy default" (which itself defaults to on). Set false to
+	// opt a command out — e.g. a debugger/strace that legitimately needs ptrace.
+	Seccomp *bool `yaml:"seccomp"`
+}
+
+// SeccompEnabled resolves whether the seccomp filter applies to this command:
+// the command's own setting wins, then the policy default, then on.
+func (c *Command) SeccompEnabled(f *File) bool {
+	if c.Seccomp != nil {
+		return *c.Seccomp
+	}
+	if f != nil && f.SeccompDefault != nil {
+		return *f.SeccompDefault
+	}
+	return true
 }
 
 // Duration is a yaml-decodable time.Duration.
