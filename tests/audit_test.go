@@ -72,7 +72,6 @@ commands:
   - id: dump
     argv: [printenv, MYSECRET]
     ttl: 5s
-    no_network: true
     env:
       MYSECRET: env:MYSECRET
 `)
