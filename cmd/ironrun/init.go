@@ -30,12 +30,17 @@ that need credentials.`,
 			project := filepath.Base(cwd)
 			fmt.Printf("Initializing ironrun in %s...\n\n", project)
 
+			// Detect the project's real commands once; both the policy and the
+			// agent instructions are generated from them so they stay in sync.
+			envVars := detectEnvVars(cwd)
+			cmds := detectCommands(cwd, envVars)
+
 			// 1. Write ironrun.yml if it doesn't exist
 			ymlPath := filepath.Join(cwd, "ironrun.yml")
 			if _, err := os.Stat(ymlPath); err == nil {
 				fmt.Println("  • ironrun.yml already exists — skipping")
 			} else {
-				ymlContent := generatePolicy(cwd)
+				ymlContent := generatePolicy(cmds, envVars)
 				if err := os.WriteFile(ymlPath, []byte(ymlContent), 0644); err != nil {
 					return fmt.Errorf("failed to write ironrun.yml: %w", err)
 				}
@@ -53,8 +58,9 @@ that need credentials.`,
 			// 3. Write agent-instruction files so the "use run_sealed" guardrail
 			//    fires across agents: CLAUDE.md (Claude Code), AGENTS.md (Codex,
 			//    and the emerging cross-agent convention), .cursorrules (Cursor).
+			instructions := renderAgentInstructions(cmds)
 			for _, name := range []string{"CLAUDE.md", "AGENTS.md", ".cursorrules"} {
-				writeAgentInstructions(cwd, name)
+				writeAgentInstructions(cwd, name, instructions)
 			}
 
 			// 4. Register ironrun with Codex (~/.codex/config.toml)
@@ -83,35 +89,15 @@ that need credentials.`,
 	}
 }
 
-// agentInstructions is the guardrail nudge written to each agent's project
-// instructions file so the agent routes credential-bearing commands through
-// ironrun's run_sealed tool instead of typing them into a shell.
-const agentInstructions = `# Project Instructions
-
-## Commands
-
-All commands that require credentials MUST be run through ironrun.
-Use the run_sealed MCP tool instead of running shell commands directly.
-
-Available commands (defined in ironrun.yml):
-- run_sealed("test") — run the test suite
-- run_sealed("dev") — start the dev server
-- run_sealed("build") — production build
-
-Do NOT run printenv, cat .env, or echo $VAR to read credential values.
-Do NOT hardcode credential values in any file.
-If you need a command not in ironrun.yml, ask the user to add it.
-`
-
-// writeAgentInstructions writes agentInstructions to cwd/name unless the file
-// already exists, printing a status line either way.
-func writeAgentInstructions(cwd, name string) {
+// writeAgentInstructions writes the rendered instructions to cwd/name unless the
+// file already exists, printing a status line either way.
+func writeAgentInstructions(cwd, name, instructions string) {
 	path := filepath.Join(cwd, name)
 	if _, err := os.Stat(path); err == nil {
 		fmt.Printf("  • %s already exists — skipping\n", name)
 		return
 	}
-	if err := os.WriteFile(path, []byte(agentInstructions), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(instructions), 0644); err != nil {
 		fmt.Printf("  ⚠  Could not write %s: %v\n", name, err)
 		return
 	}
@@ -245,85 +231,40 @@ func registerCursor() error {
 	return nil
 }
 
-// generatePolicy detects the project type and generates a starter policy
-func generatePolicy(dir string) string {
-	var lines []string
-	lines = append(lines, `version: "1"`)
-	lines = append(lines, `provider: env`)
-	lines = append(lines, "")
-	lines = append(lines, "commands:")
+// generatePolicy renders a starter policy from the detected commands. The env
+// block is attached only to credential-likely commands (see needsEnv).
+func generatePolicy(cmds []DetectedCmd, envVars []string) string {
+	var b strings.Builder
+	b.WriteString("version: \"1\"\n")
+	b.WriteString("provider: env\n")
+	b.WriteString("# Let agents propose new commands for your approval (ironrun review / approve).\n")
+	b.WriteString("allow_proposals: true\n\n")
+	b.WriteString("commands:\n")
 
-	// Detect package manager and common scripts
-	runner := "npm"
-	if _, err := os.Stat(filepath.Join(dir, "bun.lockb")); err == nil {
-		runner = "bun"
-	} else if _, err := os.Stat(filepath.Join(dir, "bun.lock")); err == nil {
-		runner = "bun"
-	} else if _, err := os.Stat(filepath.Join(dir, "pnpm-lock.yaml")); err == nil {
-		runner = "pnpm"
-	} else if _, err := os.Stat(filepath.Join(dir, "yarn.lock")); err == nil {
-		runner = "yarn"
-	}
-
-	// Check for common env files to suggest env vars
-	envVars := detectEnvVars(dir)
-	envBlock := ""
-	if len(envVars) > 0 {
-		envBlock = "\n    env:"
-		for _, v := range envVars {
-			envBlock += fmt.Sprintf("\n      %s: env:%s", v, v)
-		}
-	}
-
-	// Generate commands based on what we find
-	if _, err := os.Stat(filepath.Join(dir, "package.json")); err == nil {
-		// Node/JS project
-		lines = append(lines, fmt.Sprintf(`  - id: dev
-    argv: [%s, run, dev]
-    ttl: 0%s`, runner, envBlock))
-		lines = append(lines, "")
-		lines = append(lines, fmt.Sprintf(`  - id: test
-    argv: [%s, test]
-    ttl: 120s%s`, runner, envBlock))
-		lines = append(lines, "")
-		lines = append(lines, fmt.Sprintf(`  - id: build
-    argv: [%s, run, build]
-    ttl: 120s`, runner))
-	} else if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-		// Go project
-		lines = append(lines, fmt.Sprintf(`  - id: test
-    argv: [go, test, ./...]
-    ttl: 120s%s`, envBlock))
-		lines = append(lines, "")
-		lines = append(lines, `  - id: build
-    argv: [go, build, ./...]
-    ttl: 60s`)
-	} else if _, err := os.Stat(filepath.Join(dir, "Cargo.toml")); err == nil {
-		// Rust project
-		lines = append(lines, fmt.Sprintf(`  - id: test
-    argv: [cargo, test]
-    ttl: 120s%s`, envBlock))
-		lines = append(lines, "")
-		lines = append(lines, `  - id: build
-    argv: [cargo, build]
-    ttl: 120s`)
-	} else if _, err := os.Stat(filepath.Join(dir, "requirements.txt")); err == nil {
-		// Python project
-		lines = append(lines, fmt.Sprintf(`  - id: test
-    argv: [python, -m, pytest]
-    ttl: 120s%s`, envBlock))
-	} else {
-		// Generic fallback
-		lines = append(lines, `  # Add your commands here:
+	if len(cmds) == 0 {
+		b.WriteString(`  # No task runner detected — add your commands here:
   # - id: test
   #   argv: [npm, test]
   #   ttl: 120s
   #   env:
-  #     DATABASE_URL: env:DATABASE_URL`)
+  #     DATABASE_URL: env:DATABASE_URL
+`)
+		return b.String()
 	}
 
-	lines = append(lines, "")
-	return strings.Join(lines, "\n")
+	for i, c := range cmds {
+		env := map[string]string{}
+		if c.NeedsEnv {
+			for _, v := range envVars {
+				env[v] = "env:" + v
+			}
+		}
+		b.WriteString(renderCommandBlock(c.ID, c.Argv, c.TTL, env, c.Comment))
+		if i < len(cmds)-1 {
+			b.WriteString("\n")
+		}
+	}
+	return b.String()
 }
 
 // detectEnvVars reads .env or .env.local and returns variable names (not values)
