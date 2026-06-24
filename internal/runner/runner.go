@@ -86,7 +86,9 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 			fmt.Fprintf(os.Stderr, "[ironrun] warning: secret %q resolved to a very short value (<%d bytes) — skipping redaction to avoid corrupting output; check the provider reference\n", name, minRedactableSecretLen)
 			continue
 		}
-		secretValues = append(secretValues, v)
+		// Register the literal value plus its common encodings (base64/hex/URL)
+		// so a command that emits an encoded form of the secret is still caught.
+		secretValues = append(secretValues, SecretVariants(v)...)
 	}
 
 	// Set up output writers.

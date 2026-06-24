@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
@@ -11,6 +12,7 @@ import (
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/redact"
+	"github.com/generalized-labs/ironrun/internal/runner"
 )
 
 // doctorCmd: ironrun doctor — read-only diagnosis of an ironrun setup.
@@ -97,13 +99,15 @@ Exits non-zero if any check fails. Nothing is executed and no secrets are resolv
 	}
 }
 
-// redactionSelfTest writes a known secret through the redactor and confirms the
-// value never reaches the output and is replaced with the placeholder.
+// redactionSelfTest writes a known secret — both as a literal and base64-encoded —
+// through the redactor (registering the same variant set the runner uses) and
+// confirms neither form reaches the output.
 func redactionSelfTest() error {
 	const secret = "ironrun-doctor-canary-9f3a1c"
+	b64 := base64.StdEncoding.EncodeToString([]byte(secret))
 	var buf strings.Builder
-	w := redact.New(&buf, []string{secret}, 0)
-	if _, err := w.Write([]byte("before " + secret + " after")); err != nil {
+	w := redact.New(&buf, runner.SecretVariants(secret), 0)
+	if _, err := w.Write([]byte("literal " + secret + " encoded " + b64 + " end")); err != nil {
 		return err
 	}
 	if err := w.Flush(); err != nil {
@@ -111,7 +115,10 @@ func redactionSelfTest() error {
 	}
 	got := buf.String()
 	if strings.Contains(got, secret) {
-		return fmt.Errorf("secret value leaked through redactor: %q", got)
+		return fmt.Errorf("literal secret leaked through redactor: %q", got)
+	}
+	if strings.Contains(got, b64) {
+		return fmt.Errorf("base64-encoded secret leaked through redactor: %q", got)
 	}
 	if !strings.Contains(got, "[REDACTED]") {
 		return fmt.Errorf("expected [REDACTED] in output, got %q", got)
