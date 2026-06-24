@@ -332,7 +332,7 @@ The agent running `printenv DATABASE_URL` sees nothing — the var isn't in the 
 
 ## The MCP tools the agent gets
 
-When ironrun runs as an MCP server (`ironrun mcp`), it exposes exactly three tools — none of which return a secret value:
+When ironrun runs as an MCP server (`ironrun mcp`), it exposes these tools — none of which return a secret value:
 
 **`list_commands`** — what can I run? Returns command names and their argv, nothing else.
 
@@ -347,6 +347,7 @@ deploy: [./scripts/deploy.sh production]
 ```
 exit_code: 0
 duration_ms: 4231
+redactions: 1
 
 --- stdout ---
 ok  myapp  4.2s
@@ -355,7 +356,17 @@ ok  myapp  4.2s
 (empty)
 ```
 
+The `redactions` line is the per-run trust signal — how many secret values were stripped from the output.
+
 **`validate_policy`** — is the policy well-formed? Returns the provider and command count.
+
+**`propose_command`** — needs a command that isn't in the policy? Instead of falling back to a raw shell, the agent stages it (id, argv, reason) for your approval — it runs nothing. You review with `ironrun review` and decide with `ironrun approve <id>` or `ironrun reject <id>`. Off unless the policy sets `allow_proposals: true`; an unapproved command is never executed, and the agent can't approve its own.
+
+---
+
+## The audit trail
+
+Every sealed run appends one **secret-free** line to `~/.ironrun/audit.jsonl` — command id, a hash of the argv, provider, exit code, duration, bytes out, how many values were redacted, and whether the network was sealed. No secret values, no resolved environment, no raw argv. View it with `ironrun audit` (`-n N` to limit). Set `IRONRUN_AUDIT_PATH` to relocate it, or `IRONRUN_AUDIT=off` to disable.
 
 ---
 

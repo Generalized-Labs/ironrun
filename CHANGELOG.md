@@ -6,6 +6,35 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Smart `ironrun init`** — generates the policy from the project's real task
+  runner (package.json scripts, Makefile targets) with Go/Rust/Python defaults,
+  and writes agent instructions (`CLAUDE.md`/`AGENTS.md`/`.cursorrules`) that
+  reference the actual command ids instead of stale examples.
+- **Propose-and-approve** — a `propose_command` MCP tool lets an agent stage a
+  command it needs (to `.ironrun/pending.yml`) instead of bypassing to a raw
+  shell. The human reviews with `ironrun review` and decides with
+  `ironrun approve <id>` / `ironrun reject <id>`. Gated by `allow_proposals`
+  (off for existing policies; new policies enable it). An unapproved command is
+  never executed, and an agent can never self-approve.
+- **Audit trail** — `ironrun audit` shows a local, secret-free JSONL record of
+  every sealed run (`~/.ironrun/audit.jsonl`; override `IRONRUN_AUDIT_PATH`,
+  disable `IRONRUN_AUDIT=off`).
+- **Per-run trust signal** — every run reports how many secret values were
+  redacted (CLI stderr line, the MCP `run_sealed` result, an Action `redactions`
+  output).
+
+### Changed
+- **Redaction now also catches common ENCODINGS** of a secret — base64
+  (std/url, padded/unpadded), hex, and URL-encoded forms — length-gated to avoid
+  false positives. Previously literal-only.
+
+### Security
+- **`no_network` is now fail-closed.** If isolation cannot be enforced
+  (unsupported platform, missing `sandbox-exec` on macOS, disabled Linux user
+  namespaces), the run is **refused** rather than silently executed with the
+  network open. Now covered by tests and a macOS CI leg.
+
 ## [0.3.0] - 2026-06-24
 
 ### Added
