@@ -6,6 +6,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-24
+
 ### Added
 - HashiCorp **Vault** provider (`vault://<path>#<field>`, KV v2 via the `vault`
   CLI; reads `VAULT_ADDR`/`VAULT_TOKEN`).
@@ -49,5 +51,6 @@ Initial public release: agent-safe sealed command execution.
 - Rolling-buffer redaction engine that catches secrets split across write
   boundaries.
 
-[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/generalized-labs/ironrun/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/generalized-labs/ironrun/releases/tag/v0.2.0
