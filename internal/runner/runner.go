@@ -25,6 +25,9 @@ type Result struct {
 	Stderr     string
 	DurationMs int64
 	Truncated  bool // true if output was capped by max_bytes
+	// RedactionCount is the number of secret values redacted from output — the
+	// per-run trust signal surfaced to the operator and the agent.
+	RedactionCount int
 }
 
 // Options configures an execution.
@@ -150,11 +153,12 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	}
 
 	return &Result{
-		ExitCode:   exitCode,
-		Stdout:     stdoutBuf.String(),
-		Stderr:     stderrBuf.String(),
-		DurationMs: elapsed.Milliseconds(),
-		Truncated:  maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes),
+		ExitCode:       exitCode,
+		Stdout:         stdoutBuf.String(),
+		Stderr:         stderrBuf.String(),
+		DurationMs:     elapsed.Milliseconds(),
+		Truncated:      maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes),
+		RedactionCount: int(stdoutW.Redactions() + stderrW.Redactions()),
 	}, nil
 }
 

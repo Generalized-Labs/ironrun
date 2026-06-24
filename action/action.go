@@ -78,6 +78,7 @@ func Run() int {
 	// Set GHA outputs.
 	ghaSetOutput("exit_code", fmt.Sprintf("%d", res.ExitCode))
 	ghaSetOutput("duration_ms", fmt.Sprintf("%d", res.DurationMs))
+	ghaSetOutput("redactions", fmt.Sprintf("%d", res.RedactionCount))
 	if res.Truncated {
 		ghaSetOutput("truncated", "true")
 	} else {

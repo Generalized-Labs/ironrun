@@ -103,9 +103,10 @@ func makeRunHandler(f *policy.File) func(context.Context, mcplib.CallToolRequest
 		}
 
 		out := fmt.Sprintf(
-			"exit_code: %d\nduration_ms: %d%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
+			"exit_code: %d\nduration_ms: %d\nredactions: %d%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
 			res.ExitCode,
 			res.DurationMs,
+			res.RedactionCount,
 			truncNote,
 			res.Stdout,
 			res.Stderr,

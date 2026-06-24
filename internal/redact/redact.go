@@ -21,13 +21,14 @@ const placeholder = "[REDACTED]"
 
 // Writer is a streaming redacting writer. It is safe for concurrent use.
 type Writer struct {
-	mu      sync.Mutex
-	out     io.Writer
-	secrets [][]byte // sorted longest-first so we greedily match the longest secret
-	buf     []byte   // rolling buffer — holds unprocessed bytes
-	maxLen  int      // max length of any secret
-	written int64    // total bytes written to out
-	maxOut  int64    // 0 = unlimited
+	mu         sync.Mutex
+	out        io.Writer
+	secrets    [][]byte // sorted longest-first so we greedily match the longest secret
+	buf        []byte   // rolling buffer — holds unprocessed bytes
+	maxLen     int      // max length of any secret
+	written    int64    // total bytes written to out
+	maxOut     int64    // 0 = unlimited
+	redactions int64    // count of secret values replaced (the per-run trust signal)
 }
 
 // New creates a Writer that redacts all values in secrets before writing to out.
@@ -108,6 +109,7 @@ func (w *Writer) scan(final bool) error {
 					return err
 				}
 				w.buf = w.buf[len(secret):]
+				w.redactions++
 				matched = true
 				break
 			}
@@ -148,6 +150,14 @@ func (w *Writer) BytesWritten() int64 {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.written
+}
+
+// Redactions returns the number of secret occurrences replaced so far.
+// It is the per-run trust signal ("N secret values redacted").
+func (w *Writer) Redactions() int64 {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.redactions
 }
 
 // AddSecret registers an additional secret value for redaction.

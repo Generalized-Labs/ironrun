@@ -80,6 +80,9 @@ func runCmd() *cobra.Command {
 			if res.Truncated {
 				fmt.Fprintln(os.Stderr, "[ironrun] output truncated at max_bytes limit")
 			}
+			if res.RedactionCount > 0 {
+				fmt.Fprintf(os.Stderr, "[ironrun] %d secret value(s) redacted from output\n", res.RedactionCount)
+			}
 
 			os.Exit(res.ExitCode)
 			return nil

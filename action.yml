@@ -12,6 +12,7 @@
 #   exit_code   Exit code of the command
 #   duration_ms Execution time in milliseconds
 #   truncated   "true" if output was capped at max_bytes
+#   redactions  Number of secret values redacted from output
 #
 # Example:
 #   - uses: generalized-labs/ironrun@v0
@@ -52,6 +53,9 @@ outputs:
   truncated:
     description: Whether output was truncated at max_bytes
     value: ${{ steps.run.outputs.truncated }}
+  redactions:
+    description: Number of secret values redacted from output
+    value: ${{ steps.run.outputs.redactions }}
 
 runs:
   using: composite
