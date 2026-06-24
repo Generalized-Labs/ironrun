@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
@@ -65,10 +66,26 @@ func Run() int {
 		return 1
 	}
 
+	seccompOn := cmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
+	auditLog, auditErr := audit.Open(audit.ResolvePath(f.AuditLog))
+	if auditErr != nil {
+		fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", auditErr)
+	}
+	defer auditLog.Close()
+	sessionID := os.Getenv("GITHUB_RUN_ID")
+	if sessionID == "" {
+		sessionID = audit.NewSessionID()
+	} else if attempt := os.Getenv("GITHUB_RUN_ATTEMPT"); attempt != "" {
+		sessionID += "-" + attempt
+	}
+
 	res, err := runner.Run(context.Background(), cmd, runner.Options{
-		Stdout:  os.Stdout,
-		Stderr:  os.Stderr,
-		Secrets: secrets,
+		Stdout:    os.Stdout,
+		Stderr:    os.Stderr,
+		Secrets:   secrets,
+		Seccomp:   &seccompOn,
+		Audit:     auditLog,
+		SessionID: sessionID,
 	})
 	if err != nil {
 		ghaError("execution failed: " + err.Error())

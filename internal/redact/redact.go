@@ -28,6 +28,8 @@ type Writer struct {
 	maxLen  int      // max length of any secret
 	written int64    // total bytes written to out
 	maxOut  int64    // 0 = unlimited
+
+	redactions int64 // count of secret occurrences replaced with the placeholder
 }
 
 // New creates a Writer that redacts all values in secrets before writing to out.
@@ -107,6 +109,7 @@ func (w *Writer) scan(final bool) error {
 				if err := w.emit([]byte(placeholder)); err != nil {
 					return err
 				}
+				w.redactions++
 				w.buf = w.buf[len(secret):]
 				matched = true
 				break
@@ -148,6 +151,13 @@ func (w *Writer) BytesWritten() int64 {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	return w.written
+}
+
+// RedactionCount returns the number of secret occurrences replaced so far.
+func (w *Writer) RedactionCount() int64 {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.redactions
 }
 
 // AddSecret registers an additional secret value for redaction.

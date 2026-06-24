@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
@@ -18,6 +19,9 @@ import (
 var policyPath string
 
 func main() {
+	// Note: when this binary is re-executed as the sealed-exec shim, the
+	// sealedexec package's init() intercepts it (installing the seccomp filter
+	// and execve'ing the target) before main runs — see internal/sealedexec.
 	root := &cobra.Command{
 		Use:   "ironrun",
 		Short: "Sealed command execution for AI agents",
@@ -32,7 +36,9 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(runCmd())
 	root.AddCommand(mcpCmd())
 	root.AddCommand(validateCmd())
+	root.AddCommand(lintCmd())
 	root.AddCommand(doctorCmd())
+	root.AddCommand(auditCmd())
 	root.AddCommand(initCmd())
 	root.AddCommand(versionCmd())
 
@@ -68,10 +74,20 @@ func runCmd() *cobra.Command {
 				return fmt.Errorf("secret resolution failed: %w", err)
 			}
 
+			seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
+			auditLog, auditErr := audit.Open(audit.ResolvePath(f.AuditLog))
+			if auditErr != nil {
+				fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", auditErr)
+			}
+			defer auditLog.Close()
+
 			res, err := runner.Run(context.Background(), pCmd, runner.Options{
-				Stdout:  os.Stdout,
-				Stderr:  os.Stderr,
-				Secrets: secrets,
+				Stdout:    os.Stdout,
+				Stderr:    os.Stderr,
+				Secrets:   secrets,
+				Seccomp:   &seccompOn,
+				Audit:     auditLog,
+				SessionID: audit.NewSessionID(),
 			})
 			if err != nil {
 				return fmt.Errorf("execution failed: %w", err)

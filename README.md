@@ -253,9 +253,22 @@ commands:
     max_bytes: 10485760       # optional — cap stdout+stderr (here, 10 MB)
     no_network: true          # optional — block outbound network
                               #   (Linux: namespace, macOS: sandbox-exec)
+    seccomp: true             # optional — Linux seccomp filter (default on;
+                              #   set false to allow e.g. a debugger that needs ptrace)
     workdir: ./services/api   # optional — run from this directory
     env:                      # optional — secrets to inject, by reference
       DATABASE_URL: "op://Engineering/prod-db/url"
+```
+
+### Extra hardening (on by default)
+
+- **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It fails open with a warning on unsupported kernels. Turn off per command with `seccomp: false`, policy-wide with `seccomp_default: false`, or globally with `IRONRUN_SECCOMP=off`.
+- **Encoded-secret redaction** — base64, hex, and URL-encoded forms of a secret are redacted alongside the literal value, plus a warn-only entropy scan flags high-entropy tokens that slip through.
+- **Audit log** — every run appends a tamper-evident, hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect or disable with `IRONRUN_AUDIT_LOG=<path|off>` or the top-level `audit_log:` field.
+
+```bash
+ironrun lint      # security review of the policy (shell argv, missing ttl, secrets + open egress, …)
+ironrun audit verify   # confirm the audit log hasn't been tampered with
 ```
 
 `argv` is a literal list, not a shell line. `["npm", "test"]` runs `npm test` directly — there's no shell in between, so an injected value can never be re-expanded or piped somewhere unexpected.
