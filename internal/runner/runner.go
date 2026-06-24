@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/generalized-labs/ironrun/internal/policy"
@@ -40,9 +41,10 @@ type Options struct {
 }
 
 var (
-	ErrTimeout     = errors.New("runner: command timed out")
-	ErrDenied      = errors.New("runner: command denied by policy")
-	ErrCIUntrusted = errors.New("runner: untrusted CI event — refusing to expose secrets")
+	ErrTimeout              = errors.New("runner: command timed out")
+	ErrDenied               = errors.New("runner: command denied by policy")
+	ErrCIUntrusted          = errors.New("runner: untrusted CI event — refusing to expose secrets")
+	ErrNoNetworkUnsupported = errors.New("runner: no_network requested but network isolation cannot be enforced")
 )
 
 // Run executes cmd according to policy, injecting secrets, enforcing TTL,
@@ -128,9 +130,13 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		c.Dir = opts.WorkDir
 	}
 
-	// Apply network isolation (best-effort, platform-specific).
+	// Apply network isolation. This is a security control, so it FAILS CLOSED:
+	// if isolation cannot be enforced (unsupported platform, missing sandbox-exec),
+	// we refuse to run rather than execute with the network wide open.
 	if cmd.NoNetwork {
-		applyNetworkIsolation(c)
+		if err := applyNetworkIsolation(c); err != nil {
+			return nil, err
+		}
 	}
 
 	start := time.Now()
@@ -145,6 +151,12 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	if runErr != nil {
 		if errors.Is(runCtx.Err(), context.DeadlineExceeded) {
 			return nil, ErrTimeout
+		}
+		// On Linux, CLONE_NEWNET fails at exec time (EPERM) when unprivileged
+		// user namespaces are disabled. The child never started, so fail closed
+		// rather than report a confusing generic exec error.
+		if cmd.NoNetwork && runtime.GOOS == "linux" && errors.Is(runErr, syscall.EPERM) {
+			return nil, fmt.Errorf("%w: network namespace creation was denied (unprivileged user namespaces unavailable)", ErrNoNetworkUnsupported)
 		}
 		var exitErr *exec.ExitError
 		if errors.As(runErr, &exitErr) {
@@ -236,22 +248,28 @@ func checkCITrust() error {
 }
 
 // applyNetworkIsolation configures the Cmd to run with network access blocked.
-// On Linux: uses a new network namespace (requires no special privileges on
-// most modern kernels with user namespaces enabled).
-// On macOS: uses sandbox-exec with a deny-all network profile.
-// On other platforms: logs a warning and skips (best-effort).
-func applyNetworkIsolation(c *exec.Cmd) {
+// On Linux: a new network namespace (CLONE_NEWNET; needs unprivileged userns).
+// On macOS: sandbox-exec with a deny-all network profile.
+// On any other platform — or when the platform mechanism is unavailable — it
+// returns ErrNoNetworkUnsupported so the caller can FAIL CLOSED.
+func applyNetworkIsolation(c *exec.Cmd) error {
 	switch runtime.GOOS {
 	case "linux":
-		applyLinuxNetworkIsolation(c)
+		return applyLinuxNetworkIsolation(c)
 	case "darwin":
-		applyDarwinNetworkIsolation(c)
+		return applyDarwinNetworkIsolation(c)
+	default:
+		return fmt.Errorf("%w: no implementation for GOOS=%s", ErrNoNetworkUnsupported, runtime.GOOS)
 	}
 }
 
-func applyDarwinNetworkIsolation(c *exec.Cmd) {
-	// macOS sandbox-exec wraps the child with a Seatbelt profile.
-	// We re-wrap the command: sandbox-exec -p <profile> <original-cmd...>
+func applyDarwinNetworkIsolation(c *exec.Cmd) error {
+	// macOS sandbox-exec wraps the child with a Seatbelt profile:
+	//   sandbox-exec -p <profile> <original-cmd...>
+	sandboxBin, err := exec.LookPath("sandbox-exec")
+	if err != nil {
+		return fmt.Errorf("%w: sandbox-exec not found on this macOS host", ErrNoNetworkUnsupported)
+	}
 	const profile = `(version 1)
 (deny default)
 (allow process-exec)
@@ -259,10 +277,7 @@ func applyDarwinNetworkIsolation(c *exec.Cmd) {
 (allow file-write*)
 (deny network*)
 `
-	origBin := c.Path
-	origArgs := c.Args // includes argv[0]
-	newArgs := append([]string{"sandbox-exec", "-p", profile}, origArgs...)
-	c.Path = "/usr/bin/sandbox-exec"
-	c.Args = newArgs
-	_ = origBin // kept for clarity
+	c.Args = append([]string{"sandbox-exec", "-p", profile}, c.Args...)
+	c.Path = sandboxBin
+	return nil
 }

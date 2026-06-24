@@ -38,11 +38,13 @@ Empty strings are not registered as secrets (they would match everything). Secre
 
 ### Network isolation
 
-`no_network: true` is best-effort:
+`no_network: true` is a **fail-closed** control: if isolation cannot be enforced, ironrun **refuses to run** the command rather than execute it with the network open (returning `ErrNoNetworkUnsupported`).
 
-- **Linux**: Uses `CLONE_NEWNET` (new network namespace with no interfaces). Requires unprivileged user namespaces (default on ubuntu-latest, Debian 11+, Fedora). The loopback interface exists but has no external connectivity.
-- **macOS**: Uses `sandbox-exec` with a deny-all *network* Seatbelt profile. This restricts network only — the child can still read and write the filesystem. Can be bypassed by privileged processes.
-- **Other platforms**: No isolation applied; a warning is emitted to stderr.
+- **Linux**: Uses `CLONE_NEWNET` (new network namespace with no interfaces). Requires unprivileged user namespaces (default on ubuntu-latest, Debian 11+, Fedora). The loopback interface exists but has no external connectivity. If the namespace cannot be created (userns disabled — surfaces as `EPERM` at exec), the run is refused.
+- **macOS**: Uses `sandbox-exec` with a deny-all *network* Seatbelt profile. This restricts network only — the child can still read and write the filesystem. If `sandbox-exec` is not present on the host, the run is refused.
+- **Other platforms (including Windows)**: no isolation mechanism is available, so a `no_network: true` command is refused.
+
+This is exercised by tests (`internal/runner/net_test.go`): a fixture that attempts an outbound connection is confirmed blocked under `no_network`, and the macOS fail-closed path is verified when `sandbox-exec` is unavailable.
 
 ### Reporting vulnerabilities
 
