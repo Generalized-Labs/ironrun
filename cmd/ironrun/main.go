@@ -40,6 +40,9 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(doctorCmd())
 	root.AddCommand(auditCmd())
 	root.AddCommand(initCmd())
+	root.AddCommand(reviewCmd())
+	root.AddCommand(approveCmd())
+	root.AddCommand(rejectCmd())
 	root.AddCommand(versionCmd())
 
 	if err := root.Execute(); err != nil {
@@ -123,7 +126,7 @@ Add to your Claude Code or Cursor MCP config:
 			if err != nil {
 				return err
 			}
-			return ironmcp.Serve(f)
+			return ironmcp.Serve(f, policyPath)
 		},
 	}
 }

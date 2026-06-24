@@ -23,6 +23,10 @@ type File struct {
 	// AuditLog overrides the audit log path ("off" disables auditing). When empty,
 	// the IRONRUN_AUDIT_LOG env var or the per-user default location is used.
 	AuditLog string `yaml:"audit_log"`
+	// AllowProposals lets agents stage NEW commands (via the propose_command MCP
+	// tool) for the user to approve. Off by default. The run path NEVER executes
+	// a proposed command — only `ironrun approve` promotes it into Commands.
+	AllowProposals bool `yaml:"allow_proposals"`
 }
 
 // Command defines one allowed invocation and the secrets it needs.

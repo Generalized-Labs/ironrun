@@ -236,7 +236,9 @@ func registerCursor() error {
 func generatePolicy(cmds []DetectedCmd, envVars []string) string {
 	var b strings.Builder
 	b.WriteString("version: \"1\"\n")
-	b.WriteString("provider: env\n\n")
+	b.WriteString("provider: env\n")
+	b.WriteString("# Let agents propose new commands for your approval (ironrun review / approve).\n")
+	b.WriteString("allow_proposals: true\n\n")
 	b.WriteString("commands:\n")
 
 	if len(cmds) == 0 {
