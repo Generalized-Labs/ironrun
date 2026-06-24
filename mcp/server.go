@@ -89,9 +89,11 @@ func makeRunHandler(f *policy.File) func(context.Context, mcplib.CallToolRequest
 		}
 
 		res, runErr := runner.Run(ctx, pCmd, runner.Options{
-			Stdout:  os.Stderr, // live stream to stderr (agent won't see it)
-			Stderr:  os.Stderr,
-			Secrets: secrets,
+			Stdout:   os.Stderr, // live stream to stderr (agent won't see it)
+			Stderr:   os.Stderr,
+			Secrets:  secrets,
+			Provider: f.Provider,
+			Source:   "mcp",
 		})
 		if runErr != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("execution error: %v", runErr)), nil

@@ -34,6 +34,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(validateCmd())
 	root.AddCommand(doctorCmd())
 	root.AddCommand(initCmd())
+	root.AddCommand(auditCmd())
 	root.AddCommand(versionCmd())
 
 	if err := root.Execute(); err != nil {
@@ -69,9 +70,11 @@ func runCmd() *cobra.Command {
 			}
 
 			res, err := runner.Run(context.Background(), pCmd, runner.Options{
-				Stdout:  os.Stdout,
-				Stderr:  os.Stderr,
-				Secrets: secrets,
+				Stdout:   os.Stdout,
+				Stderr:   os.Stderr,
+				Secrets:  secrets,
+				Provider: f.Provider,
+				Source:   "cli",
 			})
 			if err != nil {
 				return fmt.Errorf("execution failed: %w", err)

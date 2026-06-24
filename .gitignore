@@ -18,6 +18,9 @@ coverage.out
 ironrun.yml
 !ironrun.example.yml
 
+# Local ironrun state (audit trail, pending proposals) — never committed
+.ironrun/
+
 # macOS
 .DS_Store
 

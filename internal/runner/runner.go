@@ -15,6 +15,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
+	"github.com/generalized-labs/ironrun/internal/buildinfo"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/redact"
 )
@@ -33,11 +35,13 @@ type Result struct {
 
 // Options configures an execution.
 type Options struct {
-	Stdout  io.Writer         // where to stream stdout (default: os.Stdout)
-	Stderr  io.Writer         // where to stream stderr (default: os.Stderr)
-	Env     []string          // additional env vars for the child (KEY=VALUE)
-	Secrets map[string]string // resolved secret values to inject
-	WorkDir string
+	Stdout   io.Writer         // where to stream stdout (default: os.Stdout)
+	Stderr   io.Writer         // where to stream stderr (default: os.Stderr)
+	Env      []string          // additional env vars for the child (KEY=VALUE)
+	Secrets  map[string]string // resolved secret values to inject
+	WorkDir  string
+	Provider string // provider name, recorded in the audit trail (not sensitive)
+	Source   string // "cli" | "mcp" | "action", recorded in the audit trail
 }
 
 var (
@@ -166,13 +170,38 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		}
 	}
 
+	truncated := maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes)
+	redactions := int(stdoutW.Redactions() + stderrW.Redactions())
+
+	isolation := ""
+	if cmd.NoNetwork {
+		// We only reach here if applyNetworkIsolation succeeded (it fails closed).
+		isolation = "enforced"
+	}
+	audit.Log(audit.Record{
+		Timestamp:  time.Now().UTC().Format(time.RFC3339),
+		Event:      "run_sealed",
+		CommandID:  cmd.ID,
+		ArgvHash:   audit.HashArgv(cmd.Argv),
+		Provider:   opts.Provider,
+		ExitCode:   exitCode,
+		DurationMs: elapsed.Milliseconds(),
+		BytesOut:   stdoutW.BytesWritten() + stderrW.BytesWritten(),
+		Redactions: redactions,
+		Truncated:  truncated,
+		NoNetwork:  cmd.NoNetwork,
+		Isolation:  isolation,
+		Source:     opts.Source,
+		Version:    buildinfo.String(),
+	})
+
 	return &Result{
 		ExitCode:       exitCode,
 		Stdout:         stdoutBuf.String(),
 		Stderr:         stderrBuf.String(),
 		DurationMs:     elapsed.Milliseconds(),
-		Truncated:      maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes),
-		RedactionCount: int(stdoutW.Redactions() + stderrW.Redactions()),
+		Truncated:      truncated,
+		RedactionCount: redactions,
 	}, nil
 }
 

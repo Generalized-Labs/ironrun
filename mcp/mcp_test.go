@@ -22,6 +22,9 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 	mcpBin = filepath.Join(dir, "ironrun")
+	// Keep sealed runs in these tests from writing the real ~/.ironrun/audit.jsonl
+	// (the spawned binary inherits this env).
+	os.Setenv("IRONRUN_AUDIT_PATH", filepath.Join(dir, "audit.jsonl"))
 	build := exec.Command("go", "build", "-o", mcpBin, "./cmd/ironrun")
 	build.Dir = ".." // repo root (mcp_test runs with wd = mcp/ dir)
 	if out, berr := build.CombinedOutput(); berr != nil {

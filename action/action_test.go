@@ -2,10 +2,27 @@ package action_test
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/generalized-labs/ironrun/action"
 )
+
+// TestMain keeps these in-process sealed runs from writing the real
+// ~/.ironrun/audit.jsonl.
+func TestMain(m *testing.M) {
+	dir, err := os.MkdirTemp("", "ironrun-action-audit")
+	if err == nil {
+		os.Setenv("IRONRUN_AUDIT_PATH", filepath.Join(dir, "audit.jsonl"))
+	} else {
+		os.Setenv("IRONRUN_AUDIT", "off")
+	}
+	code := m.Run()
+	if dir != "" {
+		os.RemoveAll(dir)
+	}
+	os.Exit(code)
+}
 
 func TestRun_MissingCommandID(t *testing.T) {
 	os.Unsetenv("INPUT_COMMAND_ID")

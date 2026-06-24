@@ -66,9 +66,11 @@ func Run() int {
 	}
 
 	res, err := runner.Run(context.Background(), cmd, runner.Options{
-		Stdout:  os.Stdout,
-		Stderr:  os.Stderr,
-		Secrets: secrets,
+		Stdout:   os.Stdout,
+		Stderr:   os.Stderr,
+		Secrets:  secrets,
+		Provider: f.Provider,
+		Source:   "action",
 	})
 	if err != nil {
 		ghaError("execution failed: " + err.Error())
