@@ -6,51 +6,76 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-24
+
+The first release since 0.2.0, and a big one: more exfiltration paths are closed,
+agents can request commands without bypassing the seal, and every sealed run
+leaves a tamper-evident trail.
+
 ### Added
-- **Smart `ironrun init`** — generates the policy from the project's real task
-  runner (package.json scripts, Makefile targets; Go/Rust/Python defaults) and
-  writes agent instructions (`CLAUDE.md`/`AGENTS.md`/`.cursorrules`) that
-  reference the actual command ids instead of stale examples.
-- **Propose-and-approve** — a `propose_command` MCP tool lets an agent stage a
-  command it needs (to `.ironrun/pending.yml`) instead of bypassing to a raw
-  shell. The human reviews with `ironrun review` and decides with
-  `ironrun approve <id>` / `ironrun reject <id>`. Gated by `allow_proposals`
-  (off for existing policies; new policies enable it). An unapproved command is
-  never executed, and an agent can never self-approve.
+- **Propose-and-approve.** A `propose_command` MCP tool lets an agent stage a
+  command it needs (to `.ironrun/pending.yml`) instead of running it in a raw
+  shell. Review with `ironrun review`; decide with `ironrun approve <id>` /
+  `ironrun reject <id>`. Gated by the `allow_proposals` policy field (off for
+  existing policies; new ones enable it). An unapproved command is never
+  executed, and an agent can never self-approve.
+- **Policy linter — `ironrun lint`.** Flags risky policies: shell or
+  general-interpreter argv, eval-with-secrets, missing `ttl`, open egress with
+  secrets, hardcoded credentials in argv, and a secret spread across many
+  commands. Supports `--format json` and `--strict` (warnings become errors).
+- **Tamper-evident audit log.** Every sealed run appends a SHA-256 hash-chained
+  JSONL entry recording the command id, argv, env var *names*, redaction/entropy
+  counts, exit code, duration, kill reason, and seccomp/`no_network` flags —
+  **never secret values**. `ironrun audit verify` replays the chain and reports
+  the first tampered line. Configure with the `audit_log` policy field or
+  `IRONRUN_AUDIT_LOG` (`off` to disable); defaults to
+  `~/.local/state/ironrun/audit.log`.
+- **Smart `ironrun init`.** Generates the policy from the project's real task
+  runner (package.json scripts, Makefile targets; Go/Rust/Python defaults), and
+  the agent-instruction files (`CLAUDE.md`/`AGENTS.md`/`.cursorrules`) reference
+  the actual command ids instead of stale examples.
+- **HashiCorp Vault provider** (`vault://<path>#<field>`, KV v2 via the `vault`
+  CLI; reads `VAULT_ADDR`/`VAULT_TOKEN`).
+- **`ironrun doctor`** — read-only setup diagnostics: validates the policy,
+  checks the provider is installed and authenticated, runs a redaction
+  self-test, and verifies every command's binary resolves on PATH.
+- `init` writes `AGENTS.md` and `.cursorrules` (Codex/Cursor guardrails) plus an
+  `examples/` directory of runnable starter policies.
+
+### Changed
+- **Redaction now catches encoded secret forms** — base64 (standard/URL, padded
+  and unpadded), hex (upper/lower), and URL-escaping — of any secret ≥ 8 bytes,
+  not just the literal value. Length-gated to avoid false positives.
 
 ### Security
 - **`no_network` is now fail-closed.** If isolation cannot be enforced
   (unsupported platform, missing `sandbox-exec` on macOS, disabled Linux user
   namespaces), the run is **refused** rather than silently executed with the
   network open. Covered by tests (a dialer fixture) and a macOS CI leg.
-
-## [0.3.0] - 2026-06-24
-
-### Added
-- HashiCorp **Vault** provider (`vault://<path>#<field>`, KV v2 via the `vault`
-  CLI; reads `VAULT_ADDR`/`VAULT_TOKEN`).
-- **`ironrun doctor`** — read-only setup diagnostics: validates the policy,
-  checks the provider is installed and authenticated, runs a redaction
-  self-test, and verifies every command's binary resolves on PATH.
-- `init` now writes `AGENTS.md` and `.cursorrules` so the "use `run_sealed`"
-  guardrail nudge fires for Codex and Cursor, not just Claude Code.
-- `examples/` directory with runnable starter policies.
+- **seccomp syscall filtering (Linux).** Sealed commands run under a seccomp
+  filter that blocks memory-inspection / escape syscalls (`ptrace`,
+  `process_vm_readv`/`writev`, `kcmp`, `perf_event_open`, `bpf`, `userfaultfd`).
+  On by default; control it with the per-command `seccomp` or top-level
+  `seccomp_default` policy field, or `IRONRUN_SECCOMP=off`. Linux amd64/arm64;
+  a no-op elsewhere; fails open with a warning if the filter can't install.
+- **High-entropy output warnings.** After redaction, output is scanned for
+  high-entropy tokens (≥ 3.5 bits/char, 20+ chars, excluding UUIDs/SHAs) that may
+  be an unredacted secret, and a warning is emitted. Warn-only — it never alters
+  output. Disable with `IRONRUN_ENTROPY_SCAN=off`.
+- Resolved secret values shorter than 4 bytes are skipped (with a warning) rather
+  than redacted — a 1-3 byte value would corrupt unrelated output while
+  protecting nothing real.
 
 ### Fixed
 - `init` now writes/merges Claude Code's MCP config into **`.mcp.json` at the
-  repo root** (the file Claude Code actually reads) instead of
-  `.claude/mcp.json`, which was silently ignored. Existing servers are
-  preserved.
+  repo root** (the file Claude Code actually reads) instead of `.claude/mcp.json`,
+  which was silently ignored. Existing servers are preserved.
 - README: corrected the Codex registration command
   (`codex mcp add ironrun -- ironrun mcp`) and the Claude Code config path.
 
-### Security
-- Resolved secret values shorter than 4 bytes are skipped (with a warning)
-  rather than redacted — a 1-3 byte value would corrupt unrelated output while
-  protecting nothing real.
-- SECURITY.md documents the literal-only redaction limit (base64/hex/URL-encoded
-  forms are not caught) and clarifies that macOS `no_network` restricts network
-  only, not disk.
+### Distribution
+- Homebrew is deferred until ironrun is notable enough for homebrew-core; install
+  via the curl installer (checksum-verified) or `go install`.
 
 ## [0.2.0] - 2026-06-14
 
