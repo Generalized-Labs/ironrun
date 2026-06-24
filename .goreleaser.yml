@@ -82,32 +82,11 @@ changelog:
     - title: Other
       order: 999
 
-# Homebrew auto-publish via the generalized-labs/homebrew-tap formula. Using a
-# `brews` (formula) block — not `homebrew_casks` — keeps `brew install` working
-# on BOTH macOS and Linux (the README/release header advertise both). `brews` is
-# deprecated in goreleaser v2 but still functional; if a future goreleaser hard-
-# fails on it, switch to the `homebrew_casks` form (macOS-only — Linux users then
-# fall back to the curl installer or `go install`, both already documented).
-#
-# REQUIRES (maintainer, one-time): a HOMEBREW_TAP_GITHUB_TOKEN repo secret with
-# write access to generalized-labs/homebrew-tap (release.yml already passes it
-# through), and deletion of the hand-maintained Formula/ironrun.rb in the tap so
-# goreleaser owns the formula (otherwise the two collide).
-brews:
-  - name: ironrun
-    repository:
-      owner: generalized-labs
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    directory: Formula
-    homepage: "https://github.com/generalized-labs/ironrun"
-    description: "Agent-safe sealed command execution. Secrets injected below AI context windows."
-    license: "MIT"
-    commit_author:
-      name: goreleaser-bot
-      email: bot@generalized-labs.dev
-    test: |
-      system "#{bin}/ironrun", "version"
+# Homebrew distribution is intentionally deferred until ironrun is notable enough
+# for homebrew-core (Homebrew gates new formulae on ~75 stars / 30 forks). Until
+# then the install story is the curl installer + `go install` (see the release
+# header below). To revive a tap later: add a `brews:` block here + a
+# HOMEBREW_TAP_GITHUB_TOKEN secret with write access to the tap repo.
 
 release:
   github:
@@ -125,10 +104,7 @@ release:
     ### Quick install
 
     ```bash
-    # Homebrew (macOS/Linux)
-    brew install generalized-labs/tap/ironrun
-
-    # curl (Linux/macOS)
+    # curl (Linux/macOS — verifies the checksum)
     curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/install.sh | bash
 
     # Go

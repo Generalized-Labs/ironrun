@@ -97,9 +97,6 @@ curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/insta
 
 # Go (any platform)
 go install github.com/generalized-labs/ironrun/cmd/ironrun@latest
-
-# Homebrew (from the first tagged release onward)
-brew install generalized-labs/tap/ironrun
 ```
 
 Check it's on your path:
