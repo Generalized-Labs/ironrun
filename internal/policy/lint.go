@@ -1,6 +1,7 @@
 package policy
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"sort"
@@ -26,6 +27,12 @@ func (s Severity) String() string {
 	default:
 		return "info"
 	}
+}
+
+// MarshalJSON emits the severity as its string name ("error"/"warn"/"info") so
+// `lint --format json` is self-describing for CI tooling.
+func (s Severity) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }
 
 // Finding is a single lint result.
