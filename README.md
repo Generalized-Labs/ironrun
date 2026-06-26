@@ -352,7 +352,7 @@ build:  [npm run build]
 deploy: [./scripts/deploy.sh production]
 ```
 
-**`run_sealed("<id>")`** — run one of them. Returns the exit code, duration, and redacted stdout/stderr.
+**`run_sealed`** — run one of them. Takes a single argument `command_id: "<id>"` (an id from your `ironrun.yml`; the JSON arg name is `command_id`, not `id`). Returns the exit code, duration, and redacted stdout/stderr.
 
 ```
 exit_code: 0
