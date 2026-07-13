@@ -19,6 +19,7 @@ import (
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
+	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
 
 // Serve starts the MCP stdio server using the given policy. policyPath locates
@@ -127,17 +128,38 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			return mcplib.NewToolResultError(fmt.Sprintf("provider error: %v", err)), nil
 		}
 
-		secrets, err := provider.ResolveAll(p, pCmd.Env)
+		resolved, err := provider.ResolveAll(p, pCmd.Env)
 		if err != nil {
 			// Don't expose which secret failed in detail — just say resolution failed.
 			return mcplib.NewToolResultError("secret resolution failed — check provider configuration"), nil
+		}
+
+		if len(pCmd.Secrets) > 0 {
+			storeName := "auto"
+			for _, alias := range pCmd.Secrets {
+				if f.Secrets[alias].Store != "" {
+					storeName = f.Secrets[alias].Store
+					break
+				}
+			}
+			store, storeErr := secretstore.Open(policyPath, storeName)
+			if storeErr != nil {
+				return mcplib.NewToolResultError("secret store unavailable"), nil
+			}
+			aliases, aliasErr := secretstore.ResolveAliases(f, pCmd, store)
+			if aliasErr != nil {
+				return mcplib.NewToolResultError("secret resolution failed — check secret onboarding"), nil
+			}
+			for k, v := range aliases {
+				resolved[k] = v
+			}
 		}
 
 		seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
 		res, runErr := runner.Run(ctx, pCmd, runner.Options{
 			Stdout:    os.Stderr, // live stream to stderr (agent won't see it)
 			Stderr:    os.Stderr,
-			Secrets:   secrets,
+			Secrets:   resolved,
 			Seccomp:   &seccompOn,
 			Audit:     auditLog,
 			SessionID: sessionID,

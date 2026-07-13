@@ -167,6 +167,37 @@ ironrun run test
 # If a test logs the connection string, you'll see [REDACTED] instead.
 ```
 
+### One-command secret onboarding
+
+Declare an alias and its command allowlist in `ironrun.yml`; the value never
+belongs in YAML:
+
+```yaml
+secrets:
+  hydradb:
+    env: HYDRA_DB_API_KEY
+    store: auto
+    allow: [hydra-bootstrap]
+commands:
+  - id: hydra-bootstrap
+    argv: [./bin/hydra-bootstrap]
+    secrets: [hydradb]
+```
+
+Then store it once through a masked terminal prompt:
+
+```bash
+ironrun secrets set hydradb
+ironrun secrets status
+ironrun run hydra-bootstrap
+```
+
+On macOS, `auto` uses the Keychain; on other platforms it uses an encrypted,
+owner-only local store. `status`, audit records, MCP responses, and policy files
+never include secret values. `rotate` and `delete` take effect on the next
+sealed run. Piped input is rejected unless the caller explicitly uses
+`--from-stdin --unsafe`.
+
 Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool and uses it to run `test`, `dev`, and `build` — without ever holding the secret values.
 
 ### Using with Codex

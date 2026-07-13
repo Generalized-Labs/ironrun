@@ -170,3 +170,41 @@ commands:
 		t.Errorf("expected duration error, got %v", err)
 	}
 }
+
+func TestParse_SecretBindingsAreExplicit(t *testing.T) {
+	yaml := `version: "1"
+provider: env
+secrets:
+  api:
+    env: API_KEY
+    allow: [test]
+commands:
+  - id: test
+    argv: [go, test]
+    secrets: [api]
+`
+	f, err := policy.Parse([]byte(yaml))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.Secrets["api"].Env != "API_KEY" {
+		t.Fatalf("secret env binding not loaded")
+	}
+}
+
+func TestParse_SecretCannotWidenAccess(t *testing.T) {
+	yaml := `version: "1"
+provider: env
+secrets:
+  api:
+    env: API_KEY
+    allow: [other]
+commands:
+  - id: test
+    argv: [go, test]
+    secrets: [api]
+`
+	if _, err := policy.Parse([]byte(yaml)); err == nil || !strings.Contains(err.Error(), "not allowed") {
+		t.Fatalf("expected explicit allow failure, got %v", err)
+	}
+}

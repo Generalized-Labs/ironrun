@@ -13,6 +13,7 @@ import (
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
+	"github.com/generalized-labs/ironrun/internal/secrets"
 	ironmcp "github.com/generalized-labs/ironrun/mcp"
 )
 
@@ -44,6 +45,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(approveCmd())
 	root.AddCommand(rejectCmd())
 	root.AddCommand(versionCmd())
+	root.AddCommand(secretsCmd())
 
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
@@ -72,9 +74,22 @@ func runCmd() *cobra.Command {
 				return err
 			}
 
-			secrets, err := provider.ResolveAll(p, pCmd.Env)
+			resolved, err := provider.ResolveAll(p, pCmd.Env)
 			if err != nil {
 				return fmt.Errorf("secret resolution failed: %w", err)
+			}
+			if len(pCmd.Secrets) > 0 {
+				store, storeErr := secrets.Open(policyPath, secretStoreFor(f, pCmd))
+				if storeErr != nil {
+					return fmt.Errorf("secret store unavailable: %w", storeErr)
+				}
+				aliases, aliasErr := secrets.ResolveAliases(f, pCmd, store)
+				if aliasErr != nil {
+					return fmt.Errorf("secret resolution failed: %w", aliasErr)
+				}
+				for k, v := range aliases {
+					resolved[k] = v
+				}
 			}
 
 			seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
@@ -87,7 +102,7 @@ func runCmd() *cobra.Command {
 			res, err := runner.Run(context.Background(), pCmd, runner.Options{
 				Stdout:    os.Stdout,
 				Stderr:    os.Stderr,
-				Secrets:   secrets,
+				Secrets:   resolved,
 				Seccomp:   &seccompOn,
 				Audit:     auditLog,
 				SessionID: audit.NewSessionID(),
