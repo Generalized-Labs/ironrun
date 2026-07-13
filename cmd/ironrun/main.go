@@ -10,9 +10,11 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
+	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
+	"github.com/generalized-labs/ironrun/internal/secrets"
 	ironmcp "github.com/generalized-labs/ironrun/mcp"
 )
 
@@ -44,6 +46,8 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	root.AddCommand(approveCmd())
 	root.AddCommand(rejectCmd())
 	root.AddCommand(versionCmd())
+	root.AddCommand(secretsCmd())
+	root.AddCommand(envCmd())
 
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
@@ -52,7 +56,8 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 
 // runCmd: ironrun run <command-id> [-- extra validation args]
 func runCmd() *cobra.Command {
-	return &cobra.Command{
+	var setName string
+	c := &cobra.Command{
 		Use:   "run <command-id>",
 		Short: "Execute a sealed command by its policy ID",
 		Args:  cobra.ExactArgs(1),
@@ -72,9 +77,43 @@ func runCmd() *cobra.Command {
 				return err
 			}
 
-			secrets, err := provider.ResolveAll(p, pCmd.Env)
+			resolved, err := provider.ResolveAll(p, pCmd.Env)
 			if err != nil {
 				return fmt.Errorf("secret resolution failed: %w", err)
+			}
+			if len(pCmd.Secrets) > 0 {
+				if setName != "" || f.EnvironmentSet == "active" {
+					manager, managerErr := envset.Open(mustWorkingDir())
+					if managerErr != nil {
+						return fmt.Errorf("environment store unavailable: %w", managerErr)
+					}
+					selected := setName
+					if selected == "" {
+						active, activeErr := manager.Active()
+						if activeErr != nil {
+							return fmt.Errorf("environment set unavailable: %w", activeErr)
+						}
+						selected = active.Name
+					}
+					for _, alias := range pCmd.Secrets {
+						decl := f.Secrets[alias]
+						value, getErr := manager.Get(selected, decl.Env)
+						if getErr != nil {
+							return fmt.Errorf("secret resolution failed: environment key %q is unavailable", decl.Env)
+						}
+						resolved[decl.Env] = value
+					}
+				} else {
+					aliases, aliasErr := secrets.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secrets.Store, error) {
+						return secrets.Open(policyPath, requested)
+					})
+					if aliasErr != nil {
+						return fmt.Errorf("secret resolution failed: %w", aliasErr)
+					}
+					for k, v := range aliases {
+						resolved[k] = v
+					}
+				}
 			}
 
 			seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
@@ -87,7 +126,7 @@ func runCmd() *cobra.Command {
 			res, err := runner.Run(context.Background(), pCmd, runner.Options{
 				Stdout:    os.Stdout,
 				Stderr:    os.Stderr,
-				Secrets:   secrets,
+				Secrets:   resolved,
 				Seccomp:   &seccompOn,
 				Audit:     auditLog,
 				SessionID: audit.NewSessionID(),
@@ -104,7 +143,11 @@ func runCmd() *cobra.Command {
 			return nil
 		},
 	}
+	c.Flags().StringVar(&setName, "set", "", "environment set to use for this run (overrides the active set)")
+	return c
 }
+
+func mustWorkingDir() string { cwd, _ := os.Getwd(); return cwd }
 
 // mcpCmd: ironrun mcp — starts an MCP stdio server
 func mcpCmd() *cobra.Command {

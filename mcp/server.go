@@ -15,10 +15,12 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
+	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/pending"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
+	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
 
 // Serve starts the MCP stdio server using the given policy. policyPath locates
@@ -127,17 +129,46 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			return mcplib.NewToolResultError(fmt.Sprintf("provider error: %v", err)), nil
 		}
 
-		secrets, err := provider.ResolveAll(p, pCmd.Env)
+		resolved, err := provider.ResolveAll(p, pCmd.Env)
 		if err != nil {
 			// Don't expose which secret failed in detail — just say resolution failed.
 			return mcplib.NewToolResultError("secret resolution failed — check provider configuration"), nil
+		}
+
+		if len(pCmd.Secrets) > 0 && f.EnvironmentSet == "active" {
+			manager, managerErr := envset.Open(mustCwd())
+			if managerErr != nil {
+				return mcplib.NewToolResultError("environment store unavailable"), nil
+			}
+			active, activeErr := manager.Active()
+			if activeErr != nil {
+				return mcplib.NewToolResultError("environment set unavailable"), nil
+			}
+			for _, alias := range pCmd.Secrets {
+				decl := f.Secrets[alias]
+				value, getErr := manager.Get(active.Name, decl.Env)
+				if getErr != nil {
+					return mcplib.NewToolResultError("secret resolution failed — check environment status"), nil
+				}
+				resolved[decl.Env] = value
+			}
+		} else if len(pCmd.Secrets) > 0 {
+			aliases, aliasErr := secretstore.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secretstore.Store, error) {
+				return secretstore.Open(policyPath, requested)
+			})
+			if aliasErr != nil {
+				return mcplib.NewToolResultError("secret resolution failed — check secret onboarding"), nil
+			}
+			for k, v := range aliases {
+				resolved[k] = v
+			}
 		}
 
 		seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
 		res, runErr := runner.Run(ctx, pCmd, runner.Options{
 			Stdout:    os.Stderr, // live stream to stderr (agent won't see it)
 			Stderr:    os.Stderr,
-			Secrets:   secrets,
+			Secrets:   resolved,
 			Seccomp:   &seccompOn,
 			Audit:     auditLog,
 			SessionID: sessionID,
@@ -171,6 +202,8 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 		return mcplib.NewToolResultText(out), nil
 	}
 }
+
+func mustCwd() string { cwd, _ := os.Getwd(); return cwd }
 
 // makeProposeHandler stages an agent-proposed command into .ironrun/pending.yml.
 // It NEVER runs anything and NEVER writes ironrun.yml — only `ironrun approve`

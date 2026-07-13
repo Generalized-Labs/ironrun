@@ -16,6 +16,12 @@ type File struct {
 	Version  string    `yaml:"version"`
 	Provider string    `yaml:"provider"` // "1password" | "env" | "doppler"
 	Commands []Command `yaml:"commands"`
+	// EnvironmentSet opts commands into the CLI-managed project environment
+	// store. Empty preserves the legacy provider-only resolution path.
+	EnvironmentSet string `yaml:"environment_set"`
+	// Secrets declares onboarding aliases. Values are stored outside the policy
+	// file and are resolved only for commands that explicitly bind them.
+	Secrets map[string]Secret `yaml:"secrets"`
 
 	// SeccompDefault sets the policy-wide default for the per-command seccomp
 	// syscall filter (Linux). nil means "on". A command's own Seccomp overrides it.
@@ -29,11 +35,20 @@ type File struct {
 	AllowProposals bool `yaml:"allow_proposals"`
 }
 
+// Secret binds a user-facing alias to the environment variable a child needs.
+// The value itself is never part of the policy document.
+type Secret struct {
+	Env   string   `yaml:"env"`
+	Store string   `yaml:"store"`
+	Allow []string `yaml:"allow"`
+}
+
 // Command defines one allowed invocation and the secrets it needs.
 type Command struct {
 	ID        string            `yaml:"id"`
 	Argv      []string          `yaml:"argv"`       // exact binary + args
 	Env       map[string]string `yaml:"env"`        // envvar -> secret ref
+	Secrets   []string          `yaml:"secrets"`    // onboarding aliases declared in File.Secrets
 	TTL       Duration          `yaml:"ttl"`        // max wall-clock duration
 	MaxBytes  int64             `yaml:"max_bytes"`  // cap on total output bytes (0=unlimited)
 	NoNetwork bool              `yaml:"no_network"` // block child network (best-effort)
@@ -121,6 +136,22 @@ func Parse(data []byte) (*File, error) {
 		seen[cmd.ID] = true
 		if len(cmd.Argv) == 0 {
 			return nil, fmt.Errorf("%w: command %q missing argv", ErrMalformed, cmd.ID)
+		}
+		for _, alias := range cmd.Secrets {
+			secret, ok := f.Secrets[alias]
+			if !ok || secret.Env == "" {
+				return nil, fmt.Errorf("%w: command %q references undeclared secret %q", ErrMalformed, cmd.ID, alias)
+			}
+			allowed := false
+			for _, id := range secret.Allow {
+				if id == cmd.ID {
+					allowed = true
+					break
+				}
+			}
+			if !allowed {
+				return nil, fmt.Errorf("%w: secret %q is not allowed for command %q", ErrMalformed, alias, cmd.ID)
+			}
 		}
 	}
 	return &f, nil

@@ -30,3 +30,6 @@ ironrun.yml
 # goreleaser
 dist/
 .gstack/
+
+# Local Ironrun project metadata and pending approvals
+.ironrun/

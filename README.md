@@ -167,6 +167,70 @@ ironrun run test
 # If a test logs the connection string, you'll see [REDACTED] instead.
 ```
 
+### One-command secret onboarding
+
+Declare an alias and its command allowlist in `ironrun.yml`; the value never
+belongs in YAML:
+
+```yaml
+secrets:
+  hydradb:
+    env: HYDRA_DB_API_KEY
+    store: auto
+    allow: [hydra-bootstrap]
+commands:
+  - id: hydra-bootstrap
+    argv: [./bin/hydra-bootstrap]
+    secrets: [hydradb]
+```
+
+Then store it once through a masked terminal prompt:
+
+```bash
+ironrun secrets set hydradb
+ironrun secrets status
+ironrun run hydra-bootstrap
+```
+
+On macOS, `auto` uses the Keychain; environment sets use the native credential
+manager on macOS, Windows, and Linux. `status`, audit records, MCP responses, and policy files
+never include secret values. `rotate` and `delete` take effect on the next
+sealed run. Piped input is rejected unless the caller explicitly uses
+`--from-stdin --unsafe`.
+
+### Project environment sets
+
+For projects with more than one environment, manage the values entirely from
+the terminal. `env init` registers the current Git remote plus canonical local
+path and opts the policy into the active environment set:
+
+```bash
+ironrun env init dev
+ironrun env set dev HYDRA_DB_API_KEY
+ironrun env create staging
+ironrun env clone dev staging
+ironrun env use staging
+ironrun env status
+ironrun run hydra-bootstrap
+```
+
+Temporary session sets expire automatically (24 hours by default):
+
+```bash
+ironrun env create session --temporary --ttl 8h
+ironrun env use session
+ironrun env prune
+```
+
+Use `ironrun run --set staging <command-id>` for a one-run override. `env list`,
+`env rotate`, `env delete`, `env remove`, `env doctor`, and `env import` cover
+the remaining lifecycle. Imports accept owner-only dotenv files, display key
+names but never values, and refuse project-local or group/other-readable files.
+`env export` writes only a `KEY=` template; it never exports plaintext values.
+
+Project metadata lives under `.ironrun/` and contains no secret values; the
+values themselves stay in the native OS credential manager.
+
 Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool and uses it to run `test`, `dev`, and `build` — without ever holding the secret values.
 
 ### Using with Codex
