@@ -16,6 +16,9 @@ type File struct {
 	Version  string    `yaml:"version"`
 	Provider string    `yaml:"provider"` // "1password" | "env" | "doppler"
 	Commands []Command `yaml:"commands"`
+	// EnvironmentSet opts commands into the CLI-managed project environment
+	// store. Empty preserves the legacy provider-only resolution path.
+	EnvironmentSet string `yaml:"environment_set"`
 	// Secrets declares onboarding aliases. Values are stored outside the policy
 	// file and are resolved only for commands that explicitly bind them.
 	Secrets map[string]Secret `yaml:"secrets"`

@@ -15,6 +15,7 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
+	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/pending"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
@@ -134,7 +135,24 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			return mcplib.NewToolResultError("secret resolution failed — check provider configuration"), nil
 		}
 
-		if len(pCmd.Secrets) > 0 {
+		if len(pCmd.Secrets) > 0 && f.EnvironmentSet == "active" {
+			manager, managerErr := envset.Open(mustCwd())
+			if managerErr != nil {
+				return mcplib.NewToolResultError("environment store unavailable"), nil
+			}
+			active, activeErr := manager.Active()
+			if activeErr != nil {
+				return mcplib.NewToolResultError("environment set unavailable"), nil
+			}
+			for _, alias := range pCmd.Secrets {
+				decl := f.Secrets[alias]
+				value, getErr := manager.Get(active.Name, decl.Env)
+				if getErr != nil {
+					return mcplib.NewToolResultError("secret resolution failed — check environment status"), nil
+				}
+				resolved[decl.Env] = value
+			}
+		} else if len(pCmd.Secrets) > 0 {
 			storeName := "auto"
 			for _, alias := range pCmd.Secrets {
 				if f.Secrets[alias].Store != "" {
@@ -193,6 +211,8 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 		return mcplib.NewToolResultText(out), nil
 	}
 }
+
+func mustCwd() string { cwd, _ := os.Getwd(); return cwd }
 
 // makeProposeHandler stages an agent-proposed command into .ironrun/pending.yml.
 // It NEVER runs anything and NEVER writes ironrun.yml — only `ironrun approve`
