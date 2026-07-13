@@ -14,15 +14,6 @@ import (
 	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
 
-func secretStoreFor(f *policy.File, cmd *policy.Command) string {
-	for _, alias := range cmd.Secrets {
-		if s := f.Secrets[alias].Store; s != "" {
-			return s
-		}
-	}
-	return "auto"
-}
-
 func secretsCmd() *cobra.Command {
 	root := &cobra.Command{Use: "secrets", Short: "Store and manage host-side secret values"}
 	root.AddCommand(secretSetCmd(), secretStatusCmd(), secretDeleteCmd(), secretRotateCmd())

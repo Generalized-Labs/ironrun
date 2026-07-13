@@ -104,11 +104,9 @@ func runCmd() *cobra.Command {
 						resolved[decl.Env] = value
 					}
 				} else {
-					store, storeErr := secrets.Open(policyPath, secretStoreFor(f, pCmd))
-					if storeErr != nil {
-						return fmt.Errorf("secret store unavailable: %w", storeErr)
-					}
-					aliases, aliasErr := secrets.ResolveAliases(f, pCmd, store)
+					aliases, aliasErr := secrets.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secrets.Store, error) {
+						return secrets.Open(policyPath, requested)
+					})
 					if aliasErr != nil {
 						return fmt.Errorf("secret resolution failed: %w", aliasErr)
 					}

@@ -31,6 +31,38 @@ type Store interface {
 	Delete(name string) error
 }
 
+// StoreOpener creates the backend selected by one policy secret declaration.
+// Keeping the opener per alias prevents a command with mixed stores from
+// accidentally resolving every alias through the first backend.
+type StoreOpener func(requested string) (Store, error)
+
+func ResolveAliasesWithOpener(f *policy.File, cmd *policy.Command, open StoreOpener) (map[string]string, error) {
+	out := make(map[string]string, len(cmd.Secrets))
+	stores := make(map[string]Store)
+	for _, alias := range cmd.Secrets {
+		decl, ok := f.Secrets[alias]
+		if !ok {
+			return nil, fmt.Errorf("%w: %s", ErrMissing, alias)
+		}
+		requested := decl.Store
+		store, cached := stores[requested]
+		if !cached {
+			var err error
+			store, err = open(requested)
+			if err != nil {
+				return nil, fmt.Errorf("opening store for %q: %w", alias, err)
+			}
+			stores[requested] = store
+		}
+		value, err := store.Get(alias)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %s", ErrMissing, alias)
+		}
+		out[decl.Env] = value
+	}
+	return out, nil
+}
+
 // ResolveAliases resolves only aliases explicitly bound to cmd. It deliberately
 // returns a generic missing error so callers cannot turn status into disclosure.
 func ResolveAliases(f *policy.File, cmd *policy.Command, store Store) (map[string]string, error) {

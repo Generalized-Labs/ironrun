@@ -153,18 +153,9 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 				resolved[decl.Env] = value
 			}
 		} else if len(pCmd.Secrets) > 0 {
-			storeName := "auto"
-			for _, alias := range pCmd.Secrets {
-				if f.Secrets[alias].Store != "" {
-					storeName = f.Secrets[alias].Store
-					break
-				}
-			}
-			store, storeErr := secretstore.Open(policyPath, storeName)
-			if storeErr != nil {
-				return mcplib.NewToolResultError("secret store unavailable"), nil
-			}
-			aliases, aliasErr := secretstore.ResolveAliases(f, pCmd, store)
+			aliases, aliasErr := secretstore.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secretstore.Store, error) {
+				return secretstore.Open(policyPath, requested)
+			})
 			if aliasErr != nil {
 				return mcplib.NewToolResultError("secret resolution failed — check secret onboarding"), nil
 			}

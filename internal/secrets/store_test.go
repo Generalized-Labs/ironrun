@@ -1,9 +1,12 @@
 package secrets
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/generalized-labs/ironrun/internal/policy"
 )
 
 func TestFileStoreRoundTripRotateDelete(t *testing.T) {
@@ -72,4 +75,65 @@ func contains(haystack, needle []byte) bool {
 		}
 	}
 	return false
+}
+
+type mapStore struct {
+	name   string
+	values map[string]string
+}
+
+func (s *mapStore) Name() string                 { return s.name }
+func (s *mapStore) Set(name, value string) error { s.values[name] = value; return nil }
+func (s *mapStore) Get(name string) (string, error) {
+	value, ok := s.values[name]
+	if !ok {
+		return "", ErrMissing
+	}
+	return value, nil
+}
+func (s *mapStore) Delete(name string) error { delete(s.values, name); return nil }
+
+func TestResolveAliasesWithOpenerSupportsMixedStores(t *testing.T) {
+	f, err := policy.Parse([]byte(`version: "1"
+provider: env
+secrets:
+  keychain_key:
+    env: KEYCHAIN_KEY
+    store: keychain
+    allow: [deploy]
+  file_key:
+    env: FILE_KEY
+    store: envfile
+    allow: [deploy]
+commands:
+  - id: deploy
+    argv: [echo, deploy]
+    secrets: [keychain_key, file_key]
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	keychain := &mapStore{name: "keychain", values: map[string]string{"keychain_key": "one"}}
+	envfile := &mapStore{name: "envfile", values: map[string]string{"file_key": "two"}}
+	opened := map[string]int{}
+	resolved, err := ResolveAliasesWithOpener(f, &f.Commands[0], func(requested string) (Store, error) {
+		opened[requested]++
+		switch requested {
+		case "keychain":
+			return keychain, nil
+		case "envfile":
+			return envfile, nil
+		default:
+			return nil, errors.New("unexpected store")
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resolved["KEYCHAIN_KEY"] != "one" || resolved["FILE_KEY"] != "two" {
+		t.Fatalf("resolved = %#v", resolved)
+	}
+	if opened["keychain"] != 1 || opened["envfile"] != 1 {
+		t.Fatalf("opened = %#v", opened)
+	}
 }
