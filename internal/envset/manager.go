@@ -51,7 +51,7 @@ func Open(root string) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
-	store, err := OpenNative()
+	store, err := OpenVault(identity)
 	if err != nil {
 		return nil, err
 	}

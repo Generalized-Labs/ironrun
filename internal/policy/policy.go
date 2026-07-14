@@ -33,6 +33,10 @@ type File struct {
 	// tool) for the user to approve. Off by default. The run path NEVER executes
 	// a proposed command — only `ironrun approve` promotes it into Commands.
 	AllowProposals bool `yaml:"allow_proposals"`
+	// RequireAgentLeases makes MCP execution fail closed unless the current MCP
+	// server session has a human-approved, unexpired lease for the selected
+	// environment and command. CLI execution remains the human authority path.
+	RequireAgentLeases bool `yaml:"require_agent_leases"`
 }
 
 // Secret binds a user-facing alias to the environment variable a child needs.

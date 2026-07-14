@@ -6,6 +6,37 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Encrypted project vaults.** Environment values are stored outside the
+  repository with per-environment AES-256-GCM data keys wrapped by a project
+  root key in the native OS credential manager. Existing native records migrate
+  lazily with commit-before-delete ordering.
+- **Revocable agent leases.** The opt-in `require_agent_leases` policy gate binds
+  MCP authority to one server session, environment, command set, and expiry.
+  Agents may request leases; only the local CLI/TUI can approve them.
+- **Safe secret requests and chat capsules.** Agents request declared aliases
+  without a value field. Humans can fulfill through masked local input or create
+  a short-lived `ir1.` ciphertext bound to the project, request, and MCP session.
+- **Terminal control room.** Running `ironrun` or `ironrun tui` opens a
+  value-blind environment/request/lease dashboard with masked fulfillment,
+  approvals, denial, switching, and immediate revocation.
+- **Unix-socket curl API.** `ironrun serve` exposes strict, non-cacheable local
+  status, environment, access, revocation, and sealed-run endpoints with no
+  plaintext-secret endpoint.
+
+### Changed
+- CLI, MCP, and the local API now share one sealed execution core.
+
+### Security
+- Vault manifests are authenticated and atomically committed; missing protected
+  root keys, tampering, wrong project/key use, expired leases, capsule replay,
+  and cross-session lease use fail closed and have regression coverage.
+
+### Fixed
+- macOS Keychain writes now use deterministic binary data input instead of the
+  interactive `security` prompt path, which could create an empty credential
+  when run without a terminal.
+
 ## [0.3.0] - 2026-06-24
 
 The first release since 0.2.0, and a big one: more exfiltration paths are closed,

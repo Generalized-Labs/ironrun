@@ -17,6 +17,11 @@ ironrun v0 targets a specific, well-scoped threat: **accidental secret exposure 
 | Unauthorized command IDs | Exact argv matching — no command runs unless in policy |
 | Common encoded forms of a secret in output (base64, hex, URL-encoded) | Redacted — the runner registers these encodings of each value alongside the literal (see "Redaction notes"). |
 | Sealed process reading another process's memory (ptrace, `process_vm_readv`) | Blocked by a seccomp denylist on Linux (see "Syscall hardening"). |
+| Repository, Git history, or offline copy of a project environment vault | Values and key names are encrypted with per-environment AES-256-GCM data keys; the project root key remains in the native OS credential manager. |
+| Agent self-authorizing secret or command access | MCP can create requests but cannot approve them. Optional leases require local human approval and are bound to session, environment, command set, and expiry. |
+| Revoked or expired agent capability | Checked immediately before sealed execution; restart creates a distinct MCP session. |
+| Secret supplied through chat | Safe only as an `ir1.` capsule encrypted locally before it enters chat; capsules are project/request/session-bound, short-lived, and one-use. |
+| Local curl control | Owner-only Unix socket, exact policy command IDs, bounded/strict JSON, no plaintext-secret endpoint, and non-cacheable responses. |
 
 ### Defense in depth (v1)
 
@@ -27,6 +32,8 @@ ironrun v0 targets a specific, well-scoped threat: **accidental secret exposure 
 | Entropy warn pass | After redaction, a Shannon-entropy scan flags high-entropy tokens that survived (a possible unredacted secret). Warn-only — it never alters output. Disable with `IRONRUN_ENTROPY_SCAN=off`. |
 | Tamper-evident audit log | Append-only, SHA-256 hash-chained record of each run (command, argv, secret **names** only, counts, exit/kill reason). `ironrun audit verify` detects edits. Configure with `IRONRUN_AUDIT_LOG` / `audit_log:`. |
 | `ironrun lint` | Flags risky policy patterns (shell/interpreter argv, missing ttl, secrets with open egress, hardcoded creds in argv, secret spread) before they ship. |
+| Encrypted project vault | Per-environment data keys, project-root key wrapping, authenticated manifest, atomic fsync+rename commits, and lazy commit-before-delete migration from legacy native records. |
+| Agent access ledger | Atomic request/lease state stores names and scopes only. Lease approval and secret fulfillment remain local human actions. |
 
 ### Out of scope (v1)
 
@@ -38,6 +45,30 @@ ironrun v0 targets a specific, well-scoped threat: **accidental secret exposure 
 | Side-channel leaks (timing, cache) | Not prevented |
 | Malicious binary substitution | Not prevented (PATH is inherited) |
 | Memory scraping of the ironrun process by an external attacker | Not prevented — seccomp constrains the sealed child, not other processes on the host. |
+| Same-user inspection of short-lived credential-manager helper arguments on macOS | Not prevented. Ironrun hex-encodes protected vault/capsule keys for deterministic Keychain writes; they are not written to project files or Ironrun logs, but a host process with sufficient inspection rights may observe the helper while it runs. |
+| Plaintext secret already pasted into a chat | Cannot be removed retroactively. Rotate it; future transfers should use local masked entry or a pre-encrypted capsule. |
+| Provider-level credential revocation | Revoking an Ironrun lease blocks future Ironrun use, but does not invalidate an upstream credential already disclosed elsewhere. Rotate/delete it with the provider. |
+| Rollback of the entire vault plus matching host credential state | Manifest tampering is detected, but a fully compromised user account can restore older ciphertext and credential-manager state together. |
+
+### Encrypted vault and capsule notes
+
+Ironrun defines a versioned storage format and key lifecycle, not a new cipher.
+The implementation uses the Go standard library's AES-256-GCM and random nonces.
+Associated data binds wrapped environment keys and ciphertext to the format,
+project identity, and environment scope. Rewriting an environment rotates its
+data key. Deleting the scope removes both its wrapped key and ciphertext from
+the next atomically committed revision.
+
+The manifest is authenticated with HMAC-SHA-256. Vault changes are written to an
+owner-only temporary file, synced, renamed, and followed by a best-effort parent
+directory sync. A pre-existing vault without its protected root key fails closed
+instead of silently generating a replacement key.
+
+An encrypted chat capsule contains one value plus its request, environment,
+alias, MCP session, and expiry. Those fields are authenticated together. The
+MCP claim path verifies all bindings against the still-pending local request,
+stores the value below model visibility, then closes the request to reject
+replay. Ordinary MCP form fields must never be used for passwords or API keys.
 
 ### Redaction notes
 
