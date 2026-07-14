@@ -15,8 +15,24 @@ import (
 	"time"
 )
 
-const metadataVersion = 1
+const metadataVersion = 2
 const DefaultTTL = 24 * time.Hour
+
+type EntryKind string
+
+const (
+	EntryEnvironment EntryKind = "env"
+	EntryFile        EntryKind = "file"
+)
+
+type Entry struct {
+	Name      string    `json:"name"`
+	Kind      EntryKind `json:"kind"`
+	Target    string    `json:"target"`
+	Filename  string    `json:"filename,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 
 type Identity struct {
 	RemoteURL     string `json:"remote_url"`
@@ -27,7 +43,8 @@ type Set struct {
 	Temporary bool       `json:"temporary"`
 	CreatedAt time.Time  `json:"created_at"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
-	Keys      []string   `json:"keys,omitempty"`
+	Keys      []string   `json:"keys,omitempty"` // compatibility mirror for older clients
+	Entries   []Entry    `json:"entries,omitempty"`
 }
 type Metadata struct {
 	Version  int            `json:"version"`
@@ -61,7 +78,7 @@ func Open(root string) (*Manager, error) {
 		if err := json.Unmarshal(data, &m.Meta); err != nil {
 			return nil, fmt.Errorf("parse environment metadata: %w", err)
 		}
-		if m.Meta.Version != metadataVersion {
+		if m.Meta.Version != 1 && m.Meta.Version != metadataVersion {
 			return nil, fmt.Errorf("unsupported environment metadata version %d", m.Meta.Version)
 		}
 		if m.Meta.Sets == nil {
@@ -70,12 +87,33 @@ func Open(root string) (*Manager, error) {
 		if m.Meta.Identity != identity {
 			return nil, errors.New("project identity changed; run `ironrun env init` to inspect or migrate")
 		}
+		if migrateMetadata(&m.Meta) {
+			if err := m.Save(); err != nil {
+				return nil, fmt.Errorf("migrate environment metadata: %w", err)
+			}
+		}
 	} else if !os.IsNotExist(readErr) {
 		return nil, readErr
 	} else {
 		m.Meta = Metadata{Version: metadataVersion, Identity: identity, Sets: map[string]Set{}}
 	}
 	return m, nil
+}
+
+func migrateMetadata(meta *Metadata) bool {
+	if meta.Version != 1 {
+		return false
+	}
+	for name, set := range meta.Sets {
+		if len(set.Entries) == 0 {
+			for _, key := range set.Keys {
+				set.Entries = append(set.Entries, migratedEntry(key, set.CreatedAt))
+			}
+		}
+		meta.Sets[name] = set
+	}
+	meta.Version = metadataVersion
+	return true
 }
 
 func DiscoverIdentity(root string) (Identity, error) {
@@ -182,6 +220,10 @@ func (m *Manager) Active() (Set, error) {
 }
 func (m *Manager) Expired(s Set) bool { return s.ExpiresAt != nil && !m.Now().Before(*s.ExpiresAt) }
 func (m *Manager) Put(setName, key, value string) error {
+	return m.PutEntry(setName, Entry{Name: key, Kind: EntryEnvironment, Target: key}, []byte(value))
+}
+
+func (m *Manager) PutEntry(setName string, entry Entry, value []byte) error {
 	s, ok := m.Set(setName)
 	if !ok {
 		return fmt.Errorf("environment set %q not found", setName)
@@ -189,16 +231,55 @@ func (m *Manager) Put(setName, key, value string) error {
 	if m.Expired(s) {
 		return fmt.Errorf("environment set %q has expired", setName)
 	}
-	if err := m.Store.Set(m.scope(setName), key, value); err != nil {
+	if entry.Kind == "" {
+		entry.Kind = EntryEnvironment
+	}
+	if entry.Target == "" {
+		entry.Target = entry.Name
+	}
+	if err := validateEntry(entry); err != nil {
 		return err
 	}
-	if !contains(s.Keys, key) {
-		s.Keys = append(s.Keys, key)
-		sort.Strings(s.Keys)
-		m.Meta.Sets[setName] = s
-		return m.Save()
+	for _, existing := range s.Entries {
+		if existing.Name != entry.Name && existing.Target == entry.Target {
+			return fmt.Errorf("secret entries %q and %q share target %q", existing.Name, entry.Name, entry.Target)
+		}
 	}
-	return nil
+	if entry.Kind == EntryFile {
+		store, ok := m.Store.(interface {
+			SetBytes(string, string, []byte) error
+		})
+		if !ok {
+			return errors.New("encrypted store does not support file secrets")
+		}
+		if err := store.SetBytes(m.scope(setName), entry.Name, value); err != nil {
+			return err
+		}
+	} else if err := m.Store.Set(m.scope(setName), entry.Name, string(value)); err != nil {
+		return err
+	}
+	now := m.Now().UTC()
+	found := false
+	for i := range s.Entries {
+		if s.Entries[i].Name == entry.Name {
+			entry.CreatedAt = s.Entries[i].CreatedAt
+			entry.UpdatedAt = now
+			s.Entries[i] = entry
+			found = true
+			break
+		}
+	}
+	if !found {
+		entry.CreatedAt, entry.UpdatedAt = now, now
+		s.Entries = append(s.Entries, entry)
+	}
+	if !contains(s.Keys, entry.Name) {
+		s.Keys = append(s.Keys, entry.Name)
+		sort.Strings(s.Keys)
+	}
+	sort.Slice(s.Entries, func(i, j int) bool { return s.Entries[i].Name < s.Entries[j].Name })
+	m.Meta.Sets[setName] = s
+	return m.Save()
 }
 func (m *Manager) Get(setName, key string) (string, error) {
 	s, ok := m.Set(setName)
@@ -210,6 +291,36 @@ func (m *Manager) Get(setName, key string) (string, error) {
 	}
 	return m.Store.Get(m.scope(setName), key)
 }
+
+func (m *Manager) GetBytes(setName, key string) ([]byte, error) {
+	s, ok := m.Set(setName)
+	if !ok {
+		return nil, fmt.Errorf("environment set %q not found", setName)
+	}
+	if m.Expired(s) {
+		return nil, fmt.Errorf("environment set %q has expired", setName)
+	}
+	if store, ok := m.Store.(interface {
+		GetBytes(string, string) ([]byte, error)
+	}); ok {
+		return store.GetBytes(m.scope(setName), key)
+	}
+	value, err := m.Store.Get(m.scope(setName), key)
+	return []byte(value), err
+}
+
+func (m *Manager) Entry(setName, name string) (Entry, bool) {
+	s, ok := m.Set(setName)
+	if !ok {
+		return Entry{}, false
+	}
+	for _, entry := range s.Entries {
+		if entry.Name == name {
+			return entry, true
+		}
+	}
+	return Entry{}, false
+}
 func (m *Manager) DeleteKey(setName, key string) error {
 	s, ok := m.Set(setName)
 	if !ok {
@@ -219,8 +330,35 @@ func (m *Manager) DeleteKey(setName, key string) error {
 		return err
 	}
 	s.Keys = remove(s.Keys, key)
+	for i, entry := range s.Entries {
+		if entry.Name == key {
+			s.Entries = append(s.Entries[:i], s.Entries[i+1:]...)
+			break
+		}
+	}
 	m.Meta.Sets[setName] = s
 	return m.Save()
+}
+
+func validateEntry(entry Entry) error {
+	if err := validateName(entry.Name); err != nil {
+		return err
+	}
+	if entry.Kind == "" {
+		entry.Kind = EntryEnvironment
+	}
+	if entry.Kind != EntryEnvironment && entry.Kind != EntryFile {
+		return fmt.Errorf("unsupported secret kind %q", entry.Kind)
+	}
+	if err := validateEnvironmentTarget(entry.Target); err != nil {
+		return fmt.Errorf("invalid target: %w", err)
+	}
+	if entry.Kind == EntryFile {
+		if entry.Filename == "" || filepath.Base(entry.Filename) != entry.Filename || entry.Filename == "." || entry.Filename == ".." {
+			return errors.New("file secret filename must be a safe basename")
+		}
+	}
+	return nil
 }
 func (m *Manager) Remove(setName string) error {
 	s, ok := m.Set(setName)
@@ -253,13 +391,44 @@ func (m *Manager) Clone(from, to string) error {
 	if _, err := m.Create(to, false, 0); err != nil {
 		return err
 	}
-	for _, key := range src.Keys {
-		value, err := m.Get(from, key)
+	entries := src.Entries
+	if len(entries) == 0 {
+		for _, key := range src.Keys {
+			entries = append(entries, migratedEntry(key, src.CreatedAt))
+		}
+	}
+	for _, entry := range entries {
+		var value []byte
+		var err error
+		if entry.Kind == EntryFile {
+			value, err = m.GetBytes(from, entry.Name)
+		} else {
+			var text string
+			text, err = m.Get(from, entry.Name)
+			value = []byte(text)
+		}
 		if err != nil {
 			return err
 		}
-		if err := m.Put(to, key, value); err != nil {
+		entry.CreatedAt, entry.UpdatedAt = time.Time{}, time.Time{}
+		if err := m.PutEntry(to, entry, value); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+func migratedEntry(key string, created time.Time) Entry {
+	return Entry{Name: key, Kind: EntryEnvironment, Target: key, CreatedAt: created, UpdatedAt: created}
+}
+
+func validateEnvironmentTarget(name string) error {
+	if name == "" {
+		return errors.New("environment variable cannot be empty")
+	}
+	for i, r := range name {
+		if !(r == '_' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || i > 0 && r >= '0' && r <= '9') {
+			return fmt.Errorf("environment variable %q contains unsupported characters", name)
 		}
 	}
 	return nil
@@ -310,9 +479,12 @@ func remove(values []string, want string) []string {
 type DotenvEntry struct{ Key, Value string }
 
 func ParseDotenv(path, projectRoot string) ([]DotenvEntry, error) {
-	info, err := os.Stat(path)
+	info, err := os.Lstat(path)
 	if err != nil {
 		return nil, err
+	}
+	if info.Mode()&os.ModeSymlink != 0 || !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("refusing env file %q: source must be a regular file, not a symlink", path)
 	}
 	if info.Mode().Perm()&0077 != 0 {
 		return nil, fmt.Errorf("refusing env file %q: permissions must be owner-only", path)

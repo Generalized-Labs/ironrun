@@ -51,6 +51,9 @@ func (s *migratingVaultStore) Name() string {
 func (s *migratingVaultStore) Set(scope, key, value string) error {
 	return s.vault.Set(scope, key, value)
 }
+func (s *migratingVaultStore) SetBytes(scope, key string, value []byte) error {
+	return s.vault.SetBytes(scope, key, value)
+}
 func (s *migratingVaultStore) Get(scope, key string) (string, error) {
 	value, err := s.vault.Get(scope, key)
 	if err == nil {
@@ -70,6 +73,25 @@ func (s *migratingVaultStore) Get(scope, key string) (string, error) {
 		return "", fmt.Errorf("migrate environment value into vault: %w", err)
 	}
 	_ = s.legacy.Delete(scope, key) // duplicate ciphertext/credential is safer than data loss
+	return value, nil
+}
+func (s *migratingVaultStore) GetBytes(scope, key string) ([]byte, error) {
+	value, err := s.vault.GetBytes(scope, key)
+	if err == nil {
+		return value, nil
+	}
+	if !errors.Is(err, vault.ErrMissing) {
+		return nil, err
+	}
+	legacy, err := s.legacy.Get(scope, key)
+	if err != nil {
+		return nil, ErrMissing
+	}
+	value = []byte(legacy)
+	if err := s.vault.SetBytes(scope, key, value); err != nil {
+		return nil, fmt.Errorf("migrate environment value into vault: %w", err)
+	}
+	_ = s.legacy.Delete(scope, key)
 	return value, nil
 }
 func (s *migratingVaultStore) Delete(scope, key string) error {

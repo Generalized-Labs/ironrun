@@ -32,6 +32,30 @@ func TestParse_Valid(t *testing.T) {
 	}
 }
 
+func TestParse_FileSecretValidation(t *testing.T) {
+	valid := `version: "1"
+provider: env
+secrets:
+  google:
+    env: GOOGLE_APPLICATION_CREDENTIALS
+    kind: file
+    filename: service-account.json
+    allow: [test]
+commands:
+  - id: test
+    argv: [go, test, ./...]
+    secrets: [google]
+`
+	f, err := policy.Parse([]byte(valid))
+	if err != nil || f.Secrets["google"].EffectiveKind() != "file" {
+		t.Fatalf("file policy = %#v, %v", f, err)
+	}
+	invalid := strings.Replace(valid, "service-account.json", "../secret.json", 1)
+	if _, err := policy.Parse([]byte(invalid)); !errors.Is(err, policy.ErrMalformed) {
+		t.Fatalf("traversal error = %v", err)
+	}
+}
+
 func TestParse_MissingVersion(t *testing.T) {
 	yaml := `
 provider: env

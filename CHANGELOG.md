@@ -23,9 +23,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Unix-socket curl API.** `ironrun serve` exposes strict, non-cacheable local
   status, environment, access, revocation, and sealed-run endpoints with no
   plaintext-secret endpoint.
+- **Typed workspace entries and file secrets.** Versioned environment metadata
+  now distinguishes environment values from encrypted file contents. Existing
+  key lists migrate automatically. File secrets are materialized in isolated
+  owner-only run directories and removed after every execution path.
+- **Secret-manager-first workspace TUI.** The default screen now exposes
+  environments, masked typed entries, `.env` preview/import, file import,
+  approved command execution, and persistent actions, with requests and leases
+  moved to secondary tabs plus `/` palette and `?` help.
 
 ### Changed
 - CLI, MCP, and the local API now share one sealed execution core.
+- MCP and the local API expose typed entry metadata (name, kind, target, safe
+  filename) without values. Audit records include the same safe use metadata
+  and temporary-file cleanup result.
 - Everyday workflows now have top-level commands: `add`, `new`, `session`,
   `use`, `envs`, and `exec`. Help is grouped by user intent; readable names
   (`agents`, `share`, `api`, `dashboard`, and `setup`) retain the original
@@ -38,6 +49,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Vault manifests are authenticated and atomically committed; missing protected
   root keys, tampering, wrong project/key use, expired leases, capsule replay,
   and cross-session lease use fail closed and have regression coverage.
+- File-secret policies reject absolute/traversing/separator names, duplicate
+  targets and filenames, while output redaction covers literal and encoded file
+  contents without injecting those contents as environment variables.
 
 ### Fixed
 - The TUI now reserves space for its action bar and input/approval prompts in

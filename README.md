@@ -259,13 +259,45 @@ ironrun
 ironrun tui
 ```
 
-The TUI shows environment names, configured-key counts, pending agent requests,
-active leases, expiry, and audit-safe metadata. It supports keyboard environment
-switching, lease approval and revocation, request denial, and masked secret
-entry. Press `s` to add a key to the active environment, `n` to create a
-persistent project environment, or `t` to create a 24-hour session environment.
-For older provider-backed policies, press `e` to enable the encrypted local
-vault and create `dev`. It has no reveal or copy-secret action.
+The TUI opens on the encrypted workspace: environments, masked environment/file
+secret names, approved commands, and the actions people need most. Use arrows,
+Enter, Escape, and Tab; press `/` for the action palette and `?` for help. A
+detected `.env` can be reviewed by key name, partially selected, confirmed, and
+verified after encrypted import. Ironrun never deletes the plaintext source for
+you and warns while it remains. Requests, leases, and audit state live on
+secondary tabs. There is no reveal, clipboard-copy, or plaintext-export action.
+
+### Encrypted file secrets
+
+File-backed secrets are stored as opaque encrypted bytes and materialized only
+while an approved command runs. Declare a safe basename and the environment
+variable that receives its temporary path:
+
+```yaml
+secrets:
+  service-account:
+    env: GOOGLE_APPLICATION_CREDENTIALS
+    kind: file
+    filename: service-account.json
+    allow: [integration-test]
+commands:
+  - id: integration-test
+    argv: [go, test, ./integration/...]
+    secrets: [service-account]
+```
+
+Choose **Add secret file** in the TUI. Ironrun rejects symlinks, traversal,
+unsafe basenames, permissive source files, and duplicate targets. At execution
+it creates a unique owner-only directory outside the repository, writes the
+file with owner-only permissions, injects only its path, redacts literal and
+common encoded forms of the contents, and removes the directory after success,
+failure, timeout, or cancellation. Validated stale crash remnants are removed
+on startup.
+
+Temporary plaintext necessarily exists on disk while the child process uses a
+file secret. Cleanup limits its lifetime but cannot guarantee physical erasure
+from SSD media. Use short command timeouts and revoke agent leases when access
+is no longer needed.
 
 ### Revocable agent leases
 

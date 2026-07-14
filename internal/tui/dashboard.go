@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -19,6 +20,7 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/access"
 	"github.com/generalized-labs/ironrun/internal/envset"
+	"github.com/generalized-labs/ironrun/internal/pending"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
@@ -41,7 +43,26 @@ const (
 	modeCreateEnvironment
 	modeSecretKey
 	modeDirectSecret
+	modeImportSelect
+	modeImportConfirm
+	modeFileKey
+	modeFilePath
+	modePalette
+	modeApproveCommand
 )
+
+type page int
+
+const (
+	pageWorkspace page = iota
+	pageRun
+	pageAccess
+	pageAudit
+)
+
+var workspaceActions = []string{
+	"Add secret", "Import .env", "Add secret file", "Run command", "New environment", "Grant agent access",
+}
 
 type Model struct {
 	root       string
@@ -50,23 +71,38 @@ type Model struct {
 	access     *access.Manager
 	env        *envset.Manager
 
-	environments []envset.Set
-	requests     []access.Request
-	leases       []access.Lease
-	focus        int
-	cursor       [3]int
-	mode         mode
-	input        textinput.Model
-	width        int
-	height       int
-	dark         bool
-	message      string
-	isError      bool
-	pendingKey   string
-	temporaryEnv bool
+	environments   []envset.Set
+	requests       []access.Request
+	leases         []access.Lease
+	focus          int
+	cursor         [3]int
+	page           page
+	workspaceFocus int
+	entryCursor    int
+	actionCursor   int
+	commandCursor  int
+	proposals      []pending.Proposal
+	mode           mode
+	input          textinput.Model
+	width          int
+	height         int
+	dark           bool
+	message        string
+	isError        bool
+	pendingKey     string
+	pendingImport  []envset.DotenvEntry
+	importSelected map[int]bool
+	temporaryEnv   bool
+	showHelp       bool
+	dotenvDetected bool
 }
 
 type refreshMsg struct{}
+type runFinishedMsg struct{ err error }
+type actionFinishedMsg struct {
+	message string
+	err     error
+}
 
 func Run(policyPath string) error {
 	abs, err := filepath.Abs(policyPath)
@@ -99,7 +135,7 @@ func New(root, policyPath string) (*Model, error) {
 	input.SetWidth(54)
 	m := &Model{
 		root: root, policyPath: policyPath, policy: f, access: requests,
-		input: input, dark: true,
+		input: input, dark: true, workspaceFocus: 2, importSelected: map[int]bool{},
 	}
 	if f.EnvironmentSet == "active" {
 		m.env, err = envset.Open(root)
@@ -128,11 +164,32 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case refreshMsg:
 		return m, tea.Tick(time.Second, func(time.Time) tea.Msg { return refreshMsg{} })
+	case runFinishedMsg:
+		if msg.err != nil {
+			m.refreshWithMessage("Command failed: "+safeError(msg.err), true)
+		} else {
+			m.refreshWithMessage("Sealed command completed", false)
+		}
+		return m, nil
+	case actionFinishedMsg:
+		if msg.err != nil {
+			m.refreshWithMessage("Action failed: "+safeError(msg.err), true)
+		} else {
+			m.refreshWithMessage(msg.message, false)
+		}
+		return m, nil
 	case tea.KeyPressMsg:
+		if m.showHelp {
+			m.showHelp = false
+			return m, nil
+		}
+		if m.mode == modeImportSelect {
+			return m.updateImportSelection(msg)
+		}
 		if m.mode == modeSecret || m.mode == modeDirectSecret {
 			return m.updateSecretInput(msg)
 		}
-		if m.mode == modeCreateEnvironment || m.mode == modeSecretKey {
+		if m.mode == modeCreateEnvironment || m.mode == modeSecretKey || m.mode == modeFileKey || m.mode == modeFilePath || m.mode == modePalette {
 			return m.updateTextInput(msg)
 		}
 		if m.mode != modeNormal {
@@ -141,19 +198,30 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "tab", "right", "l":
-			m.focus = (m.focus + 1) % 3
-		case "shift+tab", "left", "h":
-			m.focus = (m.focus + 2) % 3
+		case "?":
+			m.showHelp = true
+		case "/":
+			m.beginPalette()
+		case "tab":
+			m.page = (m.page + 1) % 4
+		case "shift+tab":
+			m.page = (m.page + 3) % 4
+		case "right", "l":
+			if m.page == pageWorkspace {
+				m.workspaceFocus = (m.workspaceFocus + 1) % 3
+			} else {
+				m.focus = (m.focus + 1) % 3
+			}
+		case "left", "h":
+			if m.page == pageWorkspace {
+				m.workspaceFocus = (m.workspaceFocus + 2) % 3
+			} else {
+				m.focus = (m.focus + 2) % 3
+			}
 		case "up", "k":
-			if m.cursor[m.focus] > 0 {
-				m.cursor[m.focus]--
-			}
+			m.moveCursor(-1)
 		case "down", "j":
-			limit := m.focusLength(m.focus)
-			if m.cursor[m.focus]+1 < limit {
-				m.cursor[m.focus]++
-			}
+			m.moveCursor(1)
 		case "u":
 			m.useSelectedEnvironment()
 		case "e":
@@ -169,7 +237,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "s":
 			m.beginDirectSecret()
 		case "a", "enter":
-			m.beginPrimaryAction()
+			return m, m.beginPageAction()
 		case "d":
 			if m.focus == focusRequests && len(m.requests) > 0 {
 				m.mode = modeDeny
@@ -243,6 +311,34 @@ func (m *Model) updateTextInput(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			m.message, m.isError = "A name is required", true
 			return m, nil
 		}
+		if m.mode == modePalette {
+			m.resetInput("")
+			m.runPaletteAction(value)
+			return m, nil
+		}
+		if m.mode == modeFileKey {
+			if !validEnvironmentKey(value) {
+				m.message, m.isError = "Use a target variable such as GOOGLE_APPLICATION_CREDENTIALS", true
+				return m, nil
+			}
+			m.pendingKey = value
+			m.mode = modeFilePath
+			m.message = "Choose the local secret file to encrypt"
+			m.input.Reset()
+			m.input.Placeholder = "/path/to/service-account.json"
+			_ = m.input.Focus()
+			return m, nil
+		}
+		if m.mode == modeFilePath {
+			key := m.pendingKey
+			if err := m.storeFileSecret(value); err != nil {
+				m.message, m.isError = safeError(err), true
+				return m, nil
+			}
+			m.resetInput("")
+			m.refreshWithMessage(key+" file encrypted; source file was not deleted", false)
+			return m, nil
+		}
 		if m.mode == modeSecretKey {
 			if !validEnvironmentKey(value) {
 				m.message, m.isError = "Use an environment key such as OPENAI_API_KEY", true
@@ -274,6 +370,39 @@ func (m *Model) updateTextInput(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m *Model) updateImportSelection(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "ctrl+c", "esc":
+		m.pendingImport = nil
+		m.mode = modeNormal
+		m.message = "Import cancelled"
+	case "up", "k":
+		if m.entryCursor > 0 {
+			m.entryCursor--
+		}
+	case "down", "j":
+		if m.entryCursor+1 < len(m.pendingImport) {
+			m.entryCursor++
+		}
+	case "space":
+		m.importSelected[m.entryCursor] = !m.importSelected[m.entryCursor]
+	case "enter":
+		count := 0
+		for i := range m.pendingImport {
+			if m.importSelected[i] {
+				count++
+			}
+		}
+		if count == 0 {
+			m.message, m.isError = "Select at least one key", true
+			return m, nil
+		}
+		m.mode = modeImportConfirm
+		m.message = fmt.Sprintf("Encrypt %d selected key(s) into the active environment?", count)
+	}
+	return m, nil
+}
+
 func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c", "esc", "n":
@@ -282,7 +411,17 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		return m, nil
 	case "y", "enter":
 		var err error
-		switch m.mode {
+		completedMode := m.mode
+		if completedMode == modeApproveCommand {
+			proposal := m.selectedProposal()
+			m.mode = modeNormal
+			command := exec.Command(os.Args[0], "--policy", m.policyPath, "approve", proposal.ID, "--yes")
+			command.Dir = m.root
+			return m, tea.ExecProcess(command, func(err error) tea.Msg {
+				return actionFinishedMsg{message: "Approved command " + proposal.ID, err: err}
+			})
+		}
+		switch completedMode {
 		case modeApprove:
 			_, err = m.access.ApproveLease(m.selectedRequest().ID, 0)
 		case modeDeny:
@@ -291,15 +430,149 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			err = m.access.Revoke(m.selectedLease().ID, "")
 		case modeEnableVault:
 			err = m.enableLocalVault()
+		case modeImportConfirm:
+			err = m.commitDotenvImport()
 		}
 		m.mode = modeNormal
 		if err != nil {
 			m.message, m.isError = safeError(err), true
 		} else {
-			m.refreshWithMessage("Access state updated", false)
+			message := "Access state updated"
+			if completedMode == modeImportConfirm {
+				message = m.message
+			} else if completedMode == modeEnableVault {
+				message = "Encrypted workspace enabled"
+			}
+			m.refreshWithMessage(message, false)
 		}
 	}
 	return m, nil
+}
+
+func (m *Model) beginPalette() {
+	m.mode = modePalette
+	m.message = "Type an action: add, import, file, run, environment, access"
+	m.input.Reset()
+	m.input.Placeholder = "add secret"
+	m.input.EchoMode = textinput.EchoNormal
+	_ = m.input.Focus()
+}
+
+func (m *Model) runPaletteAction(value string) {
+	value = strings.ToLower(value)
+	switch {
+	case strings.Contains(value, "import"):
+		m.beginDotenvImport()
+	case strings.Contains(value, "file"):
+		m.beginFileSecret()
+	case strings.Contains(value, "run"):
+		m.page = pageRun
+	case strings.Contains(value, "environment") || strings.Contains(value, "new"):
+		m.beginCreateEnvironment(false)
+	case strings.Contains(value, "access") || strings.Contains(value, "agent"):
+		m.page = pageAccess
+	default:
+		m.beginDirectSecret()
+	}
+}
+
+func (m *Model) beginDotenvImport() {
+	if m.env == nil {
+		m.message, m.isError = "Enable the encrypted vault first", true
+		return
+	}
+	path := filepath.Join(m.root, ".env")
+	entries, err := envset.ParseDotenv(path, "")
+	if err != nil {
+		m.message, m.isError = "Cannot import .env: "+safeError(err), true
+		return
+	}
+	m.pendingImport = entries
+	m.importSelected = map[int]bool{}
+	for i := range entries {
+		m.importSelected[i] = true
+	}
+	m.entryCursor = 0
+	m.mode = modeImportSelect
+	m.message = "Select key names to encrypt; values are never rendered"
+}
+
+func (m *Model) commitDotenvImport() error {
+	active, err := m.env.Active()
+	if err != nil {
+		return err
+	}
+	for i, entry := range m.pendingImport {
+		if !m.importSelected[i] {
+			continue
+		}
+		if existing, ok := m.env.Entry(active.Name, entry.Key); ok {
+			if existing.Kind != envset.EntryEnvironment {
+				return fmt.Errorf("%s already exists as a file secret", entry.Key)
+			}
+			current, getErr := m.env.Get(active.Name, entry.Key)
+			if getErr != nil {
+				return fmt.Errorf("verify existing %s: %w", entry.Key, getErr)
+			}
+			if current == entry.Value {
+				continue // safe retry after an interrupted import
+			}
+			return fmt.Errorf("%s is already configured; replace it separately", entry.Key)
+		}
+		if err := m.env.Put(active.Name, entry.Key, entry.Value); err != nil {
+			return err
+		}
+		stored, err := m.env.Get(active.Name, entry.Key)
+		if err != nil || stored != entry.Value {
+			return fmt.Errorf("encrypted storage verification failed for %s", entry.Key)
+		}
+	}
+	for i := range m.pendingImport {
+		m.pendingImport[i].Value = ""
+	}
+	m.pendingImport = nil
+	m.importSelected = map[int]bool{}
+	m.message = "Import verified in encrypted storage. The plaintext .env still exists; remove or protect it when safe."
+	return nil
+}
+
+func (m *Model) beginFileSecret() {
+	if m.env == nil {
+		m.message, m.isError = "Enable the encrypted vault first", true
+		return
+	}
+	m.mode = modeFileKey
+	m.message = "Name the environment variable that will receive the temporary file path"
+	m.input.Reset()
+	m.input.Placeholder = "GOOGLE_APPLICATION_CREDENTIALS"
+	m.input.EchoMode = textinput.EchoNormal
+	_ = m.input.Focus()
+}
+
+func (m *Model) storeFileSecret(path string) error {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	if info.Mode()&os.ModeSymlink != 0 || !info.Mode().IsRegular() {
+		return errors.New("file secret source must be a regular file, not a symlink")
+	}
+	if info.Mode().Perm()&0077 != 0 {
+		return errors.New("file secret permissions must be owner-only; run chmod 600 on the source")
+	}
+	if info.Size() > 16*1024*1024 {
+		return errors.New("file secret exceeds the 16 MiB limit")
+	}
+	value, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	active, err := m.env.Active()
+	if err != nil {
+		return err
+	}
+	name := m.pendingKey
+	return m.env.PutEntry(active.Name, envset.Entry{Name: name, Kind: envset.EntryFile, Target: name, Filename: filepath.Base(path)}, value)
 }
 
 func (m *Model) beginCreateEnvironment(temporary bool) {
@@ -446,6 +719,89 @@ func (m *Model) beginPrimaryAction() {
 	}
 }
 
+func (m *Model) moveCursor(delta int) {
+	move := func(cursor *int, limit int) {
+		if limit == 0 {
+			*cursor = 0
+			return
+		}
+		*cursor = max(0, min(limit-1, *cursor+delta))
+	}
+	switch m.page {
+	case pageWorkspace:
+		switch m.workspaceFocus {
+		case 0:
+			move(&m.cursor[focusEnvironments], len(m.environments))
+		case 1:
+			entries := m.activeEntries()
+			move(&m.entryCursor, len(entries))
+		case 2:
+			move(&m.actionCursor, len(workspaceActions))
+		}
+	case pageRun:
+		move(&m.commandCursor, len(m.policy.Commands)+len(m.proposals))
+	case pageAccess:
+		move(&m.cursor[m.focus], m.focusLength(m.focus))
+	}
+}
+
+func (m *Model) beginPageAction() tea.Cmd {
+	switch m.page {
+	case pageWorkspace:
+		if m.workspaceFocus == 0 {
+			m.useSelectedEnvironment()
+			return nil
+		}
+		if m.workspaceFocus == 2 {
+			m.runWorkspaceAction(m.actionCursor)
+		}
+	case pageRun:
+		if m.commandCursor < len(m.policy.Commands) {
+			id := m.policy.Commands[m.commandCursor].ID
+			m.message = "Running sealed command " + id + "…"
+			command := exec.Command(os.Args[0], "--policy", m.policyPath, "exec", id)
+			command.Dir = m.root
+			return tea.ExecProcess(command, func(err error) tea.Msg { return runFinishedMsg{err: err} })
+		} else if len(m.proposals) > 0 {
+			proposal := m.selectedProposal()
+			m.mode = modeApproveCommand
+			m.message = "Approve exact argv for " + proposal.ID + " and save it to policy?"
+		}
+	case pageAccess:
+		m.beginPrimaryAction()
+	}
+	return nil
+}
+
+func (m *Model) runWorkspaceAction(index int) {
+	switch index {
+	case 0:
+		m.beginDirectSecret()
+	case 1:
+		m.beginDotenvImport()
+	case 2:
+		m.beginFileSecret()
+	case 3:
+		m.page = pageRun
+	case 4:
+		m.beginCreateEnvironment(false)
+	case 5:
+		m.page = pageAccess
+		m.message = "Approve a pending agent request to issue a revocable lease"
+	}
+}
+
+func (m *Model) activeEntries() []envset.Entry {
+	if m.env == nil || m.env.Meta.Active == "" {
+		return nil
+	}
+	set, ok := m.env.Set(m.env.Meta.Active)
+	if !ok {
+		return nil
+	}
+	return set.Entries
+}
+
 func (m *Model) useSelectedEnvironment() {
 	if m.env == nil || len(m.environments) == 0 {
 		m.message, m.isError = "This policy does not use project environments", true
@@ -481,6 +837,16 @@ func (m *Model) storeSecret(request access.Request, value string) error {
 }
 
 func (m *Model) reload() error {
+	loadedPolicy, err := policy.Load(m.policyPath)
+	if err != nil {
+		return err
+	}
+	m.policy = loadedPolicy
+	pendingStore, err := pending.Load(pending.Path(m.policyPath))
+	if err != nil {
+		return err
+	}
+	m.proposals = append(m.proposals[:0], pendingStore.Proposals...)
 	requests, err := m.access.Requests()
 	if err != nil {
 		return err
@@ -507,6 +873,11 @@ func (m *Model) reload() error {
 			m.environments = append(m.environments, set)
 		}
 	}
+	if info, statErr := os.Lstat(filepath.Join(m.root, ".env")); statErr == nil {
+		m.dotenvDetected = info.Mode().IsRegular() && info.Mode()&os.ModeSymlink == 0
+	} else {
+		m.dotenvDetected = false
+	}
 	for i := range m.cursor {
 		limit := m.focusLength(i)
 		if limit == 0 {
@@ -516,6 +887,14 @@ func (m *Model) reload() error {
 		}
 	}
 	return nil
+}
+
+func (m *Model) selectedProposal() pending.Proposal {
+	index := m.commandCursor - len(m.policy.Commands)
+	if index < 0 || index >= len(m.proposals) {
+		return pending.Proposal{}
+	}
+	return m.proposals[index]
 }
 
 func (m *Model) refreshWithMessage(message string, isError bool) {
@@ -558,14 +937,18 @@ func (m *Model) View() tea.View {
 	footer := m.renderFooter(styles, width)
 	panelHeight := 14
 	if m.height > 0 {
+		minimumPanelHeight := 5
+		if m.page == pageWorkspace && m.mode == modeNormal && !m.showHelp {
+			minimumPanelHeight = 12
+		}
 		panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(stats) - lipgloss.Height(footer)
-		if panelHeight < 5 {
+		if panelHeight < minimumPanelHeight {
 			// The action bar is the dashboard's discoverability and control
 			// surface. Prefer it over secondary stats in short embedded terminals.
 			stats = ""
 			panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(footer)
 		}
-		if panelHeight < 5 {
+		if panelHeight < minimumPanelHeight {
 			// Input and approval modals need more room than the brand header.
 			header = ""
 			panelHeight = m.height - lipgloss.Height(footer)
@@ -588,14 +971,20 @@ func (m *Model) View() tea.View {
 }
 
 func (m *Model) renderHeader(s styles, width int) string {
-	brand := s.brand.Render("IRONRUN") + " " + s.brandSub.Render("LOCAL AGENT VAULT")
+	brand := s.brand.Render("IRONRUN") + " " + s.brandSub.Render("ENCRYPTED WORKSPACE")
 	identity := m.root
 	if m.env != nil && m.env.Meta.Identity.RemoteURL != "" {
 		identity = m.env.Meta.Identity.RemoteURL
 	}
 	right := s.muted.Render(trimMiddle(identity, max(20, width-lipgloss.Width(brand)-8)))
 	gap := max(1, width-lipgloss.Width(brand)-lipgloss.Width(right)-4)
-	return s.header.Width(width).Render(brand + strings.Repeat(" ", gap) + right)
+	tabs := []string{"Workspace", "Run", "Agent Access", "Audit"}
+	for i := range tabs {
+		if page(i) == m.page {
+			tabs[i] = s.active.Render("[" + tabs[i] + "]")
+		}
+	}
+	return s.header.Width(width).Render(brand + strings.Repeat(" ", gap) + right + "\n  " + strings.Join(tabs, "   "))
 }
 
 func (m *Model) renderStats(s styles, width int) string {
@@ -619,6 +1008,19 @@ func (m *Model) renderStats(s styles, width int) string {
 }
 
 func (m *Model) renderPanels(s styles, width, height int) string {
+	switch m.page {
+	case pageWorkspace:
+		return m.renderWorkspace(s, width, height)
+	case pageRun:
+		return m.renderRun(s, width, height)
+	case pageAudit:
+		return s.renderPanel(true, width, height, s.panelTitle.Render("AUDIT & SECURITY")+"\n\nTamper-evident execution records stay value-blind.\n\nUse `ironrun audit` to inspect and verify the chain.")
+	case pageAccess:
+		if width >= 86 {
+			left := width / 2
+			return lipgloss.JoinHorizontal(lipgloss.Top, m.renderRequests(s, left, height), m.renderLeases(s, width-left, height))
+		}
+	}
 	if width < 86 {
 		panelHeight := max(3, height/3)
 		return lipgloss.JoinVertical(lipgloss.Left,
@@ -630,6 +1032,125 @@ func (m *Model) renderPanels(s styles, width, height int) string {
 	right := max(28, inner-left-middle)
 	return lipgloss.JoinHorizontal(lipgloss.Top,
 		m.renderEnvironments(s, left, height), m.renderRequests(s, middle, height), m.renderLeases(s, right, height))
+}
+
+func (m *Model) renderWorkspace(s styles, width, height int) string {
+	if width < 86 {
+		switch m.workspaceFocus {
+		case 0:
+			return m.renderEnvironments(s, width, height)
+		case 1:
+			return m.renderEntries(s, width, height)
+		default:
+			return m.renderActions(s, width, height)
+		}
+	}
+	left := max(24, width*24/100)
+	middle := max(34, width*42/100)
+	right := max(28, width-left-middle)
+	return lipgloss.JoinHorizontal(lipgloss.Top, m.renderEnvironments(s, left, height), m.renderEntries(s, middle, height), m.renderActions(s, right, height))
+}
+
+func (m *Model) renderEntries(s styles, width, height int) string {
+	entries := m.activeEntries()
+	rows := []string{}
+	if len(entries) == 0 {
+		rows = append(rows, s.empty.Render("No secrets yet\nChoose Add secret or Import .env →"))
+	}
+	for i, entry := range entries {
+		kind := "ENV"
+		detail := "configured · never revealable"
+		if entry.Kind == envset.EntryFile {
+			kind, detail = "FILE", entry.Filename+" · encrypted"
+		}
+		row := fmt.Sprintf("● %s\n  %s · %s", entry.Name, kind, detail)
+		rows = append(rows, s.row(m.workspaceFocus == 1 && i == m.entryCursor).Render(row))
+	}
+	content := s.panelTitle.Render("SECRETS · "+strings.ToUpper(m.activeEnvironmentName())) + "\n\n" + strings.Join(rows, "\n")
+	return s.renderPanel(m.workspaceFocus == 1, width, height, content)
+}
+
+func (m *Model) renderActions(s styles, width, height int) string {
+	rows := make([]string, 0, len(workspaceActions))
+	for i, action := range workspaceActions {
+		if i == 1 && m.dotenvDetected {
+			action += "  · detected"
+		}
+		marker := "  "
+		if m.workspaceFocus == 2 && i == m.actionCursor {
+			marker = "› "
+		}
+		row := s.row(m.workspaceFocus == 2 && i == m.actionCursor)
+		if height < 18 {
+			row = row.MarginBottom(0)
+		}
+		rows = append(rows, row.Render(marker+action))
+	}
+	return s.renderPanel(m.workspaceFocus == 2, width, height, s.panelTitle.Render("ACTIONS")+"\n\n"+strings.Join(rows, "\n"))
+}
+
+func (m *Model) renderRun(s styles, width, height int) string {
+	rows := []string{}
+	for i, command := range m.policy.Commands {
+		secrets := "no workspace secrets"
+		if len(command.Secrets) > 0 {
+			secrets = strings.Join(command.Secrets, ", ")
+		}
+		row := fmt.Sprintf("%s\n  argv: %q\n  secrets: %s · workdir: %s\n  timeout: %s · network: %s · output: %s", command.ID, command.Argv, secrets, commandWorkDir(command), commandTimeout(command), commandNetwork(command), commandOutputLimit(command))
+		rows = append(rows, s.row(i == m.commandCursor).Render(row))
+	}
+	if len(m.proposals) > 0 {
+		rows = append(rows, "", s.panelTitle.Render("REVIEW QUEUE · ENTER TO APPROVE"))
+		for i, proposal := range m.proposals {
+			secrets := "none"
+			if len(proposal.Env) > 0 {
+				names := make([]string, 0, len(proposal.Env))
+				for name := range proposal.Env {
+					names = append(names, name)
+				}
+				sort.Strings(names)
+				secrets = strings.Join(names, ", ")
+			}
+			row := fmt.Sprintf("%s\n  argv: %q\n  workdir: project · secrets: %s\n  timeout: 120s · network: allowed · output: unlimited\n  reason: %s", proposal.ID, proposal.Argv, secrets, proposal.Reason)
+			rows = append(rows, s.row(len(m.policy.Commands)+i == m.commandCursor).Render(row))
+		}
+	}
+	return s.renderPanel(true, width, height, s.panelTitle.Render("APPROVED COMMANDS · ENTER TO RUN")+"\n\n"+strings.Join(rows, "\n"))
+}
+
+func commandWorkDir(command policy.Command) string {
+	if command.WorkDir == "" {
+		return "project"
+	}
+	return command.WorkDir
+}
+
+func commandTimeout(command policy.Command) string {
+	if command.TTL.Duration == 0 {
+		return "unlimited"
+	}
+	return command.TTL.Duration.String()
+}
+
+func commandNetwork(command policy.Command) string {
+	if command.NoNetwork {
+		return "blocked"
+	}
+	return "allowed"
+}
+
+func commandOutputLimit(command policy.Command) string {
+	if command.MaxBytes == 0 {
+		return "unlimited"
+	}
+	return fmt.Sprintf("%d bytes", command.MaxBytes)
+}
+
+func (m *Model) activeEnvironmentName() string {
+	if m.env != nil && m.env.Meta.Active != "" {
+		return m.env.Meta.Active
+	}
+	return "default"
 }
 
 func (m *Model) renderEnvironments(s styles, width, height int) string {
@@ -647,10 +1168,12 @@ func (m *Model) renderEnvironments(s styles, width, height int) string {
 			expiry = humanTTL(time.Until(*environment.ExpiresAt))
 		}
 		row := fmt.Sprintf("%s %-14s\n  %d keys · %s", marker, environment.Name, len(environment.Keys), expiry)
-		rows = append(rows, s.row(m.focus == focusEnvironments && i == m.cursor[focusEnvironments]).Render(row))
+		focused := (m.page == pageWorkspace && m.workspaceFocus == 0) || (m.page != pageWorkspace && m.focus == focusEnvironments)
+		rows = append(rows, s.row(focused && i == m.cursor[focusEnvironments]).Render(row))
 	}
 	content := s.panelTitle.Render("01  ENVIRONMENTS") + "\n\n" + strings.Join(rows, "\n")
-	return s.renderPanel(m.focus == focusEnvironments, width, height, content)
+	focused := (m.page == pageWorkspace && m.workspaceFocus == 0) || (m.page != pageWorkspace && m.focus == focusEnvironments)
+	return s.renderPanel(focused, width, height, content)
 }
 
 func (m *Model) renderRequests(s styles, width, height int) string {
@@ -695,13 +1218,33 @@ func (m *Model) renderLeases(s styles, width, height int) string {
 }
 
 func (m *Model) renderFooter(s styles, width int) string {
+	if m.showHelp {
+		box := s.modal.Width(max(30, min(76, width-6))).Render(s.modalTitle.Render("IRONRUN HELP") + "\n\n↑↓ select  ·  ←→ choose pane  ·  enter open\ntab next screen  ·  / command palette  ·  esc back  ·  q quit\n\nValues can be replaced or injected, never revealed or copied.")
+		return lipgloss.PlaceHorizontal(width, lipgloss.Center, box)
+	}
+	if m.mode == modeImportSelect {
+		rows := []string{}
+		for i, entry := range m.pendingImport {
+			mark := "[ ]"
+			if m.importSelected[i] {
+				mark = "[x]"
+			}
+			cursor := "  "
+			if i == m.entryCursor {
+				cursor = "› "
+			}
+			rows = append(rows, cursor+mark+" "+entry.Key)
+		}
+		box := s.modal.Width(max(30, min(70, width-6))).Render(s.modalTitle.Render("IMPORT .ENV") + "\n" + s.muted.Render("Key names only; values remain hidden") + "\n\n" + strings.Join(rows, "\n") + "\n\n" + s.help.Render("space toggle · enter review · esc cancel"))
+		return lipgloss.PlaceHorizontal(width, lipgloss.Center, box)
+	}
 	if m.mode == modeSecret || m.mode == modeDirectSecret {
 		box := s.modal.Width(max(30, min(66, width-6))).Render(
 			s.modalTitle.Render("SEALED INPUT") + "\n" + s.muted.Render(m.message) + "\n\n" + m.input.View() +
 				"\n\n" + s.help.Render("enter store locally  ·  esc cancel  ·  value never rendered"))
 		return lipgloss.PlaceHorizontal(width, lipgloss.Center, box)
 	}
-	if m.mode == modeCreateEnvironment || m.mode == modeSecretKey {
+	if m.mode == modeCreateEnvironment || m.mode == modeSecretKey || m.mode == modeFileKey || m.mode == modeFilePath || m.mode == modePalette {
 		box := s.modal.Width(max(30, min(66, width-6))).Render(
 			s.modalTitle.Render("LOCAL VAULT SETUP") + "\n" + s.muted.Render(m.message) + "\n\n" + m.input.View() +
 				"\n\n" + s.help.Render("enter continue  ·  esc cancel"))
@@ -718,7 +1261,7 @@ func (m *Model) renderFooter(s styles, width int) string {
 		if m.env == nil {
 			message = "e enable encrypted vault  ·  tab move  ·  enter act  ·  g refresh  ·  q quit"
 		} else {
-			message = "s add secret  ·  n new env  ·  t 24h session  ·  u use  ·  tab move  ·  enter act  ·  r revoke  ·  q quit"
+			message = "↑↓ select  ·  ←→ pane  ·  enter open  ·  tab screen  ·  / actions  ·  ? help  ·  q quit"
 		}
 	}
 	style := s.help

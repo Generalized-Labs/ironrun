@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -37,6 +39,46 @@ func quickAddCmd() *cobra.Command {
 	c.Flags().BoolVar(&fromStdin, "from-stdin", false, "read from stdin (requires --unsafe)")
 	c.Flags().BoolVar(&unsafe, "unsafe", false, "acknowledge piped input risk")
 	return c
+}
+
+func quickFileCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "file KEY PATH",
+		Short: "Encrypt a file secret in the active environment",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			m, active, err := activeEnvironment()
+			if err != nil {
+				return err
+			}
+			if err := storeFileEntry(m, active.Name, args[0], args[1]); err != nil {
+				return err
+			}
+			fmt.Printf("Encrypted file %s in %s. Source file was not deleted.\n", args[0], active.Name)
+			return nil
+		},
+	}
+}
+
+func storeFileEntry(m *envset.Manager, environment, target, path string) error {
+	info, err := os.Lstat(path)
+	if err != nil {
+		return err
+	}
+	if info.Mode()&os.ModeSymlink != 0 || !info.Mode().IsRegular() {
+		return fmt.Errorf("file secret source must be a regular file, not a symlink")
+	}
+	if info.Mode().Perm()&0o077 != 0 {
+		return fmt.Errorf("file secret permissions must be owner-only; run chmod 600 on the source")
+	}
+	if info.Size() > 16*1024*1024 {
+		return fmt.Errorf("file secret exceeds the 16 MiB limit")
+	}
+	value, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return m.PutEntry(environment, envset.Entry{Name: target, Kind: envset.EntryFile, Target: target, Filename: filepath.Base(path)}, value)
 }
 
 func quickNewCmd() *cobra.Command {

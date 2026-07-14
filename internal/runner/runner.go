@@ -37,6 +37,13 @@ type Options struct {
 	Stderr  io.Writer         // where to stream stderr (default: os.Stderr)
 	Env     []string          // additional env vars for the child (KEY=VALUE)
 	Secrets map[string]string // resolved secret values to inject
+	// RedactValues are protected values that must be filtered from output but
+	// are not themselves injected (for example, materialized file contents).
+	RedactValues []string
+	AuditSecrets []audit.SecretUse
+	// Cleanup runs after the child exits (including timeout/cancellation) and
+	// before the audit record is appended.
+	Cleanup func() error
 	WorkDir string
 
 	// Seccomp, when non-nil and true, requests the Linux seccomp syscall filter.
@@ -109,6 +116,14 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 			secretValues = append(secretValues, redact.Encodings(v, minEncodableSecretLen)...)
 		}
 	}
+	for _, value := range opts.RedactValues {
+		if len(value) >= minRedactableSecretLen {
+			secretValues = append(secretValues, value)
+			if len(value) >= minEncodableSecretLen {
+				secretValues = append(secretValues, redact.Encodings(value, minEncodableSecretLen)...)
+			}
+		}
+	}
 
 	// Set up output writers.
 	var stdoutBuf, stderrBuf strings.Builder
@@ -170,6 +185,15 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	// Flush any buffered redaction.
 	stdoutW.Flush()
 	stderrW.Flush()
+	cleanupResult := ""
+	var cleanupErr error
+	if opts.Cleanup != nil {
+		if cleanupErr = opts.Cleanup(); cleanupErr != nil {
+			cleanupResult = "failed"
+		} else {
+			cleanupResult = "removed"
+		}
+	}
 
 	exitCode := 0
 	var retErr error
@@ -232,6 +256,8 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 			CommandID:        cmd.ID,
 			Argv:             cmd.Argv,
 			SecretNames:      names,
+			SecretUses:       opts.AuditSecrets,
+			CleanupResult:    cleanupResult,
 			RedactionCount:   int(stdoutW.RedactionCount() + stderrW.RedactionCount()),
 			EntropyWarnings:  entropyWarnings,
 			ExitCode:         exitCode,
@@ -248,6 +274,9 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 
 	if retErr != nil {
 		return nil, retErr
+	}
+	if cleanupErr != nil {
+		return nil, fmt.Errorf("runner: temporary secret cleanup failed: %w", cleanupErr)
 	}
 
 	return &Result{

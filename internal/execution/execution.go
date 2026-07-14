@@ -38,6 +38,10 @@ func Run(ctx context.Context, f *policy.File, policyPath, root, commandID string
 	if err != nil {
 		return nil, fmt.Errorf("secret resolution failed: %w", err)
 	}
+	var files *fileWorkspace
+	var redactValues []string
+	var auditSecrets []audit.SecretUse
+	defer func() { _ = files.Close() }()
 	if len(pCmd.Secrets) > 0 {
 		if opts.Environment != "" || f.EnvironmentSet == "active" {
 			manager, err := envset.Open(root)
@@ -54,11 +58,35 @@ func Run(ctx context.Context, f *policy.File, policyPath, root, commandID string
 			}
 			for _, alias := range pCmd.Secrets {
 				decl := f.Secrets[alias]
-				value, err := manager.Get(selected, decl.Env)
-				if err != nil {
-					return nil, fmt.Errorf("secret resolution failed: environment key %q is unavailable", decl.Env)
+				auditSecrets = append(auditSecrets, audit.SecretUse{Name: alias, Kind: decl.EffectiveKind(), Target: decl.Env})
+				if decl.EffectiveKind() == "file" {
+					entry, ok := manager.Entry(selected, decl.Env)
+					if !ok || entry.Kind != envset.EntryFile {
+						return nil, fmt.Errorf("secret resolution failed: %q is not configured as a file secret", decl.Env)
+					}
+					value, err := manager.GetBytes(selected, decl.Env)
+					if err != nil {
+						return nil, fmt.Errorf("secret resolution failed: file secret %q is unavailable", decl.Env)
+					}
+					if files == nil {
+						files, err = newFileWorkspace()
+						if err != nil {
+							return nil, fmt.Errorf("file secret workspace unavailable: %w", err)
+						}
+					}
+					path, err := files.Materialize(decl.Filename, value)
+					if err != nil {
+						return nil, err
+					}
+					resolved[decl.Env] = path
+					redactValues = append(redactValues, string(value))
+				} else {
+					value, err := manager.Get(selected, decl.Env)
+					if err != nil {
+						return nil, fmt.Errorf("secret resolution failed: environment key %q is unavailable", decl.Env)
+					}
+					resolved[decl.Env] = value
 				}
-				resolved[decl.Env] = value
 			}
 		} else {
 			aliases, err := secrets.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secrets.Store, error) {
@@ -73,8 +101,13 @@ func Run(ctx context.Context, f *policy.File, policyPath, root, commandID string
 		}
 	}
 	seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
+	var cleanup func() error
+	if files != nil {
+		cleanup = files.Close
+	}
 	return runner.Run(ctx, pCmd, runner.Options{
 		Stdout: opts.Stdout, Stderr: opts.Stderr, WorkDir: root,
-		Secrets: resolved, Seccomp: &seccompOn, Audit: opts.Audit, SessionID: opts.SessionID,
+		Secrets: resolved, RedactValues: redactValues, AuditSecrets: auditSecrets, Seccomp: &seccompOn, Audit: opts.Audit, SessionID: opts.SessionID,
+		Cleanup: cleanup,
 	})
 }

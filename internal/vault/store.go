@@ -68,6 +68,7 @@ type sealedScope struct {
 
 type scopePayload struct {
 	Values map[string]string `json:"values"`
+	Blobs  map[string]string `json:"blobs,omitempty"`
 }
 
 // DefaultDir returns the per-user location for encrypted vault documents.
@@ -167,7 +168,7 @@ func (s *Store) Set(scope, key, value string) error {
 		if err != nil {
 			return err
 		}
-		payload := scopePayload{Values: map[string]string{}}
+		payload := scopePayload{Values: map[string]string{}, Blobs: map[string]string{}}
 		if sealed, ok := doc.Scopes[scope]; ok {
 			payload, err = s.openScope(scope, sealed)
 			if err != nil {
@@ -175,6 +176,40 @@ func (s *Store) Set(scope, key, value string) error {
 			}
 		}
 		payload.Values[key] = value
+		delete(payload.Blobs, key)
+		sealed, err := s.sealScope(scope, payload)
+		if err != nil {
+			return err
+		}
+		doc.Scopes[scope] = sealed
+		doc.Revision++
+		doc.UpdatedAt = s.now().UTC()
+		return s.save(doc)
+	})
+}
+
+// SetBytes atomically stores an opaque value and rotates the scope data key.
+func (s *Store) SetBytes(scope, key string, value []byte) error {
+	if err := validate(scope, "scope"); err != nil {
+		return err
+	}
+	if err := validate(key, "key"); err != nil {
+		return err
+	}
+	return s.withLock(func() error {
+		doc, err := s.load()
+		if err != nil {
+			return err
+		}
+		payload := scopePayload{Values: map[string]string{}, Blobs: map[string]string{}}
+		if sealed, ok := doc.Scopes[scope]; ok {
+			payload, err = s.openScope(scope, sealed)
+			if err != nil {
+				return err
+			}
+		}
+		payload.Blobs[key] = base64.RawStdEncoding.EncodeToString(value)
+		delete(payload.Values, key)
 		sealed, err := s.sealScope(scope, payload)
 		if err != nil {
 			return err
@@ -212,6 +247,39 @@ func (s *Store) Get(scope, key string) (string, error) {
 	return value, nil
 }
 
+// GetBytes returns an opaque value. Legacy text values remain byte-readable.
+func (s *Store) GetBytes(scope, key string) ([]byte, error) {
+	if err := validate(scope, "scope"); err != nil {
+		return nil, err
+	}
+	if err := validate(key, "key"); err != nil {
+		return nil, err
+	}
+	doc, err := s.load()
+	if err != nil {
+		return nil, err
+	}
+	sealed, ok := doc.Scopes[scope]
+	if !ok {
+		return nil, ErrMissing
+	}
+	payload, err := s.openScope(scope, sealed)
+	if err != nil {
+		return nil, err
+	}
+	if encoded, ok := payload.Blobs[key]; ok {
+		value, err := base64.RawStdEncoding.DecodeString(encoded)
+		if err != nil {
+			return nil, ErrIntegrity
+		}
+		return value, nil
+	}
+	if value, ok := payload.Values[key]; ok {
+		return []byte(value), nil
+	}
+	return nil, ErrMissing
+}
+
 func (s *Store) Delete(scope, key string) error {
 	if err := validate(scope, "scope"); err != nil {
 		return err
@@ -232,11 +300,14 @@ func (s *Store) Delete(scope, key string) error {
 		if err != nil {
 			return err
 		}
-		if _, ok := payload.Values[key]; !ok {
+		_, textOK := payload.Values[key]
+		_, blobOK := payload.Blobs[key]
+		if !textOK && !blobOK {
 			return nil
 		}
 		delete(payload.Values, key)
-		if len(payload.Values) == 0 {
+		delete(payload.Blobs, key)
+		if len(payload.Values) == 0 && len(payload.Blobs) == 0 {
 			delete(doc.Scopes, scope)
 		} else {
 			doc.Scopes[scope], err = s.sealScope(scope, payload)
@@ -428,6 +499,9 @@ func (s *Store) openScope(scope string, sealed sealedScope) (scopePayload, error
 	var payload scopePayload
 	if err := json.Unmarshal(plain, &payload); err != nil || payload.Values == nil {
 		return scopePayload{}, ErrIntegrity
+	}
+	if payload.Blobs == nil {
+		payload.Blobs = map[string]string{}
 	}
 	return payload, nil
 }

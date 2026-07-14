@@ -239,11 +239,18 @@ func makeListEnvironmentsHandler(f *policy.File, policyPath string) func(context
 			if manager.Expired(set) {
 				status = "expired"
 			}
-			fmt.Fprintf(&out, "  %s %s: %s, configured_keys=%d", marker, name, status, len(set.Keys))
+			fmt.Fprintf(&out, "  %s %s: %s, configured_items=%d", marker, name, status, len(set.Entries))
 			if set.ExpiresAt != nil {
 				fmt.Fprintf(&out, ", expires=%s", set.ExpiresAt.UTC().Format(time.RFC3339))
 			}
 			out.WriteByte('\n')
+			for _, entry := range set.Entries {
+				fmt.Fprintf(&out, "      %s (%s -> %s", entry.Name, entry.Kind, entry.Target)
+				if entry.Filename != "" {
+					fmt.Fprintf(&out, ", file=%s", entry.Filename)
+				}
+				out.WriteString(")\n")
+			}
 		}
 		return mcplib.NewToolResultText(strings.TrimRight(out.String(), "\n")), nil
 	}

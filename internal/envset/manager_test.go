@@ -9,7 +9,10 @@ import (
 	"time"
 )
 
-type fakeStore struct{ values map[string]string }
+type fakeStore struct {
+	values map[string]string
+	blobs  map[string][]byte
+}
 
 func (f *fakeStore) Name() string { return "fake" }
 func (f *fakeStore) Set(scope, key, value string) error {
@@ -34,6 +37,20 @@ func (f *fakeStore) DeleteScope(scope string) error {
 		}
 	}
 	return nil
+}
+func (f *fakeStore) SetBytes(scope, key string, value []byte) error {
+	if f.blobs == nil {
+		f.blobs = map[string][]byte{}
+	}
+	f.blobs[scope+"/"+key] = append([]byte(nil), value...)
+	return nil
+}
+func (f *fakeStore) GetBytes(scope, key string) ([]byte, error) {
+	value, ok := f.blobs[scope+"/"+key]
+	if !ok {
+		return nil, ErrMissing
+	}
+	return append([]byte(nil), value...), nil
 }
 
 func testManager(t *testing.T) (*Manager, *fakeStore) {
@@ -68,6 +85,50 @@ func TestManagerLifecycleAndExpiry(t *testing.T) {
 	}
 	if len(store.values) != 1 {
 		t.Fatalf("expected only source value, got %d", len(store.values))
+	}
+}
+
+func TestTypedFileEntryRoundTrip(t *testing.T) {
+	m, _ := testManager(t)
+	if _, err := m.Create("dev", false, 0); err != nil {
+		t.Fatal(err)
+	}
+	entry := Entry{Name: "GOOGLE_APPLICATION_CREDENTIALS", Kind: EntryFile, Target: "GOOGLE_APPLICATION_CREDENTIALS", Filename: "service-account.json"}
+	value := []byte("{\"private_key\":\"never-render\"}")
+	if err := m.PutEntry("dev", entry, value); err != nil {
+		t.Fatal(err)
+	}
+	got, err := m.GetBytes("dev", entry.Name)
+	if err != nil || string(got) != string(value) {
+		t.Fatalf("get bytes = %q, %v", got, err)
+	}
+	stored, ok := m.Entry("dev", entry.Name)
+	if !ok || stored.Kind != EntryFile || stored.Filename != entry.Filename {
+		t.Fatalf("entry = %#v", stored)
+	}
+	if err := m.Clone("dev", "staging"); err != nil {
+		t.Fatal(err)
+	}
+	clone, ok := m.Entry("staging", entry.Name)
+	if !ok || clone.Kind != EntryFile {
+		t.Fatalf("clone entry = %#v", clone)
+	}
+}
+
+func TestMetadataV1MigrationPreservesKeyBindings(t *testing.T) {
+	created := time.Date(2025, 1, 2, 3, 4, 5, 0, time.UTC)
+	meta := Metadata{Version: 1, Active: "dev", Sets: map[string]Set{
+		"dev": {Name: "dev", CreatedAt: created, Keys: []string{"API_KEY", "DATABASE_URL"}},
+	}}
+	if !migrateMetadata(&meta) || meta.Version != metadataVersion {
+		t.Fatalf("migration did not advance metadata: %#v", meta)
+	}
+	entries := meta.Sets["dev"].Entries
+	if len(entries) != 2 || entries[0].Kind != EntryEnvironment || entries[0].Target != "API_KEY" || !entries[0].CreatedAt.Equal(created) {
+		t.Fatalf("migrated entries = %#v", entries)
+	}
+	if migrateMetadata(&meta) {
+		t.Fatal("v2 metadata migrated twice")
 	}
 }
 

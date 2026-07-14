@@ -151,9 +151,17 @@ func (s *Server) environments(w http.ResponseWriter, r *http.Request) {
 	out := make([]map[string]any, 0, len(manager.Meta.Sets))
 	for _, name := range manager.Names() {
 		set, _ := manager.Set(name)
+		entries := make([]map[string]any, 0, len(set.Entries))
+		for _, entry := range set.Entries {
+			entries = append(entries, map[string]any{
+				"name": entry.Name, "kind": entry.Kind, "target": entry.Target,
+				"filename": entry.Filename, "configured": true,
+			})
+		}
 		out = append(out, map[string]any{
 			"name": name, "active": name == manager.Meta.Active, "temporary": set.Temporary,
-			"configured_keys": len(set.Keys), "expires_at": set.ExpiresAt, "expired": manager.Expired(set),
+			"configured_keys": len(set.Keys), "configured_items": len(set.Entries), "entries": entries,
+			"expires_at": set.ExpiresAt, "expired": manager.Expired(set),
 		})
 	}
 	writeJSON(w, http.StatusOK, out)

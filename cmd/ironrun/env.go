@@ -17,7 +17,7 @@ import (
 
 func envCmd() *cobra.Command {
 	c := &cobra.Command{Use: "env", Aliases: []string{"vault"}, Short: "Manage project-scoped environment sets without exposing values"}
-	c.AddCommand(envInitCmd(), envCreateCmd(), envListCmd(), envUseCmd(), envStatusCmd(), envSetCmd(), envImportCmd(), envExportCmd(), envCloneCmd(), envRotateCmd(), envDeleteCmd(), envRemoveCmd(), envPruneCmd(), envDoctorCmd())
+	c.AddCommand(envInitCmd(), envCreateCmd(), envListCmd(), envUseCmd(), envStatusCmd(), envSetCmd(), envFileCmd(), envImportCmd(), envExportCmd(), envCloneCmd(), envRotateCmd(), envDeleteCmd(), envRemoveCmd(), envPruneCmd(), envDoctorCmd())
 	return c
 }
 
@@ -152,14 +152,45 @@ func envStatusCmd() *cobra.Command {
 		}
 		sort.Strings(keys)
 		for _, key := range keys {
-			_, getErr := m.Get(name, key)
+			entry, typed := m.Entry(name, key)
+			var getErr error
+			kind := "env"
+			if typed && entry.Kind == envset.EntryFile {
+				kind = "file"
+				_, getErr = m.GetBytes(name, key)
+			} else {
+				_, getErr = m.Get(name, key)
+			}
 			state := "missing"
 			if getErr == nil {
 				state = "configured"
 			}
-			fmt.Printf("%s: %s\n", key, state)
+			fmt.Printf("%s: %s (%s)\n", key, state, kind)
 		}
 		fmt.Printf("set: %s (%s)\n", name, kind(s))
+		return nil
+	}}
+}
+
+func envFileCmd() *cobra.Command {
+	return &cobra.Command{Use: "file [NAME] KEY PATH", Short: "Encrypt one owner-only file secret", Args: cobra.RangeArgs(2, 3), RunE: func(cmd *cobra.Command, args []string) error {
+		m, err := openEnvManager()
+		if err != nil {
+			return err
+		}
+		var environment, target, path string
+		if len(args) == 3 {
+			environment, target, path = args[0], args[1], args[2]
+		} else {
+			if m.Meta.Active == "" {
+				return fmt.Errorf("no active environment; run `ironrun new NAME` first")
+			}
+			environment, target, path = m.Meta.Active, args[0], args[1]
+		}
+		if err := storeFileEntry(m, environment, target, path); err != nil {
+			return err
+		}
+		fmt.Printf("Encrypted file %s in %s. Source file was not deleted.\n", target, environment)
 		return nil
 	}}
 }

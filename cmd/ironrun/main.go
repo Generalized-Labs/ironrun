@@ -21,6 +21,7 @@ func main() {
 	// Note: when this binary is re-executed as the sealed-exec shim, the
 	// sealedexec package's init() intercepts it (installing the seccomp filter
 	// and execve'ing the target) before main runs — see internal/sealedexec.
+	_ = execution.CleanupStale()
 	root := &cobra.Command{
 		Use:   "ironrun",
 		Short: "Sealed command execution for AI agents",
@@ -52,7 +53,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 			root.AddCommand(command)
 		}
 	}
-	add("everyday", tuiCmd(), quickAddCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), envCmd())
+	add("everyday", tuiCmd(), quickAddCmd(), quickFileCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), envCmd())
 	add("agents", accessCmd(), capsuleCmd(), mcpCmd(), serveCmd())
 	add("setup", initCmd(), doctorCmd(), validateCmd(), lintCmd())
 	add("advanced", auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())

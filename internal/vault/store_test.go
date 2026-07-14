@@ -70,6 +70,25 @@ func TestStoreRoundTripRotationAndNoPlaintextAtRest(t *testing.T) {
 	}
 }
 
+func TestStoreOpaqueBytesNeverAppearAtRest(t *testing.T) {
+	s, _ := testStore(t)
+	value := []byte{0, 1, 2, 3, 255, 's', 'e', 'c', 'r', 'e', 't'}
+	if err := s.SetBytes("dev", "CERT_FILE", value); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(s.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(data, value) || bytes.Contains(data, []byte("CERT_FILE")) {
+		t.Fatal("vault exposed blob or name")
+	}
+	got, err := s.GetBytes("dev", "CERT_FILE")
+	if err != nil || !bytes.Equal(got, value) {
+		t.Fatalf("blob = %v, %v", got, err)
+	}
+}
+
 func TestStoreScopesDeleteIndependently(t *testing.T) {
 	s, _ := testStore(t)
 	for _, tc := range []struct{ scope, key, value string }{
