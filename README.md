@@ -113,10 +113,23 @@ ironrun version
 From the root of any project:
 
 ```bash
-ironrun init
+ironrun
 ```
 
-This looks at your project and writes three files:
+This creates a local encrypted `dev` environment when needed and opens the
+terminal control room. The everyday commands are intentionally short:
+
+```bash
+ironrun add OPENAI_API_KEY   # masked prompt; saves to the active environment
+ironrun new staging         # create and switch to a persistent environment
+ironrun session             # create and switch to a 24-hour environment
+ironrun use dev             # switch environments
+ironrun envs                # list names and keys, never values
+ironrun exec test           # run the allowed command named "test"
+```
+
+Run `ironrun setup` when you also want project agent instructions and MCP
+configuration. It looks at your project and writes three files:
 
 - **`ironrun.yml`** — a starter policy. It detects your stack (npm/pnpm/yarn/bun, Go, Rust, Python) and your `.env`, and pre-fills commands like `test`, `dev`, and `build` with the env vars it found.
 - **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
@@ -204,7 +217,8 @@ sealed run. Piped input is rejected unless the caller explicitly uses
 For projects with more than one environment, manage the values entirely from
 the terminal. On a new project, simply run `ironrun`: it creates a valid
 local-vault policy, registers the project identity, creates `dev`, and opens the
-control room. The explicit CLI workflow remains available:
+control room. The original nested CLI remains available for scripts and
+advanced operations:
 
 ```bash
 ironrun env init dev

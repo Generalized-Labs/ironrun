@@ -12,8 +12,9 @@ import (
 
 func capsuleCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "capsule",
-		Short: "Create chat-safe, one-use encrypted secret capsules",
+		Use:     "share",
+		Aliases: []string{"capsule"},
+		Short:   "Create chat-safe, one-use encrypted secret capsules",
 		Long: `A capsule is encrypted before it enters chat and is bound to one pending
 secret request, project, MCP session, and short expiry. The agent receives only
 ciphertext and can claim it once; it never receives the plaintext value.`,

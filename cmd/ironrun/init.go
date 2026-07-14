@@ -14,8 +14,9 @@ import (
 
 func initCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "init",
-		Short: "Initialize ironrun in the current project",
+		Use:     "setup",
+		Aliases: []string{"init"},
+		Short:   "Initialize ironrun in the current project",
 		Long: `Creates ironrun.yml, .mcp.json, and agent instructions
 (CLAUDE.md, AGENTS.md, .cursorrules) in the current directory.
 Also registers ironrun with Codex (~/.codex/config.toml) and Cursor (~/.cursor/mcp.json).

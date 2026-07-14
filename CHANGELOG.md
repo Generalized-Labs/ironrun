@@ -26,6 +26,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - CLI, MCP, and the local API now share one sealed execution core.
+- Everyday workflows now have top-level commands: `add`, `new`, `session`,
+  `use`, `envs`, and `exec`. Help is grouped by user intent; readable names
+  (`agents`, `share`, `api`, `dashboard`, and `setup`) retain the original
+  command names as aliases, and `vault` aliases `env`.
 - Bare `ironrun` now bootstraps a missing policy and encrypted `dev`
   environment before opening the TUI. The control room can enable the vault on
   older policies, add secrets, and create persistent or 24-hour environments.

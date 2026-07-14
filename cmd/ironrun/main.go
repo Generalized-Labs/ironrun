@@ -40,23 +40,22 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 		return runTUI(policyPath)
 	}
 
-	root.AddCommand(runCmd())
-	root.AddCommand(mcpCmd())
-	root.AddCommand(validateCmd())
-	root.AddCommand(lintCmd())
-	root.AddCommand(doctorCmd())
-	root.AddCommand(auditCmd())
-	root.AddCommand(initCmd())
-	root.AddCommand(reviewCmd())
-	root.AddCommand(approveCmd())
-	root.AddCommand(rejectCmd())
-	root.AddCommand(versionCmd())
-	root.AddCommand(secretsCmd())
-	root.AddCommand(envCmd())
-	root.AddCommand(accessCmd())
-	root.AddCommand(capsuleCmd())
-	root.AddCommand(tuiCmd())
-	root.AddCommand(serveCmd())
+	root.AddGroup(
+		&cobra.Group{ID: "everyday", Title: "Everyday commands:"},
+		&cobra.Group{ID: "agents", Title: "Agents and sharing:"},
+		&cobra.Group{ID: "setup", Title: "Setup and safety:"},
+		&cobra.Group{ID: "advanced", Title: "Advanced commands:"},
+	)
+	add := func(group string, commands ...*cobra.Command) {
+		for _, command := range commands {
+			command.GroupID = group
+			root.AddCommand(command)
+		}
+	}
+	add("everyday", tuiCmd(), quickAddCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), envCmd())
+	add("agents", accessCmd(), capsuleCmd(), mcpCmd(), serveCmd())
+	add("setup", initCmd(), doctorCmd(), validateCmd(), lintCmd())
+	add("advanced", auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())
 
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
@@ -67,9 +66,10 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 func runCmd() *cobra.Command {
 	var setName string
 	c := &cobra.Command{
-		Use:   "run <command-id>",
-		Short: "Execute a sealed command by its policy ID",
-		Args:  cobra.ExactArgs(1),
+		Use:     "exec <command-id>",
+		Aliases: []string{"run"},
+		Short:   "Execute a sealed command by its policy ID",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			f, err := policy.Load(policyPath)
 			if err != nil {

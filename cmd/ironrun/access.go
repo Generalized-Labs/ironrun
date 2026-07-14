@@ -18,9 +18,10 @@ import (
 
 func accessCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "access",
-		Short: "Review agent requests and manage revocable session leases",
-		Long:  "Manage agent requests and leases without displaying or accepting secret values through MCP.",
+		Use:     "agents",
+		Aliases: []string{"access"},
+		Short:   "Review agent requests and manage revocable session leases",
+		Long:    "Manage agent requests and leases without displaying or accepting secret values through MCP.",
 	}
 	cmd.AddCommand(accessListCmd(), accessFulfillCmd(), accessApproveCmd(), accessDenyCmd(), accessLeasesCmd(), accessRevokeCmd())
 	return cmd

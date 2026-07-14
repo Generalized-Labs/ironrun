@@ -14,8 +14,9 @@ import (
 func serveCmd() *cobra.Command {
 	var socketPath string
 	cmd := &cobra.Command{
-		Use:   "serve",
-		Short: "Serve the value-blind local API over an owner-only Unix socket",
+		Use:     "api",
+		Aliases: []string{"serve"},
+		Short:   "Serve the value-blind local API over an owner-only Unix socket",
 		Long: `Expose status, environment metadata, access state, revocation, and sealed
 execution to local curl clients. The API has no plaintext secret endpoint and
 refuses unknown JSON fields. The socket is created with owner-only permissions.`,

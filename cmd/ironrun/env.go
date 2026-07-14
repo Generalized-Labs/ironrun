@@ -16,7 +16,7 @@ import (
 )
 
 func envCmd() *cobra.Command {
-	c := &cobra.Command{Use: "env", Short: "Manage project-scoped environment sets without exposing values"}
+	c := &cobra.Command{Use: "env", Aliases: []string{"vault"}, Short: "Manage project-scoped environment sets without exposing values"}
 	c.AddCommand(envInitCmd(), envCreateCmd(), envListCmd(), envUseCmd(), envStatusCmd(), envSetCmd(), envImportCmd(), envExportCmd(), envCloneCmd(), envRotateCmd(), envDeleteCmd(), envRemoveCmd(), envPruneCmd(), envDoctorCmd())
 	return c
 }
@@ -24,7 +24,7 @@ func envCmd() *cobra.Command {
 func openEnvManager() (*envset.Manager, error) { return envset.Open(mustWorkingDir()) }
 
 func envInitCmd() *cobra.Command {
-	return &cobra.Command{Use: "init [NAME]", Short: "Register this project and create its first environment set", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	return &cobra.Command{Use: "init [NAME]", Aliases: []string{"enable"}, Short: "Register this project and create its first environment set", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		name := "dev"
 		if len(args) == 1 {
 			name = args[0]
@@ -54,7 +54,7 @@ func envInitCmd() *cobra.Command {
 func envCreateCmd() *cobra.Command {
 	var temporary bool
 	var ttl time.Duration
-	c := &cobra.Command{Use: "create NAME", Short: "Create a persistent or expiring environment set", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	c := &cobra.Command{Use: "create NAME", Aliases: []string{"new"}, Short: "Create a persistent or expiring environment set", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := openEnvManager()
 		if err != nil {
 			return err
@@ -76,32 +76,47 @@ func envCreateCmd() *cobra.Command {
 }
 
 func envListCmd() *cobra.Command {
-	return &cobra.Command{Use: "list", Short: "List environment sets without values", RunE: func(cmd *cobra.Command, args []string) error {
+	return &cobra.Command{Use: "list", Aliases: []string{"ls"}, Short: "List environment sets without values", RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := openEnvManager()
 		if err != nil {
 			return err
 		}
-		for _, name := range m.Names() {
-			s, _ := m.Set(name)
-			marker := " "
-			if name == m.Meta.Active {
-				marker = "*"
-			}
-			expiry := "-"
-			if s.ExpiresAt != nil {
-				expiry = s.ExpiresAt.Format(time.RFC3339)
-				if m.Expired(s) {
-					expiry += " (expired)"
-				}
-			}
-			fmt.Printf("%s %-16s %-10s keys=%d created=%s expires=%s\n", marker, name, kind(s), len(s.Keys), s.CreatedAt.Format(time.RFC3339), expiry)
-		}
-		fmt.Printf("project: %s\n", identitySummary(m.Meta.Identity))
-		return nil
+		return printEnvironmentList(m)
 	}}
 }
+
+func printEnvironmentList(m *envset.Manager) error {
+	for _, name := range m.Names() {
+		s, _ := m.Set(name)
+		marker := " "
+		if name == m.Meta.Active {
+			marker = "*"
+		}
+		expiry := "-"
+		if s.ExpiresAt != nil {
+			expiry = s.ExpiresAt.Format(time.RFC3339)
+			if m.Expired(s) {
+				expiry += " (expired)"
+			}
+		}
+		fmt.Printf("%s %-16s %-10s keys=%d created=%s expires=%s\n", marker, name, kind(s), len(s.Keys), s.CreatedAt.Format(time.RFC3339), expiry)
+	}
+	fmt.Printf("project: %s\n", identitySummary(m.Meta.Identity))
+	return nil
+}
+
+func environmentSetTarget(m *envset.Manager, args []string) (string, string, error) {
+	if len(args) == 2 {
+		return args[0], args[1], nil
+	}
+	if m.Meta.Active == "" {
+		return "", "", fmt.Errorf("no active environment; run `ironrun new NAME` first")
+	}
+	return m.Meta.Active, args[0], nil
+}
+
 func envUseCmd() *cobra.Command {
-	return &cobra.Command{Use: "use NAME", Short: "Select the active set for this project", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	return &cobra.Command{Use: "use NAME", Aliases: []string{"switch"}, Short: "Select the active set for this project", Args: cobra.ExactArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := openEnvManager()
 		if err != nil {
 			return err
@@ -115,7 +130,7 @@ func envUseCmd() *cobra.Command {
 }
 
 func envStatusCmd() *cobra.Command {
-	return &cobra.Command{Use: "status [NAME]", Short: "Show configured keys and policy coverage, never values", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
+	return &cobra.Command{Use: "status [NAME]", Aliases: []string{"show"}, Short: "Show configured keys and policy coverage, never values", Args: cobra.MaximumNArgs(1), RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := openEnvManager()
 		if err != nil {
 			return err
@@ -151,8 +166,12 @@ func envStatusCmd() *cobra.Command {
 
 func envSetCmd() *cobra.Command {
 	var fromStdin, unsafe bool
-	c := &cobra.Command{Use: "set NAME KEY", Short: "Store one value using masked input", Args: cobra.ExactArgs(2), RunE: func(cmd *cobra.Command, args []string) error {
+	c := &cobra.Command{Use: "set [NAME] KEY", Aliases: []string{"add"}, Short: "Store one value using masked input", Args: cobra.RangeArgs(1, 2), RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := openEnvManager()
+		if err != nil {
+			return err
+		}
+		name, key, err := environmentSetTarget(m, args)
 		if err != nil {
 			return err
 		}
@@ -163,10 +182,10 @@ func envSetCmd() *cobra.Command {
 		if value == "" {
 			return fmt.Errorf("value cannot be empty")
 		}
-		if err := m.Put(args[0], args[1], value); err != nil {
+		if err := m.Put(name, key, value); err != nil {
 			return err
 		}
-		fmt.Printf("Saved %s in %s. Value is never displayed.\n", args[1], args[0])
+		fmt.Printf("Saved %s in %s. Value is never displayed.\n", key, name)
 		return nil
 	}}
 	c.Flags().BoolVar(&fromStdin, "from-stdin", false, "read from stdin (requires --unsafe)")
