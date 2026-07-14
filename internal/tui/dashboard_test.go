@@ -49,3 +49,16 @@ commands:
 		t.Fatal("dashboard should render safe alias metadata")
 	}
 }
+
+func TestEnvironmentKeyValidation(t *testing.T) {
+	for _, valid := range []string{"OPENAI_API_KEY", "_SESSION_TOKEN", "database2"} {
+		if !validEnvironmentKey(valid) {
+			t.Errorf("valid key rejected: %q", valid)
+		}
+	}
+	for _, invalid := range []string{"", "2TOKEN", "API-KEY", "HAS SPACE", "KEY=value"} {
+		if validEnvironmentKey(invalid) {
+			t.Errorf("invalid key accepted: %q", invalid)
+		}
+	}
+}

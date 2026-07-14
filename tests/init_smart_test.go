@@ -39,20 +39,25 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 		t.Fatal(err)
 	}
 	var pol struct {
+		EnvironmentSet string `yaml:"environment_set"`
+		Secrets        map[string]struct {
+			Env   string   `yaml:"env"`
+			Allow []string `yaml:"allow"`
+		} `yaml:"secrets"`
 		Commands []struct {
-			ID   string            `yaml:"id"`
-			Argv []string          `yaml:"argv"`
-			Env  map[string]string `yaml:"env"`
+			ID      string   `yaml:"id"`
+			Argv    []string `yaml:"argv"`
+			Secrets []string `yaml:"secrets"`
 		} `yaml:"commands"`
 	}
 	if err := yaml.Unmarshal(data, &pol); err != nil {
 		t.Fatalf("generated policy is invalid YAML: %v\n%s", err, data)
 	}
 	argvByID := map[string][]string{}
-	envByID := map[string]map[string]string{}
+	secretsByID := map[string][]string{}
 	for _, c := range pol.Commands {
 		argvByID[c.ID] = c.Argv
-		envByID[c.ID] = c.Env
+		secretsByID[c.ID] = c.Secrets
 	}
 
 	// A custom script becomes a real command.
@@ -63,9 +68,9 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 	if got := argvByID["test"]; len(got) != 2 || got[1] != "test" {
 		t.Errorf("expected test -> [npm test], got %v", got)
 	}
-	// dev is credential-likely -> env injected.
-	if envByID["dev"]["DATABASE_URL"] != "env:DATABASE_URL" {
-		t.Errorf("expected dev to carry DATABASE_URL env, got %v\npolicy:\n%s", envByID["dev"], data)
+	// dev is credential-likely -> encrypted-vault aliases are bound.
+	if pol.EnvironmentSet != "active" || pol.Secrets["DATABASE_URL"].Env != "DATABASE_URL" || !containsString(secretsByID["dev"], "DATABASE_URL") {
+		t.Errorf("expected dev to carry DATABASE_URL vault alias, got %v\npolicy:\n%s", secretsByID["dev"], data)
 	}
 
 	// Agent instructions reference the REAL ids + the propose escape hatch.
@@ -79,4 +84,13 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 	if !strings.Contains(string(claude), "propose_command") {
 		t.Errorf("CLAUDE.md should mention propose_command")
 	}
+}
+
+func containsString(values []string, want string) bool {
+	for _, value := range values {
+		if value == want {
+			return true
+		}
+	}
+	return false
 }

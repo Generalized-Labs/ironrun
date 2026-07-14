@@ -26,6 +26,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 - CLI, MCP, and the local API now share one sealed execution core.
+- Bare `ironrun` now bootstraps a missing policy and encrypted `dev`
+  environment before opening the TUI. The control room can enable the vault on
+  older policies, add secrets, and create persistent or 24-hour environments.
 
 ### Security
 - Vault manifests are authenticated and atomically committed; missing protected

@@ -202,8 +202,9 @@ sealed run. Piped input is rejected unless the caller explicitly uses
 ### Project environment sets
 
 For projects with more than one environment, manage the values entirely from
-the terminal. `env init` registers the current Git remote plus canonical local
-path and opts the policy into the active environment set:
+the terminal. On a new project, simply run `ironrun`: it creates a valid
+local-vault policy, registers the project identity, creates `dev`, and opens the
+control room. The explicit CLI workflow remains available:
 
 ```bash
 ironrun env init dev
@@ -247,7 +248,10 @@ ironrun tui
 The TUI shows environment names, configured-key counts, pending agent requests,
 active leases, expiry, and audit-safe metadata. It supports keyboard environment
 switching, lease approval and revocation, request denial, and masked secret
-entry. It has no reveal or copy-secret action.
+entry. Press `s` to add a key to the active environment, `n` to create a
+persistent project environment, or `t` to create a 24-hour session environment.
+For older provider-backed policies, press `e` to enable the encrypted local
+vault and create `dev`. It has no reveal or copy-secret action.
 
 ### Revocable agent leases
 

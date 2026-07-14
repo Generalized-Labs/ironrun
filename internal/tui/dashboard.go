@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"image/color"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -36,6 +37,10 @@ const (
 	modeDeny
 	modeRevoke
 	modeSecret
+	modeEnableVault
+	modeCreateEnvironment
+	modeSecretKey
+	modeDirectSecret
 )
 
 type Model struct {
@@ -57,6 +62,8 @@ type Model struct {
 	dark         bool
 	message      string
 	isError      bool
+	pendingKey   string
+	temporaryEnv bool
 }
 
 type refreshMsg struct{}
@@ -122,8 +129,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case refreshMsg:
 		return m, tea.Tick(time.Second, func(time.Time) tea.Msg { return refreshMsg{} })
 	case tea.KeyPressMsg:
-		if m.mode == modeSecret {
+		if m.mode == modeSecret || m.mode == modeDirectSecret {
 			return m.updateSecretInput(msg)
+		}
+		if m.mode == modeCreateEnvironment || m.mode == modeSecretKey {
+			return m.updateTextInput(msg)
 		}
 		if m.mode != modeNormal {
 			return m.updateConfirmation(msg)
@@ -146,6 +156,18 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "u":
 			m.useSelectedEnvironment()
+		case "e":
+			if m.env == nil {
+				m.mode = modeEnableVault
+				m.message = "Enable the encrypted local vault and create environment dev?"
+				m.isError = false
+			}
+		case "n":
+			m.beginCreateEnvironment(false)
+		case "t":
+			m.beginCreateEnvironment(true)
+		case "s":
+			m.beginDirectSecret()
 		case "a", "enter":
 			m.beginPrimaryAction()
 		case "d":
@@ -172,10 +194,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) updateSecretInput(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "ctrl+c", "esc":
-		m.input.SetValue("")
-		m.input.Blur()
-		m.mode = modeNormal
-		m.message = "Secret entry cancelled"
+		m.resetInput("Secret entry cancelled")
 		return m, nil
 	case "enter":
 		value := m.input.Value()
@@ -185,15 +204,69 @@ func (m *Model) updateSecretInput(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			m.message, m.isError = "Secret value cannot be empty", true
 			return m, nil
 		}
-		request := m.selectedRequest()
-		err := m.storeSecret(request, value)
+		var err error
+		message := "Secret stored locally; MCP received no plaintext"
+		if m.mode == modeDirectSecret {
+			active, activeErr := m.env.Active()
+			if activeErr != nil {
+				err = activeErr
+			} else {
+				err = m.env.Put(active.Name, m.pendingKey, value)
+				message = m.pendingKey + " stored in " + active.Name
+			}
+		} else {
+			err = m.storeSecret(m.selectedRequest(), value)
+		}
 		value = "" // release the last local reference promptly
+		m.pendingKey = ""
 		m.mode = modeNormal
 		if err != nil {
 			m.message, m.isError = "Could not fulfill request: "+safeError(err), true
 			return m, nil
 		}
-		m.refreshWithMessage("Secret stored locally; MCP received no plaintext", false)
+		m.refreshWithMessage(message, false)
+		return m, nil
+	}
+	var cmd tea.Cmd
+	m.input, cmd = m.input.Update(msg)
+	return m, cmd
+}
+
+func (m *Model) updateTextInput(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "ctrl+c", "esc":
+		m.resetInput("Action cancelled")
+		return m, nil
+	case "enter":
+		value := strings.TrimSpace(m.input.Value())
+		if value == "" {
+			m.message, m.isError = "A name is required", true
+			return m, nil
+		}
+		if m.mode == modeSecretKey {
+			if !validEnvironmentKey(value) {
+				m.message, m.isError = "Use an environment key such as OPENAI_API_KEY", true
+				return m, nil
+			}
+			m.pendingKey = value
+			m.mode = modeDirectSecret
+			m.message = "Enter " + value + " locally"
+			m.input.Reset()
+			m.input.Placeholder = "secret value"
+			m.input.EchoMode = textinput.EchoPassword
+			_ = m.input.Focus()
+			return m, nil
+		}
+		_, err := m.env.Create(value, m.temporaryEnv, envset.DefaultTTL)
+		if err == nil {
+			err = m.env.Use(value)
+		}
+		m.resetInput("")
+		if err != nil {
+			m.message, m.isError = safeError(err), true
+		} else {
+			m.refreshWithMessage("Created and activated environment "+value, false)
+		}
 		return m, nil
 	}
 	var cmd tea.Cmd
@@ -216,6 +289,8 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 			err = m.access.Deny(m.selectedRequest().ID)
 		case modeRevoke:
 			err = m.access.Revoke(m.selectedLease().ID, "")
+		case modeEnableVault:
+			err = m.enableLocalVault()
 		}
 		m.mode = modeNormal
 		if err != nil {
@@ -225,6 +300,124 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		}
 	}
 	return m, nil
+}
+
+func (m *Model) beginCreateEnvironment(temporary bool) {
+	if m.env == nil {
+		m.message, m.isError = "Press e to enable the encrypted local vault first", true
+		return
+	}
+	m.mode = modeCreateEnvironment
+	m.temporaryEnv = temporary
+	m.message = "Name the new project environment"
+	if temporary {
+		m.message = "Name the new 24-hour session environment"
+	}
+	m.input.Reset()
+	m.input.Placeholder = "dev, staging, agent-session"
+	m.input.EchoMode = textinput.EchoNormal
+	_ = m.input.Focus()
+}
+
+func (m *Model) beginDirectSecret() {
+	if m.env == nil {
+		m.message, m.isError = "Press e to enable the encrypted local vault first", true
+		return
+	}
+	if _, err := m.env.Active(); err != nil {
+		m.message, m.isError = "Create or select an environment first", true
+		return
+	}
+	m.mode = modeSecretKey
+	m.message = "Enter the environment key to store"
+	m.input.Reset()
+	m.input.Placeholder = "OPENAI_API_KEY"
+	m.input.EchoMode = textinput.EchoNormal
+	_ = m.input.Focus()
+}
+
+func (m *Model) resetInput(message string) {
+	m.input.SetValue("")
+	m.input.Blur()
+	m.input.EchoMode = textinput.EchoPassword
+	m.pendingKey = ""
+	m.temporaryEnv = false
+	m.mode = modeNormal
+	m.message = message
+}
+
+func (m *Model) enableLocalVault() error {
+	data, err := os.ReadFile(m.policyPath)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(string(data), "\n")
+	found := false
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "environment_set:") {
+			indent := line[:len(line)-len(strings.TrimLeft(line, " \t"))]
+			lines[i] = indent + "environment_set: active"
+			found = true
+		}
+	}
+	if !found {
+		lines = append(lines, "environment_set: active")
+	}
+	info, err := os.Stat(m.policyPath)
+	if err != nil {
+		return err
+	}
+	temp, err := os.CreateTemp(filepath.Dir(m.policyPath), ".ironrun-policy-*.tmp")
+	if err != nil {
+		return err
+	}
+	tempName := temp.Name()
+	defer os.Remove(tempName)
+	if err := temp.Chmod(info.Mode().Perm()); err != nil {
+		_ = temp.Close()
+		return err
+	}
+	if _, err := temp.WriteString(strings.Join(lines, "\n")); err != nil {
+		_ = temp.Close()
+		return err
+	}
+	if err := temp.Sync(); err != nil {
+		_ = temp.Close()
+		return err
+	}
+	if err := temp.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tempName, m.policyPath); err != nil {
+		return err
+	}
+	m.policy, err = policy.Load(m.policyPath)
+	if err != nil {
+		return err
+	}
+	m.env, err = envset.Open(m.root)
+	if err != nil {
+		return err
+	}
+	set, err := m.env.Ensure("dev")
+	if err != nil {
+		return err
+	}
+	if err := m.env.Use(set.Name); err != nil {
+		return err
+	}
+	dir := filepath.Join(m.root, ".ironrun")
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+	ignore := filepath.Join(dir, ".gitignore")
+	if _, err := os.Stat(ignore); os.IsNotExist(err) {
+		if err := os.WriteFile(ignore, []byte("*\n!.gitignore\n"), 0600); err != nil {
+			return err
+		}
+	}
+	return m.reload()
 }
 
 func (m *Model) beginPrimaryAction() {
@@ -474,10 +667,16 @@ func (m *Model) renderLeases(s styles, width int) string {
 }
 
 func (m *Model) renderFooter(s styles, width int) string {
-	if m.mode == modeSecret {
+	if m.mode == modeSecret || m.mode == modeDirectSecret {
 		box := s.modal.Width(max(30, min(66, width-6))).Render(
 			s.modalTitle.Render("SEALED INPUT") + "\n" + s.muted.Render(m.message) + "\n\n" + m.input.View() +
 				"\n\n" + s.help.Render("enter store locally  ·  esc cancel  ·  value never rendered"))
+		return lipgloss.PlaceHorizontal(width, lipgloss.Center, box)
+	}
+	if m.mode == modeCreateEnvironment || m.mode == modeSecretKey {
+		box := s.modal.Width(max(30, min(66, width-6))).Render(
+			s.modalTitle.Render("LOCAL VAULT SETUP") + "\n" + s.muted.Render(m.message) + "\n\n" + m.input.View() +
+				"\n\n" + s.help.Render("enter continue  ·  esc cancel"))
 		return lipgloss.PlaceHorizontal(width, lipgloss.Center, box)
 	}
 	if m.mode != modeNormal {
@@ -488,7 +687,11 @@ func (m *Model) renderFooter(s styles, width int) string {
 	}
 	message := m.message
 	if message == "" {
-		message = "tab move  ·  j/k select  ·  enter act  ·  d deny  ·  r revoke  ·  u use env  ·  g refresh  ·  q quit"
+		if m.env == nil {
+			message = "e enable encrypted vault  ·  tab move  ·  enter act  ·  g refresh  ·  q quit"
+		} else {
+			message = "s add secret  ·  n new env  ·  t 24h session  ·  u use  ·  tab move  ·  enter act  ·  r revoke  ·  q quit"
+		}
 	}
 	style := s.help
 	if m.isError {
@@ -593,6 +796,18 @@ func safeError(err error) string {
 		return value[:180]
 	}
 	return value
+}
+func validEnvironmentKey(value string) bool {
+	if value == "" || !((value[0] >= 'A' && value[0] <= 'Z') || (value[0] >= 'a' && value[0] <= 'z') || value[0] == '_') {
+		return false
+	}
+	for i := 1; i < len(value); i++ {
+		c := value[i]
+		if !((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_') {
+			return false
+		}
+	}
+	return true
 }
 func min(a, b int) int {
 	if a < b {
