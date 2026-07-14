@@ -555,9 +555,33 @@ func (m *Model) View() tea.View {
 	}
 	header := m.renderHeader(styles, width)
 	stats := m.renderStats(styles, width)
-	panels := m.renderPanels(styles, width)
 	footer := m.renderFooter(styles, width)
-	content := lipgloss.JoinVertical(lipgloss.Left, header, stats, panels, footer)
+	panelHeight := 14
+	if m.height > 0 {
+		panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(stats) - lipgloss.Height(footer)
+		if panelHeight < 5 {
+			// The action bar is the dashboard's discoverability and control
+			// surface. Prefer it over secondary stats in short embedded terminals.
+			stats = ""
+			panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(footer)
+		}
+		if panelHeight < 5 {
+			// Input and approval modals need more room than the brand header.
+			header = ""
+			panelHeight = m.height - lipgloss.Height(footer)
+		}
+		panelHeight = max(3, panelHeight)
+	}
+	panels := m.renderPanels(styles, width, panelHeight)
+	blocks := make([]string, 0, 4)
+	if header != "" {
+		blocks = append(blocks, header)
+	}
+	if stats != "" {
+		blocks = append(blocks, stats)
+	}
+	blocks = append(blocks, panels, footer)
+	content := lipgloss.JoinVertical(lipgloss.Left, blocks...)
 	view := tea.NewView(content)
 	view.AltScreen = true
 	return view
@@ -594,20 +618,21 @@ func (m *Model) renderStats(s styles, width int) string {
 	return s.stats.Width(width).Render(strings.Join(items, "   "))
 }
 
-func (m *Model) renderPanels(s styles, width int) string {
+func (m *Model) renderPanels(s styles, width, height int) string {
 	if width < 86 {
+		panelHeight := max(3, height/3)
 		return lipgloss.JoinVertical(lipgloss.Left,
-			m.renderEnvironments(s, width), m.renderRequests(s, width), m.renderLeases(s, width))
+			m.renderEnvironments(s, width, panelHeight), m.renderRequests(s, width, panelHeight), m.renderLeases(s, width, panelHeight))
 	}
 	inner := width - 4
 	left := max(24, inner*27/100)
 	middle := max(32, inner*38/100)
 	right := max(28, inner-left-middle)
 	return lipgloss.JoinHorizontal(lipgloss.Top,
-		m.renderEnvironments(s, left), m.renderRequests(s, middle), m.renderLeases(s, right))
+		m.renderEnvironments(s, left, height), m.renderRequests(s, middle, height), m.renderLeases(s, right, height))
 }
 
-func (m *Model) renderEnvironments(s styles, width int) string {
+func (m *Model) renderEnvironments(s styles, width, height int) string {
 	rows := make([]string, 0, len(m.environments)+1)
 	if len(m.environments) == 0 {
 		rows = append(rows, s.muted.Render("No project sets\nprovider-backed default"))
@@ -624,10 +649,11 @@ func (m *Model) renderEnvironments(s styles, width int) string {
 		row := fmt.Sprintf("%s %-14s\n  %d keys · %s", marker, environment.Name, len(environment.Keys), expiry)
 		rows = append(rows, s.row(m.focus == focusEnvironments && i == m.cursor[focusEnvironments]).Render(row))
 	}
-	return s.panel(m.focus == focusEnvironments, width).Render(s.panelTitle.Render("01  ENVIRONMENTS") + "\n\n" + strings.Join(rows, "\n"))
+	content := s.panelTitle.Render("01  ENVIRONMENTS") + "\n\n" + strings.Join(rows, "\n")
+	return s.renderPanel(m.focus == focusEnvironments, width, height, content)
 }
 
-func (m *Model) renderRequests(s styles, width int) string {
+func (m *Model) renderRequests(s styles, width, height int) string {
 	rows := make([]string, 0, len(m.requests)+1)
 	if len(m.requests) == 0 {
 		rows = append(rows, s.empty.Render("✓ No pending requests\nAgents are waiting behind policy."))
@@ -642,10 +668,11 @@ func (m *Model) renderRequests(s styles, width int) string {
 			detail, shortID(request.SessionID), humanTTL(time.Until(request.ExpiresAt)))
 		rows = append(rows, s.row(m.focus == focusRequests && i == m.cursor[focusRequests]).Render(row))
 	}
-	return s.panel(m.focus == focusRequests, width).Render(s.panelTitle.Render("02  AGENT INBOX") + "\n\n" + strings.Join(rows, "\n"))
+	content := s.panelTitle.Render("02  AGENT INBOX") + "\n\n" + strings.Join(rows, "\n")
+	return s.renderPanel(m.focus == focusRequests, width, height, content)
 }
 
-func (m *Model) renderLeases(s styles, width int) string {
+func (m *Model) renderLeases(s styles, width, height int) string {
 	rows := make([]string, 0, len(m.leases)+1)
 	if len(m.leases) == 0 {
 		rows = append(rows, s.muted.Render("No leases issued"))
@@ -663,7 +690,8 @@ func (m *Model) renderLeases(s styles, width int) string {
 			lease.Environment, shortID(lease.SessionID), strings.Join(lease.Commands, ", "))
 		rows = append(rows, s.row(m.focus == focusLeases && i == m.cursor[focusLeases]).Render(row))
 	}
-	return s.panel(m.focus == focusLeases, width).Render(s.panelTitle.Render("03  LIVE LEASES") + "\n\n" + strings.Join(rows, "\n"))
+	content := s.panelTitle.Render("03  LIVE LEASES") + "\n\n" + strings.Join(rows, "\n")
+	return s.renderPanel(m.focus == focusLeases, width, height, content)
 }
 
 func (m *Model) renderFooter(s styles, width int) string {
@@ -743,12 +771,20 @@ func newStyles(dark bool) styles {
 	}
 }
 
-func (s styles) panel(focused bool, width int) lipgloss.Style {
+func (s styles) renderPanel(focused bool, width, height int, content string) string {
+	// Clip the body before drawing the frame so short terminals retain a
+	// complete border instead of cutting off its bottom edge.
+	innerHeight := max(1, height-4) // two border rows plus vertical padding
+	content = lipgloss.NewStyle().MaxHeight(innerHeight).Render(content)
+	return s.panel(focused, width, height).Render(content)
+}
+
+func (s styles) panel(focused bool, width, height int) lipgloss.Style {
 	color := s.border
 	if focused {
 		color = lipgloss.Color("#9B87FF")
 	}
-	return lipgloss.NewStyle().Width(max(20, width-2)).Height(14).Border(lipgloss.RoundedBorder()).
+	return lipgloss.NewStyle().Width(max(20, width-2)).Height(height).Border(lipgloss.RoundedBorder()).
 		BorderForeground(color).Background(s.surface).Padding(1, 2)
 }
 func (s styles) row(selected bool) lipgloss.Style {

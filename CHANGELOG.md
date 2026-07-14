@@ -40,6 +40,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and cross-session lease use fail closed and have regression coverage.
 
 ### Fixed
+- The TUI now reserves space for its action bar and input/approval prompts in
+  short embedded terminals instead of clipping the controls below the viewport.
 - macOS Keychain writes now use deterministic binary data input instead of the
   interactive `security` prompt path, which could create an empty credential
   when run without a terminal.
