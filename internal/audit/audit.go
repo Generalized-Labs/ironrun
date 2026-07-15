@@ -38,19 +38,21 @@ const (
 // therefore the hash) is deterministic. No map fields — maps would serialize
 // non-deterministically and break the chain.
 type Entry struct {
-	Timestamp       time.Time `json:"ts"`
-	Schema          int       `json:"schema"`
-	SessionID       string    `json:"session_id"`
-	Cwd             string    `json:"cwd"`
-	CommandID       string    `json:"command_id"`
-	Argv            []string  `json:"argv"`         // policy argv — never secret values
-	SecretNames     []string  `json:"secret_names"` // env var names only, sorted
-	RedactionCount  int       `json:"redaction_count"`
-	EntropyWarnings int       `json:"entropy_warnings"`
-	ExitCode        int       `json:"exit_code"`
-	DurationMs      int64     `json:"duration_ms"`
-	Truncated       bool      `json:"truncated"`
-	KillReason      string    `json:"kill_reason"` // "", "timeout", "cancelled"
+	Timestamp       time.Time   `json:"ts"`
+	Schema          int         `json:"schema"`
+	SessionID       string      `json:"session_id"`
+	Cwd             string      `json:"cwd"`
+	CommandID       string      `json:"command_id"`
+	Argv            []string    `json:"argv"`         // policy argv — never secret values
+	SecretNames     []string    `json:"secret_names"` // env var names only, sorted
+	SecretUses      []SecretUse `json:"secret_uses,omitempty"`
+	CleanupResult   string      `json:"cleanup_result,omitempty"`
+	RedactionCount  int         `json:"redaction_count"`
+	EntropyWarnings int         `json:"entropy_warnings"`
+	ExitCode        int         `json:"exit_code"`
+	DurationMs      int64       `json:"duration_ms"`
+	Truncated       bool        `json:"truncated"`
+	KillReason      string      `json:"kill_reason"` // "", "timeout", "cancelled"
 	// SeccompRequested records whether the parent asked for a seccomp filter.
 	// Because seccomp fails open, this is "requested", not a guarantee it was
 	// installed (an unsupported kernel logs a warning and runs without it).
@@ -58,6 +60,14 @@ type Entry struct {
 	NoNetwork        bool   `json:"no_network"`
 	PrevHash         string `json:"prev_hash"`
 	Hash             string `json:"hash"`
+}
+
+// SecretUse is safe execution metadata. It never contains a value or a
+// materialized path.
+type SecretUse struct {
+	Name   string `json:"name"`
+	Kind   string `json:"kind"`
+	Target string `json:"target"`
 }
 
 // Logger appends entries to a JSONL file, maintaining the hash chain. It is

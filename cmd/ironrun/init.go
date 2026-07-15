@@ -14,8 +14,9 @@ import (
 
 func initCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "init",
-		Short: "Initialize ironrun in the current project",
+		Use:     "setup",
+		Aliases: []string{"init"},
+		Short:   "Initialize ironrun in the current project",
 		Long: `Creates ironrun.yml, .mcp.json, and agent instructions
 (CLAUDE.md, AGENTS.md, .cursorrules) in the current directory.
 Also registers ironrun with Codex (~/.codex/config.toml) and Cursor (~/.cursor/mcp.json).
@@ -37,6 +38,7 @@ that need credentials.`,
 
 			// 1. Write ironrun.yml if it doesn't exist
 			ymlPath := filepath.Join(cwd, "ironrun.yml")
+			createdPolicy := false
 			if _, err := os.Stat(ymlPath); err == nil {
 				fmt.Println("  • ironrun.yml already exists — skipping")
 			} else {
@@ -44,7 +46,15 @@ that need credentials.`,
 				if err := os.WriteFile(ymlPath, []byte(ymlContent), 0644); err != nil {
 					return fmt.Errorf("failed to write ironrun.yml: %w", err)
 				}
+				createdPolicy = true
 				fmt.Println("  • Created ironrun.yml")
+			}
+			stdout, _ := os.Stdout.Stat()
+			if createdPolicy && stdout != nil && stdout.Mode()&os.ModeCharDevice != 0 {
+				if err := initializeLocalEnvironment(cwd); err != nil {
+					return err
+				}
+				fmt.Println("  • Created encrypted environment dev")
 			}
 
 			// 2. Write/merge .mcp.json at the repo root. Claude Code reads
@@ -74,9 +84,8 @@ that need credentials.`,
 			fmt.Println()
 			fmt.Println("Done! Next steps:")
 			fmt.Println()
-			fmt.Println("  1. Edit ironrun.yml — add your commands and env var names")
-			fmt.Println("  2. If using envfile provider, store secrets in ~/.secrets/<project>.env")
-			fmt.Println("     (chmod 600) and do not export them to shell.")
+			fmt.Println("  1. Run ironrun to open the local vault control room")
+			fmt.Println("  2. Press s to add a secret, n for a project environment, or t for a 24h session")
 			fmt.Println("  3. Check your setup: ironrun doctor")
 			fmt.Println("  4. Test: ironrun run <command-id>")
 			fmt.Println()
@@ -231,35 +240,39 @@ func registerCursor() error {
 	return nil
 }
 
-// generatePolicy renders a starter policy from the detected commands. The env
-// block is attached only to credential-likely commands (see needsEnv).
+// generatePolicy renders a local-vault-first policy from detected commands.
+// Detected credential names become aliases, but their values never enter the
+// policy; users store them through the TUI or `ironrun env set`.
 func generatePolicy(cmds []DetectedCmd, envVars []string) string {
+	if len(cmds) == 0 {
+		cmds = []DetectedCmd{{ID: "ironrun-health", Argv: []string{"ironrun", "version"}, TTL: "10s", Comment: "verify the local Ironrun installation"}}
+	}
+	allowed := make([]string, 0, len(cmds))
+	for _, command := range cmds {
+		if command.NeedsEnv {
+			allowed = append(allowed, command.ID)
+		}
+	}
 	var b strings.Builder
 	b.WriteString("version: \"1\"\n")
-	b.WriteString("provider: env\n")
+	b.WriteString("provider: passthrough\n")
+	b.WriteString("environment_set: active\n")
+	b.WriteString("require_agent_leases: true\n")
 	b.WriteString("# Let agents propose new commands for your approval (ironrun review / approve).\n")
-	b.WriteString("allow_proposals: true\n\n")
-	b.WriteString("commands:\n")
-
-	if len(cmds) == 0 {
-		b.WriteString(`  # No task runner detected — add your commands here:
-  # - id: test
-  #   argv: [npm, test]
-  #   ttl: 120s
-  #   env:
-  #     DATABASE_URL: env:DATABASE_URL
-`)
-		return b.String()
+	b.WriteString("allow_proposals: true\n")
+	if len(envVars) > 0 && len(allowed) > 0 {
+		b.WriteString("\nsecrets:\n")
+		for _, key := range envVars {
+			fmt.Fprintf(&b, "  %s:\n    env: %s\n    store: auto\n    allow: [%s]\n", key, key, strings.Join(allowed, ", "))
+		}
 	}
+	b.WriteString("\ncommands:\n")
 
 	for i, c := range cmds {
-		env := map[string]string{}
-		if c.NeedsEnv {
-			for _, v := range envVars {
-				env[v] = "env:" + v
-			}
+		b.WriteString(renderCommandBlock(c.ID, c.Argv, c.TTL, nil, c.Comment))
+		if c.NeedsEnv && len(envVars) > 0 {
+			fmt.Fprintf(&b, "    secrets: [%s]\n", strings.Join(envVars, ", "))
 		}
-		b.WriteString(renderCommandBlock(c.ID, c.Argv, c.TTL, env, c.Comment))
 		if i < len(cmds)-1 {
 			b.WriteString("\n")
 		}

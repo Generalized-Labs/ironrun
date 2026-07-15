@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -33,14 +35,27 @@ type File struct {
 	// tool) for the user to approve. Off by default. The run path NEVER executes
 	// a proposed command — only `ironrun approve` promotes it into Commands.
 	AllowProposals bool `yaml:"allow_proposals"`
+	// RequireAgentLeases makes MCP execution fail closed unless the current MCP
+	// server session has a human-approved, unexpired lease for the selected
+	// environment and command. CLI execution remains the human authority path.
+	RequireAgentLeases bool `yaml:"require_agent_leases"`
 }
 
 // Secret binds a user-facing alias to the environment variable a child needs.
 // The value itself is never part of the policy document.
 type Secret struct {
-	Env   string   `yaml:"env"`
-	Store string   `yaml:"store"`
-	Allow []string `yaml:"allow"`
+	Env      string   `yaml:"env"`
+	Store    string   `yaml:"store"`
+	Allow    []string `yaml:"allow"`
+	Kind     string   `yaml:"kind,omitempty"`     // env (default) | file
+	Filename string   `yaml:"filename,omitempty"` // safe basename for file secrets
+}
+
+func (s Secret) EffectiveKind() string {
+	if s.Kind == "" {
+		return "env"
+	}
+	return s.Kind
 }
 
 // Command defines one allowed invocation and the secrets it needs.
@@ -124,6 +139,29 @@ func Parse(data []byte) (*File, error) {
 	if len(f.Commands) == 0 {
 		return nil, ErrNoCommands
 	}
+	fileTargets := map[string]string{}
+	fileNames := map[string]string{}
+	for alias, secret := range f.Secrets {
+		if secret.EffectiveKind() != "env" && secret.EffectiveKind() != "file" {
+			return nil, fmt.Errorf("%w: secret %q has unsupported kind %q", ErrMalformed, alias, secret.Kind)
+		}
+		if !validEnvTarget(secret.Env) {
+			return nil, fmt.Errorf("%w: secret %q has invalid environment target %q", ErrMalformed, alias, secret.Env)
+		}
+		if secret.EffectiveKind() == "file" {
+			if secret.Filename == "" || filepath.Base(secret.Filename) != secret.Filename || secret.Filename == "." || secret.Filename == ".." || strings.ContainsAny(secret.Filename, `/\\`) {
+				return nil, fmt.Errorf("%w: secret %q file name must be a safe basename", ErrMalformed, alias)
+			}
+			if previous, exists := fileTargets[secret.Env]; exists {
+				return nil, fmt.Errorf("%w: file secrets %q and %q share target %q", ErrMalformed, previous, alias, secret.Env)
+			}
+			fileTargets[secret.Env] = alias
+			if previous, exists := fileNames[secret.Filename]; exists {
+				return nil, fmt.Errorf("%w: file secrets %q and %q share filename %q", ErrMalformed, previous, alias, secret.Filename)
+			}
+			fileNames[secret.Filename] = alias
+		}
+	}
 
 	seen := map[string]bool{}
 	for i, cmd := range f.Commands {
@@ -155,6 +193,18 @@ func Parse(data []byte) (*File, error) {
 		}
 	}
 	return &f, nil
+}
+
+func validEnvTarget(name string) bool {
+	if name == "" {
+		return false
+	}
+	for i, r := range name {
+		if !(r == '_' || r >= 'A' && r <= 'Z' || r >= 'a' && r <= 'z' || i > 0 && r >= '0' && r <= '9') {
+			return false
+		}
+	}
+	return true
 }
 
 // Lookup returns the command with the given id, or an error.

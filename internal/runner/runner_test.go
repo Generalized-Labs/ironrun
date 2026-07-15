@@ -3,12 +3,15 @@ package runner_test
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/runner"
 )
@@ -92,6 +95,55 @@ func TestRun_SecretsRedacted(t *testing.T) {
 	// Result.Stdout also must not contain secret.
 	if strings.Contains(res.Stdout, secret) {
 		t.Errorf("secret leaked in Result.Stdout: %q", res.Stdout)
+	}
+}
+
+func TestRun_RedactOnlyValueIsNotInjectedButIsFiltered(t *testing.T) {
+	secret := "file-secret-content-never-visible"
+	cmd := makeCmd("file-redaction", "", "printf", "%s", secret)
+	var out bytes.Buffer
+	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &out, Stderr: &bytes.Buffer{}, RedactValues: []string{secret}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(out.String(), secret) || strings.Contains(res.Stdout, secret) {
+		t.Fatal("redaction-only file content leaked")
+	}
+	if !strings.Contains(out.String(), "[REDACTED]") {
+		t.Fatalf("output = %q", out.String())
+	}
+}
+
+func TestRun_CleanupRunsOnTimeoutBeforeAudit(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(t.TempDir(), "audit.log")
+	logger, err := audit.Open(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer logger.Close()
+	cmd := makeCmd("timeout-cleanup", "20ms", "sleep", "2")
+	_, err = runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Audit: logger,
+		AuditSecrets: []audit.SecretUse{{Name: "credential", Kind: "file", Target: "CREDENTIAL_PATH"}},
+		Cleanup:      func() error { return os.RemoveAll(dir) },
+	})
+	if !errors.Is(err, runner.ErrTimeout) {
+		t.Fatalf("run error = %v", err)
+	}
+	if _, statErr := os.Stat(dir); !os.IsNotExist(statErr) {
+		t.Fatalf("cleanup did not remove directory: %v", statErr)
+	}
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var entry audit.Entry
+	if err := json.Unmarshal(bytes.TrimSpace(data), &entry); err != nil {
+		t.Fatal(err)
+	}
+	if entry.CleanupResult != "removed" || len(entry.SecretUses) != 1 || entry.SecretUses[0].Kind != "file" {
+		t.Fatalf("audit cleanup metadata = %#v", entry)
 	}
 }
 

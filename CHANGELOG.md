@@ -6,6 +6,60 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+- **Encrypted project vaults.** Environment values are stored outside the
+  repository with per-environment AES-256-GCM data keys wrapped by a project
+  root key in the native OS credential manager. Existing native records migrate
+  lazily with commit-before-delete ordering.
+- **Revocable agent leases.** The opt-in `require_agent_leases` policy gate binds
+  MCP authority to one server session, environment, command set, and expiry.
+  Agents may request leases; only the local CLI/TUI can approve them.
+- **Safe secret requests and chat capsules.** Agents request declared aliases
+  without a value field. Humans can fulfill through masked local input or create
+  a short-lived `ir1.` ciphertext bound to the project, request, and MCP session.
+- **Terminal control room.** Running `ironrun` or `ironrun tui` opens a
+  value-blind environment/request/lease dashboard with masked fulfillment,
+  approvals, denial, switching, and immediate revocation.
+- **Unix-socket curl API.** `ironrun serve` exposes strict, non-cacheable local
+  status, environment, access, revocation, and sealed-run endpoints with no
+  plaintext-secret endpoint.
+- **Typed workspace entries and file secrets.** Versioned environment metadata
+  now distinguishes environment values from encrypted file contents. Existing
+  key lists migrate automatically. File secrets are materialized in isolated
+  owner-only run directories and removed after every execution path.
+- **Secret-manager-first workspace TUI.** The default screen now exposes
+  environments, masked typed entries, `.env` preview/import, file import,
+  approved command execution, and persistent actions, with requests and leases
+  moved to secondary tabs plus `/` palette and `?` help.
+
+### Changed
+- CLI, MCP, and the local API now share one sealed execution core.
+- MCP and the local API expose typed entry metadata (name, kind, target, safe
+  filename) without values. Audit records include the same safe use metadata
+  and temporary-file cleanup result.
+- Everyday workflows now have top-level commands: `add`, `new`, `session`,
+  `use`, `envs`, and `exec`. Help is grouped by user intent; readable names
+  (`agents`, `share`, `api`, `dashboard`, and `setup`) retain the original
+  command names as aliases, and `vault` aliases `env`.
+- Bare `ironrun` now bootstraps a missing policy and encrypted `dev`
+  environment before opening the TUI. The control room can enable the vault on
+  older policies, add secrets, and create persistent or 24-hour environments.
+
+### Security
+- Vault manifests are authenticated and atomically committed; missing protected
+  root keys, tampering, wrong project/key use, expired leases, capsule replay,
+  and cross-session lease use fail closed and have regression coverage.
+- File-secret policies reject absolute/traversing/separator names, duplicate
+  targets and filenames, while output redaction covers literal and encoded file
+  contents without injecting those contents as environment variables.
+
+### Fixed
+- The TUI now reserves space for its action bar and input/approval prompts in
+  short embedded terminals instead of clipping the controls below the viewport.
+- macOS Keychain writes now use deterministic binary data input instead of the
+  interactive `security` prompt path, which could create an empty credential
+  when run without a terminal.
+
 ## [0.3.0] - 2026-06-24
 
 The first release since 0.2.0, and a big one: more exfiltration paths are closed,

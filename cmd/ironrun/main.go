@@ -10,11 +10,8 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/buildinfo"
-	"github.com/generalized-labs/ironrun/internal/envset"
+	"github.com/generalized-labs/ironrun/internal/execution"
 	"github.com/generalized-labs/ironrun/internal/policy"
-	"github.com/generalized-labs/ironrun/internal/provider"
-	"github.com/generalized-labs/ironrun/internal/runner"
-	"github.com/generalized-labs/ironrun/internal/secrets"
 	ironmcp "github.com/generalized-labs/ironrun/mcp"
 )
 
@@ -24,6 +21,7 @@ func main() {
 	// Note: when this binary is re-executed as the sealed-exec shim, the
 	// sealedexec package's init() intercepts it (installing the seccomp filter
 	// and execve'ing the target) before main runs — see internal/sealedexec.
+	_ = execution.CleanupStale()
 	root := &cobra.Command{
 		Use:   "ironrun",
 		Short: "Sealed command execution for AI agents",
@@ -34,20 +32,31 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	}
 
 	root.PersistentFlags().StringVarP(&policyPath, "policy", "p", "ironrun.yml", "Path to policy file")
+	root.Args = cobra.NoArgs
+	root.RunE = func(cmd *cobra.Command, args []string) error {
+		info, err := os.Stdout.Stat()
+		if err != nil || info.Mode()&os.ModeCharDevice == 0 {
+			return cmd.Help()
+		}
+		return runTUI(policyPath)
+	}
 
-	root.AddCommand(runCmd())
-	root.AddCommand(mcpCmd())
-	root.AddCommand(validateCmd())
-	root.AddCommand(lintCmd())
-	root.AddCommand(doctorCmd())
-	root.AddCommand(auditCmd())
-	root.AddCommand(initCmd())
-	root.AddCommand(reviewCmd())
-	root.AddCommand(approveCmd())
-	root.AddCommand(rejectCmd())
-	root.AddCommand(versionCmd())
-	root.AddCommand(secretsCmd())
-	root.AddCommand(envCmd())
+	root.AddGroup(
+		&cobra.Group{ID: "everyday", Title: "Everyday commands:"},
+		&cobra.Group{ID: "agents", Title: "Agents and sharing:"},
+		&cobra.Group{ID: "setup", Title: "Setup and safety:"},
+		&cobra.Group{ID: "advanced", Title: "Advanced commands:"},
+	)
+	add := func(group string, commands ...*cobra.Command) {
+		for _, command := range commands {
+			command.GroupID = group
+			root.AddCommand(command)
+		}
+	}
+	add("everyday", tuiCmd(), quickAddCmd(), quickFileCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), envCmd())
+	add("agents", accessCmd(), capsuleCmd(), mcpCmd(), serveCmd())
+	add("setup", initCmd(), doctorCmd(), validateCmd(), lintCmd())
+	add("advanced", auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())
 
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
@@ -58,78 +67,25 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 func runCmd() *cobra.Command {
 	var setName string
 	c := &cobra.Command{
-		Use:   "run <command-id>",
-		Short: "Execute a sealed command by its policy ID",
-		Args:  cobra.ExactArgs(1),
+		Use:     "exec <command-id>",
+		Aliases: []string{"run"},
+		Short:   "Execute a sealed command by its policy ID",
+		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			f, err := policy.Load(policyPath)
 			if err != nil {
 				return err
 			}
 
-			pCmd, err := f.Lookup(args[0])
-			if err != nil {
-				return err
-			}
-
-			p, err := provider.New(f.Provider)
-			if err != nil {
-				return err
-			}
-
-			resolved, err := provider.ResolveAll(p, pCmd.Env)
-			if err != nil {
-				return fmt.Errorf("secret resolution failed: %w", err)
-			}
-			if len(pCmd.Secrets) > 0 {
-				if setName != "" || f.EnvironmentSet == "active" {
-					manager, managerErr := envset.Open(mustWorkingDir())
-					if managerErr != nil {
-						return fmt.Errorf("environment store unavailable: %w", managerErr)
-					}
-					selected := setName
-					if selected == "" {
-						active, activeErr := manager.Active()
-						if activeErr != nil {
-							return fmt.Errorf("environment set unavailable: %w", activeErr)
-						}
-						selected = active.Name
-					}
-					for _, alias := range pCmd.Secrets {
-						decl := f.Secrets[alias]
-						value, getErr := manager.Get(selected, decl.Env)
-						if getErr != nil {
-							return fmt.Errorf("secret resolution failed: environment key %q is unavailable", decl.Env)
-						}
-						resolved[decl.Env] = value
-					}
-				} else {
-					aliases, aliasErr := secrets.ResolveAliasesWithOpener(f, pCmd, func(requested string) (secrets.Store, error) {
-						return secrets.Open(policyPath, requested)
-					})
-					if aliasErr != nil {
-						return fmt.Errorf("secret resolution failed: %w", aliasErr)
-					}
-					for k, v := range aliases {
-						resolved[k] = v
-					}
-				}
-			}
-
-			seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
 			auditLog, auditErr := audit.Open(audit.ResolvePath(f.AuditLog))
 			if auditErr != nil {
 				fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", auditErr)
 			}
 			defer auditLog.Close()
 
-			res, err := runner.Run(context.Background(), pCmd, runner.Options{
-				Stdout:    os.Stdout,
-				Stderr:    os.Stderr,
-				Secrets:   resolved,
-				Seccomp:   &seccompOn,
-				Audit:     auditLog,
-				SessionID: audit.NewSessionID(),
+			res, err := execution.Run(context.Background(), f, policyPath, policyProjectRoot(policyPath), args[0], execution.Options{
+				Environment: setName, Stdout: os.Stdout, Stderr: os.Stderr,
+				Audit: auditLog, SessionID: audit.NewSessionID(),
 			})
 			if err != nil {
 				return fmt.Errorf("execution failed: %w", err)

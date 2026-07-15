@@ -113,10 +113,23 @@ ironrun version
 From the root of any project:
 
 ```bash
-ironrun init
+ironrun
 ```
 
-This looks at your project and writes three files:
+This creates a local encrypted `dev` environment when needed and opens the
+terminal control room. The everyday commands are intentionally short:
+
+```bash
+ironrun add OPENAI_API_KEY   # masked prompt; saves to the active environment
+ironrun new staging         # create and switch to a persistent environment
+ironrun session             # create and switch to a 24-hour environment
+ironrun use dev             # switch environments
+ironrun envs                # list names and keys, never values
+ironrun exec test           # run the allowed command named "test"
+```
+
+Run `ironrun setup` when you also want project agent instructions and MCP
+configuration. It looks at your project and writes three files:
 
 - **`ironrun.yml`** — a starter policy. It detects your stack (npm/pnpm/yarn/bun, Go, Rust, Python) and your `.env`, and pre-fills commands like `test`, `dev`, and `build` with the env vars it found.
 - **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
@@ -192,8 +205,9 @@ ironrun secrets status
 ironrun run hydra-bootstrap
 ```
 
-On macOS, `auto` uses the Keychain; environment sets use the native credential
-manager on macOS, Windows, and Linux. `status`, audit records, MCP responses, and policy files
+On macOS, `auto` uses the Keychain. Project environment sets use Ironrun's
+encrypted local vault; its random project root key is protected by the native
+credential manager on macOS, Windows, and Linux. `status`, audit records, MCP responses, and policy files
 never include secret values. `rotate` and `delete` take effect on the next
 sealed run. Piped input is rejected unless the caller explicitly uses
 `--from-stdin --unsafe`.
@@ -201,8 +215,10 @@ sealed run. Piped input is rejected unless the caller explicitly uses
 ### Project environment sets
 
 For projects with more than one environment, manage the values entirely from
-the terminal. `env init` registers the current Git remote plus canonical local
-path and opts the policy into the active environment set:
+the terminal. On a new project, simply run `ironrun`: it creates a valid
+local-vault policy, registers the project identity, creates `dev`, and opens the
+control room. The original nested CLI remains available for scripts and
+advanced operations:
 
 ```bash
 ironrun env init dev
@@ -228,8 +244,124 @@ the remaining lifecycle. Imports accept owner-only dotenv files, display key
 names but never values, and refuse project-local or group/other-readable files.
 `env export` writes only a `KEY=` template; it never exports plaintext values.
 
-Project metadata lives under `.ironrun/` and contains no secret values; the
-values themselves stay in the native OS credential manager.
+Project metadata lives under `.ironrun/` and contains no secret values. The
+encrypted vault lives outside the repository under `~/.ironrun/vaults/`. Every
+environment has a rotating data key wrapped by a project root key in the native
+OS credential manager. Existing per-value credential-manager records migrate
+into the vault on first successful read, with vault commit before legacy delete.
+
+### Terminal control room
+
+Run Ironrun with no arguments in a terminal, or use the explicit command:
+
+```bash
+ironrun
+ironrun tui
+```
+
+The TUI opens on the encrypted workspace: environments, masked environment/file
+secret names, approved commands, and the actions people need most. Use arrows,
+Enter, Escape, and Tab; press `/` for the action palette and `?` for help. A
+detected `.env` can be reviewed by key name, partially selected, confirmed, and
+verified after encrypted import. Ironrun never deletes the plaintext source for
+you and warns while it remains. Requests, leases, and audit state live on
+secondary tabs. There is no reveal, clipboard-copy, or plaintext-export action.
+
+### Encrypted file secrets
+
+File-backed secrets are stored as opaque encrypted bytes and materialized only
+while an approved command runs. Declare a safe basename and the environment
+variable that receives its temporary path:
+
+```yaml
+secrets:
+  service-account:
+    env: GOOGLE_APPLICATION_CREDENTIALS
+    kind: file
+    filename: service-account.json
+    allow: [integration-test]
+commands:
+  - id: integration-test
+    argv: [go, test, ./integration/...]
+    secrets: [service-account]
+```
+
+Choose **Add secret file** in the TUI. Ironrun rejects symlinks, traversal,
+unsafe basenames, permissive source files, and duplicate targets. At execution
+it creates a unique owner-only directory outside the repository, writes the
+file with owner-only permissions, injects only its path, redacts literal and
+common encoded forms of the contents, and removes the directory after success,
+failure, timeout, or cancellation. Validated stale crash remnants are removed
+on startup.
+
+Temporary plaintext necessarily exists on disk while the child process uses a
+file secret. Cleanup limits its lifetime but cannot guarantee physical erasure
+from SSD media. Use short command timeouts and revoke agent leases when access
+is no longer needed.
+
+### Revocable agent leases
+
+Agent leases are opt-in for compatibility. Require them for MCP execution:
+
+```yaml
+version: "1"
+provider: passthrough
+require_agent_leases: true
+```
+
+An agent calls `request_lease` with policy command IDs, a reason, and a desired
+TTL. The command remains blocked until a human approves it:
+
+```bash
+ironrun access list
+ironrun access approve req_abc123...
+ironrun access leases
+ironrun access revoke lease_abc123...
+```
+
+Leases are bound to the exact MCP server session, environment, command set, and
+expiry. Restarting the MCP server creates a new session; old leases do not
+transfer. Revocation is checked before the next run.
+
+### Secret requests and encrypted chat capsules
+
+The `request_secret` MCP tool accepts only a declared alias and reason. It has no
+plaintext value field. Fulfill it directly through the TUI or masked CLI:
+
+```bash
+ironrun access fulfill req_abc123...
+```
+
+If the workflow specifically requires pasting through chat, encrypt the value
+*before* it enters the transcript:
+
+```bash
+ironrun capsule create req_abc123...
+# masked prompt; prints ir1.<ciphertext>
+```
+
+Paste only the `ir1.` ciphertext. The agent passes it to `claim_capsule`; Ironrun
+decrypts and stores it locally. Capsules are project-bound, MCP-session-bound,
+request-bound, expire within ten minutes, and become unusable after the request
+is fulfilled. A plaintext key already pasted into chat cannot be retroactively
+removed from model-provider logs and should be rotated.
+
+### Local curl API
+
+Start the owner-only Unix-socket API:
+
+```bash
+ironrun serve
+curl --unix-socket .ironrun/ironrun.sock http://localhost/v1/status
+curl --unix-socket .ironrun/ironrun.sock \
+  -H 'Content-Type: application/json' \
+  -d '{"command_id":"test","environment":"dev"}' \
+  http://localhost/v1/run
+```
+
+The API exposes status, environment metadata, access requests, leases,
+revocation, denial, and sealed execution. It refuses unknown JSON fields and
+has no endpoint accepting plaintext secret values.
 
 Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool and uses it to run `test`, `dev`, and `build` — without ever holding the secret values.
 

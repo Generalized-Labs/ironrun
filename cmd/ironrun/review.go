@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -166,10 +167,8 @@ func rejectCmd() *cobra.Command {
 	}
 }
 
-// appendCommandToPolicy appends an approved proposal as a YAML command block to
-// the raw policy text (not via yaml.Marshal — policy.Duration has no MarshalYAML
-// and re-emitting would mangle TTLs and strip comments), then re-parses to
-// confirm the merge is valid, rolling back on failure.
+// appendCommandToPolicy inserts an approved proposal into the commands sequence
+// without re-emitting the rest of the YAML (which would strip comments).
 func appendCommandToPolicy(policyPath string, p pending.Proposal) error {
 	orig, err := os.ReadFile(policyPath)
 	if err != nil {
@@ -181,17 +180,50 @@ func appendCommandToPolicy(policyPath string, p pending.Proposal) error {
 	}
 	block := renderCommandBlock(p.ID, p.Argv, "120s", p.Env, comment)
 
-	text := string(orig)
-	if !strings.HasSuffix(text, "\n") {
-		text += "\n"
+	text, err := insertCommandBlock(string(orig), block)
+	if err != nil {
+		return err
 	}
-	text += "\n" + block
-	if err := os.WriteFile(policyPath, []byte(text), 0o644); err != nil {
+	mode := os.FileMode(0o644)
+	if info, statErr := os.Stat(policyPath); statErr == nil {
+		mode = info.Mode().Perm()
+	}
+	if err := os.WriteFile(policyPath, []byte(text), mode); err != nil {
 		return err
 	}
 	if _, err := policy.Load(policyPath); err != nil {
-		_ = os.WriteFile(policyPath, orig, 0o644) // roll back
+		_ = os.WriteFile(policyPath, orig, mode) // roll back
 		return fmt.Errorf("merged policy failed to parse (rolled back): %w", err)
 	}
 	return nil
+}
+
+func insertCommandBlock(text, block string) (string, error) {
+	lines := strings.SplitAfter(text, "\n")
+	offset := 0
+	commandsEnd := -1
+	insertAt := len(text)
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if commandsEnd < 0 {
+			if trimmed == "commands:" && len(line) > 0 && line[0] != ' ' && line[0] != '\t' {
+				commandsEnd = offset + len(line)
+			}
+		} else if trimmed != "" && len(line) > 0 && line[0] != ' ' && line[0] != '\t' {
+			insertAt = offset
+			break
+		}
+		offset += len(line)
+	}
+	if commandsEnd < 0 {
+		return "", errors.New("policy has no top-level commands sequence")
+	}
+	before, after := text[:insertAt], text[insertAt:]
+	if !strings.HasSuffix(before, "\n") {
+		before += "\n"
+	}
+	if !strings.HasSuffix(block, "\n") {
+		block += "\n"
+	}
+	return before + block + after, nil
 }

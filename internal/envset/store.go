@@ -1,5 +1,6 @@
-// Package envset manages project-scoped environment sets. Values are only
-// stored in an operating-system credential manager; this package never writes
+// Package envset manages project-scoped environment sets. Values are stored in
+// Ironrun's encrypted project vault, whose root key is protected by the native
+// operating-system credential manager. This package never writes plaintext
 // secret values to disk.
 package envset
 
