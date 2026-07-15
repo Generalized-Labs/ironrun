@@ -25,6 +25,8 @@ import (
 	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
 
+var executeCommand = execution.Run
+
 // Serve starts the MCP stdio server using the given policy. policyPath locates
 // the pending-proposal store (.ironrun/pending.yml next to it).
 // It blocks until the client disconnects or the process exits.
@@ -50,8 +52,12 @@ func Serve(f *policy.File, policyPath string) error {
 			"Call this first to know what commands you can run via run_sealed."),
 	)
 	s.AddTool(listTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		current, err := currentPolicy(f, policyPath)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", err)), nil
+		}
 		out := "Available commands:\n"
-		for _, cmd := range f.Commands {
+		for _, cmd := range current.Commands {
 			out += fmt.Sprintf("  • %s: %v\n", cmd.ID, cmd.Argv)
 		}
 		return mcplib.NewToolResultText(out), nil
@@ -76,7 +82,11 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithDescription("Validate the current policy file and return a summary of defined commands."),
 	)
 	s.AddTool(validateTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		out := fmt.Sprintf("Policy OK: %d command(s), provider=%s\n", len(f.Commands), f.Provider)
+		current, err := currentPolicy(f, policyPath)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", err)), nil
+		}
+		out := fmt.Sprintf("Policy OK: %d command(s), provider=%s\n", len(current.Commands), current.Provider)
 		return mcplib.NewToolResultText(out), nil
 	})
 
@@ -148,12 +158,16 @@ func Serve(f *policy.File, policyPath string) error {
 
 func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		current, reloadErr := currentPolicy(f, policyPath)
+		if reloadErr != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", reloadErr)), nil
+		}
 		cmdID, err := req.RequireString("command_id")
 		if err != nil {
 			return mcplib.NewToolResultError("command_id is required"), nil
 		}
 
-		_, err = f.Lookup(cmdID)
+		_, err = current.Lookup(cmdID)
 		if err != nil {
 			// Not in the policy — NEVER execute. run_sealed only ever resolves
 			// through the loaded policy; a pending proposal is never dispatchable.
@@ -163,13 +177,14 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 					cmdID, cmdID)), nil
 			}
 			hint := fmt.Sprintf("command %q not found in policy.", cmdID)
-			if f.AllowProposals {
+			if current.AllowProposals {
 				hint += " If you need it, call propose_command to stage it for the user's approval — do not run it in a shell."
 			}
 			return mcplib.NewToolResultError(hint), nil
 		}
-		if f.RequireAgentLeases {
-			environment, envErr := executionEnvironment(f, policyPath)
+		authorizedEnvironment := ""
+		if current.RequireAgentLeases {
+			environment, envErr := executionEnvironment(current, policyPath)
 			if envErr != nil {
 				return mcplib.NewToolResultError("agent lease check failed — project environment is unavailable"), nil
 			}
@@ -182,10 +197,14 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 					"agent lease required for command %q in environment %q. Call request_lease, then ask the user to approve it locally.",
 					cmdID, environment)), nil
 			}
+			// Pin execution to the environment that was authorized. Resolving the
+			// active environment again would create a time-of-check/time-of-use gap.
+			authorizedEnvironment = environment
 		}
 
-		res, runErr := execution.Run(ctx, f, policyPath, projectRoot(policyPath), cmdID, execution.Options{
-			Stdout: os.Stderr, Stderr: os.Stderr, // redacted live stream
+		res, runErr := executeCommand(ctx, current, policyPath, projectRoot(policyPath), cmdID, execution.Options{
+			Environment: authorizedEnvironment,
+			Stdout:      os.Stderr, Stderr: os.Stderr, // redacted live stream
 			Audit: auditLog, SessionID: sessionID,
 		})
 		if runErr != nil {
@@ -216,6 +235,13 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 		// Non-zero exit is not a tool error — it's a valid result the agent should see.
 		return mcplib.NewToolResultText(out), nil
 	}
+}
+
+func currentPolicy(f *policy.File, policyPath string) (*policy.File, error) {
+	if strings.TrimSpace(policyPath) == "" {
+		return f, nil
+	}
+	return policy.Load(policyPath)
 }
 
 func makeListEnvironmentsHandler(f *policy.File, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
