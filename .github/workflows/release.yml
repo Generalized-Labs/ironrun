@@ -54,13 +54,19 @@ jobs:
           cd npm
           npm pack --dry-run
 
+      # Non-blocking until the @generalized-labs npm scope is bootstrapped
+      # (see docs/NPM_BOOTSTRAP.md). Remove continue-on-error to enforce npm
+      # publishing once the scope + trusted publisher exist. The GitHub release,
+      # curl installer, go install, and Sigstore signing do not depend on npm.
       - name: Stage release candidate on npm
         if: contains(github.ref_name, '-rc.')
+        continue-on-error: true
         working-directory: npm
         run: npm stage publish --access public --tag next
 
       - name: Publish stable npm launcher
         if: ${{ !contains(github.ref_name, '-rc.') }}
+        continue-on-error: true
         working-directory: npm
         run: npm publish --access public --tag latest
 
