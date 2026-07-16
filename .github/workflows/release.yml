@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -25,6 +26,19 @@ jobs:
       - name: Test before release
         run: go test -race ./...
 
+      - uses: anchore/sbom-action/download-syft@v0
+
+      - uses: sigstore/cosign-installer@v3
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          package-manager-cache: false
+
+      - name: Install trusted-publishing npm CLI
+        run: npm install --global npm@11.5.1
+
       - uses: goreleaser/goreleaser-action@v6
         with:
           distribution: goreleaser
@@ -32,3 +46,32 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and verify immutable npm artifact manifest
+        run: |
+          node npm/scripts/build-manifest.mjs "$GITHUB_REF_NAME" dist
+          node --test npm/test/*.test.js
+          cd npm
+          npm pack --dry-run
+
+      - name: Stage release candidate on npm
+        if: contains(github.ref_name, '-rc.')
+        working-directory: npm
+        run: npm stage publish --access public --tag next
+
+      - name: Publish stable npm launcher
+        if: ${{ !contains(github.ref_name, '-rc.') }}
+        working-directory: npm
+        run: npm publish --access public --tag latest
+
+      - name: Keyless-sign release artifacts and checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          for artifact in dist/*.tar.gz dist/*.zip dist/checksums.txt; do
+            [ -f "$artifact" ] || continue
+            cosign sign-blob --yes --bundle "${artifact}.sigstore.json" "$artifact"
+          done
+          gh release upload "$GITHUB_REF_NAME" dist/*.sigstore.json --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

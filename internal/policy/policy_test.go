@@ -232,3 +232,36 @@ commands:
 		t.Fatalf("expected explicit allow failure, got %v", err)
 	}
 }
+
+func TestParse_V2UsesDirectEnvironmentEntryNames(t *testing.T) {
+	yaml := `version: "2"
+require_agent_leases: true
+commands:
+  - id: benchmark
+    argv: [python3, scripts/benchmark.py]
+    secrets: [OPENROUTER_API_KEY, service-account.json]
+`
+	f, err := policy.Parse([]byte(yaml))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !f.UsesEnvironmentEntries() || len(f.Secrets) != 0 {
+		t.Fatalf("v2 policy did not use direct entries: %#v", f)
+	}
+}
+
+func TestParse_V2RejectsInvalidAndDuplicateEntryNames(t *testing.T) {
+	invalid := `version: "2"
+commands:
+  - id: test
+    argv: [go, test]
+    secrets: [../API_KEY]
+`
+	if _, err := policy.Parse([]byte(invalid)); !errors.Is(err, policy.ErrMalformed) {
+		t.Fatalf("invalid direct entry error = %v", err)
+	}
+	duplicate := strings.Replace(invalid, "../API_KEY", "API_KEY, API_KEY", 1)
+	if _, err := policy.Parse([]byte(duplicate)); !errors.Is(err, policy.ErrMalformed) {
+		t.Fatalf("duplicate direct entry error = %v", err)
+	}
+}

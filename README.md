@@ -1,6 +1,6 @@
 # ironrun
 
-**Run commands through your AI agent without your secrets ending up in its context.**
+**Manage project environments in the terminal and let AI agents use secrets without reading them.**
 
 [![CI](https://github.com/generalized-labs/ironrun/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/generalized-labs/ironrun/actions/workflows/ci.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/generalized-labs/ironrun)](https://goreportcard.com/report/github.com/generalized-labs/ironrun)
@@ -8,7 +8,7 @@
 
 ---
 
-ironrun is a small command runner. You list the commands an AI agent is allowed to run (your tests, your dev server, a deploy script) in one file. The agent runs them by name through ironrun instead of typing shell commands itself. ironrun injects your real secrets into the command, and strips any secret value back out of the output before the agent ever sees it.
+ironrun is a local-first encrypted environment workspace. It gives humans one terminal UI for projects, environments, `.env` imports, and agent access. Trust an agent session once for a project’s `dev` environment, then it can work normally while ironrun injects values only into child processes and strips them back out of output before the agent sees them.
 
 Your tests still get a live `DATABASE_URL`. The agent gets back `exit_code: 0` and `tests passed` — and never the connection string.
 
@@ -63,7 +63,7 @@ ironrun redacts secret values from command output before it reaches the agent �
 │   "run the test suite"                                      │
 │        │                                                    │
 │        ▼                                                    │
-│   run_sealed("test")   ◄── one MCP tool call               │
+│   run_sealed({argv})   ◄── one MCP tool call               │
 │        │                                                    │
 └────────┼────────────────────────────────────────────────────┘
          │  ironrun takes over here
@@ -71,8 +71,9 @@ ironrun redacts secret values from command output before it reaches the agent �
 ┌─────────────────────────────────────────────────────────────┐
 │  ironrun                                                    │
 │                                                             │
-│  1. Look up "test" in ironrun.yml — is it allowed?          │
-│  2. Resolve its secrets from your manager (1Password, …)    │
+│  1. Check the human-approved project, dev environment, and  │
+│     current agent session                                  │
+│  2. Resolve its encrypted environment entries               │
 │  3. Run the command with those secrets injected             │
 │  4. Stream output through a redactor:                       │
 │        any secret value that appears  →  [REDACTED]         │
@@ -83,7 +84,7 @@ ironrun redacts secret values from command output before it reaches the agent �
 └─────────────────────────────────────────────────────────────┘
 ```
 
-The agent can only run commands you've listed — it can't ask ironrun to run an arbitrary shell command, and there's no tool that returns a secret's value.
+By default, an agent can use arbitrary argv only during a temporary session you explicitly trust. Strict policy commands remain available for CI, production, and sensitive projects. Ironrun never has a tool that returns a secret’s value.
 
 > ironrun adds approximately 5-10ms per command invocation: ~2ms for provider lookup (env/envfile) up to ~100ms for a 1Password CLI call. The redaction layer adds under 1ms for typical output sizes.
 
@@ -92,40 +93,60 @@ The agent can only run commands you've listed — it can't ask ironrun to run an
 ## Install
 
 ```bash
-# curl (Linux/macOS — no Go toolchain needed, verifies the checksum)
-curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/install.sh | bash
+# curl (Linux/macOS — inspectable script, mandatory checksum verification)
+curl -fsSL https://ironrun.dev/install.sh -o /tmp/ironrun-install.sh
+bash /tmp/ironrun-install.sh
 
 # Go (any platform)
 go install github.com/generalized-labs/ironrun/cmd/ironrun@latest
+
+# Verified npm launcher (Node 20+; native Go security boundary)
+npx @generalized-labs/ironrun@latest
 ```
+
+Windows (amd64) is a beta: download `ironrun_Windows_x86_64.zip` from the
+[latest release](https://github.com/generalized-labs/ironrun/releases/latest)
+and put `ironrun.exe` on your `PATH`.
 
 Check it's on your path:
 
 ```bash
 ironrun version
-# ironrun 0.2.0   (a source build prints "ironrun dev")
+# ironrun 0.4.0   (a source build prints "ironrun dev")
 ```
 
 ---
 
 ## Quickstart
 
-From the root of any project:
+Set up a project once:
 
 ```bash
-ironrun
+cd your-project
+ironrun setup
 ```
 
-This creates a local encrypted `dev` environment when needed and opens the
-terminal control room. The everyday commands are intentionally short:
+Setup previews every file it will write, detects `.env` key names without
+displaying values, creates an encrypted `dev` environment, registers MCP
+clients, and optionally installs the value-blind per-user service.
+
+Then use bare `ironrun` from anywhere. It opens the global Projects and Inbox
+workspace. Agent requests appear automatically; Enter opens the exact review
+and resumes the waiting MCP call after approval or masked secret entry.
+
+The everyday CLI is also intentionally short:
 
 ```bash
 ironrun add OPENAI_API_KEY   # masked prompt; saves to the active environment
+ironrun import .env          # preview names, confirm, encrypt, verify
 ironrun new staging         # create and switch to a persistent environment
 ironrun session             # create and switch to a 24-hour environment
 ironrun use dev             # switch environments
 ironrun envs                # list names and keys, never values
-ironrun exec test           # run the allowed command named "test"
+ironrun run test            # run the approved command named "test"
+ironrun trust list          # inspect active trusted agent sessions
+ironrun trust revoke ID     # stop one immediately
+ironrun status              # value-blind project summary
 ```
 
 Run `ironrun setup` when you also want project agent instructions and MCP
@@ -135,42 +156,42 @@ configuration. It looks at your project and writes three files:
 - **`.mcp.json`** — wires Claude Code up to ironrun (project-scoped MCP server, merged into any existing file).
 - **`CLAUDE.md`, `AGENTS.md`, `.cursorrules`** — tell the agent (Claude Code, Codex, Cursor) to run commands via `run_sealed` instead of typing them into a shell.
 
-For a Node project, the generated `ironrun.yml` looks like this:
+New policies bind approved commands directly to encrypted environment entry
+names. Storing or rotating a value never requires a policy edit:
 
 ```yaml
-version: "1"
-provider: env          # secrets come from the current environment, by name
+version: "2"
+environment_set: active
+require_agent_leases: true
+allow_proposals: true
 
 commands:
   - id: dev
     argv: [npm, run, dev]
-    ttl: 0               # no timeout — long-running dev server
-    env:
-      DATABASE_URL: env:DATABASE_URL
-      STRIPE_SECRET_KEY: env:STRIPE_SECRET_KEY
+    ttl: 0
+    secrets: [DATABASE_URL, STRIPE_SECRET_KEY]
 
   - id: test
     argv: [npm, test]
     ttl: 120s
-    env:
-      DATABASE_URL: env:DATABASE_URL
-      STRIPE_SECRET_KEY: env:STRIPE_SECRET_KEY
+    secrets: [DATABASE_URL, STRIPE_SECRET_KEY]
 
   - id: build
     argv: [npm, run, build]
     ttl: 120s
 ```
 
-Load your secrets, then check the policy:
+Import or add values locally, then check the workspace:
 
 ```bash
-set -a; source .env; set +a    # put .env values into the environment
-ironrun validate
-# Policy valid: 3 command(s) defined, provider=env
-#   • dev:   [npm run dev]
-#   • test:  [npm test]
-#   • build: [npm run build]
+chmod 600 .env
+ironrun import .env
+ironrun status
 ```
+
+The import shows key names only, asks for confirmation, verifies the encrypted
+copy, and warns that the plaintext source remains. Ironrun never offers reveal,
+clipboard copy, or plaintext export.
 
 Run one yourself to see the redaction:
 
@@ -180,37 +201,19 @@ ironrun run test
 # If a test logs the connection string, you'll see [REDACTED] instead.
 ```
 
-### One-command secret onboarding
+### Existing version-1 policies
 
-Declare an alias and its command allowlist in `ironrun.yml`; the value never
-belongs in YAML:
-
-```yaml
-secrets:
-  hydradb:
-    env: HYDRA_DB_API_KEY
-    store: auto
-    allow: [hydra-bootstrap]
-commands:
-  - id: hydra-bootstrap
-    argv: [./bin/hydra-bootstrap]
-    secrets: [hydradb]
-```
-
-Then store it once through a masked terminal prompt:
+Version-1 provider aliases remain supported. Preview a reversible migration:
 
 ```bash
-ironrun secrets set hydradb
-ironrun secrets status
-ironrun run hydra-bootstrap
+ironrun migrate
+ironrun migrate --apply
 ```
 
-On macOS, `auto` uses the Keychain. Project environment sets use Ironrun's
-encrypted local vault; its random project root key is protected by the native
-credential manager on macOS, Windows, and Linux. `status`, audit records, MCP responses, and policy files
-never include secret values. `rotate` and `delete` take effect on the next
-sealed run. Piped input is rejected unless the caller explicitly uses
-`--from-stdin --unsafe`.
+Migration copies values transactionally, verifies encrypted storage, preserves
+policy comments through an AST edit, keeps an ignored backup, and does not
+delete legacy values. `ironrun migrate rollback ID` remains available until an
+explicit `ironrun migrate cleanup ID --yes`.
 
 ### Project environment sets
 
@@ -323,6 +326,29 @@ Leases are bound to the exact MCP server session, environment, command set, and
 expiry. Restarting the MCP server creates a new session; old leases do not
 transfer. Revocation is checked before the next run.
 
+### Trusted workspace sessions (the fast agent path)
+
+For normal local development, an agent can call `request_workspace_access` or
+attempt `run_sealed` with an `argv` array. Ironrun shows one request in the
+global Inbox. Approve it once and the same MCP session can run normal commands
+for the selected project and environment for two hours:
+
+```bash
+ironrun trust list
+ironrun trust grant req_abc123
+ironrun trust pause trust_abc123
+ironrun trust extend trust_abc123 --ttl 2h
+ironrun trust revoke trust_abc123
+```
+
+Trusted sessions are pinned to the MCP session, project, and environment. A
+server restart creates a new session; an old grant cannot transfer. The default
+scope is the current `dev` environment. `staging` and `prod` require a separate
+explicit grant. Normal development network access is enabled, which means a
+trusted agent could deliberately exfiltrate a secret through network or file
+actions. Ironrun protects agent context, logs, and routine output; it is not an
+OS sandbox for a process you choose to trust.
+
 ### Secret requests and encrypted chat capsules
 
 The `request_secret` MCP tool accepts only a declared alias and reason. It has no
@@ -363,7 +389,9 @@ The API exposes status, environment metadata, access requests, leases,
 revocation, denial, and sealed execution. It refuses unknown JSON fields and
 has no endpoint accepting plaintext secret values.
 
-Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` as a tool and uses it to run `test`, `dev`, and `build` — without ever holding the secret values.
+Now start your agent (`claude`, `cursor`, …). It sees `run_sealed` and asks for
+one trusted workspace session before normal development work. It can then run
+commands without ever holding the secret values.
 
 ### Using with Codex
 
@@ -538,7 +566,8 @@ The agent running `printenv DATABASE_URL` sees nothing — the var isn't in the 
 
 ## The MCP tools the agent gets
 
-When ironrun runs as an MCP server (`ironrun mcp`), it exposes exactly three tools — none of which return a secret value:
+When ironrun runs as an MCP server (`ironrun mcp`), it exposes value-blind tools
+that never return a secret value:
 
 **`list_commands`** — what can I run? Returns command names and their argv, nothing else.
 
@@ -548,7 +577,10 @@ build:  [npm run build]
 deploy: [./scripts/deploy.sh production]
 ```
 
-**`run_sealed`** — run one of them. Takes a single argument `command_id: "<id>"` (an id from your `ironrun.yml`; the JSON arg name is `command_id`, not `id`). Returns the exit code, duration, and redacted stdout/stderr.
+**`run_sealed`** — either run a strict saved command with `command_id: "<id>"`, or run exact argv after the human trusts the current workspace session with `argv: ["npm", "test"]`. It returns the exit code, duration, and redacted stdout/stderr.
+
+**`request_workspace_access`** and **`workspace_status`** — request temporary
+project/environment access and inspect safe session/environment metadata.
 
 ```
 exit_code: 0
@@ -626,7 +658,8 @@ Those tools resolve your secrets and inject them as environment variables — wh
 | Injects secrets as env vars | ✓ | ✓ |
 | Redacts secret values from output | ✓ | ✗ |
 | Exposes a `run_sealed` tool to agents | ✓ | ✗ |
-| Allowlist — agent can't run arbitrary commands | ✓ | ✗ |
+| Strict saved-command mode for sensitive work | ✓ | ✗ |
+| One trusted development session for normal agent work | ✓ | ✗ |
 | Blocks fork-PR runs from getting secrets | ✓ | ✗ |
 | Works across 1Password, Doppler, Infisical, env files | ✓ | each is tied to its own backend |
 

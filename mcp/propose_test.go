@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/generalized-labs/ironrun/internal/pending"
 )
 
 const proposalPolicy = `version: "1"
@@ -46,7 +48,8 @@ func (p *mcpProc) callTool(t *testing.T, id int, name string, args map[string]in
 }
 
 // TestMCP_ProposeThenSealClosed is the headline security test: an agent can
-// propose a command but can NEVER self-approve or run it until a human approves.
+// propose a command but can NEVER self-approve or run it. The waiting call
+// terminates safely if the human rejects/removes the proposal.
 func TestMCP_ProposeThenSealClosed(t *testing.T) {
 	policyFile := writePolicyInDir(t, proposalPolicy)
 	p := startMCP(t, policyFile)
@@ -76,14 +79,27 @@ func TestMCP_ProposeThenSealClosed(t *testing.T) {
 		t.Errorf("pending file missing the proposal: %s", data)
 	}
 
-	// 3. CRITICAL: run_sealed on the unapproved id must REFUSE and NOT execute.
-	resp2 := p.callTool(t, 4, "run_sealed", map[string]interface{}{"command_id": "list-files"})
+	// 3. CRITICAL: run_sealed waits and does not execute the unapproved id.
+	p.send(t, map[string]interface{}{
+		"jsonrpc": "2.0", "id": 4, "method": "tools/call",
+		"params": map[string]interface{}{"name": "run_sealed", "arguments": map[string]interface{}{"command_id": "list-files"}},
+	})
+	time.Sleep(150 * time.Millisecond)
+	store, err := pending.Load(pendingFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	store.Remove("list-files")
+	if err := pending.Save(pendingFile, store); err != nil {
+		t.Fatal(err)
+	}
+	resp2 := p.readResponse(t, 10*time.Second)
 	text2, _ := extractToolText(t, resp2)
 	if strings.Contains(text2, "exit_code") {
 		t.Errorf("AGENT SELF-APPROVAL HOLE: run_sealed executed an unapproved command:\n%s", text2)
 	}
-	if !strings.Contains(text2, "awaiting human approval") {
-		t.Errorf("expected an awaiting-approval message, got: %s", text2)
+	if !strings.Contains(text2, "rejected or removed") {
+		t.Errorf("expected a safe rejected response, got: %s", text2)
 	}
 }
 

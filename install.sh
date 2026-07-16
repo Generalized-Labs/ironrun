@@ -48,26 +48,31 @@ trap 'rm -rf "$TMP"' EXIT
 # Download
 curl -fsSL "$DOWNLOAD_URL" -o "$TMP/$TARBALL"
 
-# Verify checksum if available
+# Verification is mandatory. Never install an artifact without the matching
+# release checksum, even when GitHub is partially unavailable.
 CHECKSUMS_URL="https://github.com/${REPO}/releases/download/${VERSION}/checksums.txt"
-if curl -fsSL "$CHECKSUMS_URL" -o "$TMP/checksums.txt" 2>/dev/null; then
-  # Extract expected hash for this tarball
-  EXPECTED="$(grep "$TARBALL" "$TMP/checksums.txt" | awk '{print $1}')"
-  if [ -n "$EXPECTED" ]; then
-    if command -v sha256sum >/dev/null 2>&1; then
-      # Linux
-      ACTUAL="$(sha256sum "$TMP/$TARBALL" | awk '{print $1}')"
-    elif command -v shasum >/dev/null 2>&1; then
-      # macOS
-      ACTUAL="$(shasum -a 256 "$TMP/$TARBALL" | awk '{print $1}')"
-    fi
-    if [ "${ACTUAL:-}" = "$EXPECTED" ]; then
-      echo "Checksum verified."
-    else
-      echo "Checksum mismatch! Expected $EXPECTED, got ${ACTUAL:-unknown}" >&2
-      exit 1
-    fi
-  fi
+if ! curl -fsSL "$CHECKSUMS_URL" -o "$TMP/checksums.txt"; then
+  echo "Could not download checksums for ${VERSION}; refusing an unverified install." >&2
+  exit 1
+fi
+EXPECTED="$(awk -v file="$TARBALL" '$2 == file { print $1 }' "$TMP/checksums.txt")"
+if [ -z "$EXPECTED" ] || [ "$(printf '%s\n' "$EXPECTED" | wc -l | tr -d ' ')" != "1" ]; then
+  echo "checksums.txt has no unique entry for ${TARBALL}; refusing installation." >&2
+  exit 1
+fi
+if command -v sha256sum >/dev/null 2>&1; then
+  ACTUAL="$(sha256sum "$TMP/$TARBALL" | awk '{print $1}')"
+elif command -v shasum >/dev/null 2>&1; then
+  ACTUAL="$(shasum -a 256 "$TMP/$TARBALL" | awk '{print $1}')"
+else
+  echo "No SHA-256 tool found (need sha256sum or shasum); refusing installation." >&2
+  exit 1
+fi
+if [ "$ACTUAL" = "$EXPECTED" ]; then
+  echo "Checksum verified."
+else
+  echo "Checksum mismatch! Expected $EXPECTED, got $ACTUAL" >&2
+  exit 1
 fi
 
 # Extract

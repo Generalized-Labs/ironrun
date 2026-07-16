@@ -10,10 +10,13 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+
+	"github.com/generalized-labs/ironrun/internal/daemon"
 )
 
 func initCmd() *cobra.Command {
-	return &cobra.Command{
+	var yes, installDaemon bool
+	cmd := &cobra.Command{
 		Use:     "setup",
 		Aliases: []string{"init"},
 		Short:   "Initialize ironrun in the current project",
@@ -35,6 +38,22 @@ that need credentials.`,
 			// agent instructions are generated from them so they stay in sync.
 			envVars := detectEnvVars(cwd)
 			cmds := detectCommands(cwd, envVars)
+			stdout, _ := os.Stdout.Stat()
+			interactive := stdout != nil && stdout.Mode()&os.ModeCharDevice != 0
+			if interactive && !yes {
+				fmt.Println("Setup preview (secret values are never read):")
+				fmt.Println("  • ironrun.yml — reviewed commands and secret names")
+				fmt.Println("  • .mcp.json — project MCP registration")
+				fmt.Println("  • CLAUDE.md, AGENTS.md, .cursorrules — agent safety instructions")
+				fmt.Println("  • ~/.codex/config.toml and ~/.cursor/mcp.json — merged when clients exist")
+				ok, confirmErr := confirm("Continue with these setup changes? [y/N] ")
+				if confirmErr != nil {
+					return confirmErr
+				}
+				if !ok {
+					return fmt.Errorf("setup cancelled")
+				}
+			}
 
 			// 1. Write ironrun.yml if it doesn't exist
 			ymlPath := filepath.Join(cwd, "ironrun.yml")
@@ -49,13 +68,16 @@ that need credentials.`,
 				createdPolicy = true
 				fmt.Println("  • Created ironrun.yml")
 			}
-			stdout, _ := os.Stdout.Stat()
-			if createdPolicy && stdout != nil && stdout.Mode()&os.ModeCharDevice != 0 {
+			if createdPolicy && interactive {
 				if err := initializeLocalEnvironment(cwd); err != nil {
 					return err
 				}
 				fmt.Println("  • Created encrypted environment dev")
 			}
+			if err := registerProject(cwd); err != nil {
+				return fmt.Errorf("register global project: %w", err)
+			}
+			fmt.Println("  • Registered project in the global Ironrun workspace")
 
 			// 2. Write/merge .mcp.json at the repo root. Claude Code reads
 			//    project-scoped MCP servers from .mcp.json at the project root —
@@ -80,12 +102,29 @@ that need credentials.`,
 			if err := registerCursor(); err != nil {
 				fmt.Printf("  ⚠  Could not update ~/.cursor/mcp.json: %v\n", err)
 			}
+			if interactive && !installDaemon {
+				path, _, previewErr := daemon.UnitPreview()
+				if previewErr == nil {
+					fmt.Printf("\nOptional background service: %s\n", path)
+					fmt.Println("It watches value-blind project/request metadata and exposes no secret-value RPC fields.")
+					installDaemon, _ = confirm("Install and start it now? [y/N] ")
+				}
+			}
+			if installDaemon {
+				path, installErr := daemon.Install()
+				if installErr != nil {
+					fmt.Printf("  ⚠  Background service was not installed: %v\n", installErr)
+					fmt.Println("     Retry: ironrun daemon install")
+				} else {
+					fmt.Printf("  • Installed value-blind background service: %s\n", path)
+				}
+			}
 
 			fmt.Println()
 			fmt.Println("Done! Next steps:")
 			fmt.Println()
-			fmt.Println("  1. Run ironrun to open the local vault control room")
-			fmt.Println("  2. Press s to add a secret, n for a project environment, or t for a 24h session")
+			fmt.Println("  1. Run ironrun to open Projects and the agent inbox")
+			fmt.Println("  2. Press Enter on this project, then choose Add secret or Import .env")
 			fmt.Println("  3. Check your setup: ironrun doctor")
 			fmt.Println("  4. Test: ironrun run <command-id>")
 			fmt.Println()
@@ -96,6 +135,9 @@ that need credentials.`,
 			return nil
 		},
 	}
+	cmd.Flags().BoolVar(&yes, "yes", false, "confirm the setup file preview non-interactively")
+	cmd.Flags().BoolVar(&installDaemon, "daemon", false, "install and start the value-blind user service")
+	return cmd
 }
 
 // writeAgentInstructions writes the rendered instructions to cwd/name unless the
@@ -247,25 +289,12 @@ func generatePolicy(cmds []DetectedCmd, envVars []string) string {
 	if len(cmds) == 0 {
 		cmds = []DetectedCmd{{ID: "ironrun-health", Argv: []string{"ironrun", "version"}, TTL: "10s", Comment: "verify the local Ironrun installation"}}
 	}
-	allowed := make([]string, 0, len(cmds))
-	for _, command := range cmds {
-		if command.NeedsEnv {
-			allowed = append(allowed, command.ID)
-		}
-	}
 	var b strings.Builder
-	b.WriteString("version: \"1\"\n")
-	b.WriteString("provider: passthrough\n")
+	b.WriteString("version: \"2\"\n")
 	b.WriteString("environment_set: active\n")
 	b.WriteString("require_agent_leases: true\n")
 	b.WriteString("# Let agents propose new commands for your approval (ironrun review / approve).\n")
 	b.WriteString("allow_proposals: true\n")
-	if len(envVars) > 0 && len(allowed) > 0 {
-		b.WriteString("\nsecrets:\n")
-		for _, key := range envVars {
-			fmt.Fprintf(&b, "  %s:\n    env: %s\n    store: auto\n    allow: [%s]\n", key, key, strings.Join(allowed, ", "))
-		}
-	}
 	b.WriteString("\ncommands:\n")
 
 	for i, c := range cmds {

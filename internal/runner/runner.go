@@ -55,6 +55,9 @@ type Options struct {
 	Audit *audit.Logger
 	// SessionID correlates audit entries from the same agent session / invocation.
 	SessionID string
+	// AllowShell is reserved for a human-approved trusted workspace session.
+	// Strict policy commands always leave it false.
+	AllowShell bool
 }
 
 var (
@@ -72,7 +75,7 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	}
 
 	// Deny shell execution from policy itself.
-	if policy.IsShellString(cmd.Argv) {
+	if !opts.AllowShell && policy.IsShellString(cmd.Argv) {
 		return nil, fmt.Errorf("%w: shell commands are not allowed (argv[0]=%q)", ErrDenied, cmd.Argv[0])
 	}
 

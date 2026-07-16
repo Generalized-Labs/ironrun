@@ -74,6 +74,7 @@ type Model struct {
 	environments   []envset.Set
 	requests       []access.Request
 	leases         []access.Lease
+	trusts         []access.WorkspaceGrant
 	focus          int
 	cursor         [3]int
 	page           page
@@ -95,6 +96,7 @@ type Model struct {
 	temporaryEnv   bool
 	showHelp       bool
 	dotenvDetected bool
+	snapshot       string
 }
 
 type refreshMsg struct{}
@@ -137,7 +139,7 @@ func New(root, policyPath string) (*Model, error) {
 		root: root, policyPath: policyPath, policy: f, access: requests,
 		input: input, dark: true, workspaceFocus: 2, importSelected: map[int]bool{},
 	}
-	if f.EnvironmentSet == "active" {
+	if f.UsesEnvironmentEntries() || f.EnvironmentSet == "active" {
 		m.env, err = envset.Open(root)
 		if err != nil {
 			return nil, err
@@ -150,7 +152,7 @@ func New(root, policyPath string) (*Model, error) {
 }
 
 func (m *Model) Init() tea.Cmd {
-	return tea.Batch(tea.RequestBackgroundColor, tea.Tick(time.Second, func(time.Time) tea.Msg { return refreshMsg{} }))
+	return tea.Batch(tea.RequestBackgroundColor, watchProject(m.root, m.policyPath, m.snapshot))
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -163,7 +165,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.input.SetWidth(max(24, min(54, msg.Width-12)))
 		return m, nil
 	case refreshMsg:
-		return m, tea.Tick(time.Second, func(time.Time) tea.Msg { return refreshMsg{} })
+		if err := m.reload(); err != nil {
+			m.message, m.isError = "Refresh failed: "+safeError(err), true
+		}
+		return m, watchProject(m.root, m.policyPath, m.snapshot)
 	case runFinishedMsg:
 		if msg.err != nil {
 			m.refreshWithMessage("Command failed: "+safeError(msg.err), true)
@@ -208,13 +213,13 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.page = (m.page + 3) % 4
 		case "right", "l":
 			if m.page == pageWorkspace {
-				m.workspaceFocus = (m.workspaceFocus + 1) % 3
+				m.workspaceFocus = (m.workspaceFocus + 1) % m.workspaceFocusCount()
 			} else {
 				m.focus = (m.focus + 1) % 3
 			}
 		case "left", "h":
 			if m.page == pageWorkspace {
-				m.workspaceFocus = (m.workspaceFocus + 2) % 3
+				m.workspaceFocus = (m.workspaceFocus + m.workspaceFocusCount() - 1) % m.workspaceFocusCount()
 			} else {
 				m.focus = (m.focus + 2) % 3
 			}
@@ -245,9 +250,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.isError = false
 			}
 		case "r":
-			if m.focus == focusLeases && len(m.leases) > 0 && m.selectedLease().RevokedAt == nil {
+			if m.focus == focusLeases && m.hasRevocableAccess() {
 				m.mode = modeRevoke
-				m.message = "Revoke this lease immediately?"
+				m.message = "Revoke this agent access immediately?"
 				m.isError = false
 			} else {
 				m.refreshWithMessage("State refreshed", false)
@@ -423,11 +428,19 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		}
 		switch completedMode {
 		case modeApprove:
-			_, err = m.access.ApproveLease(m.selectedRequest().ID, 0)
+			if m.selectedRequest().Kind == access.RequestWorkspace {
+				_, err = m.access.ApproveWorkspace(m.selectedRequest().ID, 0)
+			} else {
+				_, err = m.access.ApproveLease(m.selectedRequest().ID, 0)
+			}
 		case modeDeny:
 			err = m.access.Deny(m.selectedRequest().ID)
 		case modeRevoke:
-			err = m.access.Revoke(m.selectedLease().ID, "")
+			if trust := m.selectedTrust(); trust.ID != "" {
+				err = m.access.RevokeWorkspace(trust.ID)
+			} else {
+				err = m.access.Revoke(m.selectedLease().ID, "")
+			}
 		case modeEnableVault:
 			err = m.enableLocalVault()
 		case modeImportConfirm:
@@ -709,12 +722,16 @@ func (m *Model) beginPrimaryAction() {
 			_ = m.input.Focus()
 		} else {
 			m.mode = modeApprove
-			m.message = "Approve this lease until " + time.Now().Add(request.RequestedTTL).Format("15:04") + "?"
+			if request.Kind == access.RequestWorkspace {
+				m.message = "Trust this agent session until " + time.Now().Add(request.RequestedTTL).Format("15:04") + "?"
+			} else {
+				m.message = "Approve this lease until " + time.Now().Add(request.RequestedTTL).Format("15:04") + "?"
+			}
 		}
 	case focusLeases:
-		if len(m.leases) > 0 && m.selectedLease().RevokedAt == nil {
+		if m.hasRevocableAccess() {
 			m.mode = modeRevoke
-			m.message = "Revoke this lease immediately?"
+			m.message = "Revoke this agent access immediately?"
 		}
 	}
 }
@@ -737,6 +754,8 @@ func (m *Model) moveCursor(delta int) {
 			move(&m.entryCursor, len(entries))
 		case 2:
 			move(&m.actionCursor, len(workspaceActions))
+		case 3:
+			move(&m.cursor[focusRequests], len(m.requests))
 		}
 	case pageRun:
 		move(&m.commandCursor, len(m.policy.Commands)+len(m.proposals))
@@ -748,6 +767,11 @@ func (m *Model) moveCursor(delta int) {
 func (m *Model) beginPageAction() tea.Cmd {
 	switch m.page {
 	case pageWorkspace:
+		if m.workspaceFocus == 3 && len(m.requests) > 0 {
+			m.focus = focusRequests
+			m.beginPrimaryAction()
+			return nil
+		}
 		if m.workspaceFocus == 0 {
 			m.useSelectedEnvironment()
 			return nil
@@ -771,6 +795,13 @@ func (m *Model) beginPageAction() tea.Cmd {
 		m.beginPrimaryAction()
 	}
 	return nil
+}
+
+func (m *Model) workspaceFocusCount() int {
+	if len(m.requests) > 0 {
+		return 4
+	}
+	return 3
 }
 
 func (m *Model) runWorkspaceAction(index int) {
@@ -816,18 +847,18 @@ func (m *Model) useSelectedEnvironment() {
 }
 
 func (m *Model) storeSecret(request access.Request, value string) error {
-	decl, ok := m.policy.Secrets[request.SecretAlias]
-	if !ok || decl.Env != request.SecretKey {
+	key, storeName, ok := m.policy.SecretBinding(request.SecretAlias)
+	if !ok || key != request.SecretKey {
 		return errors.New("request no longer matches the policy")
 	}
 	_, err := m.access.FulfillSecretWith(request.ID, func(locked access.Request) error {
-		if m.policy.EnvironmentSet == "active" {
+		if m.policy.UsesEnvironmentEntries() || m.policy.EnvironmentSet == "active" {
 			if m.env == nil {
 				return errors.New("environment vault unavailable")
 			}
 			return m.env.Put(locked.Environment, locked.SecretKey, value)
 		}
-		store, err := secretstore.Open(m.policyPath, decl.Store)
+		store, err := secretstore.Open(m.policyPath, storeName)
 		if err != nil {
 			return err
 		}
@@ -837,6 +868,8 @@ func (m *Model) storeSecret(request access.Request, value string) error {
 }
 
 func (m *Model) reload() error {
+	hadPendingRequests := len(m.requests) > 0
+	hadPendingProposals := len(m.proposals) > 0
 	loadedPolicy, err := policy.Load(m.policyPath)
 	if err != nil {
 		return err
@@ -847,6 +880,10 @@ func (m *Model) reload() error {
 		return err
 	}
 	m.proposals = append(m.proposals[:0], pendingStore.Proposals...)
+	if !hadPendingProposals && len(m.proposals) > 0 {
+		m.page = pageRun
+		m.commandCursor = len(m.policy.Commands)
+	}
 	requests, err := m.access.Requests()
 	if err != nil {
 		return err
@@ -857,7 +894,16 @@ func (m *Model) reload() error {
 			m.requests = append(m.requests, request)
 		}
 	}
+	if !hadPendingRequests && len(m.requests) > 0 {
+		m.page = pageWorkspace
+		m.workspaceFocus = 3
+		m.cursor[focusRequests] = 0
+	}
 	m.leases, err = m.access.Leases("")
+	if err != nil {
+		return err
+	}
+	m.trusts, err = m.access.WorkspaceGrants("")
 	if err != nil {
 		return err
 	}
@@ -886,7 +932,39 @@ func (m *Model) reload() error {
 			m.cursor[i] = limit - 1
 		}
 	}
+	m.snapshot = projectSnapshot(m.root, m.policyPath)
 	return nil
+}
+
+func watchProject(root, policyPath, snapshot string) tea.Cmd {
+	return func() tea.Msg {
+		for {
+			time.Sleep(200 * time.Millisecond)
+			if projectSnapshot(root, policyPath) != snapshot {
+				return refreshMsg{}
+			}
+		}
+	}
+}
+
+func projectSnapshot(root, policyPath string) string {
+	paths := []string{
+		policyPath,
+		filepath.Join(root, ".ironrun", "access.json"),
+		filepath.Join(root, ".ironrun", "environments.json"),
+		pending.Path(policyPath),
+		filepath.Join(root, ".env"),
+	}
+	var b strings.Builder
+	for _, path := range paths {
+		info, err := os.Stat(path)
+		if err != nil {
+			fmt.Fprintf(&b, "%s:missing;", path)
+			continue
+		}
+		fmt.Fprintf(&b, "%s:%d:%d;", path, info.ModTime().UnixNano(), info.Size())
+	}
+	return b.String()
 }
 
 func (m *Model) selectedProposal() pending.Proposal {
@@ -909,7 +987,7 @@ func (m *Model) focusLength(focus int) int {
 	case focusRequests:
 		return len(m.requests)
 	default:
-		return len(m.leases)
+		return len(m.trusts) + len(m.leases)
 	}
 }
 
@@ -920,10 +998,29 @@ func (m *Model) selectedRequest() access.Request {
 	return m.requests[m.cursor[focusRequests]]
 }
 func (m *Model) selectedLease() access.Lease {
-	if len(m.leases) == 0 {
+	idx := m.cursor[focusLeases] - len(m.trusts)
+	if idx < 0 || idx >= len(m.leases) {
 		return access.Lease{}
 	}
-	return m.leases[m.cursor[focusLeases]]
+	return m.leases[idx]
+}
+
+func (m *Model) selectedTrust() access.WorkspaceGrant {
+	idx := m.cursor[focusLeases]
+	if idx < 0 || idx >= len(m.trusts) {
+		return access.WorkspaceGrant{}
+	}
+	return m.trusts[idx]
+}
+
+func (m *Model) hasRevocableAccess() bool {
+	if trust := m.selectedTrust(); trust.ID != "" {
+		return trust.RevokedAt == nil
+	}
+	if lease := m.selectedLease(); lease.ID != "" {
+		return lease.RevokedAt == nil
+	}
+	return false
 }
 
 func (m *Model) View() tea.View {
@@ -933,7 +1030,6 @@ func (m *Model) View() tea.View {
 		width = 100
 	}
 	header := m.renderHeader(styles, width)
-	stats := m.renderStats(styles, width)
 	footer := m.renderFooter(styles, width)
 	panelHeight := 14
 	if m.height > 0 {
@@ -941,11 +1037,10 @@ func (m *Model) View() tea.View {
 		if m.page == pageWorkspace && m.mode == modeNormal && !m.showHelp {
 			minimumPanelHeight = 12
 		}
-		panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(stats) - lipgloss.Height(footer)
+		panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(footer)
 		if panelHeight < minimumPanelHeight {
 			// The action bar is the dashboard's discoverability and control
 			// surface. Prefer it over secondary stats in short embedded terminals.
-			stats = ""
 			panelHeight = m.height - lipgloss.Height(header) - lipgloss.Height(footer)
 		}
 		if panelHeight < minimumPanelHeight {
@@ -959,9 +1054,6 @@ func (m *Model) View() tea.View {
 	blocks := make([]string, 0, 4)
 	if header != "" {
 		blocks = append(blocks, header)
-	}
-	if stats != "" {
-		blocks = append(blocks, stats)
 	}
 	blocks = append(blocks, panels, footer)
 	content := lipgloss.JoinVertical(lipgloss.Left, blocks...)
@@ -985,26 +1077,6 @@ func (m *Model) renderHeader(s styles, width int) string {
 		}
 	}
 	return s.header.Width(width).Render(brand + strings.Repeat(" ", gap) + right + "\n  " + strings.Join(tabs, "   "))
-}
-
-func (m *Model) renderStats(s styles, width int) string {
-	active := "default"
-	if m.env != nil && m.env.Meta.Active != "" {
-		active = m.env.Meta.Active
-	}
-	activeLeases := 0
-	for _, lease := range m.leases {
-		if lease.RevokedAt == nil && time.Now().Before(lease.ExpiresAt) {
-			activeLeases++
-		}
-	}
-	items := []string{
-		s.stat.Render("● ENCRYPTED") + " " + s.value.Render("project vault"),
-		s.label.Render("ENV") + " " + s.value.Render(active),
-		s.label.Render("REQUESTS") + " " + s.value.Render(fmt.Sprint(len(m.requests))),
-		s.label.Render("LEASES") + " " + s.value.Render(fmt.Sprint(activeLeases)),
-	}
-	return s.stats.Width(width).Render(strings.Join(items, "   "))
 }
 
 func (m *Model) renderPanels(s styles, width, height int) string {
@@ -1035,58 +1107,104 @@ func (m *Model) renderPanels(s styles, width, height int) string {
 }
 
 func (m *Model) renderWorkspace(s styles, width, height int) string {
-	if width < 86 {
-		switch m.workspaceFocus {
-		case 0:
-			return m.renderEnvironments(s, width, height)
-		case 1:
-			return m.renderEntries(s, width, height)
-		default:
-			return m.renderActions(s, width, height)
-		}
+	if height <= 9 {
+		compact := s.panelTitle.Render("ACTIONS") + "\n> Add secret · Import .env\n  Run command · New environment\n  Grant agent access"
+		return s.renderPanel(true, width, height, compact)
 	}
-	left := max(24, width*24/100)
-	middle := max(34, width*42/100)
-	right := max(28, width-left-middle)
-	return lipgloss.JoinHorizontal(lipgloss.Top, m.renderEnvironments(s, left, height), m.renderEntries(s, middle, height), m.renderActions(s, right, height))
-}
+	var sections []string
+	if len(m.requests) > 0 {
+		sections = append(sections, m.renderWaitingReview(s))
+	}
+	environments := make([]string, 0, len(m.environments))
+	for i, environment := range m.environments {
+		marker := "○"
+		if m.env != nil && m.env.Meta.Active == environment.Name {
+			marker = "●"
+		}
+		label := fmt.Sprintf("%s %s (%d items)", marker, environment.Name, len(environment.Entries))
+		if m.workspaceFocus == 0 && i == m.cursor[focusEnvironments] {
+			label = "> " + label
+		} else {
+			label = "  " + label
+		}
+		environments = append(environments, label)
+	}
+	if len(environments) == 0 {
+		environments = append(environments, "  No encrypted environment yet")
+	}
+	sections = append(sections, s.panelTitle.Render("ENVIRONMENTS")+"\n"+strings.Join(environments, "   "))
 
-func (m *Model) renderEntries(s styles, width, height int) string {
 	entries := m.activeEntries()
-	rows := []string{}
-	if len(entries) == 0 {
-		rows = append(rows, s.empty.Render("No secrets yet\nChoose Add secret or Import .env →"))
-	}
+	entryRows := make([]string, 0, len(entries))
 	for i, entry := range entries {
-		kind := "ENV"
-		detail := "configured · never revealable"
+		state := "configured"
 		if entry.Kind == envset.EntryFile {
-			kind, detail = "FILE", entry.Filename+" · encrypted"
-		}
-		row := fmt.Sprintf("● %s\n  %s · %s", entry.Name, kind, detail)
-		rows = append(rows, s.row(m.workspaceFocus == 1 && i == m.entryCursor).Render(row))
-	}
-	content := s.panelTitle.Render("SECRETS · "+strings.ToUpper(m.activeEnvironmentName())) + "\n\n" + strings.Join(rows, "\n")
-	return s.renderPanel(m.workspaceFocus == 1, width, height, content)
-}
-
-func (m *Model) renderActions(s styles, width, height int) string {
-	rows := make([]string, 0, len(workspaceActions))
-	for i, action := range workspaceActions {
-		if i == 1 && m.dotenvDetected {
-			action += "  · detected"
+			state = "configured file · " + entry.Filename
 		}
 		marker := "  "
-		if m.workspaceFocus == 2 && i == m.actionCursor {
-			marker = "› "
+		if m.workspaceFocus == 1 && i == m.entryCursor {
+			marker = "> "
 		}
-		row := s.row(m.workspaceFocus == 2 && i == m.actionCursor)
-		if height < 18 {
-			row = row.MarginBottom(0)
-		}
-		rows = append(rows, row.Render(marker+action))
+		entryRows = append(entryRows, fmt.Sprintf("%s%s — %s", marker, entry.Name, state))
 	}
-	return s.renderPanel(m.workspaceFocus == 2, width, height, s.panelTitle.Render("ACTIONS")+"\n\n"+strings.Join(rows, "\n"))
+	if len(entryRows) == 0 {
+		entryRows = append(entryRows, "  No secrets yet. Add one or import .env.")
+	}
+	sections = append(sections, s.panelTitle.Render("SECRETS · "+strings.ToUpper(m.activeEnvironmentName()))+"\n"+strings.Join(entryRows, "\n"))
+
+	actions := make([]string, 0, len(workspaceActions))
+	for i, action := range workspaceActions {
+		if i == 1 && m.dotenvDetected {
+			action += " · detected"
+		}
+		if m.workspaceFocus == 2 && i == m.actionCursor {
+			action = "> " + action
+		}
+		actions = append(actions, action)
+	}
+	sections = append(sections, s.panelTitle.Render("ACTIONS")+"\n"+strings.Join(actions, "  ·  "))
+	return s.renderPanel(true, width, height, strings.Join(sections, "\n\n"))
+}
+
+func (m *Model) renderWaitingReview(s styles) string {
+	request := m.selectedRequest()
+	if request.ID == "" {
+		request = m.requests[0]
+	}
+	commands := request.Commands
+	if len(commands) == 0 {
+		commands = []string{"pending sealed command"}
+	}
+	lines := []string{
+		s.danger.Render("ACTION REQUIRED"),
+		fmt.Sprintf("Agent %s · environment %s", shortID(request.SessionID), request.Environment),
+	}
+	for _, id := range commands {
+		command, err := m.policy.Lookup(id)
+		if err != nil {
+			lines = append(lines, "Command: "+id)
+			continue
+		}
+		lines = append(lines,
+			fmt.Sprintf("Command: %s  argv: %q", id, command.Argv),
+			fmt.Sprintf("Workdir: %s · network: %s · timeout: %s · output: %s", commandWorkDir(*command), commandNetwork(*command), commandTimeout(*command), commandOutputLimit(*command)),
+		)
+	}
+	if request.Kind == access.RequestSecret {
+		lines = append(lines, "Missing secret: "+request.SecretAlias+" (value entered once through masked input)")
+	} else if request.Kind == access.RequestWorkspace {
+		lines = append(lines,
+			fmt.Sprintf("First command: %q", request.FirstArgv),
+			"Scope: this project · "+request.Environment+" · all configured entries",
+			"Network: normal development access",
+			"Warning: a trusted agent can exfiltrate secrets through network or file actions",
+			"Approval duration: "+request.RequestedTTL.String(),
+		)
+	} else {
+		lines = append(lines, "Approval duration: "+request.RequestedTTL.String())
+	}
+	lines = append(lines, s.active.Render("Enter — review, save, and resume waiting run"))
+	return strings.Join(lines, "\n")
 }
 
 func (m *Model) renderRun(s styles, width, height int) string {
@@ -1171,7 +1289,7 @@ func (m *Model) renderEnvironments(s styles, width, height int) string {
 		focused := (m.page == pageWorkspace && m.workspaceFocus == 0) || (m.page != pageWorkspace && m.focus == focusEnvironments)
 		rows = append(rows, s.row(focused && i == m.cursor[focusEnvironments]).Render(row))
 	}
-	content := s.panelTitle.Render("01  ENVIRONMENTS") + "\n\n" + strings.Join(rows, "\n")
+	content := s.panelTitle.Render("ENVIRONMENTS") + "\n\n" + strings.Join(rows, "\n")
 	focused := (m.page == pageWorkspace && m.workspaceFocus == 0) || (m.page != pageWorkspace && m.focus == focusEnvironments)
 	return s.renderPanel(focused, width, height, content)
 }
@@ -1186,19 +1304,33 @@ func (m *Model) renderRequests(s styles, width, height int) string {
 		detail := request.SecretAlias
 		if request.Kind == access.RequestLease {
 			detail = strings.Join(request.Commands, ", ")
+		} else if request.Kind == access.RequestWorkspace {
+			detail = "trusted session · " + strings.Join(request.FirstArgv, " ")
 		}
 		row := fmt.Sprintf("%s  %s\n%s\n%s · expires %s", s.requestKind.Render(kind), shortID(request.ID),
 			detail, shortID(request.SessionID), humanTTL(time.Until(request.ExpiresAt)))
 		rows = append(rows, s.row(m.focus == focusRequests && i == m.cursor[focusRequests]).Render(row))
 	}
-	content := s.panelTitle.Render("02  AGENT INBOX") + "\n\n" + strings.Join(rows, "\n")
+	content := s.panelTitle.Render("AGENT INBOX") + "\n\n" + strings.Join(rows, "\n")
 	return s.renderPanel(m.focus == focusRequests, width, height, content)
 }
 
 func (m *Model) renderLeases(s styles, width, height int) string {
-	rows := make([]string, 0, len(m.leases)+1)
-	if len(m.leases) == 0 {
-		rows = append(rows, s.muted.Render("No leases issued"))
+	rows := make([]string, 0, len(m.trusts)+len(m.leases)+1)
+	if len(m.trusts) == 0 && len(m.leases) == 0 {
+		rows = append(rows, s.muted.Render("No active agent access"))
+	}
+	for i, trust := range m.trusts {
+		status, color := "TRUSTED", s.active
+		if trust.RevokedAt != nil {
+			status, color = "REVOKED", s.danger
+		} else if trust.PausedAt != nil {
+			status, color = "PAUSED", s.muted
+		} else if time.Now().After(trust.ExpiresAt) {
+			status, color = "EXPIRED", s.muted
+		}
+		row := fmt.Sprintf("%s  %s\n%s · %s\nnormal network · expires %s", color.Render(status), shortID(trust.ID), trust.Environment, shortID(trust.SessionID), humanTTL(time.Until(trust.ExpiresAt)))
+		rows = append(rows, s.row(m.focus == focusLeases && i == m.cursor[focusLeases]).Render(row))
 	}
 	sort.SliceStable(m.leases, func(i, j int) bool { return m.leases[i].ExpiresAt.After(m.leases[j].ExpiresAt) })
 	for i, lease := range m.leases {
@@ -1211,9 +1343,9 @@ func (m *Model) renderLeases(s styles, width, height int) string {
 		}
 		row := fmt.Sprintf("%s  %s\n%s · %s\n%s", color.Render(status), shortID(lease.ID),
 			lease.Environment, shortID(lease.SessionID), strings.Join(lease.Commands, ", "))
-		rows = append(rows, s.row(m.focus == focusLeases && i == m.cursor[focusLeases]).Render(row))
+		rows = append(rows, s.row(m.focus == focusLeases && i+len(m.trusts) == m.cursor[focusLeases]).Render(row))
 	}
-	content := s.panelTitle.Render("03  LIVE LEASES") + "\n\n" + strings.Join(rows, "\n")
+	content := s.panelTitle.Render("AGENT ACCESS") + "\n\n" + strings.Join(rows, "\n")
 	return s.renderPanel(m.focus == focusLeases, width, height, content)
 }
 
@@ -1276,6 +1408,7 @@ type styles struct {
 	panelTitle, muted, empty, requestKind, active, danger lipgloss.Style
 	help, footer, modal, modalTitle                       lipgloss.Style
 	surface, border, selected, text                       color.Color
+	noColor                                               bool
 }
 
 func newStyles(dark bool) styles {
@@ -1291,6 +1424,11 @@ func newStyles(dark bool) styles {
 	if !dark {
 		bg, surface, border, selected = lipgloss.Color("#F5F7FA"), lipgloss.Color("#FFFFFF"), lipgloss.Color("#C9D1DC"), lipgloss.Color("#E8EEF5")
 		text, muted, acid, purple, red = lipgloss.Color("#17202C"), lipgloss.Color("#637083"), lipgloss.Color("#3E7A00"), lipgloss.Color("#644ED0"), lipgloss.Color("#C92F52")
+	}
+	noColor := os.Getenv("NO_COLOR") != ""
+	if noColor {
+		plain := lipgloss.NoColor{}
+		bg, surface, border, selected, text, muted, acid, purple, red = plain, plain, plain, plain, plain, plain, plain, plain, plain
 	}
 	return styles{
 		brand:       lipgloss.NewStyle().Bold(true).Foreground(acid),
@@ -1311,6 +1449,7 @@ func newStyles(dark bool) styles {
 		modal:       lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(purple).Background(surface).Foreground(text).Padding(1, 2),
 		modalTitle:  lipgloss.NewStyle().Bold(true).Foreground(acid),
 		surface:     surface, border: border, selected: selected, text: text,
+		noColor: noColor,
 	}
 }
 
@@ -1324,7 +1463,7 @@ func (s styles) renderPanel(focused bool, width, height int, content string) str
 
 func (s styles) panel(focused bool, width, height int) lipgloss.Style {
 	color := s.border
-	if focused {
+	if focused && !s.noColor {
 		color = lipgloss.Color("#9B87FF")
 	}
 	return lipgloss.NewStyle().Width(max(20, width-2)).Height(height).Border(lipgloss.RoundedBorder()).

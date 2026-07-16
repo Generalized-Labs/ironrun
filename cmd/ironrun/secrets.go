@@ -36,6 +36,27 @@ func secretSetCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			if f.UsesEnvironmentEntries() {
+				if _, _, ok := f.SecretBinding(name); !ok {
+					return fmt.Errorf("environment entry %q is not bound to an approved command", name)
+				}
+				value, err := readSecret(fromStdin, unsafe)
+				if err != nil {
+					return err
+				}
+				if value == "" {
+					return fmt.Errorf("secret value cannot be empty")
+				}
+				manager, active, err := activeEnvironment()
+				if err != nil {
+					return err
+				}
+				if err := manager.Put(active.Name, name, value); err != nil {
+					return err
+				}
+				fmt.Printf("Saved %q in encrypted environment %s. Value is never displayed.\n", name, active.Name)
+				return nil
+			}
 			decl, ok := f.Secrets[name]
 			if !ok {
 				return fmt.Errorf("secret %q is not declared in policy", name)
@@ -74,6 +95,24 @@ func secretStatusCmd() *cobra.Command {
 		if err != nil {
 			return err
 		}
+		if f.UsesEnvironmentEntries() {
+			manager, active, err := activeEnvironment()
+			if err != nil {
+				return err
+			}
+			for _, entry := range active.Entries {
+				state := "missing"
+				if entry.Kind == "file" {
+					if _, getErr := manager.GetBytes(active.Name, entry.Name); getErr == nil {
+						state = "configured"
+					}
+				} else if _, getErr := manager.Get(active.Name, entry.Name); getErr == nil {
+					state = "configured"
+				}
+				fmt.Printf("%s: %s (kind=%s, target=%s, environment=%s)\n", entry.Name, state, entry.Kind, entry.Target, active.Name)
+			}
+			return nil
+		}
 		for name, decl := range f.Secrets {
 			store, openErr := secretstore.Open(policyPath, decl.Store)
 			state := "unavailable"
@@ -100,6 +139,24 @@ func secretRotateCmd() *cobra.Command {
 		f, err := policy.Load(policyPath)
 		if err != nil {
 			return err
+		}
+		if f.UsesEnvironmentEntries() {
+			if _, _, ok := f.SecretBinding(args[0]); !ok {
+				return fmt.Errorf("environment entry %q is not bound to an approved command", args[0])
+			}
+			value, err := readSecret(false, false)
+			if err != nil {
+				return err
+			}
+			manager, active, err := activeEnvironment()
+			if err != nil {
+				return err
+			}
+			if err := manager.Put(active.Name, args[0], value); err != nil {
+				return err
+			}
+			fmt.Printf("Rotated %q in %s. Value is never displayed.\n", args[0], active.Name)
+			return nil
 		}
 		decl, ok := f.Secrets[args[0]]
 		if !ok {
@@ -128,6 +185,17 @@ func secretMutationCmd(use, short string, fn func(secretstore.Store, string) err
 		f, err := policy.Load(policyPath)
 		if err != nil {
 			return err
+		}
+		if f.UsesEnvironmentEntries() {
+			manager, active, err := activeEnvironment()
+			if err != nil {
+				return err
+			}
+			if err := manager.DeleteKey(active.Name, args[0]); err != nil {
+				return err
+			}
+			fmt.Printf("Deleted %q. Future sealed runs will create a missing-secret request.\n", args[0])
+			return nil
 		}
 		decl, ok := f.Secrets[args[0]]
 		if !ok {

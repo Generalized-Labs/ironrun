@@ -417,6 +417,10 @@ func policyKeys(f *policy.File) []string {
 	seen := map[string]bool{}
 	for _, cmd := range f.Commands {
 		for _, alias := range cmd.Secrets {
+			if f.UsesEnvironmentEntries() {
+				seen[alias] = true
+				continue
+			}
 			if decl, ok := f.Secrets[alias]; ok {
 				seen[decl.Env] = true
 			}

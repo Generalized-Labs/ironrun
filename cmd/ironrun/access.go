@@ -97,8 +97,8 @@ func accessFulfillCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			decl, ok := f.Secrets[request.SecretAlias]
-			if !ok || decl.Env != request.SecretKey {
+			key, storeName, ok := f.SecretBinding(request.SecretAlias)
+			if !ok || key != request.SecretKey {
 				return errors.New("request no longer matches the current policy; deny it and create a new request")
 			}
 			value, err := readSecret(false, false)
@@ -109,14 +109,14 @@ func accessFulfillCmd() *cobra.Command {
 				return errors.New("value cannot be empty")
 			}
 			if _, err := manager.FulfillSecretWith(request.ID, func(locked accessctl.Request) error {
-				if f.EnvironmentSet == "active" {
+				if f.UsesEnvironmentEntries() || f.EnvironmentSet == "active" {
 					environments, err := envset.Open(policyProjectRoot(policyPath))
 					if err != nil {
 						return err
 					}
 					return environments.Put(locked.Environment, locked.SecretKey, value)
 				}
-				store, err := secretstore.Open(policyPath, decl.Store)
+				store, err := secretstore.Open(policyPath, storeName)
 				if err != nil {
 					return err
 				}
