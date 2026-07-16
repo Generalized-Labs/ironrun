@@ -109,7 +109,12 @@ var (
 	ErrNoCommands = errors.New("policy: no commands defined")
 )
 
-const SupportedVersion = "1"
+const (
+	SupportedVersionV1 = "1"
+	SupportedVersionV2 = "2"
+	// SupportedVersion is the version emitted for new policies.
+	SupportedVersion = SupportedVersionV2
+)
 
 // Load reads and validates a policy file from path.
 func Load(path string) (*File, error) {
@@ -133,8 +138,8 @@ func Parse(data []byte) (*File, error) {
 		return nil, fmt.Errorf("%w: %v", ErrMalformed, err)
 	}
 
-	if f.Version != SupportedVersion {
-		return nil, fmt.Errorf("%w: got %q want %q", ErrBadVersion, f.Version, SupportedVersion)
+	if f.Version != SupportedVersionV1 && f.Version != SupportedVersionV2 {
+		return nil, fmt.Errorf("%w: got %q want %q or %q", ErrBadVersion, f.Version, SupportedVersionV1, SupportedVersionV2)
 	}
 	if len(f.Commands) == 0 {
 		return nil, ErrNoCommands
@@ -175,7 +180,18 @@ func Parse(data []byte) (*File, error) {
 		if len(cmd.Argv) == 0 {
 			return nil, fmt.Errorf("%w: command %q missing argv", ErrMalformed, cmd.ID)
 		}
+		commandSecrets := map[string]bool{}
 		for _, alias := range cmd.Secrets {
+			if commandSecrets[alias] {
+				return nil, fmt.Errorf("%w: command %q references secret %q more than once", ErrMalformed, cmd.ID, alias)
+			}
+			commandSecrets[alias] = true
+			if f.Version == SupportedVersionV2 {
+				if !validEntryName(alias) {
+					return nil, fmt.Errorf("%w: command %q references invalid environment entry %q", ErrMalformed, cmd.ID, alias)
+				}
+				continue
+			}
 			secret, ok := f.Secrets[alias]
 			if !ok || secret.Env == "" {
 				return nil, fmt.Errorf("%w: command %q references undeclared secret %q", ErrMalformed, cmd.ID, alias)
@@ -193,6 +209,46 @@ func Parse(data []byte) (*File, error) {
 		}
 	}
 	return &f, nil
+}
+
+// UsesEnvironmentEntries reports whether command secret names refer directly
+// to encrypted environment entries rather than version-1 policy aliases.
+func (f *File) UsesEnvironmentEntries() bool { return f != nil && f.Version == SupportedVersionV2 }
+
+// SecretBinding resolves a safe policy name to its storage key and optional
+// legacy store. Version 2 binds names directly to encrypted environment
+// entries; version 1 resolves the existing alias declaration.
+func (f *File) SecretBinding(name string) (key, store string, ok bool) {
+	if f == nil {
+		return "", "", false
+	}
+	if f.UsesEnvironmentEntries() {
+		for _, command := range f.Commands {
+			for _, entry := range command.Secrets {
+				if entry == name {
+					return name, "", true
+				}
+			}
+		}
+		return "", "", false
+	}
+	decl, ok := f.Secrets[name]
+	if !ok || decl.Env == "" {
+		return "", "", false
+	}
+	return decl.Env, decl.Store, true
+}
+
+func validEntryName(name string) bool {
+	if name == "" {
+		return false
+	}
+	for _, r := range name {
+		if !(r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r >= '0' && r <= '9' || r == '-' || r == '_' || r == '.') {
+			return false
+		}
+	}
+	return true
 }
 
 func validEnvTarget(name string) bool {

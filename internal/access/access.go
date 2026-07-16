@@ -16,19 +16,21 @@ import (
 )
 
 const (
-	stateVersion      = 1
-	DefaultRequestTTL = 15 * time.Minute
-	DefaultLeaseTTL   = time.Hour
-	MaxLeaseTTL       = 24 * time.Hour
-	maxPendingSession = 32
+	stateVersion        = 2
+	DefaultRequestTTL   = 15 * time.Minute
+	DefaultLeaseTTL     = time.Hour
+	DefaultWorkspaceTTL = 2 * time.Hour
+	MaxLeaseTTL         = 24 * time.Hour
+	maxPendingSession   = 32
 )
 
 type RequestKind string
 type RequestStatus string
 
 const (
-	RequestSecret RequestKind = "secret"
-	RequestLease  RequestKind = "lease"
+	RequestSecret    RequestKind = "secret"
+	RequestLease     RequestKind = "lease"
+	RequestWorkspace RequestKind = "workspace"
 
 	StatusPending   RequestStatus = "pending"
 	StatusFulfilled RequestStatus = "fulfilled"
@@ -44,20 +46,39 @@ var (
 )
 
 type Request struct {
-	ID               string        `json:"id"`
-	Kind             RequestKind   `json:"kind"`
-	Status           RequestStatus `json:"status"`
-	SessionID        string        `json:"session_id"`
-	Environment      string        `json:"environment"`
-	SecretAlias      string        `json:"secret_alias,omitempty"`
-	SecretKey        string        `json:"secret_key,omitempty"`
-	Commands         []string      `json:"commands,omitempty"`
+	ID          string        `json:"id"`
+	Kind        RequestKind   `json:"kind"`
+	Status      RequestStatus `json:"status"`
+	SessionID   string        `json:"session_id"`
+	Environment string        `json:"environment"`
+	SecretAlias string        `json:"secret_alias,omitempty"`
+	SecretKey   string        `json:"secret_key,omitempty"`
+	Commands    []string      `json:"commands,omitempty"`
+	// FirstArgv is only safe command metadata shown while a human decides
+	// whether to trust a workspace session. It is never interpreted as policy.
+	FirstArgv        []string      `json:"first_argv,omitempty"`
 	Reason           string        `json:"reason"`
 	RequestedTTL     time.Duration `json:"requested_ttl,omitempty"`
 	CreatedAt        time.Time     `json:"created_at"`
 	ExpiresAt        time.Time     `json:"expires_at"`
 	ResolvedAt       *time.Time    `json:"resolved_at,omitempty"`
 	ResultingLeaseID string        `json:"resulting_lease_id,omitempty"`
+}
+
+// WorkspaceGrant is a deliberately broad, human-approved capability for one
+// MCP server session in one project environment. It does not hold secret
+// values: the execution layer reads them directly from the encrypted vault.
+type WorkspaceGrant struct {
+	ID          string     `json:"id"`
+	RequestID   string     `json:"request_id"`
+	SessionID   string     `json:"session_id"`
+	ProjectRoot string     `json:"project_root"`
+	Environment string     `json:"environment"`
+	Network     string     `json:"network"`
+	CreatedAt   time.Time  `json:"created_at"`
+	ExpiresAt   time.Time  `json:"expires_at"`
+	PausedAt    *time.Time `json:"paused_at,omitempty"`
+	RevokedAt   *time.Time `json:"revoked_at,omitempty"`
 }
 
 type Lease struct {
@@ -72,13 +93,15 @@ type Lease struct {
 }
 
 type state struct {
-	Version  int       `json:"version"`
-	Requests []Request `json:"requests"`
-	Leases   []Lease   `json:"leases"`
+	Version         int              `json:"version"`
+	Requests        []Request        `json:"requests"`
+	Leases          []Lease          `json:"leases"`
+	WorkspaceGrants []WorkspaceGrant `json:"workspace_grants,omitempty"`
 }
 
 type Manager struct {
 	path string
+	root string
 	now  func() time.Time
 }
 
@@ -94,16 +117,45 @@ func Open(root string) (*Manager, error) {
 	if err := os.Chmod(dir, 0700); err != nil {
 		return nil, err
 	}
-	m := &Manager{path: filepath.Join(dir, "access.json"), now: time.Now}
+	m := &Manager{path: filepath.Join(dir, "access.json"), root: root, now: time.Now}
 	if _, err := m.load(); err != nil {
 		return nil, err
 	}
 	return m, nil
 }
 
+// CreateWorkspaceRequest deduplicates a request for a broad but temporary
+// workspace capability. The project root is persisted only to make the scope
+// inspectable; access state remains physically project-local.
+func (m *Manager) CreateWorkspaceRequest(sessionID, environment string, firstArgv []string, ttl time.Duration, reason string) (Request, error) {
+	if err := validateIdentity(sessionID, environment); err != nil {
+		return Request{}, err
+	}
+	if len(firstArgv) == 0 || strings.TrimSpace(firstArgv[0]) == "" {
+		return Request{}, errors.New("workspace request requires argv")
+	}
+	if ttl <= 0 {
+		ttl = DefaultWorkspaceTTL
+	}
+	if ttl > MaxLeaseTTL {
+		return Request{}, fmt.Errorf("workspace ttl exceeds maximum %s", MaxLeaseTTL)
+	}
+	return m.createRequest(Request{
+		Kind: RequestWorkspace, SessionID: sessionID, Environment: environment,
+		FirstArgv: append([]string(nil), firstArgv...), RequestedTTL: ttl,
+		Reason: cleanReason(reason),
+	})
+}
+
 func (m *Manager) Path() string { return m.path }
 
 func (m *Manager) CreateSecretRequest(sessionID, environment, alias, key, reason string) (Request, error) {
+	return m.CreateSecretRequestForCommands(sessionID, environment, alias, key, nil, reason)
+}
+
+// CreateSecretRequestForCommands adds the exact sealed command context used by
+// the unified review screen. Existing callers remain value-blind wrappers.
+func (m *Manager) CreateSecretRequestForCommands(sessionID, environment, alias, key string, commands []string, reason string) (Request, error) {
 	if err := validateIdentity(sessionID, environment); err != nil {
 		return Request{}, err
 	}
@@ -116,6 +168,7 @@ func (m *Manager) CreateSecretRequest(sessionID, environment, alias, key, reason
 		Environment: environment,
 		SecretAlias: alias,
 		SecretKey:   key,
+		Commands:    canonicalCommands(commands),
 		Reason:      cleanReason(reason),
 	})
 }
@@ -266,6 +319,37 @@ func (m *Manager) ApproveLease(id string, ttl time.Duration) (Lease, error) {
 	return lease, err
 }
 
+// ApproveWorkspace grants broad command execution only to the requesting MCP
+// session and selected environment. A restarted MCP server has a fresh session
+// ID, so old grants automatically stop authorizing it.
+func (m *Manager) ApproveWorkspace(id string, ttl time.Duration) (WorkspaceGrant, error) {
+	var grant WorkspaceGrant
+	err := m.resolveRequest(id, RequestWorkspace, StatusApproved, func(st *state, request *Request, now time.Time) error {
+		if ttl <= 0 {
+			ttl = request.RequestedTTL
+		}
+		if ttl <= 0 {
+			ttl = DefaultWorkspaceTTL
+		}
+		if ttl > MaxLeaseTTL {
+			return fmt.Errorf("workspace ttl exceeds maximum %s", MaxLeaseTTL)
+		}
+		grantID, err := randomID("trust")
+		if err != nil {
+			return err
+		}
+		grant = WorkspaceGrant{
+			ID: grantID, RequestID: request.ID, SessionID: request.SessionID,
+			ProjectRoot: m.root, Environment: request.Environment, Network: "normal",
+			CreatedAt: now, ExpiresAt: now.Add(ttl),
+		}
+		st.WorkspaceGrants = append(st.WorkspaceGrants, grant)
+		request.ResultingLeaseID = grant.ID // compatibility field for request consumers.
+		return nil
+	})
+	return grant, err
+}
+
 func (m *Manager) Deny(id string) error {
 	return m.resolveRequest(id, "", StatusDenied, nil)
 }
@@ -350,8 +434,103 @@ func (m *Manager) Revoke(id, sessionID string) error {
 	})
 }
 
+// AuthorizeWorkspace returns the exact active grant, pinning the environment
+// used by the caller through execution. Paused, expired, revoked, and
+// cross-session grants all fail closed.
+func (m *Manager) AuthorizeWorkspace(sessionID, environment string) (WorkspaceGrant, error) {
+	st, err := m.load()
+	if err != nil {
+		return WorkspaceGrant{}, err
+	}
+	now := m.now().UTC()
+	for _, grant := range st.WorkspaceGrants {
+		if grant.SessionID == sessionID && grant.ProjectRoot == m.root && grant.Environment == environment && grant.PausedAt == nil && grant.RevokedAt == nil && now.Before(grant.ExpiresAt) {
+			return grant, nil
+		}
+	}
+	return WorkspaceGrant{}, ErrUnauthorized
+}
+
+func (m *Manager) WorkspaceGrants(sessionID string) ([]WorkspaceGrant, error) {
+	st, err := m.load()
+	if err != nil {
+		return nil, err
+	}
+	out := make([]WorkspaceGrant, 0, len(st.WorkspaceGrants))
+	for _, grant := range st.WorkspaceGrants {
+		if sessionID == "" || grant.SessionID == sessionID {
+			out = append(out, grant)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.After(out[j].CreatedAt) })
+	return out, nil
+}
+
+func (m *Manager) PauseWorkspace(id string, paused bool) error {
+	return m.mutate(func(st *state) error {
+		now := m.now().UTC()
+		for i := range st.WorkspaceGrants {
+			grant := &st.WorkspaceGrants[i]
+			if grant.ID != id {
+				continue
+			}
+			if grant.RevokedAt != nil {
+				return ErrUnauthorized
+			}
+			if paused {
+				grant.PausedAt = &now
+			} else {
+				grant.PausedAt = nil
+			}
+			return nil
+		}
+		return ErrNotFound
+	})
+}
+
+func (m *Manager) ExtendWorkspace(id string, ttl time.Duration) (WorkspaceGrant, error) {
+	if ttl <= 0 || ttl > MaxLeaseTTL {
+		return WorkspaceGrant{}, fmt.Errorf("workspace ttl must be between 1ns and %s", MaxLeaseTTL)
+	}
+	var result WorkspaceGrant
+	err := m.mutate(func(st *state) error {
+		now := m.now().UTC()
+		for i := range st.WorkspaceGrants {
+			grant := &st.WorkspaceGrants[i]
+			if grant.ID != id {
+				continue
+			}
+			if grant.RevokedAt != nil {
+				return ErrUnauthorized
+			}
+			grant.ExpiresAt = now.Add(ttl)
+			result = *grant
+			return nil
+		}
+		return ErrNotFound
+	})
+	return result, err
+}
+
+func (m *Manager) RevokeWorkspace(id string) error {
+	return m.mutate(func(st *state) error {
+		now := m.now().UTC()
+		for i := range st.WorkspaceGrants {
+			grant := &st.WorkspaceGrants[i]
+			if grant.ID != id {
+				continue
+			}
+			if grant.RevokedAt == nil {
+				grant.RevokedAt = &now
+			}
+			return nil
+		}
+		return ErrNotFound
+	})
+}
+
 func (m *Manager) load() (state, error) {
-	st := state{Version: stateVersion, Requests: []Request{}, Leases: []Lease{}}
+	st := state{Version: stateVersion, Requests: []Request{}, Leases: []Lease{}, WorkspaceGrants: []WorkspaceGrant{}}
 	data, err := os.ReadFile(m.path)
 	if os.IsNotExist(err) {
 		return st, nil
@@ -362,8 +541,14 @@ func (m *Manager) load() (state, error) {
 	if err := json.Unmarshal(data, &st); err != nil {
 		return state{}, fmt.Errorf("parse access state: %w", err)
 	}
-	if st.Version != stateVersion {
+	if st.Version != 1 && st.Version != stateVersion {
 		return state{}, fmt.Errorf("unsupported access state version %d", st.Version)
+	}
+	if st.Version == 1 {
+		st.Version = stateVersion
+	}
+	if st.WorkspaceGrants == nil {
+		st.WorkspaceGrants = []WorkspaceGrant{}
 	}
 	return st, nil
 }

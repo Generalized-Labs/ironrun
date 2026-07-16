@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -22,10 +23,13 @@ import (
 	"github.com/generalized-labs/ironrun/internal/execution"
 	"github.com/generalized-labs/ironrun/internal/pending"
 	"github.com/generalized-labs/ironrun/internal/policy"
+	"github.com/generalized-labs/ironrun/internal/runner"
 	secretstore "github.com/generalized-labs/ironrun/internal/secrets"
 )
 
 var executeCommand = execution.Run
+var executeWorkspace = execution.RunWorkspace
+var resolveExecutionEnvironment = executionEnvironment
 
 // Serve starts the MCP stdio server using the given policy. policyPath locates
 // the pending-proposal store (.ironrun/pending.yml next to it).
@@ -63,19 +67,30 @@ func Serve(f *policy.File, policyPath string) error {
 		return mcplib.NewToolResultText(out), nil
 	})
 
-	// Tool: run_sealed — execute a command by ID, returning redacted output.
+	// Tool: run_sealed supports both legacy strict command IDs and a human-
+	// approved trusted workspace session. Exactly one argument form is allowed.
 	runTool := mcplib.NewTool("run_sealed",
 		mcplib.WithDescription(
-			"Execute a policy-authorized command by its ID. "+
+			"Execute either a policy-authorized command by command_id or argv in a human-trusted workspace session. "+
 				"Secrets are injected below agent visibility and redacted from all output. "+
 				"The agent never sees raw secret values.",
 		),
-		mcplib.WithString("command_id",
-			mcplib.Required(),
-			mcplib.Description("The policy command ID to execute (use list_commands to discover IDs)"),
-		),
+		mcplib.WithString("command_id", mcplib.Description("Legacy policy command ID (strict mode)")),
+		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Exact argv for the current human-trusted workspace session")),
 	)
 	s.AddTool(runTool, makeRunHandler(f, auditLog, sessionID, policyPath))
+
+	workspaceStatusTool := mcplib.NewTool("workspace_status",
+		mcplib.WithDescription("Return value-blind current project, environment, configured entry names, and this agent session's trusted-access status."),
+	)
+	s.AddTool(workspaceStatusTool, makeWorkspaceStatusHandler(policyPath, sessionID))
+
+	requestWorkspaceTool := mcplib.NewTool("request_workspace_access",
+		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary, revocable, and never includes secret values in MCP."),
+		mcplib.WithString("reason", mcplib.Required(), mcplib.Description("Brief task reason shown to the human")),
+		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Optional first command for human context; it is not executed by this request")),
+	)
+	s.AddTool(requestWorkspaceTool, makeRequestWorkspaceHandler(f, policyPath, sessionID))
 
 	// Tool: validate_policy — sanity-check the loaded policy.
 	validateTool := mcplib.NewTool("validate_policy",
@@ -104,7 +119,9 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithArray("argv", mcplib.Required(), mcplib.WithStringItems(),
 			mcplib.Description(`Exact binary + args, e.g. ["psql","-c","select 1"]. No shells (sh/bash).`)),
 		mcplib.WithObject("env",
-			mcplib.Description(`Optional env var -> secret ref map, e.g. {"DATABASE_URL":"env:DATABASE_URL"}`)),
+			mcplib.Description(`Legacy version-1 env var -> provider ref map`)),
+		mcplib.WithArray("secrets", mcplib.WithStringItems(),
+			mcplib.Description(`Optional encrypted environment entry names, e.g. ["DATABASE_URL"]`)),
 		mcplib.WithString("reason", mcplib.Required(),
 			mcplib.Description("Why you need this command — shown to the human reviewer.")),
 	)
@@ -158,48 +175,27 @@ func Serve(f *policy.File, policyPath string) error {
 
 func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		current, reloadErr := currentPolicy(f, policyPath)
-		if reloadErr != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", reloadErr)), nil
+		cmdID := strings.TrimSpace(req.GetString("command_id", ""))
+		argv := req.GetStringSlice("argv", nil)
+		if (cmdID == "" && len(argv) == 0) || (cmdID != "" && len(argv) != 0) {
+			return mcplib.NewToolResultError("provide exactly one of command_id (strict policy mode) or argv (trusted workspace mode)"), nil
 		}
-		cmdID, err := req.RequireString("command_id")
-		if err != nil {
-			return mcplib.NewToolResultError("command_id is required"), nil
+		if len(argv) > 0 {
+			environment, waitErr := awaitWorkspaceAuthorization(ctx, f, policyPath, sessionID, argv)
+			if waitErr != nil {
+				return mcplib.NewToolResultError(waitErr.Error()), nil
+			}
+			res, runErr := executeWorkspace(ctx, projectRoot(policyPath), environment, argv, execution.Options{
+				Stdout: os.Stderr, Stderr: os.Stderr, Audit: auditLog, SessionID: sessionID,
+			})
+			if runErr != nil {
+				return mcplib.NewToolResultError(fmt.Sprintf("workspace execution error: %v", runErr)), nil
+			}
+			return runResult(res), nil
 		}
-
-		_, err = current.Lookup(cmdID)
-		if err != nil {
-			// Not in the policy — NEVER execute. run_sealed only ever resolves
-			// through the loaded policy; a pending proposal is never dispatchable.
-			if st, lerr := pending.Load(pending.Path(policyPath)); lerr == nil && st.Find(cmdID) != nil {
-				return mcplib.NewToolResultError(fmt.Sprintf(
-					"%q is proposed but awaiting human approval. Ask the user to run `ironrun approve %s` in their terminal, then retry. ironrun will not run an unapproved command.",
-					cmdID, cmdID)), nil
-			}
-			hint := fmt.Sprintf("command %q not found in policy.", cmdID)
-			if current.AllowProposals {
-				hint += " If you need it, call propose_command to stage it for the user's approval — do not run it in a shell."
-			}
-			return mcplib.NewToolResultError(hint), nil
-		}
-		authorizedEnvironment := ""
-		if current.RequireAgentLeases {
-			environment, envErr := executionEnvironment(current, policyPath)
-			if envErr != nil {
-				return mcplib.NewToolResultError("agent lease check failed — project environment is unavailable"), nil
-			}
-			manager, accessErr := access.Open(projectRoot(policyPath))
-			if accessErr != nil {
-				return mcplib.NewToolResultError("agent lease check failed — local access state is unavailable"), nil
-			}
-			if accessErr := manager.Authorize(sessionID, environment, cmdID); accessErr != nil {
-				return mcplib.NewToolResultError(fmt.Sprintf(
-					"agent lease required for command %q in environment %q. Call request_lease, then ask the user to approve it locally.",
-					cmdID, environment)), nil
-			}
-			// Pin execution to the environment that was authorized. Resolving the
-			// active environment again would create a time-of-check/time-of-use gap.
-			authorizedEnvironment = environment
+		current, authorizedEnvironment, waitErr := awaitRunAuthorization(ctx, f, policyPath, sessionID, cmdID)
+		if waitErr != nil {
+			return mcplib.NewToolResultError(waitErr.Error()), nil
 		}
 
 		res, runErr := executeCommand(ctx, current, policyPath, projectRoot(policyPath), cmdID, execution.Options{
@@ -211,29 +207,292 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			return mcplib.NewToolResultError(fmt.Sprintf("execution error: %v", runErr)), nil
 		}
 
-		truncNote := ""
-		if res.Truncated {
-			truncNote = "\n[output truncated at max_bytes limit]"
+		return runResult(res), nil
+	}
+}
+
+func runResult(res *runner.Result) *mcplib.CallToolResult {
+	truncNote := ""
+	if res.Truncated {
+		truncNote = "\n[output truncated at max_bytes limit]"
+	}
+	// Tell the agent (a count only — never the token) if output held a token
+	// that looks like a secret but wasn't a registered value.
+	entropyNote := ""
+	if res.EntropyWarnings > 0 {
+		entropyNote = fmt.Sprintf("\n[ironrun] note: %d high-entropy token(s) in the output may be an unredacted secret", res.EntropyWarnings)
+	}
+
+	out := fmt.Sprintf(
+		"exit_code: %d\nduration_ms: %d%s%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
+		res.ExitCode,
+		res.DurationMs,
+		truncNote,
+		entropyNote,
+		res.Stdout,
+		res.Stderr,
+	)
+
+	// Non-zero exit is not a tool error — it's a valid result the agent should see.
+	return mcplib.NewToolResultText(out)
+}
+
+// awaitRunAuthorization turns a blocked sealed run into one persisted human
+// request. It never accepts values: the foreground TUI writes masked input
+// directly into the encrypted vault, while this loop observes only safe state.
+func awaitRunAuthorization(ctx context.Context, startup *policy.File, policyPath, sessionID, commandID string) (*policy.File, string, error) {
+	root := projectRoot(policyPath)
+	requests, err := access.Open(root)
+	if err != nil {
+		return nil, "", errors.New("local access state is unavailable")
+	}
+	tracked := map[string]bool{}
+	var waitUntil time.Time
+	wasProposed := false
+	for {
+		for id := range tracked {
+			request, requestErr := requests.Request(id)
+			if requestErr == nil && (request.Status == access.StatusDenied || request.Status == access.StatusExpired) {
+				return nil, "", fmt.Errorf("sealed run %s: request %s was %s", commandID, id, request.Status)
+			}
 		}
-		// Tell the agent (a count only — never the token) if output held a token
-		// that looks like a secret but wasn't a registered value.
-		entropyNote := ""
-		if res.EntropyWarnings > 0 {
-			entropyNote = fmt.Sprintf("\n[ironrun] note: %d high-entropy token(s) in the output may be an unredacted secret", res.EntropyWarnings)
+		if !waitUntil.IsZero() && !time.Now().Before(waitUntil) {
+			return nil, "", fmt.Errorf("sealed run %s: human approval request expired", commandID)
 		}
 
-		out := fmt.Sprintf(
-			"exit_code: %d\nduration_ms: %d%s%s\n\n--- stdout ---\n%s\n--- stderr ---\n%s",
-			res.ExitCode,
-			res.DurationMs,
-			truncNote,
-			entropyNote,
-			res.Stdout,
-			res.Stderr,
-		)
+		current, reloadErr := currentPolicy(startup, policyPath)
+		if reloadErr != nil {
+			return nil, "", fmt.Errorf("policy reload failed: %v", reloadErr)
+		}
+		pCmd, lookupErr := current.Lookup(commandID)
+		if lookupErr != nil {
+			proposals, loadErr := pending.Load(pending.Path(policyPath))
+			if loadErr != nil {
+				return nil, "", errors.New("pending command state is unavailable")
+			}
+			if proposals.Find(commandID) == nil {
+				if wasProposed {
+					return nil, "", fmt.Errorf("command %q was rejected or removed before approval", commandID)
+				}
+				hint := fmt.Sprintf("command %q not found in policy.", commandID)
+				if current.AllowProposals {
+					hint += " Call propose_command with the exact argv; run_sealed will wait and resume after human approval."
+				}
+				return nil, "", errors.New(hint)
+			}
+			wasProposed = true
+			if waitUntil.IsZero() {
+				waitUntil = time.Now().Add(access.DefaultRequestTTL)
+			}
+			if err := waitForChange(ctx); err != nil {
+				return nil, "", fmt.Errorf("sealed run %s cancelled while waiting for command approval", commandID)
+			}
+			continue
+		}
 
-		// Non-zero exit is not a tool error — it's a valid result the agent should see.
-		return mcplib.NewToolResultText(out), nil
+		environment, envErr := resolveExecutionEnvironment(current, policyPath)
+		if envErr != nil {
+			return nil, "", errors.New("project environment is unavailable")
+		}
+		missing, secretRequests, secretErr := requestMissingSecrets(current, pCmd, policyPath, sessionID, environment, requests)
+		if secretErr != nil {
+			return nil, "", secretErr
+		}
+		for _, request := range secretRequests {
+			tracked[request.ID] = true
+			if waitUntil.IsZero() || request.ExpiresAt.Before(waitUntil) {
+				waitUntil = request.ExpiresAt
+			}
+		}
+
+		leaseReady := true
+		if current.RequireAgentLeases {
+			if authErr := requests.Authorize(sessionID, environment, commandID); authErr != nil {
+				leaseReady = false
+				request, createErr := requests.CreateLeaseRequest(sessionID, environment, []string{commandID}, access.DefaultLeaseTTL, "run_sealed is waiting for human review")
+				if createErr != nil {
+					return nil, "", fmt.Errorf("could not create lease request: %v", createErr)
+				}
+				tracked[request.ID] = true
+				if waitUntil.IsZero() || request.ExpiresAt.Before(waitUntil) {
+					waitUntil = request.ExpiresAt
+				}
+			}
+		}
+		if !missing && leaseReady {
+			// Environment remains pinned from the authorization check through
+			// execution even if another user action changes the active set.
+			pinnedEnvironment := environment
+			if !current.UsesEnvironmentEntries() && current.EnvironmentSet != "active" {
+				pinnedEnvironment = ""
+			}
+			return current, pinnedEnvironment, nil
+		}
+		if err := waitForChange(ctx); err != nil {
+			return nil, "", fmt.Errorf("sealed run %s cancelled while waiting for human review", commandID)
+		}
+	}
+}
+
+// awaitWorkspaceAuthorization creates exactly one human-reviewable request for
+// an arbitrary argv attempt, then waits for an active grant bound to this MCP
+// server process. It intentionally never reads or receives secret values.
+func awaitWorkspaceAuthorization(ctx context.Context, startup *policy.File, policyPath, sessionID string, argv []string) (string, error) {
+	root := projectRoot(policyPath)
+	requests, err := access.Open(root)
+	if err != nil {
+		return "", errors.New("local access state is unavailable")
+	}
+	current, err := currentPolicy(startup, policyPath)
+	if err != nil {
+		return "", errors.New("policy reload failed")
+	}
+	environment, err := resolveExecutionEnvironment(current, policyPath)
+	if err != nil {
+		return "", errors.New("project environment is unavailable")
+	}
+	if _, authErr := requests.AuthorizeWorkspace(sessionID, environment); authErr == nil {
+		return environment, nil
+	}
+	request, err := requests.CreateWorkspaceRequest(sessionID, environment, argv, access.DefaultWorkspaceTTL, "agent requested trusted workspace access")
+	if err != nil {
+		return "", fmt.Errorf("could not create workspace access request: %v", err)
+	}
+	for {
+		if request.Status == access.StatusDenied || request.Status == access.StatusExpired {
+			return "", fmt.Errorf("trusted workspace request %s was %s", request.ID, request.Status)
+		}
+		if _, authErr := requests.AuthorizeWorkspace(sessionID, environment); authErr == nil {
+			return environment, nil
+		}
+		if !time.Now().Before(request.ExpiresAt) {
+			return "", errors.New("trusted workspace request expired")
+		}
+		if err := waitForChange(ctx); err != nil {
+			return "", errors.New("workspace run cancelled while waiting for human trust")
+		}
+		request, _ = requests.Request(request.ID)
+	}
+}
+
+func makeRequestWorkspaceHandler(f *policy.File, policyPath, sessionID string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		reason, err := req.RequireString("reason")
+		if err != nil {
+			return mcplib.NewToolResultError("reason is required"), nil
+		}
+		current, err := currentPolicy(f, policyPath)
+		if err != nil {
+			return mcplib.NewToolResultError("policy reload failed"), nil
+		}
+		environment, err := resolveExecutionEnvironment(current, policyPath)
+		if err != nil {
+			return mcplib.NewToolResultError("project environment is unavailable"), nil
+		}
+		argv := req.GetStringSlice("argv", nil)
+		if len(argv) == 0 {
+			argv = []string{"(agent workspace request)"}
+		}
+		manager, err := access.Open(projectRoot(policyPath))
+		if err != nil {
+			return mcplib.NewToolResultError("local access state is unavailable"), nil
+		}
+		request, err := manager.CreateWorkspaceRequest(sessionID, environment, argv, access.DefaultWorkspaceTTL, reason)
+		if err != nil {
+			return mcplib.NewToolResultError("could not create trusted workspace request"), nil
+		}
+		return mcplib.NewToolResultText(fmt.Sprintf("Trusted workspace request %s is pending for environment %q. A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant %s`. The request expires in %s.", request.ID, environment, request.ID, access.DefaultWorkspaceTTL)), nil
+	}
+}
+
+func makeWorkspaceStatusHandler(policyPath, sessionID string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		root := projectRoot(policyPath)
+		manager, err := envset.Open(root)
+		if err != nil {
+			return mcplib.NewToolResultError("environment store unavailable"), nil
+		}
+		active, err := manager.Active()
+		if err != nil {
+			return mcplib.NewToolResultError("no selected environment"), nil
+		}
+		keys := make([]string, 0, len(active.Entries))
+		for _, entry := range active.Entries {
+			keys = append(keys, entry.Name)
+		}
+		requests, err := access.Open(root)
+		if err != nil {
+			return mcplib.NewToolResultError("local access state is unavailable"), nil
+		}
+		status := "not trusted"
+		if grant, authErr := requests.AuthorizeWorkspace(sessionID, active.Name); authErr == nil {
+			status = fmt.Sprintf("trusted until %s (normal network)", grant.ExpiresAt.Local().Format(time.RFC3339))
+		}
+		return mcplib.NewToolResultText(fmt.Sprintf("Project: %s\nEnvironment: %s\nConfigured entries: %s\nSession: %s", root, active.Name, strings.Join(keys, ", "), status)), nil
+	}
+}
+
+func requestMissingSecrets(f *policy.File, command *policy.Command, policyPath, sessionID, environment string, requests *access.Manager) (bool, []access.Request, error) {
+	if len(command.Secrets) == 0 {
+		return false, nil, nil
+	}
+	root := projectRoot(policyPath)
+	var environments *envset.Manager
+	if f.UsesEnvironmentEntries() || f.EnvironmentSet == "active" {
+		var err error
+		environments, err = envset.Open(root)
+		if err != nil {
+			return false, nil, errors.New("encrypted environment is unavailable")
+		}
+	}
+	missing := false
+	var created []access.Request
+	for _, name := range command.Secrets {
+		key, storeName, ok := f.SecretBinding(name)
+		if !ok {
+			return false, nil, fmt.Errorf("policy secret binding %q is invalid", name)
+		}
+		configured := false
+		if environments != nil {
+			entry, exists := environments.Entry(environment, key)
+			if exists {
+				if entry.Kind == envset.EntryFile {
+					_, err := environments.GetBytes(environment, key)
+					configured = err == nil
+				} else {
+					_, err := environments.Get(environment, key)
+					configured = err == nil
+				}
+			}
+		} else {
+			store, err := secretstore.Open(policyPath, storeName)
+			if err != nil {
+				return false, nil, fmt.Errorf("secret store for %q is unavailable", name)
+			}
+			_, err = store.Get(name)
+			configured = err == nil
+		}
+		if configured {
+			continue
+		}
+		missing = true
+		request, err := requests.CreateSecretRequestForCommands(sessionID, environment, name, key, []string{command.ID}, "run_sealed is waiting for this encrypted value")
+		if err != nil {
+			return false, nil, fmt.Errorf("could not create secret request for %q", name)
+		}
+		created = append(created, request)
+	}
+	return missing, created, nil
+}
+
+func waitForChange(ctx context.Context) error {
+	timer := time.NewTimer(100 * time.Millisecond)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
 	}
 }
 
@@ -246,7 +505,11 @@ func currentPolicy(f *policy.File, policyPath string) (*policy.File, error) {
 
 func makeListEnvironmentsHandler(f *policy.File, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if f.EnvironmentSet != "active" {
+		current, reloadErr := currentPolicy(f, policyPath)
+		if reloadErr != nil {
+			return mcplib.NewToolResultError("policy reload failed"), nil
+		}
+		if !current.UsesEnvironmentEntries() && current.EnvironmentSet != "active" {
 			return mcplib.NewToolResultText("Environments:\n  * default (provider/alias storage; values hidden)"), nil
 		}
 		manager, err := envset.Open(projectRoot(policyPath))
@@ -288,8 +551,8 @@ func makeRequestSecretHandler(f *policy.File, policyPath, sessionID string) func
 		if err != nil {
 			return mcplib.NewToolResultError("secret_alias is required"), nil
 		}
-		decl, ok := f.Secrets[alias]
-		if !ok || decl.Env == "" {
+		key, _, ok := f.SecretBinding(alias)
+		if !ok {
 			return mcplib.NewToolResultError("secret alias is not declared in the policy"), nil
 		}
 		environment, err := executionEnvironment(f, policyPath)
@@ -300,7 +563,7 @@ func makeRequestSecretHandler(f *policy.File, policyPath, sessionID string) func
 		if err != nil {
 			return mcplib.NewToolResultError("local access state is unavailable"), nil
 		}
-		request, err := manager.CreateSecretRequest(sessionID, environment, alias, decl.Env, mustString(req, "reason"))
+		request, err := manager.CreateSecretRequest(sessionID, environment, alias, key, mustString(req, "reason"))
 		if err != nil {
 			return mcplib.NewToolResultError("could not create secret request"), nil
 		}
@@ -414,19 +677,19 @@ func makeClaimCapsuleHandler(f *policy.File, policyPath, sessionID string) func(
 			request.SecretAlias != payload.SecretAlias || request.SecretKey != payload.SecretKey {
 			return mcplib.NewToolResultError("capsule request is no longer pending or does not match this session"), nil
 		}
-		decl, ok := f.Secrets[request.SecretAlias]
-		if !ok || decl.Env != request.SecretKey {
+		key, storeName, ok := f.SecretBinding(request.SecretAlias)
+		if !ok || key != request.SecretKey {
 			return mcplib.NewToolResultError("capsule request no longer matches the policy"), nil
 		}
 		if _, err := requests.FulfillSecretWith(request.ID, func(locked access.Request) error {
-			if f.EnvironmentSet == "active" {
+			if f.UsesEnvironmentEntries() || f.EnvironmentSet == "active" {
 				environments, err := envset.Open(projectRoot(policyPath))
 				if err != nil {
 					return err
 				}
 				return environments.Put(locked.Environment, locked.SecretKey, payload.Value)
 			}
-			store, err := secretstore.Open(policyPath, decl.Store)
+			store, err := secretstore.Open(policyPath, storeName)
 			if err != nil {
 				return err
 			}
@@ -441,7 +704,7 @@ func makeClaimCapsuleHandler(f *policy.File, policyPath, sessionID string) func(
 }
 
 func executionEnvironment(f *policy.File, policyPath string) (string, error) {
-	if f.EnvironmentSet != "active" {
+	if !f.UsesEnvironmentEntries() && f.EnvironmentSet != "active" {
 		return "default", nil
 	}
 	manager, err := envset.Open(projectRoot(policyPath))
@@ -497,10 +760,19 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 		if err != nil {
 			return mcplib.NewToolResultError("could not read the pending store"), nil
 		}
+		proposalEnv := coerceEnv(req.GetArguments()["env"])
+		if current, reloadErr := currentPolicy(f, policyPath); reloadErr == nil && current.UsesEnvironmentEntries() {
+			for _, name := range optionalStringSlice(req, "secrets") {
+				if proposalEnv == nil {
+					proposalEnv = map[string]string{}
+				}
+				proposalEnv[name] = name
+			}
+		}
 		store.Upsert(pending.Proposal{
 			ID:         id,
 			Argv:       argv,
-			Env:        coerceEnv(req.GetArguments()["env"]),
+			Env:        proposalEnv,
 			Reason:     reason,
 			ProposedAt: time.Now().UTC().Format(time.RFC3339), // server-side; agent time is untrusted
 			Status:     "pending",
@@ -512,6 +784,14 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 			"Proposed %q. It is NOT yet runnable. A human must run `ironrun approve %s` in their terminal; you can run_sealed with %q only after they approve.",
 			id, id, id)), nil
 	}
+}
+
+func optionalStringSlice(req mcplib.CallToolRequest, key string) []string {
+	values, err := req.RequireStringSlice(key)
+	if err != nil {
+		return nil
+	}
+	return values
 }
 
 func mustString(req mcplib.CallToolRequest, key string) string {

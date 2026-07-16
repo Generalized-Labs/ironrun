@@ -58,6 +58,11 @@ func runInit(t *testing.T, dir string) (string, error) {
 	bin := buildBinary(t)
 	cmd := exec.Command(bin, "init")
 	cmd.Dir = dir
+	testHome := filepath.Join(dir, ".test-home")
+	if err := os.MkdirAll(testHome, 0700); err != nil {
+		return "", err
+	}
+	cmd.Env = append(os.Environ(), "HOME="+testHome, "IRONRUN_HOME="+filepath.Join(testHome, ".ironrun"))
 	out, err := cmd.CombinedOutput()
 	return string(out), err
 }
@@ -127,8 +132,8 @@ func TestInit_Idempotent(t *testing.T) {
 	}
 }
 
-// TestInit_YmlContainsProvider verifies that the generated ironrun.yml
-// contains version: "1" (as a string).
+// TestInit_YmlContainsProvider verifies that new workspaces use direct-entry
+// policy version 2 while older version-1 policies remain supported.
 func TestInit_YmlContainsProvider(t *testing.T) {
 	dir := t.TempDir()
 
@@ -152,13 +157,13 @@ func TestInit_YmlContainsProvider(t *testing.T) {
 		t.Fatalf("ironrun.yml has no 'version' field\ncontent:\n%s", data)
 	}
 
-	// version is stored as string "1" in YAML (quoted)
+	// version is stored as string "2" in YAML (quoted)
 	versionStr, ok := version.(string)
 	if !ok {
 		t.Fatalf("version field is not a string, got %T = %v", version, version)
 	}
-	if versionStr != "1" {
-		t.Errorf("expected version=1, got %q\ncontent:\n%s", versionStr, data)
+	if versionStr != "2" {
+		t.Errorf("expected version=2, got %q\ncontent:\n%s", versionStr, data)
 	}
 }
 

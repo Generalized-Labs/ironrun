@@ -124,7 +124,7 @@ func prepareSocket(path string) error {
 
 func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 	environment := "default"
-	if s.policy.EnvironmentSet == "active" {
+	if s.policy.UsesEnvironmentEntries() || s.policy.EnvironmentSet == "active" {
 		if manager, err := envset.Open(s.root); err == nil {
 			if active, err := manager.Active(); err == nil {
 				environment = active.Name
@@ -139,7 +139,7 @@ func (s *Server) status(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) environments(w http.ResponseWriter, r *http.Request) {
-	if s.policy.EnvironmentSet != "active" {
+	if !s.policy.UsesEnvironmentEntries() && s.policy.EnvironmentSet != "active" {
 		writeJSON(w, http.StatusOK, []map[string]any{{"name": "default", "active": true, "provider_backed": true}})
 		return
 	}

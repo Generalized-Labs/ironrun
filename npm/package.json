@@ -1,0 +1,26 @@
+{
+  "name": "@generalized-labs/ironrun",
+  "version": "1.0.0",
+  "description": "Verified native launcher for the Ironrun encrypted environment workspace",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "ironrun": "bin/ironrun.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "manifest.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/generalized-labs/ironrun.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

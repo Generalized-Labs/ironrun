@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/generalized-labs/ironrun/internal/envset"
+	"github.com/generalized-labs/ironrun/internal/project"
 	irontui "github.com/generalized-labs/ironrun/internal/tui"
 )
 
@@ -36,7 +37,7 @@ func bootstrapFirstRun(path string) error {
 		return err
 	}
 	if _, err := os.Stat(abs); err == nil {
-		return nil
+		return registerProject(filepath.Dir(abs))
 	} else if !os.IsNotExist(err) {
 		return err
 	}
@@ -50,9 +51,21 @@ func bootstrapFirstRun(path string) error {
 		_ = os.Remove(abs)
 		return err
 	}
+	if err := registerProject(root); err != nil {
+		return fmt.Errorf("register project: %w", err)
+	}
 	_ = registerClaudeMCP(root)
 	fmt.Println("Created ironrun.yml and encrypted environment dev. Opening the control room…")
 	return nil
+}
+
+func registerProject(root string) error {
+	registry, err := project.DefaultStore()
+	if err != nil {
+		return err
+	}
+	_, err = registry.Register(root)
+	return err
 }
 
 func initializeLocalEnvironment(root string) error {

@@ -4,7 +4,58 @@ All notable changes to ironrun are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.4.0] - 2026-07-16
+
+### Added
+
+- Trusted workspace sessions: one human approval grants one MCP session
+  revocable two-hour access to a project environment for normal development
+  argv, while strict command policy remains available for sensitive workflows.
+- `ironrun trust list|grant|pause|extend|revoke`, plus value-blind
+  `request_workspace_access` and `workspace_status` MCP tools.
+- A global, owner-only project registry and task-oriented workspace available
+  from any directory with `ironrun`, `ironrun open`, and `ironrun inbox`.
+- Version-2 policies that bind approved commands directly to encrypted
+  environment entry names while retaining version-1 provider compatibility.
+- A value-blind, reversible migration flow with preview, verified encrypted
+  copy, ignored backups, rollback, and explicit cleanup.
+- Automatic MCP continuation for missing command approval, agent lease, and
+  secret requests. The original sealed call resumes after the human completes
+  the request in the TUI.
+- A peer-UID-verified per-user daemon for project, inbox, and request
+  coordination, with launchd and systemd user-service management.
+- Top-level `add`, `import`, `use`, `status`, `run`, `projects`, `daemon`, and
+  `migrate` workflows; existing nested commands and aliases remain compatible.
+- An event-driven, responsive TUI with one primary action, global projects and
+  inbox views, exact waiting-run review, contextual help, and `NO_COLOR`
+  support.
+- A fail-closed verified installer served from ironrun.dev, GoReleaser SBOM and
+  Sigstore publication, OpenSSF Scorecard, and a minimal native npm launcher with
+  immutable artifact verification.
+
+### Changed
+
+- Encrypted environment entries are the everyday source of truth. Updating a
+  stored value no longer requires rewriting command policy.
+- Bare `ironrun` opens the global workspace instead of printing command help or
+  opening a decorative project dashboard.
+- New setup writes a version-2 policy, registers the project, previews every
+  local change, optionally installs the daemon, and ends with a redaction and
+  health check.
+- Requests and leases are secondary views; secrets, environments, commands,
+  projects, and waiting human actions lead the interaction model.
+
+### Security
+
+- Authorization is pinned to the reviewed project, environment, command, and
+  authenticated MCP session through approval and execution.
+- Daemon RPC schemas are value-blind and local Unix peers must match the owner
+  user ID.
+- File secrets use owner-only temporary directories outside the repository,
+  include output-redaction-only values, and are cleaned after all normal exit
+  paths with validated stale-run recovery.
+- Release gates now explicitly separate automated proof from multi-machine and
+  external-user validation; Ironrun must not be tagged GA until both pass.
 
 ### Added
 - **Encrypted project vaults.** Environment values are stored outside the
@@ -148,6 +199,7 @@ Initial public release: agent-safe sealed command execution.
 - Rolling-buffer redaction engine that catches secrets split across write
   boundaries.
 
-[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/generalized-labs/ironrun/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/generalized-labs/ironrun/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/generalized-labs/ironrun/releases/tag/v0.2.0

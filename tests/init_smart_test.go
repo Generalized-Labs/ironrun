@@ -39,12 +39,9 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 		t.Fatal(err)
 	}
 	var pol struct {
+		Version        string `yaml:"version"`
 		EnvironmentSet string `yaml:"environment_set"`
-		Secrets        map[string]struct {
-			Env   string   `yaml:"env"`
-			Allow []string `yaml:"allow"`
-		} `yaml:"secrets"`
-		Commands []struct {
+		Commands       []struct {
 			ID      string   `yaml:"id"`
 			Argv    []string `yaml:"argv"`
 			Secrets []string `yaml:"secrets"`
@@ -69,8 +66,8 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 		t.Errorf("expected test -> [npm test], got %v", got)
 	}
 	// dev is credential-likely -> encrypted-vault aliases are bound.
-	if pol.EnvironmentSet != "active" || pol.Secrets["DATABASE_URL"].Env != "DATABASE_URL" || !containsString(secretsByID["dev"], "DATABASE_URL") {
-		t.Errorf("expected dev to carry DATABASE_URL vault alias, got %v\npolicy:\n%s", secretsByID["dev"], data)
+	if pol.Version != "2" || pol.EnvironmentSet != "active" || !containsString(secretsByID["dev"], "DATABASE_URL") {
+		t.Errorf("expected dev to bind the DATABASE_URL environment entry, got %v\npolicy:\n%s", secretsByID["dev"], data)
 	}
 
 	// Agent instructions reference the REAL ids + the propose escape hatch.

@@ -18,9 +18,8 @@ func TestGeneratePolicyUsesEncryptedLocalVault(t *testing.T) {
 	if parsed.EnvironmentSet != "active" || !parsed.RequireAgentLeases {
 		t.Fatalf("generated policy is not local-vault-first: %#v", parsed)
 	}
-	secret, ok := parsed.Secrets["OPENAI_API_KEY"]
-	if !ok || secret.Env != "OPENAI_API_KEY" || len(secret.Allow) != 1 || secret.Allow[0] != "build" {
-		t.Fatalf("generated secret declaration = %#v", secret)
+	if parsed.Version != policy.SupportedVersionV2 || len(parsed.Secrets) != 0 {
+		t.Fatalf("generated policy should use direct v2 environment entries: %#v", parsed)
 	}
 	if len(parsed.Commands) != 1 || len(parsed.Commands[0].Secrets) != 1 || parsed.Commands[0].Secrets[0] != "OPENAI_API_KEY" {
 		t.Fatalf("generated command bindings = %#v", parsed.Commands)
@@ -36,7 +35,7 @@ func TestGeneratePolicyEmptyProjectIsImmediatelyValid(t *testing.T) {
 	if len(parsed.Commands) != 1 || parsed.Commands[0].ID != "ironrun-health" {
 		t.Fatalf("starter command = %#v", parsed.Commands)
 	}
-	if strings.Contains(content, "env:") || strings.Contains(content, "secrets:") {
+	if strings.Contains(content, "    env:") || strings.Contains(content, "    secrets:") {
 		t.Fatalf("empty project policy invented secrets:\n%s", content)
 	}
 }

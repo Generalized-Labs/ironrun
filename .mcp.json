@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "ironrun": {
+      "args": [
+        "mcp"
+      ],
+      "command": "ironrun"
+    }
+  }
+}

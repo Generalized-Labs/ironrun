@@ -178,7 +178,23 @@ func appendCommandToPolicy(policyPath string, p pending.Proposal) error {
 	if p.Reason != "" {
 		comment = "approved: " + p.Reason
 	}
-	block := renderCommandBlock(p.ID, p.Argv, "120s", p.Env, comment)
+	current, err := policy.Parse(orig)
+	if err != nil {
+		return err
+	}
+	proposalEnv := p.Env
+	if current.UsesEnvironmentEntries() {
+		proposalEnv = nil
+	}
+	block := renderCommandBlock(p.ID, p.Argv, "120s", proposalEnv, comment)
+	if current.UsesEnvironmentEntries() && len(p.Env) > 0 {
+		names := make([]string, 0, len(p.Env))
+		for name := range p.Env {
+			names = append(names, name)
+		}
+		sort.Strings(names)
+		block += fmt.Sprintf("    secrets: [%s]\n", strings.Join(names, ", "))
+	}
 
 	text, err := insertCommandBlock(string(orig), block)
 	if err != nil {

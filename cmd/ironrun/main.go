@@ -38,7 +38,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 		if err != nil || info.Mode()&os.ModeCharDevice == 0 {
 			return cmd.Help()
 		}
-		return runTUI(policyPath)
+		return runGlobalWorkspace(false)
 	}
 
 	root.AddGroup(
@@ -53,10 +53,10 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 			root.AddCommand(command)
 		}
 	}
-	add("everyday", tuiCmd(), quickAddCmd(), quickFileCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), envCmd())
-	add("agents", accessCmd(), capsuleCmd(), mcpCmd(), serveCmd())
-	add("setup", initCmd(), doctorCmd(), validateCmd(), lintCmd())
-	add("advanced", auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())
+	add("everyday", openCmd(), inboxCmd(), statusCmd(), quickAddCmd(), importCmd(), quickFileCmd(), quickNewCmd(), quickSessionCmd(), quickUseCmd(), quickEnvsCmd(), runCmd(), tuiCmd(), envCmd())
+	add("agents", trustCmd(), accessCmd(), capsuleCmd(), mcpCmd(), daemonCmd(), serveCmd())
+	add("setup", initCmd(), migrateCmd(), doctorCmd(), validateCmd(), lintCmd())
+	add("advanced", projectsCmd(), auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())
 
 	if err := root.Execute(); err != nil {
 		os.Exit(1)
@@ -67,8 +67,8 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 func runCmd() *cobra.Command {
 	var setName string
 	c := &cobra.Command{
-		Use:     "exec <command-id>",
-		Aliases: []string{"run"},
+		Use:     "run <command-id>",
+		Aliases: []string{"exec"},
 		Short:   "Execute a sealed command by its policy ID",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -56,6 +56,9 @@ checksum:
   name_template: "checksums.txt"
   algorithm: sha256
 
+sboms:
+  - artifacts: archive
+
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
 
@@ -82,12 +85,6 @@ changelog:
     - title: Other
       order: 999
 
-# Homebrew distribution is intentionally deferred until ironrun is notable enough
-# for homebrew-core (Homebrew gates new formulae on ~75 stars / 30 forks). Until
-# then the install story is the curl installer + `go install` (see the release
-# header below). To revive a tap later: add a `brews:` block here + a
-# HOMEBREW_TAP_GITHUB_TOKEN secret with write access to the tap repo.
-
 release:
   github:
     owner: generalized-labs
@@ -98,14 +95,14 @@ release:
   header: |
     ## ironrun {{.Tag}}
 
-    Agent-safe sealed command execution for AI coding agents.
-    Secrets are injected below agent visibility and redacted from all output.
+    Local-first encrypted environment workspace for humans and AI coding agents.
+    Agents receive approved capabilities and redacted output, never reveal APIs.
 
     ### Quick install
 
     ```bash
     # curl (Linux/macOS — verifies the checksum)
-    curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/install.sh | bash
+    curl -fsSL https://ironrun.dev/install.sh | bash
 
     # Go
     go install github.com/generalized-labs/ironrun/cmd/ironrun@{{.Tag}}

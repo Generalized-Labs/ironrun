@@ -12,7 +12,7 @@ func TestEverydayCommandAliases(t *testing.T) {
 		aliases []string
 		want    string
 	}{
-		{runCmd().Name(), runCmd().Aliases, "run"},
+		{runCmd().Name(), runCmd().Aliases, "exec"},
 		{envCmd().Name(), envCmd().Aliases, "vault"},
 		{accessCmd().Name(), accessCmd().Aliases, "access"},
 		{capsuleCmd().Name(), capsuleCmd().Aliases, "capsule"},
