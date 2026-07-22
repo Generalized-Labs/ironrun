@@ -62,7 +62,7 @@ jobs:
         if: contains(github.ref_name, '-rc.')
         continue-on-error: true
         working-directory: npm
-        run: npm stage publish --access public --tag next
+        run: npm publish --access public --tag next
 
       - name: Publish stable npm launcher
         if: ${{ !contains(github.ref_name, '-rc.') }}

@@ -39,3 +39,15 @@ func TestGeneratePolicyEmptyProjectIsImmediatelyValid(t *testing.T) {
 		t.Fatalf("empty project policy invented secrets:\n%s", content)
 	}
 }
+
+func TestRenderAgentInstructionsUsesMCPCommandIDShape(t *testing.T) {
+	instructions := renderAgentInstructions([]DetectedCmd{{
+		ID: "test", Comment: "go test ./...",
+	}})
+	if !strings.Contains(instructions, `run_sealed({command_id: "test"})`) {
+		t.Fatalf("strict command instructions must use the MCP command_id argument:\n%s", instructions)
+	}
+	if strings.Contains(instructions, `run_sealed("test")`) {
+		t.Fatalf("instructions use an unsupported positional run_sealed call:\n%s", instructions)
+	}
+}
