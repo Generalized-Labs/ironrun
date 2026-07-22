@@ -25,7 +25,7 @@ Available commands (defined in ironrun.yml):
 		b.WriteString("- (none detected yet — add commands to ironrun.yml)\n")
 	} else {
 		for _, c := range cmds {
-			fmt.Fprintf(&b, "- run_sealed(%q) — %s\n", c.ID, c.Comment)
+			fmt.Fprintf(&b, "- run_sealed({command_id: %q}) — %s\n", c.ID, c.Comment)
 		}
 	}
 	b.WriteString("\n" + `Do NOT run printenv, cat .env, or echo $VAR to read credential values.

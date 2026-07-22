@@ -75,8 +75,8 @@ func TestInit_GeneratesPolicyFromScripts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(claude), `run_sealed("seed")`) {
-		t.Errorf("CLAUDE.md should reference run_sealed(\"seed\"); got:\n%s", claude)
+	if !strings.Contains(string(claude), `run_sealed({command_id: "seed"})`) {
+		t.Errorf("CLAUDE.md should reference run_sealed({command_id: \"seed\"}); got:\n%s", claude)
 	}
 	if !strings.Contains(string(claude), "propose_command") {
 		t.Errorf("CLAUDE.md should mention propose_command")

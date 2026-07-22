@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ironrun installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/generalized-labs/ironrun/main/install.sh | bash
+# Usage: curl -fsSL https://ironrun.dev/install.sh -o /tmp/ironrun-install.sh && bash /tmp/ironrun-install.sh
 #
 # Installs the latest ironrun binary to /usr/local/bin (or ~/.local/bin if no sudo).
 

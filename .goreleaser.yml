@@ -102,7 +102,8 @@ release:
 
     ```bash
     # curl (Linux/macOS — verifies the checksum)
-    curl -fsSL https://ironrun.dev/install.sh | bash
+    curl -fsSL https://ironrun.dev/install.sh -o /tmp/ironrun-install.sh
+    bash /tmp/ironrun-install.sh
 
     # Go
     go install github.com/generalized-labs/ironrun/cmd/ironrun@{{.Tag}}

@@ -2,10 +2,10 @@
 
 The release workflow publishes the npm launcher with **OIDC trusted publishing**
 (no long-lived token). Trusted publishing can only be configured on a package
-that already exists, so the **first publish must be done manually**. Until then,
-the npm steps in `.github/workflows/release.yml` are marked `continue-on-error`
-so they cannot fail a release — the GitHub release, the curl installer, `go
-install`, and Sigstore signing do not depend on npm.
+that already exists, so the **first publish must be done manually**. Until this
+is complete, `npx @generalized-labs/ironrun` is not an available install method.
+The npm release step is temporarily non-blocking; it must become a hard gate
+before a v1 GA release.
 
 ## Do this once (needs an npm account with rights to the `@generalized-labs` scope)
 

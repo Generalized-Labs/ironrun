@@ -100,7 +100,7 @@ bash /tmp/ironrun-install.sh
 # Go (any platform)
 go install github.com/generalized-labs/ironrun/cmd/ironrun@latest
 
-# Verified npm launcher (Node 20+; native Go security boundary)
+# Verified npm launcher (Node 20+; available after the one-time npm bootstrap)
 npx @generalized-labs/ironrun@latest
 ```
 
@@ -410,7 +410,8 @@ command = "ironrun"
 args = ["mcp"]
 ```
 
-Then add to your project's CODEX.md (equivalent of CLAUDE.md):
+Then add to your project's `AGENTS.md` (the cross-agent instruction file that
+Codex reads):
 
 ```
 Use run_sealed for all commands that need credentials.
@@ -433,6 +434,29 @@ Add ironrun to `~/.cursor/mcp.json` (merge, don't replace existing entries):
 ```
 
 Cursor loads this global MCP config for all projects. You'll also need a `CURSOR.md` or `.cursorrules` file in your project telling Cursor to use `run_sealed` instead of direct shell commands.
+
+### Using any MCP-capable agent
+
+Ironrun's agent boundary is a standard stdio MCP server, so any agent host that
+supports local stdio MCP servers can use it. Add the equivalent of the
+following configuration in that host, then put the generated `AGENTS.md`
+instructions in the project:
+
+```json
+{
+  "mcpServers": {
+    "ironrun": {
+      "command": "ironrun",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+The agent first calls `request_workspace_access` for normal development (or
+uses a strict `run_sealed` command with `command_id`). The human approves the
+specific project and environment locally; the agent receives only status and
+redacted output, never a secret value.
 
 ---
 
@@ -707,7 +731,9 @@ You can't use `sh`, `bash`, or other shells as `argv[0]`. If your command needs 
 Your provider returned an empty string for a secret. This usually means the secret reference is wrong (typo in the 1Password path, env var name doesn't match). Fix the reference in `ironrun.yml`.
 
 **The agent ignores `run_sealed` and runs shell commands directly**
-Check that `CLAUDE.md` (or `CODEX.md` / `.cursorrules`) exists in your project root and contains clear instructions to use `run_sealed`. Agents respect these files strongly for explicit directives.
+Check that `AGENTS.md`, `CLAUDE.md`, or `.cursorrules` exists in your project
+root and contains clear instructions to use `run_sealed`. Agents respect these
+files strongly for explicit directives.
 
 ---
 
