@@ -186,8 +186,8 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	elapsed := time.Since(start)
 
 	// Flush any buffered redaction.
-	stdoutW.Flush()
-	stderrW.Flush()
+	_ = stdoutW.Flush()
+	_ = stderrW.Flush()
 	cleanupResult := ""
 	var cleanupErr error
 	if opts.Cleanup != nil {

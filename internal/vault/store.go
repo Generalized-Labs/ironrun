@@ -155,6 +155,12 @@ func OpenWithKey(path, projectID string, key []byte) (*Store, error) {
 
 func (s *Store) Path() string { return s.path }
 
+// ExportRootKey returns the base64-encoded root key of the vault.
+// This allows authorized users or agents to securely share or sync the vault payload.
+func (s *Store) ExportRootKey() string {
+	return base64.RawStdEncoding.EncodeToString(s.rootKey)
+}
+
 // Set atomically replaces one value and rotates the scope data key.
 func (s *Store) Set(scope, key, value string) error {
 	if err := validate(scope, "scope"); err != nil {

@@ -62,7 +62,7 @@ that need credentials.`,
 				fmt.Println("  • ironrun.yml already exists — skipping")
 			} else {
 				ymlContent := generatePolicy(cmds, envVars)
-				if err := os.WriteFile(ymlPath, []byte(ymlContent), 0644); err != nil {
+				if err := os.WriteFile(ymlPath, []byte(ymlContent), 0600); err != nil {
 					return fmt.Errorf("failed to write ironrun.yml: %w", err)
 				}
 				createdPolicy = true
@@ -148,7 +148,7 @@ func writeAgentInstructions(cwd, name, instructions string) {
 		fmt.Printf("  • %s already exists — skipping\n", name)
 		return
 	}
-	if err := os.WriteFile(path, []byte(instructions), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(instructions), 0600); err != nil {
 		fmt.Printf("  ⚠  Could not write %s: %v\n", name, err)
 		return
 	}
@@ -188,7 +188,7 @@ func registerClaudeMCP(cwd string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(mcpPath, append(data, '\n'), 0644); err != nil {
+	if err := os.WriteFile(mcpPath, append(data, '\n'), 0600); err != nil {
 		return err
 	}
 	fmt.Println("  • Wrote .mcp.json (Claude Code project MCP)")
@@ -265,7 +265,7 @@ func registerCursor() error {
 	}
 
 	// Write back
-	if err := os.MkdirAll(cursorDir, 0755); err != nil {
+	if err := os.MkdirAll(cursorDir, 0700); err != nil {
 		return fmt.Errorf("could not create ~/.cursor directory: %w", err)
 	}
 
@@ -274,7 +274,7 @@ func registerCursor() error {
 		return fmt.Errorf("could not marshal cursor config: %w", err)
 	}
 
-	if err := os.WriteFile(cursorMCP, append(data, '\n'), 0644); err != nil {
+	if err := os.WriteFile(cursorMCP, append(data, '\n'), 0600); err != nil {
 		return fmt.Errorf("could not write ~/.cursor/mcp.json: %w", err)
 	}
 

@@ -170,6 +170,17 @@ func Serve(f *policy.File, policyPath string) error {
 	)
 	s.AddTool(claimCapsuleTool, makeClaimCapsuleHandler(f, policyPath, sessionID))
 
+	shareEnvTool := mcplib.NewTool("share_environment",
+		mcplib.WithDescription("Export the vault encryption key to securely share with team members or agents"),
+	)
+	s.AddTool(shareEnvTool, makeShareEnvironmentHandler(f, policyPath))
+
+	syncEnvTool := mcplib.NewTool("sync_environment",
+		mcplib.WithDescription("Sync encrypted project vaults with remote backends (e.g. Google Drive)"),
+		mcplib.WithString("operation", mcplib.Required(), mcplib.Description("push or pull")),
+	)
+	s.AddTool(syncEnvTool, makeSyncEnvironmentHandler(policyPath))
+
 	return server.ServeStdio(s)
 }
 
@@ -809,6 +820,39 @@ func validProposalID(id string) bool {
 		}
 	}
 	return true
+}
+
+func makeShareEnvironmentHandler(f *policy.File, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		root := projectRoot(policyPath)
+		m, err := envset.Open(root)
+		if err != nil {
+			return mcplib.NewToolResultError(fmt.Sprintf("open envset: %v", err)), nil
+		}
+
+		exporter, ok := m.Store.(interface {
+			ExportRootKey() string
+			VaultPath() string
+		})
+		if !ok {
+			return mcplib.NewToolResultError("the current store does not support vault export"), nil
+		}
+
+		key := exporter.ExportRootKey()
+		out := fmt.Sprintf("Share the following key over a secure channel:\nKey: %s\nVault Path: %s\n", key, exporter.VaultPath())
+		return mcplib.NewToolResultText(out), nil
+	}
+}
+
+func makeSyncEnvironmentHandler(policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+		op := mustString(req, "operation")
+		if op != "push" && op != "pull" {
+			return mcplib.NewToolResultError("operation must be push or pull"), nil
+		}
+		out := fmt.Sprintf("Syncing (%s) is not fully implemented yet.", op)
+		return mcplib.NewToolResultText(out), nil
+	}
 }
 
 func coerceEnv(v any) map[string]string {
