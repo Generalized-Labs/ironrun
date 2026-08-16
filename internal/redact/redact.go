@@ -86,7 +86,7 @@ func (w *Writer) scan(final bool) error {
 		}
 
 		if len(w.buf) <= hold {
-			break 
+			break
 		}
 
 		safeEnd := 0
@@ -127,7 +127,7 @@ func (w *Writer) scan(final bool) error {
 			break
 		}
 	}
-	
+
 	if len(w.buf) > 0 && cap(w.buf) > 4096 && len(w.buf) < cap(w.buf)/2 {
 		newBuf := make([]byte, len(w.buf))
 		copy(newBuf, w.buf)
