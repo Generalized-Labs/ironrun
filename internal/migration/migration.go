@@ -325,15 +325,15 @@ func replaceFile(path string, data []byte) error {
 	name := tmp.Name()
 	defer os.Remove(name)
 	if err := tmp.Chmod(info.Mode().Perm()); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	if _, err := tmp.Write(data); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	if err := tmp.Sync(); err != nil {
-		tmp.Close()
+		_ = tmp.Close()
 		return err
 	}
 	if err := tmp.Close(); err != nil {

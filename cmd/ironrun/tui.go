@@ -44,7 +44,7 @@ func bootstrapFirstRun(path string) error {
 	root := filepath.Dir(abs)
 	envVars := detectEnvVars(root)
 	content := generatePolicy(detectCommands(root, envVars), envVars)
-	if err := os.WriteFile(abs, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(abs, []byte(content), 0600); err != nil {
 		return fmt.Errorf("create first-run policy: %w", err)
 	}
 	if err := initializeLocalEnvironment(root); err != nil {

@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,11 +15,30 @@ import (
 
 	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/policy"
+	"github.com/generalized-labs/ironrun/internal/remote"
 )
 
 func envCmd() *cobra.Command {
 	c := &cobra.Command{Use: "env", Aliases: []string{"vault"}, Short: "Manage project-scoped environment sets without exposing values"}
-	c.AddCommand(envInitCmd(), envCreateCmd(), envListCmd(), envUseCmd(), envStatusCmd(), envSetCmd(), envFileCmd(), envImportCmd(), envExportCmd(), envCloneCmd(), envRotateCmd(), envDeleteCmd(), envRemoveCmd(), envPruneCmd(), envDoctorCmd())
+	c.AddCommand(
+		envInitCmd(),
+		envCreateCmd(),
+		envListCmd(),
+		envUseCmd(),
+		envStatusCmd(),
+		envFileCmd(),
+		envSetCmd(),
+		envImportCmd(),
+		envExportCmd(),
+		envCloneCmd(),
+		envRotateCmd(),
+		envDeleteCmd(),
+		envRemoveCmd(),
+		envPruneCmd(),
+		envDoctorCmd(),
+		envShareCmd(),
+		envSyncCmd(),
+	)
 	return c
 }
 
@@ -505,4 +526,95 @@ func attachPolicyToActiveEnvironment(path string) error {
 		return fmt.Errorf("enable environment sets in policy: %w", err)
 	}
 	return nil
+}
+
+func envShareCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "share",
+		Short: "Export the vault encryption key to securely share with team members or agents",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			m, err := openEnvManager()
+			if err != nil {
+				return err
+			}
+			exporter, ok := m.Store.(interface {
+				ExportRootKey() string
+				VaultPath() string
+			})
+			if !ok {
+				return errors.New("the current store does not support vault export")
+			}
+			key := exporter.ExportRootKey()
+			fmt.Println("Share the following key over a secure channel:")
+			fmt.Printf("Key: %s\n", key)
+			fmt.Printf("Vault Path: %s\n", exporter.VaultPath())
+			return nil
+		},
+	}
+}
+
+func envSyncCmd() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "sync [push|pull]",
+		Short: "Sync encrypted project vaults with Google Drive or remote backends",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			op := args[0]
+			if op != "push" && op != "pull" {
+				return fmt.Errorf("invalid sync operation %q (expected push or pull)", op)
+			}
+
+			m, err := openEnvManager()
+			if err != nil {
+				return err
+			}
+			exporter, ok := m.Store.(interface {
+				VaultPath() string
+			})
+			if !ok {
+				return errors.New("the current store does not support remote sync")
+			}
+			vaultPath := exporter.VaultPath()
+
+			ctx := cmd.Context()
+			gdrive, err := remote.NewGDriveRemote(ctx)
+			if err != nil {
+				return fmt.Errorf("initialize Google Drive sync: %w\n\nHint: run 'gcloud auth application-default login' to authenticate", err)
+			}
+
+			vaultName := filepath.Base(vaultPath)
+
+			switch op {
+			case "push":
+				f, err := os.Open(vaultPath)
+				if err != nil {
+					return fmt.Errorf("open vault for sync: %w", err)
+				}
+				defer f.Close()
+				if err := gdrive.Push(ctx, vaultName, f); err != nil {
+					return fmt.Errorf("push to Google Drive: %w", err)
+				}
+				fmt.Printf("✓ Pushed vault %s to Google Drive\n", vaultName)
+
+			case "pull":
+				body, err := gdrive.Pull(ctx, vaultName)
+				if err != nil {
+					return fmt.Errorf("pull from Google Drive: %w", err)
+				}
+				defer body.Close()
+				data, err := io.ReadAll(body)
+				if err != nil {
+					return fmt.Errorf("read remote vault: %w", err)
+				}
+				if err := os.WriteFile(vaultPath, data, 0600); err != nil {
+					return fmt.Errorf("write pulled vault: %w", err)
+				}
+				fmt.Printf("✓ Pulled vault %s from Google Drive\n", vaultName)
+			}
+
+			return nil
+		},
+	}
+	return c
 }

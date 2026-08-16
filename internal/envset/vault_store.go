@@ -48,6 +48,14 @@ type migratingVaultStore struct {
 func (s *migratingVaultStore) Name() string {
 	return "Ironrun encrypted vault (root key in " + s.legacy.Name() + ")"
 }
+
+func (s *migratingVaultStore) ExportRootKey() string {
+	return s.vault.ExportRootKey()
+}
+
+func (s *migratingVaultStore) VaultPath() string {
+	return s.vault.Path()
+}
 func (s *migratingVaultStore) Set(scope, key, value string) error {
 	return s.vault.Set(scope, key, value)
 }

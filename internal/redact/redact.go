@@ -78,52 +78,62 @@ func (w *Writer) Flush() error {
 	return w.scan(true)
 }
 
-// scan advances the scanner through w.buf.
-// If final is true, all remaining bytes are emitted.
-// If final is false, we hold back (maxLen-1) bytes at the tail so that a
-// secret spanning the current/next Write boundary is still detected.
 func (w *Writer) scan(final bool) error {
 	for {
-		// How many bytes must we keep in the buffer before emitting?
-		// If not final: keep (maxLen-1) bytes so a secret can't be missed.
-		// If final: process everything.
 		hold := 0
 		if !final && w.maxLen > 1 {
 			hold = w.maxLen - 1
 		}
 
 		if len(w.buf) <= hold {
-			break // not enough data to safely process anything
+			break 
 		}
 
-		// Try to match a secret at position 0.
-		matched := false
-		for _, secret := range w.secrets {
-			if len(secret) > len(w.buf) {
-				// Secret longer than buffer — might still match once more data arrives.
-				// Skip for now; will be caught later (or on Flush).
-				continue
-			}
-			if hasPrefix(w.buf, secret) {
-				// Full match — emit placeholder, advance past the secret.
-				if err := w.emit([]byte(placeholder)); err != nil {
-					return err
+		safeEnd := 0
+		var matchedSecret []byte
+
+		for safeEnd < len(w.buf)-hold {
+			matched := false
+			for _, secret := range w.secrets {
+				if len(secret) > len(w.buf)-safeEnd {
+					continue
 				}
-				w.redactions++
-				w.buf = w.buf[len(secret):]
-				matched = true
+				if hasPrefix(w.buf[safeEnd:], secret) {
+					matchedSecret = secret
+					matched = true
+					break
+				}
+			}
+			if matched {
 				break
 			}
+			safeEnd++
 		}
 
-		if !matched {
-			// No secret starts here. Emit one byte.
-			if err := w.emit(w.buf[:1]); err != nil {
+		if safeEnd > 0 {
+			if err := w.emit(w.buf[:safeEnd]); err != nil {
 				return err
 			}
-			w.buf = w.buf[1:]
+			w.buf = w.buf[safeEnd:]
+		}
+
+		if matchedSecret != nil {
+			if err := w.emit([]byte(placeholder)); err != nil {
+				return err
+			}
+			w.redactions++
+			w.buf = w.buf[len(matchedSecret):]
+		} else {
+			break
 		}
 	}
+	
+	if len(w.buf) > 0 && cap(w.buf) > 4096 && len(w.buf) < cap(w.buf)/2 {
+		newBuf := make([]byte, len(w.buf))
+		copy(newBuf, w.buf)
+		w.buf = newBuf
+	}
+
 	return nil
 }
 
