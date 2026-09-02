@@ -4,6 +4,75 @@ All notable changes to ironrun are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Headless vault support. `IRONRUN_VAULT_PROTECTOR=file` wraps the project root
+  key in `~/.ironrun/keys/<id>.key` at `0600` instead of the OS credential
+  manager, so the encrypted vault works in containers, plain SSH sessions, and
+  on Linux hosts without libsecret. Ironrun refuses to read a key file that is
+  group- or world-accessible or is not a regular file, writes it atomically, and
+  still fails closed when a vault exists but its key is gone. The downgrade is
+  never automatic: a headless session gets an error explaining the options.
+
+### Fixed
+
+- `ironrun doctor` now checks that every value the policy declares can actually
+  be read back from the vault. Project metadata can outlive the vault it
+  describes — after `~/.ironrun` is deleted, after a project directory moves to
+  a machine without its vault, or after `IRONRUN_VAULT_PROTECTOR` changes and
+  opens a different one. That state is a dead end from the outside: `import`
+  refuses with "already configured" while `run` fails with "unavailable".
+  Doctor previously reported "All checks passed" over it. It now names the
+  missing keys and prints the recovery path.
+
+### Security
+
+- **Removed the `share_environment` MCP tool, which returned the project vault
+  root key to the calling agent.** The tool took no arguments and ran with no
+  lease check, no human approval, and no audit record, so any connected agent
+  could obtain the key that decrypts every value in the project vault — and the
+  key would then persist in the agent's transcript. This inverted Ironrun's
+  threat model and contradicted the documented guarantee that no MCP tool
+  returns a secret value. The capability was introduced after v0.4.0 and was
+  never part of a tagged release, so no published binary is affected. Humans
+  share a vault with `ironrun env share`, which stays outside agent reach.
+- Added a guard test that fails if vault key export becomes reachable from the
+  MCP package again.
+- `ironrun env share` now refuses to print the vault root key unless both stdin
+  and stdout are interactive terminals, and requires the operator to type an
+  explicit confirmation phrase. Previously it printed the key unconditionally,
+  so running it inside a pipe, a CI step, or an agent session that captures
+  output would deposit the key there.
+- Raised the required Go version to 1.26.6, clearing six standard-library
+  vulnerabilities that govulncheck found reachable from Ironrun code under
+  1.26.5, including GO-2026-5972 and GO-2026-5026 via `daemon.Ping`.
+- Bumped `google.golang.org/grpc` to v1.83.1 for the heap-exhaustion advisory
+  affecting <= 1.83.0. It arrives transitively through the Google Drive sync;
+  Ironrun does not serve gRPC.
+
+### Removed
+
+- The `sync_environment` MCP tool, whose handler returned
+  `"Syncing (push) is not fully implemented yet."` while being advertised to
+  agents as a working capability. The implemented `ironrun env sync push|pull`
+  CLI command is unaffected.
+
+### Documentation
+
+- README now states the OS credential-manager requirement per platform
+  (`security` on macOS, `secret-tool`/libsecret on Linux, Credential Manager on
+  Windows), documents the headless key-file mode, and shows the `provider: env`
+  pattern for CI, where redaction works without the vault.
+- SECURITY.md now describes how the vault root key is protected in both modes
+  and what the file protector gives up.
+- SECURITY.md now documents the redaction boundary: encodings and split writes
+  are covered, while substrings, case-changed values, and other derivations of
+  a secret are not.
+- Corrected the README `ironrun version` example for source builds, which print
+  a Go pseudo-version rather than `ironrun dev`.
+
 ## [0.4.0] - 2026-07-16
 
 ### Added
