@@ -112,8 +112,28 @@ Check it's on your path:
 
 ```bash
 ironrun version
-# ironrun 0.4.0   (a source build prints "ironrun dev")
+# ironrun 0.4.0
+# A build from source prints a Go pseudo-version such as
+# ironrun v0.0.0-20260817002148-219af21cab7f
 ```
+
+### Requirements
+
+Ironrun wraps the project vault's root key with your operating system's
+credential manager, so it needs one to be present and unlocked:
+
+| Platform | Requires | Notes |
+| --- | --- | --- |
+| macOS | `security` (built in) | The first vault write asks for Keychain authorization. |
+| Linux | `secret-tool` (libsecret) | `apt install libsecret-tools` / `dnf install libsecret`. Without it Ironrun exits with `install libsecret secret-tool`. |
+| Windows (beta) | Credential Manager (built in) | — |
+
+This means Ironrun currently needs an **interactive desktop session**. In a
+headless context — SSH without a forwarded agent, a Docker container, or a CI
+runner — the Keychain or Secret Service prompt cannot be answered and vault
+commands fail with an authorization error. Running Ironrun in CI is not
+supported yet; track [the headless-vault issue](https://github.com/Generalized-Labs/ironrun/issues)
+if you need it.
 
 ---
 

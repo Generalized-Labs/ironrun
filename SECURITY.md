@@ -65,6 +65,33 @@ directories are recovered at startup.
 Deletion cannot guarantee physical erasure from SSDs, copy-on-write filesystems,
 snapshots, swap, backups, or storage-controller caches. Do not claim otherwise.
 
+## Redaction limitations
+
+Output redaction matches the secret **value**. Ironrun registers the literal
+value plus common encodings of it — standard, raw, URL and raw-URL base64,
+lower- and upper-case hex, and query/path percent-encoding — and matches across
+write boundaries, so a value split over two chunks is still caught. A
+high-entropy scanner warns when an unredacted token in output looks like a
+credential.
+
+Redaction cannot follow a value through an arbitrary transformation. If a child
+command emits something that is neither the value nor one of the registered
+encodings, the redactor has nothing to match. Known shapes that pass through:
+
+- **A substring of the value.** Printing a connection string with its scheme
+  stripped, or a token without its `sk_live_` prefix, emits a fragment that
+  still contains the credential.
+- **A case-changed value**, such as output upper-cased by a formatter.
+- **Any other derivation** — a hash, a re-encoding Ironrun does not register, a
+  value re-chunked with punctuation inserted.
+
+Treat redaction as a strong guard against the common accidental-disclosure
+shapes (`printenv`, `cat .env`, `echo $VAR`, a stack trace, a config dump), not
+as a guarantee against a command that deliberately transforms a secret before
+printing it. A trusted workspace session runs commands the agent chooses, so a
+deliberately hostile command remains outside this boundary — see the threat
+boundary above.
+
 ## Responsible disclosure
 
 Please do not open a public issue for a suspected vulnerability or include a

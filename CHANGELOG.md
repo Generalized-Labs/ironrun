@@ -4,6 +4,41 @@ All notable changes to ironrun are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Security
+
+- **Removed the `share_environment` MCP tool, which returned the project vault
+  root key to the calling agent.** The tool took no arguments and ran with no
+  lease check, no human approval, and no audit record, so any connected agent
+  could obtain the key that decrypts every value in the project vault — and the
+  key would then persist in the agent's transcript. This inverted Ironrun's
+  threat model and contradicted the documented guarantee that no MCP tool
+  returns a secret value. The capability was introduced after v0.4.0 and was
+  never part of a tagged release, so no published binary is affected. Humans
+  share a vault with `ironrun env share`, which stays outside agent reach.
+- Added a guard test that fails if vault key export becomes reachable from the
+  MCP package again.
+
+### Removed
+
+- The `sync_environment` MCP tool, whose handler returned
+  `"Syncing (push) is not fully implemented yet."` while being advertised to
+  agents as a working capability. The implemented `ironrun env sync push|pull`
+  CLI command is unaffected.
+
+### Documentation
+
+- README now states the OS credential-manager requirement per platform
+  (`security` on macOS, `secret-tool`/libsecret on Linux, Credential Manager on
+  Windows) and that Ironrun needs an interactive desktop session — headless
+  SSH, containers, and CI runners cannot answer the credential prompt.
+- SECURITY.md now documents the redaction boundary: encodings and split writes
+  are covered, while substrings, case-changed values, and other derivations of
+  a secret are not.
+- Corrected the README `ironrun version` example for source builds, which print
+  a Go pseudo-version rather than `ironrun dev`.
+
 ## [0.4.0] - 2026-07-16
 
 ### Added
