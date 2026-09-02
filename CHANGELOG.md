@@ -16,6 +16,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   still fails closed when a vault exists but its key is gone. The downgrade is
   never automatic: a headless session gets an error explaining the options.
 
+### Fixed
+
+- `ironrun doctor` now checks that every value the policy declares can actually
+  be read back from the vault. Project metadata can outlive the vault it
+  describes — after `~/.ironrun` is deleted, after a project directory moves to
+  a machine without its vault, or after `IRONRUN_VAULT_PROTECTOR` changes and
+  opens a different one. That state is a dead end from the outside: `import`
+  refuses with "already configured" while `run` fails with "unavailable".
+  Doctor previously reported "All checks passed" over it. It now names the
+  missing keys and prints the recovery path.
+
 ### Security
 
 - **Removed the `share_environment` MCP tool, which returned the project vault

@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/redact"
@@ -22,9 +23,12 @@ func doctorCmd() *cobra.Command {
   • the policy file parses and is a supported version
   • the configured secret provider is installed and authenticated
   • the redaction engine actually strips a known secret from output
+  • every value the policy declares can be read back from the vault
   • each command's binary resolves on PATH
 
-Exits non-zero if any check fails. Nothing is executed and no secrets are resolved.`,
+Exits non-zero if any check fails. No command is executed. Declared values are
+decrypted in-process only to confirm they are readable, and are never printed,
+logged, or written anywhere.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
 			var failed bool
@@ -69,7 +73,51 @@ Exits non-zero if any check fails. Nothing is executed and no secrets are resolv
 				pass("redaction self-test passed")
 			}
 
-			// 4. Each command's binary resolves.
+			// 4. Declared environment entries actually resolve.
+			//
+			// Project metadata can list keys the vault cannot produce: after
+			// ~/.ironrun is deleted, after a project directory moves to a
+			// machine without its vault, or after switching
+			// IRONRUN_VAULT_PROTECTOR, which opens a different vault. That
+			// state is a dead end from the outside — `import` refuses with
+			// "already configured" while `run` fails with "unavailable" — so
+			// naming it here is the only thing that points at a way out.
+			if declared := policyKeys(f); len(declared) > 0 {
+				switch m, mErr := openEnvManager(); {
+				case mErr != nil:
+					warn("environment sets unavailable: %v", mErr)
+				case m.Meta.Active == "":
+					warn("no active environment set; `ironrun new dev` creates one")
+				default:
+					active := m.Meta.Active
+					var missing []string
+					for _, key := range declared {
+						// Values are decrypted in-process only to confirm they
+						// are readable. Nothing is printed, logged, or returned.
+						var getErr error
+						if entry, typed := m.Entry(active, key); typed && entry.Kind == envset.EntryFile {
+							_, getErr = m.GetBytes(active, key)
+						} else {
+							_, getErr = m.Get(active, key)
+						}
+						if getErr != nil {
+							missing = append(missing, key)
+						}
+					}
+					if len(missing) > 0 {
+						fail("environment %q: %d of %d declared value(s) missing from the vault: %s",
+							active, len(missing), len(declared), strings.Join(missing, ", "))
+						warn("the policy and project metadata expect these, but this vault cannot produce them")
+						warn("if you set %s, unset it — a different protector opens a different vault", envset.ProtectorEnv)
+						warn("otherwise re-enter one value with `ironrun env rotate %s <KEY>`,", active)
+						warn("or start over with `ironrun env remove %s` and re-import", active)
+					} else {
+						pass("environment %q: all %d declared value(s) resolve", active, len(declared))
+					}
+				}
+			}
+
+			// 5. Each command's binary resolves.
 			for _, c := range f.Commands {
 				switch {
 				case len(c.Argv) == 0:
