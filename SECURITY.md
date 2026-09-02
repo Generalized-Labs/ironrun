@@ -65,6 +65,31 @@ directories are recovered at startup.
 Deletion cannot guarantee physical erasure from SSDs, copy-on-write filesystems,
 snapshots, swap, backups, or storage-controller caches. Do not claim otherwise.
 
+## Vault root key protection
+
+Every environment has a rotating data key wrapped by a project root key. By
+default that root key is held by the operating system credential manager —
+Keychain on macOS, Secret Service on Linux, Credential Manager on Windows —
+which requires an interactive desktop session.
+
+Setting `IRONRUN_VAULT_PROTECTOR=file` wraps the root key in
+`~/.ironrun/keys/<id>.key` with `0600` permissions instead, so the vault works
+in a container, a plain SSH session, or on a host without libsecret. Ironrun
+refuses to read a key file whose permissions would let another account read it,
+refuses one that is not a regular file, and fails closed rather than minting a
+replacement key when a vault exists but its key is gone.
+
+This mode is weaker: any process running as the same user can read the key file
+with no prompt and no per-application access control. It does not move the agent
+boundary — no MCP tool returns a secret value or the root key in either mode —
+but it removes the operating system as a second gate. Ironrun never selects this
+mode automatically; a headless session receives an error describing the choice.
+
+The root key is printed only by `ironrun env share`, which refuses to run unless
+both stdin and stdout are interactive terminals and the operator types an
+explicit confirmation phrase. It is therefore not reachable from a pipe, a
+redirect, a CI step, or an agent session that captures command output.
+
 ## Redaction limitations
 
 Output redaction matches the secret **value**. Ironrun registers the literal

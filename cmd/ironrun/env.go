@@ -485,6 +485,20 @@ func confirm(prompt string) (bool, error) {
 	answer := strings.ToLower(strings.TrimSpace(line))
 	return answer == "y" || answer == "yes", nil
 }
+
+// confirmPhrase requires the operator to type want exactly. A y/n prompt is too
+// easy to answer reflexively for an action that hands over full vault access.
+func confirmPhrase(prompt, want string) (bool, error) {
+	if _, err := os.Stdin.Stat(); err != nil {
+		return false, err
+	}
+	fmt.Fprint(os.Stderr, prompt)
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		return false, err
+	}
+	return strings.TrimSpace(line) == want, nil
+}
 func ensureEnvGitignore(root string) error {
 	dir := filepath.Join(root, ".ironrun")
 	if err := os.MkdirAll(dir, 0700); err != nil {
@@ -528,12 +542,38 @@ func attachPolicyToActiveEnvironment(path string) error {
 	return nil
 }
 
+// isTerminal reports whether f is attached to an interactive terminal rather
+// than a pipe, file, or captured buffer.
+func isTerminal(f *os.File) bool {
+	info, err := f.Stat()
+	if err != nil {
+		return false
+	}
+	return info.Mode()&os.ModeCharDevice != 0
+}
+
 func envShareCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "share",
-		Short: "Export the vault encryption key to securely share with team members or agents",
-		Args:  cobra.NoArgs,
+		Short: "Export the vault encryption key to securely share with a teammate",
+		Long: `Print the project vault root key so a teammate can decrypt a copy of the vault.
+
+The root key decrypts every value in this project's vault. It is printed only to
+an interactive terminal: Ironrun refuses to write it to a pipe, a file, or a
+captured buffer, so it cannot be collected by a script, a CI log, or an AI agent
+session. There is no MCP tool for this — see SECURITY.md.`,
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Both streams must be interactive. A terminal stdout with
+			// redirected stdin would leave the confirmation unanswerable, and a
+			// redirected stdout is exactly the capture case this guards.
+			if !isTerminal(os.Stdout) || !isTerminal(os.Stdin) {
+				return errors.New("refusing to export the vault root key to a non-interactive session\n\n" +
+					"The root key decrypts every value in this project. Run `ironrun env share`\n" +
+					"directly in a terminal, never through a pipe, a redirect, a CI job, or an\n" +
+					"AI agent session that captures output")
+			}
+
 			m, err := openEnvManager()
 			if err != nil {
 				return err
@@ -545,6 +585,20 @@ func envShareCmd() *cobra.Command {
 			if !ok {
 				return errors.New("the current store does not support vault export")
 			}
+
+			fmt.Fprintln(os.Stderr, "This prints the root key that decrypts EVERY value in this project's vault.")
+			fmt.Fprintln(os.Stderr, "Share it only over a secure channel, with someone you intend to give full access.")
+			fmt.Fprintln(os.Stderr, "Anyone holding it can decrypt the vault without further approval.")
+			fmt.Fprintln(os.Stderr)
+
+			ok, err = confirmPhrase("Type `export` to continue, anything else to abort: ", "export")
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return errors.New("aborted; nothing was printed")
+			}
+
 			key := exporter.ExportRootKey()
 			fmt.Println("Share the following key over a secure channel:")
 			fmt.Printf("Key: %s\n", key)

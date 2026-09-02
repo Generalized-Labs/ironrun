@@ -127,13 +127,42 @@ credential manager, so it needs one to be present and unlocked:
 | macOS | `security` (built in) | The first vault write asks for Keychain authorization. |
 | Linux | `secret-tool` (libsecret) | `apt install libsecret-tools` / `dnf install libsecret`. Without it Ironrun exits with `install libsecret secret-tool`. |
 | Windows (beta) | Credential Manager (built in) | — |
+| Headless / container / CI | nothing extra | See [Headless environments](#headless-environments) below. |
 
-This means Ironrun currently needs an **interactive desktop session**. In a
-headless context — SSH without a forwarded agent, a Docker container, or a CI
-runner — the Keychain or Secret Service prompt cannot be answered and vault
-commands fail with an authorization error. Running Ironrun in CI is not
-supported yet; track [the headless-vault issue](https://github.com/Generalized-Labs/ironrun/issues)
-if you need it.
+### Headless environments
+
+By default the vault needs an interactive desktop session, because the OS
+credential manager prompts before releasing the root key. In a container, a
+plain SSH session, or on a Linux host without libsecret, opt in to an
+owner-only key file instead:
+
+```bash
+export IRONRUN_VAULT_PROTECTOR=file
+```
+
+The root key is then written to `~/.ironrun/keys/<id>.key` with `0600`
+permissions, and Ironrun refuses to read it if those permissions are ever
+widened. Values stay encrypted in the vault exactly as before.
+
+This is **weaker than the OS credential manager**: any process running as your
+user can read the key file, with no prompt. It does not change what an agent can
+reach — no MCP tool returns a value or the key — but it does remove the
+operating system as a second gate. Ironrun never selects it for you; a headless
+session gets an error explaining the choice rather than a silent downgrade.
+
+For CI, you often don't need the vault at all. A version-1 policy with
+`provider: env` reads values from the runner's own secret store and still
+redacts them from command output, which is what keeps them out of build logs:
+
+```yaml
+version: "1"
+provider: env
+commands:
+  - id: test
+    argv: [npm, test]
+    env:
+      DATABASE_URL: "CI_DATABASE_URL"   # from GitHub Actions secrets
+```
 
 ---
 

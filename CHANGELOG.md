@@ -6,6 +6,16 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Headless vault support. `IRONRUN_VAULT_PROTECTOR=file` wraps the project root
+  key in `~/.ironrun/keys/<id>.key` at `0600` instead of the OS credential
+  manager, so the encrypted vault works in containers, plain SSH sessions, and
+  on Linux hosts without libsecret. Ironrun refuses to read a key file that is
+  group- or world-accessible or is not a regular file, writes it atomically, and
+  still fails closed when a vault exists but its key is gone. The downgrade is
+  never automatic: a headless session gets an error explaining the options.
+
 ### Security
 
 - **Removed the `share_environment` MCP tool, which returned the project vault
@@ -19,6 +29,17 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   share a vault with `ironrun env share`, which stays outside agent reach.
 - Added a guard test that fails if vault key export becomes reachable from the
   MCP package again.
+- `ironrun env share` now refuses to print the vault root key unless both stdin
+  and stdout are interactive terminals, and requires the operator to type an
+  explicit confirmation phrase. Previously it printed the key unconditionally,
+  so running it inside a pipe, a CI step, or an agent session that captures
+  output would deposit the key there.
+- Raised the required Go version to 1.26.6, clearing six standard-library
+  vulnerabilities that govulncheck found reachable from Ironrun code under
+  1.26.5, including GO-2026-5972 and GO-2026-5026 via `daemon.Ping`.
+- Bumped `google.golang.org/grpc` to v1.83.1 for the heap-exhaustion advisory
+  affecting <= 1.83.0. It arrives transitively through the Google Drive sync;
+  Ironrun does not serve gRPC.
 
 ### Removed
 
@@ -31,8 +52,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - README now states the OS credential-manager requirement per platform
   (`security` on macOS, `secret-tool`/libsecret on Linux, Credential Manager on
-  Windows) and that Ironrun needs an interactive desktop session — headless
-  SSH, containers, and CI runners cannot answer the credential prompt.
+  Windows), documents the headless key-file mode, and shows the `provider: env`
+  pattern for CI, where redaction works without the vault.
+- SECURITY.md now describes how the vault root key is protected in both modes
+  and what the file protector gives up.
 - SECURITY.md now documents the redaction boundary: encodings and split writes
   are covered, while substrings, case-changed values, and other derivations of
   a secret are not.
