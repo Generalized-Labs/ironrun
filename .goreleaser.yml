@@ -18,13 +18,14 @@ builds:
     goos:
       - linux
       - darwin
-      - windows
     goarch:
       - amd64
       - arm64
-    ignore:
-      - goos: windows
-        goarch: arm64
+    # -trimpath strips local filesystem paths from the binary so two builds
+    # of the same source produce identical bytes (see docs/INSTALL.md,
+    # "Reproducible builds"). It is a *build* flag, not a linker flag.
+    flags:
+      - -trimpath
     ldflags:
       - -s -w
       - -X github.com/generalized-labs/ironrun/internal/buildinfo.Version={{.Version}}
@@ -43,10 +44,6 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
     formats:
       - tar.gz
-    format_overrides:
-      - goos: windows
-        formats:
-          - zip
     files:
       - README.md
       - LICENSE
@@ -55,6 +52,11 @@ archives:
 checksum:
   name_template: "checksums.txt"
   algorithm: sha256
+  # Ship the installer as a release asset and cover it with checksums.txt
+  # (which is itself Sigstore-signed in .github/workflows/release.yml), so
+  # the script users run is pinned to this exact release.
+  extra_files:
+    - glob: ./install.sh
 
 sboms:
   - artifacts: archive
@@ -91,6 +93,11 @@ release:
     name: ironrun
   draft: false
   prerelease: auto
+  # Upload the installer as a release asset: the release header's quick-install
+  # URL points at it, and checksum.extra_files only puts it in checksums.txt
+  # (it does NOT upload it).
+  extra_files:
+    - glob: ./install.sh
   name_template: "ironrun {{.Tag}}"
   header: |
     ## ironrun {{.Tag}}
@@ -101,12 +108,27 @@ release:
     ### Quick install
 
     ```bash
-    # curl (Linux/macOS — verifies the checksum)
-    curl -fsSL https://ironrun.dev/install.sh -o /tmp/ironrun-install.sh
-    bash /tmp/ironrun-install.sh
+    # Pinned installer for this exact release. The script Sigstore-verifies
+    # checksums.txt and the tarball, and SHA-256-verifies the tarball
+    # against checksums.txt — it refuses to install on any failure.
+    curl -fsSL https://github.com/generalized-labs/ironrun/releases/download/{{.Tag}}/install.sh -o /tmp/install-ironrun.sh
+    sh /tmp/install-ironrun.sh --version {{.Tag}}
+
+    # Homebrew (tap)
+    brew tap generalized-labs/ironrun
+    brew install ironrun
+
+    # npm / npx (verified launcher; downloads the matching release binary)
+    npx @generalized-labs/ironrun
 
     # Go
     go install github.com/generalized-labs/ironrun/cmd/ironrun@{{.Tag}}
     ```
+
+    Prefer the versioned `install.sh` above over `https://ironrun.dev/install.sh`,
+    which currently redirects to the moving `main` branch. Every release
+    artifact (`ironrun_<OS>_<arch>.tar.gz`, `checksums.txt`, `install.sh`)
+    ships with a `<file>.sigstore.json` bundle signed keylessly by the
+    release workflow; see docs/INSTALL.md for manual verification.
   footer: |
     **Full Changelog**: https://github.com/generalized-labs/ironrun/compare/{{.PreviousTag}}...{{.Tag}}

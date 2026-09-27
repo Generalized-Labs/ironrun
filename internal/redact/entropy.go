@@ -20,10 +20,16 @@ const (
 	entropyThreshold   = 3.5 // bits per character
 )
 
-// entropyTokenRe matches plausible credential tokens. Path/word separators like
-// '/', '.', ':' are intentionally excluded so file paths and dotted identifiers
-// split into short pieces rather than registering as one long token.
-var entropyTokenRe = regexp.MustCompile(`[A-Za-z0-9_-]{20,}`)
+// entropyTokenRe matches plausible credential tokens across the full
+// alphanumeric+symbol alphabet: base64-style tokens use '+', '/', '=', and
+// generated secrets commonly contain '~!#$%&*@?-'.
+//
+// Path/word separators '.', ':', ';', quotes and parens are intentionally
+// excluded so file paths, dotted identifiers, timestamps and prose split into
+// short pieces rather than registering as one long token. looksTokenish and
+// the benign-shape filters below provide the remaining false-positive
+// control; the scanner is warn-only and never alters output.
+var entropyTokenRe = regexp.MustCompile(`[A-Za-z0-9_+/=~!#$%&*@?%-]{20,}`)
 
 // benignShapes are tokens that look high-entropy but are commonly benign; they
 // would otherwise be noisy false positives.
@@ -34,6 +40,11 @@ var benignShapes = []*regexp.Regexp{
 	regexp.MustCompile(`^[0-9]+$`),          // pure numeric (ids, epoch timestamps)
 }
 
+// kvPrefixRe matches a "key=" assignment prefix glued onto a token via the
+// '=' in the token alphabet (e.g. "id=550e8400-..."). The value part is
+// evaluated on its own so benign values behind an assignment aren't reported.
+var kvPrefixRe = regexp.MustCompile(`^[A-Za-z0-9_]{1,32}=(.+)$`)
+
 // ScanHighEntropy returns secret-shaped, high-entropy tokens in s. A hit means
 // "this looks like it might be an unredacted secret", not a confirmed leak —
 // it is used as a warn-only backstop to the literal redactor.
@@ -41,11 +52,16 @@ func ScanHighEntropy(s string) []EntropyHit {
 	var hits []EntropyHit
 	for _, loc := range entropyTokenRe.FindAllStringIndex(s, -1) {
 		tok := s[loc[0]:loc[1]]
+		off := loc[0]
+		if m := kvPrefixRe.FindStringSubmatch(tok); m != nil && len(m[1]) >= entropyMinTokenLen {
+			off += len(tok) - len(m[1])
+			tok = m[1]
+		}
 		if isBenignShape(tok) || !looksTokenish(tok) {
 			continue
 		}
 		if e := shannonEntropy(tok); e >= entropyThreshold {
-			hits = append(hits, EntropyHit{Token: tok, Entropy: e, Offset: loc[0]})
+			hits = append(hits, EntropyHit{Token: tok, Entropy: e, Offset: off})
 		}
 	}
 	return hits

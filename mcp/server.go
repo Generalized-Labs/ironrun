@@ -34,6 +34,14 @@ var resolveExecutionEnvironment = executionEnvironment
 // Serve starts the MCP stdio server using the given policy. policyPath locates
 // the pending-proposal store (.ironrun/pending.yml next to it).
 // It blocks until the client disconnects or the process exits.
+// mcpTool pairs a registered MCP tool definition with its handler.
+// registeredTools (below) is the single place tools are defined so tests can
+// enumerate everything an agent is allowed to call.
+type mcpTool struct {
+	tool    mcplib.Tool
+	handler server.ToolHandlerFunc
+}
+
 func Serve(f *policy.File, policyPath string) error {
 	// One audit logger and session id for the life of this server process, so
 	// every run_sealed call from the same agent session shares a session id.
@@ -49,13 +57,29 @@ func Serve(f *policy.File, policyPath string) error {
 		buildinfo.String(),
 		server.WithToolCapabilities(true),
 	)
+	for _, rt := range registeredTools(f, policyPath, sessionID, auditLog) {
+		s.AddTool(rt.tool, rt.handler)
+	}
+
+	return server.ServeStdio(s)
+}
+
+// registeredTools builds the complete MCP tool registry. It is the
+// enforcement point for the key-material invariant (Phase 0, item 0.1):
+// no registered tool may return vault key material to an agent.
+// key_material_guard_test.go enumerates this list.
+func registeredTools(f *policy.File, policyPath, sessionID string, auditLog *audit.Logger) []mcpTool {
+	var tools []mcpTool
+	add := func(t mcplib.Tool, h server.ToolHandlerFunc) {
+		tools = append(tools, mcpTool{tool: t, handler: h})
+	}
 
 	// Tool: list_commands — let the agent discover available command IDs.
 	listTool := mcplib.NewTool("list_commands",
 		mcplib.WithDescription("List all command IDs available in the current policy. "+
 			"Call this first to know what commands you can run via run_sealed."),
 	)
-	s.AddTool(listTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	add(listTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		current, err := currentPolicy(f, policyPath)
 		if err != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", err)), nil
@@ -78,25 +102,25 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithString("command_id", mcplib.Description("Legacy policy command ID (strict mode)")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Exact argv for the current human-trusted workspace session")),
 	)
-	s.AddTool(runTool, makeRunHandler(f, auditLog, sessionID, policyPath))
+	add(runTool, makeRunHandler(f, auditLog, sessionID, policyPath))
 
 	workspaceStatusTool := mcplib.NewTool("workspace_status",
 		mcplib.WithDescription("Return value-blind current project, environment, configured entry names, and this agent session's trusted-access status."),
 	)
-	s.AddTool(workspaceStatusTool, makeWorkspaceStatusHandler(policyPath, sessionID))
+	add(workspaceStatusTool, makeWorkspaceStatusHandler(policyPath, sessionID))
 
 	requestWorkspaceTool := mcplib.NewTool("request_workspace_access",
 		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary, revocable, and never includes secret values in MCP."),
 		mcplib.WithString("reason", mcplib.Required(), mcplib.Description("Brief task reason shown to the human")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Optional first command for human context; it is not executed by this request")),
 	)
-	s.AddTool(requestWorkspaceTool, makeRequestWorkspaceHandler(f, policyPath, sessionID))
+	add(requestWorkspaceTool, makeRequestWorkspaceHandler(f, policyPath, sessionID))
 
 	// Tool: validate_policy — sanity-check the loaded policy.
 	validateTool := mcplib.NewTool("validate_policy",
 		mcplib.WithDescription("Validate the current policy file and return a summary of defined commands."),
 	)
-	s.AddTool(validateTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
+	add(validateTool, func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		current, err := currentPolicy(f, policyPath)
 		if err != nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("policy reload failed: %v", err)), nil
@@ -125,13 +149,13 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithString("reason", mcplib.Required(),
 			mcplib.Description("Why you need this command — shown to the human reviewer.")),
 	)
-	s.AddTool(proposeTool, makeProposeHandler(f, policyPath))
+	add(proposeTool, makeProposeHandler(f, policyPath))
 
 	// Tool: list_environments — safe metadata only, never values.
 	environmentsTool := mcplib.NewTool("list_environments",
 		mcplib.WithDescription("List project environment names, active state, expiry, and configured key counts. Secret values are never returned."),
 	)
-	s.AddTool(environmentsTool, makeListEnvironmentsHandler(f, policyPath))
+	add(environmentsTool, makeListEnvironmentsHandler(f, policyPath))
 
 	// Tool: request_secret — stage a local, human-fulfilled request. There is no
 	// plaintext argument by design; the user enters the value in a masked prompt.
@@ -142,7 +166,7 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithString("reason", mcplib.Required(),
 			mcplib.Description("Why the command needs this secret; shown to the user")),
 	)
-	s.AddTool(requestSecretTool, makeRequestSecretHandler(f, policyPath, sessionID))
+	add(requestSecretTool, makeRequestSecretHandler(f, policyPath, sessionID))
 
 	requestLeaseTool := mcplib.NewTool("request_lease",
 		mcplib.WithDescription("Request temporary permission for this MCP session to run specific policy commands. A human must approve it locally."),
@@ -151,37 +175,26 @@ func Serve(f *policy.File, policyPath string) error {
 		mcplib.WithString("ttl", mcplib.Description("Requested lifetime such as 30m or 2h; maximum 24h")),
 		mcplib.WithString("reason", mcplib.Required(), mcplib.Description("Why this session needs these commands")),
 	)
-	s.AddTool(requestLeaseTool, makeRequestLeaseHandler(f, policyPath, sessionID))
+	add(requestLeaseTool, makeRequestLeaseHandler(f, policyPath, sessionID))
 
 	leaseStatusTool := mcplib.NewTool("lease_status",
 		mcplib.WithDescription("List this MCP session's lease IDs, scopes, commands, expiry, and revocation state. No secret values are returned."),
 	)
-	s.AddTool(leaseStatusTool, makeLeaseStatusHandler(policyPath, sessionID))
+	add(leaseStatusTool, makeLeaseStatusHandler(policyPath, sessionID))
 
 	revokeLeaseTool := mcplib.NewTool("revoke_own_lease",
 		mcplib.WithDescription("Voluntarily revoke one lease belonging to this MCP session."),
 		mcplib.WithString("lease_id", mcplib.Required(), mcplib.Description("Lease ID returned by lease_status")),
 	)
-	s.AddTool(revokeLeaseTool, makeRevokeLeaseHandler(policyPath, sessionID))
+	add(revokeLeaseTool, makeRevokeLeaseHandler(policyPath, sessionID))
 
 	claimCapsuleTool := mcplib.NewTool("claim_capsule",
 		mcplib.WithDescription("Claim one Ironrun encrypted capsule created for a pending secret request. The argument is ciphertext, never a plaintext secret."),
 		mcplib.WithString("capsule", mcplib.Required(), mcplib.Description("An ir1. encrypted capsule produced by `ironrun capsule create`")),
 	)
-	s.AddTool(claimCapsuleTool, makeClaimCapsuleHandler(f, policyPath, sessionID))
+	add(claimCapsuleTool, makeClaimCapsuleHandler(f, policyPath, sessionID))
 
-	shareEnvTool := mcplib.NewTool("share_environment",
-		mcplib.WithDescription("Export the vault encryption key to securely share with team members or agents"),
-	)
-	s.AddTool(shareEnvTool, makeShareEnvironmentHandler(f, policyPath))
-
-	syncEnvTool := mcplib.NewTool("sync_environment",
-		mcplib.WithDescription("Sync encrypted project vaults with remote backends (e.g. Google Drive)"),
-		mcplib.WithString("operation", mcplib.Required(), mcplib.Description("push or pull")),
-	)
-	s.AddTool(syncEnvTool, makeSyncEnvironmentHandler(policyPath))
-
-	return server.ServeStdio(s)
+	return tools
 }
 
 func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -820,39 +833,6 @@ func validProposalID(id string) bool {
 		}
 	}
 	return true
-}
-
-func makeShareEnvironmentHandler(f *policy.File, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		root := projectRoot(policyPath)
-		m, err := envset.Open(root)
-		if err != nil {
-			return mcplib.NewToolResultError(fmt.Sprintf("open envset: %v", err)), nil
-		}
-
-		exporter, ok := m.Store.(interface {
-			ExportRootKey() string
-			VaultPath() string
-		})
-		if !ok {
-			return mcplib.NewToolResultError("the current store does not support vault export"), nil
-		}
-
-		key := exporter.ExportRootKey()
-		out := fmt.Sprintf("Share the following key over a secure channel:\nKey: %s\nVault Path: %s\n", key, exporter.VaultPath())
-		return mcplib.NewToolResultText(out), nil
-	}
-}
-
-func makeSyncEnvironmentHandler(policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		op := mustString(req, "operation")
-		if op != "push" && op != "pull" {
-			return mcplib.NewToolResultError("operation must be push or pull"), nil
-		}
-		out := fmt.Sprintf("Syncing (%s) is not fully implemented yet.", op)
-		return mcplib.NewToolResultText(out), nil
-	}
 }
 
 func coerceEnv(v any) map[string]string {

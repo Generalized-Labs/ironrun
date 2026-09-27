@@ -93,9 +93,11 @@ By default, an agent can use arbitrary argv only during a temporary session you 
 ## Install
 
 ```bash
-# curl (Linux/macOS — inspectable script, mandatory checksum verification)
-curl -fsSL https://ironrun.dev/install.sh -o /tmp/ironrun-install.sh
-bash /tmp/ironrun-install.sh
+# Release installer (Linux/macOS) — pinned to a release, checksum- and
+# Sigstore-verified before it touches your system. Replace vX.Y.Z with the
+# release you want (see the releases page for the latest).
+curl -fsSL https://github.com/generalized-labs/ironrun/releases/download/vX.Y.Z/install.sh -o /tmp/install-ironrun.sh
+sh /tmp/install-ironrun.sh --version vX.Y.Z
 
 # Go (any platform)
 go install github.com/generalized-labs/ironrun/cmd/ironrun@latest
@@ -104,9 +106,20 @@ go install github.com/generalized-labs/ironrun/cmd/ironrun@latest
 npx @generalized-labs/ironrun@latest
 ```
 
-Windows (amd64) is a beta: download `ironrun_Windows_x86_64.zip` from the
-[latest release](https://github.com/generalized-labs/ironrun/releases/latest)
-and put `ironrun.exe` on your `PATH`.
+The installer downloads the release tarball (`ironrun_<Linux|Darwin>_<x86_64|arm64>.tar.gz`),
+verifies it against `checksums.txt` and the per-artifact Sigstore bundle (`.sigstore.json`),
+and aborts on any failure. No Windows artifacts ship — see below. Full verification
+details, manual verification steps, and uninstall instructions:
+[`docs/INSTALL.md`](docs/INSTALL.md).
+
+### Windows
+
+> **Windows is not supported in the OSS launch.** ironrun targets Linux and
+> macOS. Secret-input commands (`secrets set/rotate`, `env set`, `access
+> grant`, `quick`, `capsule`) fail loudly on Windows with a non-zero exit
+> rather than reading secrets in cleartext; see
+> [`docs/windows.md`](docs/windows.md) for the full list of what fails, why,
+> and what supporting Windows later would take.
 
 Check it's on your path:
 
@@ -128,7 +141,9 @@ ironrun setup
 
 Setup previews every file it will write, detects `.env` key names without
 displaying values, creates an encrypted `dev` environment, registers MCP
-clients, and optionally installs the value-blind per-user service.
+clients, and optionally installs the value-blind per-user service. At the end
+it offers a 60-second guided demo: it stores a throwaway secret and runs a
+sealed command so you can watch the value come back `[REDACTED]`.
 
 Then use bare `ironrun` from anywhere. It opens the global Projects and Inbox
 workspace. Agent requests appear automatically; Enter opens the exact review
@@ -259,7 +274,7 @@ Run Ironrun with no arguments in a terminal, or use the explicit command:
 
 ```bash
 ironrun
-ironrun tui
+ironrun dashboard
 ```
 
 The TUI opens on the encrypted workspace: environments, masked environment/file
@@ -316,10 +331,10 @@ An agent calls `request_lease` with policy command IDs, a reason, and a desired
 TTL. The command remains blocked until a human approves it:
 
 ```bash
-ironrun access list
-ironrun access approve req_abc123...
-ironrun access leases
-ironrun access revoke lease_abc123...
+ironrun agents list
+ironrun agents approve req_abc123...
+ironrun agents leases
+ironrun agents revoke lease_abc123...
 ```
 
 Leases are bound to the exact MCP server session, environment, command set, and
@@ -355,14 +370,14 @@ The `request_secret` MCP tool accepts only a declared alias and reason. It has n
 plaintext value field. Fulfill it directly through the TUI or masked CLI:
 
 ```bash
-ironrun access fulfill req_abc123...
+ironrun agents fulfill req_abc123...
 ```
 
 If the workflow specifically requires pasting through chat, encrypt the value
 *before* it enters the transcript:
 
 ```bash
-ironrun capsule create req_abc123...
+ironrun share create req_abc123...
 # masked prompt; prints ir1.<ciphertext>
 ```
 
@@ -377,7 +392,7 @@ removed from model-provider logs and should be rotated.
 Start the owner-only Unix-socket API:
 
 ```bash
-ironrun serve
+ironrun api
 curl --unix-socket .ironrun/ironrun.sock http://localhost/v1/status
 curl --unix-socket .ironrun/ironrun.sock \
   -H 'Content-Type: application/json' \
@@ -507,9 +522,9 @@ commands:
 
 ### Extra hardening (on by default)
 
-- **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It fails open with a warning on unsupported kernels. Turn off per command with `seccomp: false`, policy-wide with `seccomp_default: false`, or globally with `IRONRUN_SECCOMP=off`.
+- **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It is fail-closed: if the filter cannot be installed, the run is refused rather than silently unprotected. Control it per command with `seccomp: false`, or policy-wide with `seccomp_default: false`. There is deliberately no environment kill-switch (an agent-reachable `IRONRUN_SECCOMP=off` would let a compromised agent disarm the filter).
 - **Encoded-secret redaction** — base64, hex, and URL-encoded forms of a secret are redacted alongside the literal value, plus a warn-only entropy scan flags high-entropy tokens that slip through.
-- **Audit log** — every run appends a tamper-evident, hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect or disable with `IRONRUN_AUDIT_LOG=<path|off>` or the top-level `audit_log:` field.
+- **Audit log** — every run appends a tamper-evident, hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
 
 ```bash
 ironrun lint      # security review of the policy (shell argv, missing ttl, secrets + open egress, …)
@@ -630,7 +645,7 @@ ironrun injects secrets for trusted runs and refuses untrusted ones, so a pull r
 | `push` to a branch in your repo | ✓ yes |
 | `pull_request` from the same repo | ✓ yes |
 | `pull_request` from a fork | ✗ no — blocked (`ErrCIUntrusted`) |
-| `pull_request_target` | ✗ no — unless you set `IRONRUN_ALLOW_PRT=1` |
+| `pull_request_target` | ✗ no — blocked, unless the operator passes `--allow-pull-request-target` to `ironrun run` (the legacy `IRONRUN_ALLOW_PRT=1` env form is ignored) |
 
 Use it as an action step:
 

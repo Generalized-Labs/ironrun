@@ -8,12 +8,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/envset"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/provider"
 	"github.com/generalized-labs/ironrun/internal/runner"
+	"github.com/generalized-labs/ironrun/internal/scrub"
 	"github.com/generalized-labs/ironrun/internal/secrets"
 )
 
@@ -26,6 +28,50 @@ type Options struct {
 	// AllowShell is true only for an already authorized trusted workspace
 	// session. Strict policy execution never enables it.
 	AllowShell bool
+	// DisableSeccomp disables the Linux seccomp syscall filter for this run.
+	// Operator flag only (--disable-seccomp on `ironrun run`); the legacy
+	// IRONRUN_SECCOMP=off environment kill-switch is deliberately NOT honored.
+	// Its use is logged loudly to stderr.
+	DisableSeccomp bool
+	// DisableEntropyScan skips the post-run high-entropy output scan.
+	// Operator flag only (--disable-entropy-scan); the legacy
+	// IRONRUN_ENTROPY_SCAN=off environment variable is ignored.
+	DisableEntropyScan bool
+	// AllowPullRequestTarget permits secret exposure on GitHub
+	// pull_request_target CI events. Operator flag only
+	// (--allow-pull-request-target); the legacy IRONRUN_ALLOW_PRT=1
+	// environment variable is ignored.
+	AllowPullRequestTarget bool
+	// NoSeal disables the sealed-child hardening (RLIMIT_CORE=0, anti-core-dump).
+	// Operator flag only (--no-seal); any inherited IRONRUN_NO_SEAL
+	// environment value is stripped and ignored.
+	NoSeal bool
+	// EmitGitHubMasks prints ::add-mask:: workflow commands for every managed
+	// secret value after resolution. Operator flag only (--emit-github-masks
+	// on `ironrun run`); the GITHUB_ACTIONS environment variable is
+	// deliberately NOT consulted — the environment is agent-reachable, so an
+	// env-gated switch would let a contained agent exfiltrate every secret to
+	// stdout with a single variable. Only pass this flag when the operator
+	// knows the run is inside GitHub Actions.
+	EmitGitHubMasks bool
+}
+
+// resolveSeccomp reports whether the seccomp filter should be requested for
+// this run. The operator controls this via policy (per-command `seccomp` /
+// `seccomp_default`) or the --disable-seccomp CLI flag. The legacy
+// IRONRUN_SECCOMP=off environment kill-switch is deliberately NOT honored: a
+// contained agent inherits the environment, so an env-gated security switch is
+// agent-reachable. When the flag is used, we log loudly that a security
+// control is being weakened.
+func resolveSeccomp(f *policy.File, cmd *policy.Command, disableSeccomp bool) bool {
+	if os.Getenv("IRONRUN_SECCOMP") != "" {
+		fmt.Fprintln(os.Stderr, "[ironrun] SECURITY WARNING: IRONRUN_SECCOMP is set but no longer honored; use the --disable-seccomp operator flag instead")
+	}
+	if disableSeccomp {
+		fmt.Fprintln(os.Stderr, "[ironrun] SECURITY WARNING: --disable-seccomp: the Linux seccomp syscall filter will NOT be installed for this run")
+		return false
+	}
+	return cmd.SeccompEnabled(f)
 }
 
 var openEnvironment = envset.Open
@@ -126,16 +172,61 @@ func Run(ctx context.Context, f *policy.File, policyPath, root, commandID string
 			}
 		}
 	}
-	seccompOn := pCmd.SeccompEnabled(f) && os.Getenv("IRONRUN_SECCOMP") != "off"
+	seccompOn := resolveSeccomp(f, pCmd, opts.DisableSeccomp)
 	var cleanup func() error
 	if files != nil {
 		cleanup = files.Close
+	}
+	if opts.EmitGitHubMasks {
+		emitGitHubMasks(resolved, redactValues)
 	}
 	return runner.Run(ctx, pCmd, runner.Options{
 		Stdout: opts.Stdout, Stderr: opts.Stderr, WorkDir: root,
 		Secrets: resolved, RedactValues: redactValues, AuditSecrets: auditSecrets, Seccomp: &seccompOn, Audit: opts.Audit, SessionID: opts.SessionID,
 		Cleanup: cleanup, AllowShell: opts.AllowShell,
+		DisableEntropyScan: opts.DisableEntropyScan, AllowPullRequestTarget: opts.AllowPullRequestTarget,
+		NoSeal: opts.NoSeal,
 	})
+}
+
+// emitGitHubMasks prints a ::add-mask:: workflow command for every managed
+// secret value (environment values in resolved plus file-secret contents in
+// extra) and its encoded variants (base64, base64-url, percent-encoding — see
+// scrub.Variants). GitHub masks each registered string in all subsequent log
+// output, which covers leak paths the streamed redactor never sees
+// (environment dumps, set -x traces from later steps).
+//
+// The caller gates this on Options.EmitGitHubMasks, an explicit operator
+// flag (--emit-github-masks). The GITHUB_ACTIONS environment variable is
+// deliberately not consulted: the environment is agent-reachable, so an
+// env-gated switch would let a contained agent dump every secret value to
+// stdout by setting one variable.
+//
+// Values shorter than scrub.MinSecretLen are skipped — a tiny needle would
+// mask half the log in false positives.
+func emitGitHubMasks(resolved map[string]string, extra []string) {
+	values := make([]string, 0, len(resolved)+len(extra))
+	seen := make(map[string]bool, len(resolved)+len(extra))
+	for _, v := range resolved {
+		if len(v) < scrub.MinSecretLen || seen[v] {
+			continue
+		}
+		seen[v] = true
+		values = append(values, v)
+	}
+	for _, v := range extra {
+		if len(v) < scrub.MinSecretLen || seen[v] {
+			continue
+		}
+		seen[v] = true
+		values = append(values, v)
+	}
+	sort.Strings(values)
+	for _, v := range values {
+		for _, variant := range scrub.Variants(v) {
+			fmt.Printf("::add-mask::%s\n", variant)
+		}
+	}
 }
 
 // RunWorkspace executes arbitrary argv only after the caller has authorized a

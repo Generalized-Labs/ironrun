@@ -265,3 +265,51 @@ commands:
 		t.Fatalf("duplicate direct entry error = %v", err)
 	}
 }
+
+func TestEffectiveNoNetwork(t *testing.T) {
+	cases := []struct {
+		name string
+		cmd  policy.Command
+		want bool
+	}{
+		{"secret-bearing defaults to deny (v1 env refs)", policy.Command{Env: map[string]string{"A": "ref"}}, true},
+		{"secret-bearing defaults to deny (v2 entry names)", policy.Command{Secrets: []string{"API_KEY"}}, true},
+		{"secretless defaults to allow", policy.Command{}, false},
+		{"explicit no_network deny wins", policy.Command{NoNetwork: true, AllowNetwork: true}, true},
+		{"explicit allow_network opts out", policy.Command{Env: map[string]string{"A": "ref"}, AllowNetwork: true}, false},
+		{"explicit no_network on secretless command", policy.Command{NoNetwork: true}, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.cmd.EffectiveNoNetwork(); got != tc.want {
+				t.Errorf("EffectiveNoNetwork() = %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
+func TestHasSecrets(t *testing.T) {
+	if (policy.Command{}).HasSecrets() {
+		t.Error("empty command should not be secret-bearing")
+	}
+	if !(policy.Command{Env: map[string]string{"A": "b"}}).HasSecrets() {
+		t.Error("command with Env refs should be secret-bearing")
+	}
+	if !(policy.Command{Secrets: []string{"X"}}).HasSecrets() {
+		t.Error("command with v2 entry bindings should be secret-bearing")
+	}
+}
+
+func TestParse_AllowNetworkField(t *testing.T) {
+	f, err := policy.Parse([]byte("version: \"2\"\nprovider: env\ncommands:\n- id: x\n  argv: [\"true\"]\n  secrets: [\"K\"]\n  allow_network: true\n"))
+	if err != nil {
+		t.Fatalf("parse failed: %v", err)
+	}
+	cmd := f.Commands[0]
+	if !cmd.AllowNetwork {
+		t.Error("expected allow_network: true to parse")
+	}
+	if cmd.EffectiveNoNetwork() {
+		t.Error("expected network allowed with allow_network: true")
+	}
+}

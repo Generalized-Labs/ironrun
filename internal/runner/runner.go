@@ -19,6 +19,7 @@ import (
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/policy"
 	"github.com/generalized-labs/ironrun/internal/redact"
+	"github.com/generalized-labs/ironrun/internal/sealedexec"
 )
 
 // Result holds the outcome of a sealed command execution.
@@ -29,6 +30,12 @@ type Result struct {
 	DurationMs      int64
 	Truncated       bool // true if output was capped by max_bytes
 	EntropyWarnings int  // count of high-entropy tokens flagged in (redacted) output
+	// SeccompInstalled/Detail report this run's seccomp outcome (per-run, not
+	// a process global, so concurrent runs cannot misattribute). Installed is
+	// set optimistically when the sealed-exec shim is armed and corrected
+	// post-run when the child never executed under the filter.
+	SeccompInstalled bool
+	SeccompDetail    string
 }
 
 // Options configures an execution.
@@ -47,10 +54,29 @@ type Options struct {
 	WorkDir string
 
 	// Seccomp, when non-nil and true, requests the Linux seccomp syscall filter.
-	// Callers resolve it from policy (Command.SeccompEnabled) and the
-	// IRONRUN_SECCOMP env kill-switch. Leave nil to skip (e.g. unit tests that
-	// call Run directly — see applySeccomp's note on the re-exec requirement).
+	// Callers resolve it from policy (Command.SeccompEnabled); the legacy
+	// IRONRUN_SECCOMP=off environment kill-switch is deliberately NOT honored
+	// (see execution.resolveSeccomp). Leave nil for the seal-only shim (no
+	// filter). Note the shim re-execs the calling binary (see armSealedExec):
+	// unit tests that call Run directly exercise it through the test binary.
 	Seccomp *bool
+	// DisableEntropyScan skips the post-run high-entropy scan of (redacted)
+	// output. This weakens a leak-detection control: it may only be set from an
+	// explicit operator flag (e.g. `ironrun run --disable-entropy-scan`), never
+	// from the environment, and its use is logged loudly to stderr.
+	DisableEntropyScan bool
+	// AllowPullRequestTarget permits secret exposure on GitHub
+	// pull_request_target CI events. Operator flag only
+	// (`--allow-pull-request-target`); the legacy IRONRUN_ALLOW_PRT=1
+	// environment variable is ignored.
+	AllowPullRequestTarget bool
+	// NoSeal disables the sealed-child hardening (RLIMIT_CORE=0, anti-core-dump)
+	// applied in the sealed-exec shim before execve of the target. Operator
+	// flag only (`--no-seal`); any inherited IRONRUN_NO_SEAL environment value
+	// is stripped and ignored. NOTE: the seal never blocked debugger attach —
+	// PR_SET_DUMPABLE cannot survive execve (see sealedexec) — it exists to
+	// keep secrets out of core dumps.
+	NoSeal bool
 	// Audit, when non-nil, receives one append-only entry per run. nil disables.
 	Audit *audit.Logger
 	// SessionID correlates audit entries from the same agent session / invocation.
@@ -79,8 +105,20 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		return nil, fmt.Errorf("%w: shell commands are not allowed (argv[0]=%q)", ErrDenied, cmd.Argv[0])
 	}
 
-	if err := checkCITrust(); err != nil {
+	if err := checkCITrust(opts.AllowPullRequestTarget); err != nil {
 		return nil, err
+	}
+	// The legacy environment kill-switches are no longer honored: a contained
+	// agent inherits the environment, so env-gated security controls are
+	// agent-reachable. Warn loudly when they are set so operators learn the new
+	// operator-flag-only mechanism instead of silently losing the control.
+	for _, kv := range [][2]string{
+		{"IRONRUN_ENTROPY_SCAN", "--disable-entropy-scan"},
+		{"IRONRUN_ALLOW_PRT", "--allow-pull-request-target"},
+	} {
+		if os.Getenv(kv[0]) != "" {
+			fmt.Fprintf(os.Stderr, "[ironrun] SECURITY WARNING: %s is set but no longer honored; use the %s operator flag instead\n", kv[0], kv[1])
+		}
 	}
 
 	// Resolve binary path.
@@ -168,17 +206,56 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	// Apply network isolation. This is a security control, so it FAILS CLOSED:
 	// if isolation cannot be enforced (unsupported platform, missing sandbox-exec),
 	// we refuse to run rather than execute with the network wide open.
-	if cmd.NoNetwork {
+	// Default-deny: secret-bearing commands get no network unless the policy
+	// explicitly opts out (allow_network: true); see EffectiveNoNetwork.
+	if cmd.EffectiveNoNetwork() {
 		if err := applyNetworkIsolation(c); err != nil {
 			return nil, err
 		}
 	}
 
-	// Apply seccomp syscall filtering (Linux; best-effort, fails open). Must come
-	// after network isolation so it wraps the final target.
-	seccompRequested := false
-	if opts.Seccomp != nil && *opts.Seccomp {
-		seccompRequested = applySeccomp(c)
+	// Arm the sealed-exec shim (Linux). The child seal (RLIMIT_CORE=0,
+	// anti-core-dump) is default-on for every run, INDEPENDENT of seccomp: the
+	// shim is armed whenever the seal is enabled or seccomp was requested.
+	// When seccomp was not requested the shim runs in seal-only mode
+	// (IRONRUN_SKIP_SECCOMP=1). Must come after network isolation so it wraps
+	// the final target. Everything here FAILS CLOSED: a hardening control that
+	// silently never applies would be a downgrade the audit log cannot
+	// distinguish from a real install.
+	// seccompInstalled/seccompDetail are per-run locals, deliberately NOT a
+	// process global: the audit entry and the returned Result both read them,
+	// so concurrent runs (e.g. local API requests served by net/http) can
+	// never misattribute another run's outcome to this one.
+	seccompInstalled := false
+	seccompDetail := "no run recorded yet"
+	seccompRequested := opts.Seccomp != nil && *opts.Seccomp
+	switch {
+	case runtime.GOOS != "linux":
+		// No shim off Linux (documented platform limitation).
+		seccompInstalled, seccompDetail = false, "not installed: sealed-exec shim unsupported on GOOS="+runtime.GOOS
+	case opts.NoSeal && !seccompRequested:
+		// Nothing to harden: seal explicitly disabled and no filter requested.
+		// (With seccomp requested the shim still arms for the filter.)
+		seccompInstalled, seccompDetail = false, "not requested"
+	default:
+		if _, err := armSealedExec(c, opts.NoSeal, seccompRequested); err != nil {
+			seccompInstalled, seccompDetail = false, "setup failed: "+err.Error()
+			return nil, err
+		}
+		if seccompRequested {
+			seccompInstalled, seccompDetail = true, "shim armed; filter installs in-child before execve (fail-closed)"
+		} else {
+			seccompInstalled, seccompDetail = false, "seal-only shim (seccomp not requested; filter skipped)"
+		}
+	}
+
+	if opts.NoSeal {
+		// Loud on purpose: disabling the seal re-enables core dumps of the
+		// secret-carrying child. Note it does NOT change debugger-attachability:
+		// PR_SET_DUMPABLE cannot survive execve (see sealedexec), so the seal
+		// never blocked debugger attach in the first place — it blocks core
+		// dumps. Use --no-seal only for post-mortem core debugging.
+		fmt.Fprintln(os.Stderr, "[ironrun] SECURITY WARNING: --no-seal: the secret-carrying child will NOT be sealed (RLIMIT_CORE=0 skipped — core dumps, which capture the child's secrets, are re-enabled)")
 	}
 
 	start := time.Now()
@@ -205,7 +282,7 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		switch {
 		case errors.Is(runCtx.Err(), context.DeadlineExceeded):
 			retErr = ErrTimeout
-		case cmd.NoNetwork && runtime.GOOS == "linux" && errors.Is(runErr, syscall.EPERM):
+		case cmd.EffectiveNoNetwork() && runtime.GOOS == "linux" && errors.Is(runErr, syscall.EPERM):
 			// CLONE_NEWNET denied at exec time (unprivileged user namespaces
 			// disabled): the child never started, so fail closed rather than
 			// report a confusing generic exec error.
@@ -224,10 +301,27 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 
 	truncated := maxBytes > 0 && (stdoutW.BytesWritten() >= maxBytes || stderrW.BytesWritten() >= maxBytes)
 
+	// Correct the pre-run seccomp status when the child never actually ran
+	// with the filter: the shim's fail-closed refusals (exits 124/125) and a
+	// failure to start the child at all both mean "installed" was never true
+	// for an executed command.
+	switch {
+	case startFailed:
+		seccompInstalled, seccompDetail = false, "child process never started"
+	case exitCode == sealedexec.ExitFilterRefused:
+		seccompInstalled, seccompDetail = false, "shim refused: seccomp filter install failed (fail-closed); child never executed"
+	case exitCode == sealedexec.ExitSealRefused:
+		seccompInstalled, seccompDetail = false, "shim refused: child seal failed (fail-closed); child never executed"
+	}
+
 	// Entropy warn pass (warn-only — never alters output). Runs on the already
 	// redacted buffers, so it only flags tokens that survived redaction.
+	// Operator-flag-only: the legacy IRONRUN_ENTROPY_SCAN=off environment
+	// kill-switch is ignored (warned about above).
 	entropyWarnings := 0
-	if os.Getenv("IRONRUN_ENTROPY_SCAN") != "off" {
+	if opts.DisableEntropyScan {
+		fmt.Fprintln(os.Stderr, "[ironrun] SECURITY WARNING: --disable-entropy-scan: skipping the high-entropy output scan; unredacted secrets in output will not be flagged")
+	} else {
 		hits := redact.ScanHighEntropy(stdoutBuf.String())
 		hits = append(hits, redact.ScanHighEntropy(stderrBuf.String())...)
 		entropyWarnings = len(hits)
@@ -268,7 +362,13 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 			Truncated:        truncated,
 			KillReason:       killReason,
 			SeccompRequested: seccompRequested,
-			NoNetwork:        cmd.NoNetwork,
+			SeccompInstalled: seccompInstalled,
+			SeccompDetail:    seccompDetail,
+			// secretValues already holds the exact values plus their encoded
+			// variants (mirroring the redactor registration above); the audit
+			// package scrubs all of them out of argv before writing.
+			ScrubValues: secretValues,
+			NoNetwork:   cmd.EffectiveNoNetwork(),
 		}
 		if err := opts.Audit.Append(entry); err != nil {
 			fmt.Fprintf(os.Stderr, "[ironrun] warning: audit append failed: %v\n", err)
@@ -283,30 +383,51 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	}
 
 	return &Result{
-		ExitCode:        exitCode,
-		Stdout:          stdoutBuf.String(),
-		Stderr:          stderrBuf.String(),
-		DurationMs:      elapsed.Milliseconds(),
-		Truncated:       truncated,
-		EntropyWarnings: entropyWarnings,
+		ExitCode:         exitCode,
+		Stdout:           stdoutBuf.String(),
+		Stderr:           stderrBuf.String(),
+		DurationMs:       elapsed.Milliseconds(),
+		Truncated:        truncated,
+		EntropyWarnings:  entropyWarnings,
+		SeccompInstalled: seccompInstalled,
+		SeccompDetail:    seccompDetail,
 	}, nil
 }
 
 // dangerousEnvPrefixes are environment variables that could be used to
-// hijack child process execution or inject code. We strip these entirely.
+// hijack child process execution or inject code. We strip these entirely from
+// the inherited environment (policy-declared env entries are operator intent
+// and are NOT stripped — only ambient inheritance is scrubbed).
 var dangerousEnvPrefixes = []string{
+	// Dynamic linker / loader injection (glibc, musl, dyld).
 	"LD_PRELOAD",
 	"LD_LIBRARY_PATH",
+	"LD_AUDIT", // glibc audit modules: attacker .so loaded into every process
 	"DYLD_INSERT_LIBRARIES",
 	"DYLD_LIBRARY_PATH",
+	// Shell startup hijack: shells execute these files/commands on startup.
 	"BASH_ENV",
 	"ENV",
+	"ZDOTDIR", // zsh reads startup files from $ZDOTDIR
 	"BASH_FUNC_",
 	"SHELLOPTS",
 	"BASHOPTS",
 	"CDPATH",
 	"GLOBIGNORE",
 	"PROMPT_COMMAND",
+	// Interpreter option/code injection: each of these makes the runtime load
+	// attacker-influenced code or search paths.
+	"PYTHON",            // PYTHONPATH/PYTHONHOME/PYTHONSTARTUP/PYTHONBREAKPOINT
+	"NODE_OPTIONS",      // node --require / --import via env
+	"RUBYOPT",           // ruby -r library injection
+	"RUBYLIB",           // ruby load-path hijack
+	"PERL5OPT",          // perl -M module injection
+	"PERL5LIB",          // perl @INC hijack
+	"JAVA_TOOL_OPTIONS", // JVM -javaagent/-agentpath native code
+	"JDK_JAVA_OPTIONS",  // same, java launcher
+	"_JAVA_OPTIONS",     // same, honored by the JVM
+	// Tool hijack: the child (or its grandchildren) may shell out to these.
+	"GIT_SSH", // GIT_SSH / GIT_SSH_COMMAND: command run in place of ssh
 }
 
 // isDangerousEnv checks if an env var should be stripped for security.
@@ -338,10 +459,13 @@ func buildEnv(extra []string, secrets map[string]string) []string {
 	return env
 }
 
-// checkCITrust fails closed on fork PRs and pull_request_target events
-// where untrusted code could trigger secret exposure.
-func checkCITrust() error {
-	// GITHUB_ACTIONS environment
+// checkCITrust fails closed on CI events where untrusted code could trigger
+// secret exposure: GitHub fork PRs and pull_request_target, GitLab fork merge
+// requests, CircleCI fork PR builds, and Jenkins change-request builds.
+// allowPullRequestTarget is the operator-flag-only escape hatch for GitHub
+// pull_request_target (the legacy IRONRUN_ALLOW_PRT=1 env form is ignored).
+func checkCITrust(allowPullRequestTarget bool) error {
+	// GitHub Actions environment
 	if os.Getenv("GITHUB_ACTIONS") == "true" {
 		event := os.Getenv("GITHUB_EVENT_NAME")
 		if event == "pull_request" {
@@ -354,10 +478,53 @@ func checkCITrust() error {
 		}
 		if event == "pull_request_target" {
 			// pull_request_target always gets secrets but runs in context of untrusted code.
-			// Require explicit opt-in via IRONRUN_ALLOW_PRT=1.
-			if os.Getenv("IRONRUN_ALLOW_PRT") != "1" {
-				return fmt.Errorf("%w: pull_request_target requires IRONRUN_ALLOW_PRT=1", ErrCIUntrusted)
+			// Require explicit operator opt-in via --allow-pull-request-target.
+			if !allowPullRequestTarget {
+				return fmt.Errorf("%w: pull_request_target requires --allow-pull-request-target", ErrCIUntrusted)
 			}
+			fmt.Fprintln(os.Stderr, "[ironrun] SECURITY WARNING: --allow-pull-request-target: exposing secrets to a pull_request_target CI run; the PR code is untrusted")
+		}
+	}
+
+	// GitLab CI environment. A merge-request pipeline whose source project
+	// differs from the MR's project is a fork MR: the code under test is
+	// untrusted. When the project IDs are unavailable we cannot prove the MR
+	// is same-project, so we fail closed.
+	if os.Getenv("GITLAB_CI") == "true" {
+		if os.Getenv("CI_PIPELINE_SOURCE") == "merge_request_event" {
+			src := os.Getenv("CI_MERGE_REQUEST_SOURCE_PROJECT_ID")
+			tgt := os.Getenv("CI_MERGE_REQUEST_PROJECT_ID")
+			switch {
+			case src != "" && tgt != "" && src != tgt:
+				return fmt.Errorf("%w: GitLab fork merge request (source project %q != target project %q)", ErrCIUntrusted, src, tgt)
+			case src == "" || tgt == "":
+				return fmt.Errorf("%w: GitLab merge request pipeline with unverifiable fork status", ErrCIUntrusted)
+			}
+		}
+	}
+
+	// CircleCI environment. CIRCLE_PR_NUMBER / CIRCLE_PR_USERNAME /
+	// CIRCLE_PR_REPONAME are only set for forked PR builds, so their presence
+	// is the fork signal.
+	if os.Getenv("CIRCLECI") == "true" {
+		if pr := os.Getenv("CIRCLE_PR_NUMBER"); pr != "" {
+			return fmt.Errorf("%w: CircleCI fork pull request build (CIRCLE_PR_NUMBER=%q)", ErrCIUntrusted, pr)
+		}
+		if user := os.Getenv("CIRCLE_PR_USERNAME"); user != "" {
+			return fmt.Errorf("%w: CircleCI fork pull request build (CIRCLE_PR_USERNAME=%q)", ErrCIUntrusted, user)
+		}
+	}
+
+	// Jenkins environment (multibranch / branch-source pipelines). CHANGE_ID
+	// is only set for change-request builds. CHANGE_FORK identifies the source
+	// fork when the branch-source plugin provides it; when it is absent we
+	// cannot prove the change is same-repo, so we fail closed either way.
+	if os.Getenv("JENKINS_URL") != "" || os.Getenv("JENKINS_HOME") != "" {
+		if changeID := os.Getenv("CHANGE_ID"); changeID != "" {
+			if fork := os.Getenv("CHANGE_FORK"); fork != "" {
+				return fmt.Errorf("%w: Jenkins change build %q from fork %q", ErrCIUntrusted, changeID, fork)
+			}
+			return fmt.Errorf("%w: Jenkins change build %q with unverifiable fork status", ErrCIUntrusted, changeID)
 		}
 	}
 	return nil

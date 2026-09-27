@@ -18,8 +18,10 @@ func lintCmd() *cobra.Command {
 		Use:   "lint",
 		Short: "Run security checks over the policy file",
 		Long: `lint runs opinionated security checks over the policy: shell/interpreter
-argv, missing ttl, secrets injected with open network egress, hardcoded
-credentials in argv, and a secret shared across too many commands.
+argv, missing ttl, secrets injected with explicitly-allowed network egress
+(secret-bearing commands get no network by default unless the policy sets
+allow_network: true), hardcoded credentials in argv, and a secret shared
+across too many commands.
 
 Exit is non-zero when any error-level finding is present (or any warning under
 --strict), so it can gate CI. 'validate' checks that the policy is well-formed;

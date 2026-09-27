@@ -66,17 +66,16 @@ func TestAddSecretTimingIssue_Documented(t *testing.T) {
 
 // This test demonstrates the window where AddSecret can fail
 func TestAddSecretHoldBufferWindow(t *testing.T) {
-	// If maxLen is N, we hold back N-1 bytes.
-	// So if we have a 10-byte secret, we hold 9 bytes.
-	// Any data beyond the held portion is emitted immediately.
+	// Hold-back covers the longest flex match span (2*maxLen+32), not just
+	// maxLen-1, so cross-chunk whitespace-tolerant matches are still caught.
+	// With a 6-byte secret the hold-back is 2*6+32 = 44 bytes.
 
 	var buf bytes.Buffer
-	// Create with a 6-byte secret so maxLen=6, hold=5
+	// Create with a 6-byte secret so the hold-back is 44 bytes
 	w := redact.New(&buf, []string{"AAAAAA"}, 0)
 
-	// Write 10 bytes - 5 will be emitted, 5 held
+	// Write 10 bytes - all held back (10 < 44), nothing emitted yet
 	w.Write([]byte("1234567890"))
-	// At this point "12345" has been emitted, "67890" is held
 
 	// Now add a new secret that appears in the emitted portion
 	w.AddSecret("234")
@@ -86,8 +85,13 @@ func TestAddSecretHoldBufferWindow(t *testing.T) {
 	w.Flush()
 
 	out := buf.String()
-	// "234" appears twice: once in already-emitted data (leaked), once in new data (redacted)
+	// "234" was added after "1234567890" was written, but nothing had been
+	// emitted yet (all 10 bytes were held back), so both occurrences redact.
 	count := strings.Count(out, "234")
 	t.Logf("Output: %q, count of '234': %d", out, count)
-	// First occurrence leaked because it was emitted before AddSecret was called
+	// With the larger hold-back the first occurrence no longer leaks the way
+	// it did when hold-back was maxLen-1.
+	if count != 0 {
+		t.Errorf("expected both occurrences redacted, %d leaked in %q", count, out)
+	}
 }

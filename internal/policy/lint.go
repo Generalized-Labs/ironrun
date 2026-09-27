@@ -77,7 +77,7 @@ func Lint(f *File) []Finding {
 	}
 
 	for _, c := range f.Commands {
-		hasSecrets := len(c.Env) > 0
+		hasSecrets := c.HasSecrets()
 		base := ""
 		if len(c.Argv) > 0 {
 			base = filepath.Base(c.Argv[0])
@@ -113,9 +113,14 @@ func Lint(f *File) []Finding {
 				fmt.Sprintf("ttl is %s with secrets injected; consider a shorter window.", c.TTL.Duration)})
 		}
 
-		if hasSecrets && !c.NoNetwork {
+		if hasSecrets && !c.EffectiveNoNetwork() {
 			out = append(out, Finding{SeverityWarn, "EGRESS_WITH_SECRETS", c.ID,
-				"secrets are injected with network access open; an exfiltration path exists. Set `no_network: true` unless the command needs the network."})
+				"secrets are injected with network access explicitly allowed (`allow_network: true`); an exfiltration path exists. Remove the opt-out unless the command genuinely needs egress."})
+		}
+
+		if hasSecrets && !c.NoNetwork && !c.AllowNetwork {
+			out = append(out, Finding{SeverityWarn, "NETWORK_DEFAULT_DENY", c.ID,
+				"no_network is not set: network access is blocked by default for this secret-bearing command, but the posture is implicit. Set `no_network: true` explicitly (or `allow_network: true` if it genuinely needs egress)."})
 		}
 
 		if hasSecrets && c.MaxBytes == 0 {

@@ -1,5 +1,6 @@
-# Binaries
-bin/
+# Binaries — anchored to repo root so the npm package's npm/bin/ironrun.js
+# entry point stays tracked (package.json "bin" points at it).
+/bin/
 /ironrun
 /ironrun-action
 *.test

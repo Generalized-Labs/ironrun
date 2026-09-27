@@ -131,7 +131,7 @@ func environmentSetTarget(m *envset.Manager, args []string) (string, string, err
 		return args[0], args[1], nil
 	}
 	if m.Meta.Active == "" {
-		return "", "", fmt.Errorf("no active environment; run `ironrun new NAME` first")
+		return "", "", fmt.Errorf("no active environment is selected for this project; create one with `ironrun new NAME`, then store values with `ironrun env set KEY`")
 	}
 	return m.Meta.Active, args[0], nil
 }
@@ -204,7 +204,7 @@ func envFileCmd() *cobra.Command {
 			environment, target, path = args[0], args[1], args[2]
 		} else {
 			if m.Meta.Active == "" {
-				return fmt.Errorf("no active environment; run `ironrun new NAME` first")
+				return fmt.Errorf("no active environment is selected for this project; create one with `ironrun new NAME`, then store values with `ironrun env set KEY`")
 			}
 			environment, target, path = m.Meta.Active, args[0], args[1]
 		}

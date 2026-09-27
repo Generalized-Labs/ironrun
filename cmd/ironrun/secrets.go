@@ -2,10 +2,12 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -224,6 +226,13 @@ func chooseStore(flag, declared string) string {
 }
 
 func readSecret(fromStdin, unsafe bool) (string, error) {
+	// Windows is cut from the OSS launch: terminal input cannot be masked
+	// securely on this platform, and ironrun refuses to read secrets in
+	// cleartext. Fail loudly before any secret value is read.
+	// See docs/windows.md.
+	if runtime.GOOS == "windows" {
+		return "", errors.New("Windows is not supported by ironrun: terminal input cannot be masked securely on this platform")
+	}
 	if fromStdin {
 		if !unsafe {
 			return "", fmt.Errorf("--from-stdin requires explicit --unsafe")
@@ -238,10 +247,37 @@ func readSecret(fromStdin, unsafe bool) (string, error) {
 	if f.Mode()&os.ModeCharDevice == 0 {
 		return "", fmt.Errorf("refusing non-terminal input; use --from-stdin --unsafe explicitly")
 	}
+	return readSecretMasked(os.Stdin, disableTerminalEcho, restoreTerminalEcho)
+}
+
+// disableTerminalEcho and restoreTerminalEcho are package variables (not
+// plain functions) so tests can inject failures and assert that ironrun
+// aborts instead of degrading to cleartext input. Stdin must be wired to the
+// real terminal: with nil stdin Go hands the child /dev/null and stty always
+// fails, which would make every masked read abort.
+var disableTerminalEcho = func() error {
+	c := exec.Command("stty", "-echo")
+	c.Stdin = os.Stdin
+	return c.Run()
+}
+var restoreTerminalEcho = func() error {
+	c := exec.Command("stty", "echo")
+	c.Stdin = os.Stdin
+	return c.Run()
+}
+
+func readSecretMasked(in *os.File, disable, restore func() error) (string, error) {
 	fmt.Fprint(os.Stderr, "Secret value (input hidden): ")
-	_ = exec.Command("stty", "-echo").Run()
-	defer func() { _ = exec.Command("stty", "echo").Run(); fmt.Fprintln(os.Stderr) }()
-	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err := disable(); err != nil {
+		// Masking failed (e.g. stty missing or stdin not a real terminal):
+		// abort rather than read the secret in cleartext. On any platform.
+		return "", fmt.Errorf("cannot mask terminal input securely: %w (refusing to read the secret in cleartext)", err)
+	}
+	defer func() {
+		_ = restore() // best-effort; the secret was already read or the read failed
+		fmt.Fprintln(os.Stderr)
+	}()
+	line, err := bufio.NewReader(in).ReadString('\n')
 	if err != nil && err != io.EOF {
 		return "", err
 	}

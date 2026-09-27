@@ -62,22 +62,25 @@ jobs:
         if: contains(github.ref_name, '-rc.')
         continue-on-error: true
         working-directory: npm
-        run: npm publish --access public --tag next
+        run: npm publish --access public --provenance --tag next
 
       - name: Publish stable npm launcher
         if: ${{ !contains(github.ref_name, '-rc.') }}
         continue-on-error: true
         working-directory: npm
-        run: npm publish --access public --tag latest
+        run: npm publish --access public --provenance --tag latest
 
       - name: Keyless-sign release artifacts and checksums
         shell: bash
         run: |
           set -euo pipefail
-          for artifact in dist/*.tar.gz dist/*.zip dist/checksums.txt; do
+          # install.sh is uploaded as a release asset by goreleaser
+          # (release.extra_files); sign it here so it ships with a bundle like
+          # every other artifact, as the release header promises.
+          for artifact in dist/*.tar.gz dist/*.zip dist/checksums.txt install.sh; do
             [ -f "$artifact" ] || continue
             cosign sign-blob --yes --bundle "${artifact}.sigstore.json" "$artifact"
           done
-          gh release upload "$GITHUB_REF_NAME" dist/*.sigstore.json --clobber
+          gh release upload "$GITHUB_REF_NAME" dist/*.sigstore.json install.sh.sigstore.json --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

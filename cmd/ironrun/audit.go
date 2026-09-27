@@ -28,7 +28,9 @@ func auditVerifyCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path := logPath
 			if path == "" {
-				// Resolve via env > policy > default; loading the policy is best-effort.
+				// Resolve via the policy file's audit_log field, else the built-in
+				// default; loading the policy is best-effort. (The legacy
+				// IRONRUN_AUDIT_LOG env var is deliberately not honored.)
 				policyField := ""
 				if f, err := policy.Load(policyPath); err == nil {
 					policyField = f.AuditLog
@@ -51,6 +53,6 @@ func auditVerifyCmd() *cobra.Command {
 			return nil
 		},
 	}
-	c.Flags().StringVar(&logPath, "log", "", "Path to the audit log (default: resolved from env/policy)")
+	c.Flags().StringVar(&logPath, "log", "", "Path to the audit log (default: resolved from the policy file's audit_log: field, else the built-in default)")
 	return c
 }

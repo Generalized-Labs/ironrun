@@ -5,8 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -224,7 +227,6 @@ func TestRun_CITrustedPR(t *testing.T) {
 }
 
 func TestRun_PullRequestTargetDeniedWithoutFlag(t *testing.T) {
-	os.Unsetenv("IRONRUN_ALLOW_PRT")
 	t.Setenv("GITHUB_ACTIONS", "true")
 	t.Setenv("GITHUB_EVENT_NAME", "pull_request_target")
 
@@ -238,14 +240,114 @@ func TestRun_PullRequestTargetDeniedWithoutFlag(t *testing.T) {
 func TestRun_PullRequestTargetAllowedWithFlag(t *testing.T) {
 	t.Setenv("GITHUB_ACTIONS", "true")
 	t.Setenv("GITHUB_EVENT_NAME", "pull_request_target")
-	t.Setenv("IRONRUN_ALLOW_PRT", "1")
 
+	cmd := makeCmd("echo", "", "echo", "hi")
+	res, err := runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{},
+		AllowPullRequestTarget: true, // operator flag, replaces IRONRUN_ALLOW_PRT=1
+	})
+	if err != nil {
+		t.Errorf("expected success with AllowPullRequestTarget: %v", err)
+	}
+	_ = res
+}
+
+func TestRun_PullRequestTargetEnvKillSwitchIgnored(t *testing.T) {
+	t.Setenv("GITHUB_ACTIONS", "true")
+	t.Setenv("GITHUB_EVENT_NAME", "pull_request_target")
+	t.Setenv("IRONRUN_ALLOW_PRT", "1") // legacy env form: must be ignored
+
+	cmd := makeCmd("echo", "", "echo", "hi")
+	_, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
+	if !errors.Is(err, runner.ErrCIUntrusted) {
+		t.Errorf("expected IRONRUN_ALLOW_PRT=1 to be ignored, got %v", err)
+	}
+}
+
+// captureStderr redirects os.Stderr for the duration of fn and returns what was
+// written. Tests in this package never run in parallel, so this is safe.
+func captureStderr(t *testing.T, fn func()) string {
+	t.Helper()
+	old := os.Stderr
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	os.Stderr = w
+	defer func() { os.Stderr = old }()
+	fn()
+	_ = w.Close()
+	out, _ := io.ReadAll(r)
+	return string(out)
+}
+
+func TestRun_EntropyScanEnvKillSwitchIgnored(t *testing.T) {
+	t.Setenv("IRONRUN_ENTROPY_SCAN", "off") // legacy env form: must be ignored
+	cmd := makeCmd("echo", "", "echo", "zQ3xV7bN2mK8pL4sT6wY9")
+	var stderr string
+	var res *runner.Result
+	stderr = captureStderr(t, func() {
+		var err error
+		res, err = runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
+		if err != nil {
+			t.Errorf("unexpected run error: %v", err)
+		}
+	})
+	if res == nil || res.EntropyWarnings == 0 {
+		t.Errorf("expected entropy scan to run despite IRONRUN_ENTROPY_SCAN=off, got %+v", res)
+	}
+	if !strings.Contains(stderr, "no longer honored") {
+		t.Errorf("expected loud warning about the dead env var, got %q", stderr)
+	}
+}
+
+func TestRun_DisableEntropyScanFlagWeakensLoudly(t *testing.T) {
+	cmd := makeCmd("echo", "", "echo", "zQ3xV7bN2mK8pL4sT6wY9")
+	var res *runner.Result
+	stderr := captureStderr(t, func() {
+		var err error
+		res, err = runner.Run(context.Background(), cmd, runner.Options{
+			Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, DisableEntropyScan: true,
+		})
+		if err != nil {
+			t.Errorf("unexpected run error: %v", err)
+		}
+	})
+	if res == nil || res.EntropyWarnings != 0 {
+		t.Errorf("expected scan skipped with flag, got %+v", res)
+	}
+	if !strings.Contains(stderr, "SECURITY WARNING") || !strings.Contains(stderr, "--disable-entropy-scan") {
+		t.Errorf("expected loud SECURITY WARNING for --disable-entropy-scan, got %q", stderr)
+	}
+}
+
+func TestRun_NoSealFlagWarnsLoudly(t *testing.T) {
+	cmd := makeCmd("echo", "", "echo", "hi")
+	stderr := captureStderr(t, func() {
+		_, err := runner.Run(context.Background(), cmd, runner.Options{
+			Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, NoSeal: true,
+		})
+		if err != nil {
+			t.Errorf("unexpected run error: %v", err)
+		}
+	})
+	if !strings.Contains(stderr, "SECURITY WARNING") || !strings.Contains(stderr, "--no-seal") {
+		t.Errorf("expected loud SECURITY WARNING for --no-seal, got %q", stderr)
+	}
+}
+
+func TestSeccompInstalled_AfterRunNotRequested(t *testing.T) {
 	cmd := makeCmd("echo", "", "echo", "hi")
 	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
 	if err != nil {
-		t.Errorf("expected success with IRONRUN_ALLOW_PRT=1: %v", err)
+		t.Fatalf("unexpected run error: %v", err)
 	}
-	_ = res
+	if res.SeccompInstalled {
+		t.Errorf("expected installed=false when seccomp not requested (detail %q)", res.SeccompDetail)
+	}
+	if !strings.Contains(res.SeccompDetail, "not requested") {
+		t.Errorf("expected detail to explain non-installation, got %q", res.SeccompDetail)
+	}
 }
 
 func TestRun_WorkDir(t *testing.T) {
@@ -275,5 +377,211 @@ func TestRun_ContextCancelled(t *testing.T) {
 	_, err := runner.Run(ctx, cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
 	if err == nil {
 		t.Error("expected error when context cancelled")
+	}
+}
+
+// usernsNetAvailable reports whether this host can create unprivileged network
+// namespaces — the mechanism behind no_network on Linux.
+func usernsNetAvailable() bool {
+	p, err := exec.LookPath("unshare")
+	if err != nil {
+		return false
+	}
+	c := exec.Command(p, "-Urn", "true")
+	return c.Run() == nil
+}
+
+func TestRun_NoNetworkDefaultDenyForSecretBearingCommands(t *testing.T) {
+	if runtime.GOOS != "linux" || !usernsNetAvailable() {
+		t.Skip("requires Linux with unprivileged network namespaces")
+	}
+	logPath := filepath.Join(t.TempDir(), "audit.log")
+	logger, err := audit.Open(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer logger.Close()
+
+	// Secret-bearing command, no explicit network setting: default deny.
+	cmd := makeCmd("echo", "", "echo", "hi")
+	cmd.Secrets = []string{"API_KEY"}
+	if _, err := runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Audit: logger,
+		Secrets: map[string]string{"API_KEY": "supersecretvalue"},
+	}); err != nil {
+		t.Fatalf("secret-bearing run failed: %v", err)
+	}
+	// Secretless command: network stays open.
+	cmd2 := makeCmd("echo2", "", "echo", "hi")
+	if _, err := runner.Run(context.Background(), cmd2, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Audit: logger,
+	}); err != nil {
+		t.Fatalf("secretless run failed: %v", err)
+	}
+
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	lines := bytes.Split(bytes.TrimSpace(data), []byte("\n"))
+	if len(lines) != 2 {
+		t.Fatalf("expected 2 audit entries, got %d", len(lines))
+	}
+	var secretEntry, plainEntry audit.Entry
+	if err := json.Unmarshal(lines[0], &secretEntry); err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(lines[1], &plainEntry); err != nil {
+		t.Fatal(err)
+	}
+	if !secretEntry.NoNetwork {
+		t.Error("secret-bearing command without explicit network setting was not network-isolated (default deny)")
+	}
+	if plainEntry.NoNetwork {
+		t.Error("secretless command should keep network access by default")
+	}
+}
+
+func TestRun_NoNetworkExplicitOptOut(t *testing.T) {
+	if runtime.GOOS != "linux" || !usernsNetAvailable() {
+		t.Skip("requires Linux with unprivileged network namespaces")
+	}
+	logPath := filepath.Join(t.TempDir(), "audit.log")
+	logger, err := audit.Open(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer logger.Close()
+
+	cmd := makeCmd("echo", "", "echo", "hi")
+	cmd.Secrets = []string{"API_KEY"}
+	cmd.AllowNetwork = true // explicit operator opt-out of the default deny
+	if _, err := runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Audit: logger,
+		Secrets: map[string]string{"API_KEY": "supersecretvalue"},
+	}); err != nil {
+		t.Fatalf("run with allow_network failed: %v", err)
+	}
+	data, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var entry audit.Entry
+	if err := json.Unmarshal(bytes.TrimSpace(data), &entry); err != nil {
+		t.Fatal(err)
+	}
+	if entry.NoNetwork {
+		t.Error("allow_network: true should opt out of network isolation")
+	}
+}
+
+func TestSeccompInstalled_SealOnlyShim(t *testing.T) {
+	// Seccomp not requested, seal on (default): the seal-only shim arms, but
+	// the filter is skipped, so installed=false with a seal-only detail.
+	cmd := makeCmd("echo", "", "echo", "hi")
+	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
+	if err != nil {
+		t.Fatalf("unexpected run error: %v", err)
+	}
+	if res.SeccompInstalled {
+		t.Errorf("expected installed=false in seal-only mode (detail %q)", res.SeccompDetail)
+	}
+	if !strings.Contains(res.SeccompDetail, "seal-only") {
+		t.Errorf("expected seal-only detail, got %q", res.SeccompDetail)
+	}
+}
+
+func TestSeccompInstalled_FilterRequested(t *testing.T) {
+	// Full hardening via the test binary's own re-exec: the shim installs the
+	// real filter in-child and the run completes, so installed=true.
+	seccomp := true
+	cmd := makeCmd("echo", "", "echo", "hi")
+	res, err := runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Seccomp: &seccomp,
+	})
+	if err != nil {
+		t.Fatalf("unexpected run error: %v", err)
+	}
+	if !res.SeccompInstalled {
+		t.Errorf("expected installed=true after a filtered run (detail %q)", res.SeccompDetail)
+	}
+}
+
+func TestSeccompInstalled_NothingHardened(t *testing.T) {
+	// NoSeal + no seccomp: no shim at all.
+	seccomp := false
+	cmd := makeCmd("echo", "", "echo", "hi")
+	res, err := runner.Run(context.Background(), cmd, runner.Options{
+		Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}, Seccomp: &seccomp, NoSeal: true,
+	})
+	if err != nil {
+		t.Fatalf("unexpected run error: %v", err)
+	}
+	if res.SeccompInstalled || res.SeccompDetail != "not requested" {
+		t.Errorf("expected (false, \"not requested\"), got (%v, %q)", res.SeccompInstalled, res.SeccompDetail)
+	}
+}
+
+func TestRun_ShimSentinelsStrippedFromTarget(t *testing.T) {
+	// End-to-end: the target's environment must not contain any shim sentinel,
+	// whether the shim runs in full or seal-only mode.
+	t.Setenv("IRONRUN_NO_SEAL", "1")      // must be stripped: env can't disable the seal
+	t.Setenv("IRONRUN_SKIP_SECCOMP", "1") // must be stripped: env can't skip the filter
+	t.Setenv("IRONRUN_SEALED_EXEC", "1")  // must be stripped: env can't fake the dispatch
+	for _, seccomp := range []*bool{nil, boolPtr(true)} {
+		var out bytes.Buffer
+		cmd := makeCmd("env", "", "env")
+		_, err := runner.Run(context.Background(), cmd, runner.Options{
+			Stdout: &out, Stderr: &bytes.Buffer{}, Seccomp: seccomp,
+		})
+		if err != nil {
+			t.Fatalf("env run failed (seccomp=%v): %v", seccomp, err)
+		}
+		for _, line := range strings.Split(out.String(), "\n") {
+			if strings.HasPrefix(line, "IRONRUN_NO_SEAL=") ||
+				strings.HasPrefix(line, "IRONRUN_SKIP_SECCOMP=") ||
+				strings.HasPrefix(line, "IRONRUN_SEALED_EXEC=") {
+				t.Errorf("shim sentinel leaked into target env (seccomp=%v): %q", seccomp, line)
+			}
+		}
+	}
+}
+
+func boolPtr(b bool) *bool { return &b }
+
+// TestRun_SeccompStatusPerRun: the seccomp outcome must be reported per-run
+// on the Result, never via a process-global. Under concurrency (e.g. the
+// local API serving parallel /v1/run requests) a last-write-wins global
+// misattributes one run's seccomp_installed value to another run's audit
+// record. Here two concurrent runs request different outcomes and each
+// Result must carry its own.
+func TestRun_SeccompStatusPerRun(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("seccomp install expectations are Linux-specific")
+	}
+	yes := true
+	type outcome struct {
+		res *runner.Result
+		err error
+	}
+	withFilter := make(chan outcome, 1)
+	sealOnly := make(chan outcome, 1)
+	go func() {
+		res, err := runner.Run(context.Background(), makeCmd("echo", "", "echo", "hi"), runner.Options{Stdout: io.Discard, Seccomp: &yes})
+		withFilter <- outcome{res, err}
+	}()
+	go func() {
+		res, err := runner.Run(context.Background(), makeCmd("echo", "", "echo", "hi"), runner.Options{Stdout: io.Discard})
+		sealOnly <- outcome{res, err}
+	}()
+	a, b := <-withFilter, <-sealOnly
+	if a.err != nil || b.err != nil {
+		t.Fatalf("runs failed: %v %v", a.err, b.err)
+	}
+	if !a.res.SeccompInstalled || !strings.Contains(a.res.SeccompDetail, "shim armed") {
+		t.Errorf("seccomp-requested run: got (%v, %q), want installed with %q", a.res.SeccompInstalled, a.res.SeccompDetail, "shim armed")
+	}
+	if b.res.SeccompInstalled {
+		t.Errorf("seal-only run must report installed=false, got detail %q", b.res.SeccompDetail)
 	}
 }

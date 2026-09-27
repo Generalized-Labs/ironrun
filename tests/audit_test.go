@@ -4,22 +4,20 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 func TestAudit_WriteVerifyAndTamper(t *testing.T) {
 	logPath := filepath.Join(t.TempDir(), "audit.log")
-	policy := writeTempPolicyFile(t, `version: "1"
-provider: passthrough
-commands:
-  - id: greet
-    argv: [echo, hello]
-    ttl: 5s
-`)
-	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath, "IRONRUN_SECCOMP=off")
+	policy := writeTempPolicyFile(t, "version: \"1\"\nprovider: passthrough\naudit_log: "+strconv.Quote(logPath)+"\ncommands:\n  - id: greet\n    argv: [echo, hello]\n    ttl: 5s\n")
+	// Seccomp is irrelevant to what this test checks (audit integrity), so
+	// disable it explicitly for determinism. The legacy IRONRUN_SECCOMP=off
+	// kill-switch is no longer honored; use the operator flag instead.
+	env := os.Environ()
 
-	run := exec.Command(cliBin, "--policy", policy, "run", "greet")
+	run := exec.Command(cliBin, "--policy", policy, "run", "--disable-seccomp", "greet")
 	run.Env = env
 	if out, err := run.CombinedOutput(); err != nil {
 		t.Fatalf("run greet failed: %v\n%s", err, out)
@@ -66,20 +64,13 @@ commands:
 func TestAudit_NoSecretValues(t *testing.T) {
 	const canary = "ironrun-audit-canary-Zq8mP4"
 	logPath := filepath.Join(t.TempDir(), "audit.log")
-	policy := writeTempPolicyFile(t, `version: "1"
-provider: env
-commands:
-  - id: dump
-    argv: [printenv, MYSECRET]
-    ttl: 5s
-    env:
-      MYSECRET: env:MYSECRET
-`)
+	policy := writeTempPolicyFile(t, "version: \"1\"\nprovider: env\naudit_log: "+strconv.Quote(logPath)+"\ncommands:\n  - id: dump\n    argv: [printenv, MYSECRET]\n    ttl: 5s\n    env:\n      MYSECRET: env:MYSECRET\n")
 	// Seccomp is irrelevant to what this test checks (audit content), so disable
-	// it for determinism — the dedicated seccomp tests cover that path.
-	env := append(os.Environ(), "IRONRUN_AUDIT_LOG="+logPath, "MYSECRET="+canary, "IRONRUN_SECCOMP=off")
+	// it explicitly for determinism — the dedicated seccomp tests cover that path.
+	// The legacy IRONRUN_SECCOMP=off kill-switch is no longer honored.
+	env := append(os.Environ(), "MYSECRET="+canary)
 
-	run := exec.Command(cliBin, "--policy", policy, "run", "dump")
+	run := exec.Command(cliBin, "--policy", policy, "run", "--disable-seccomp", "dump")
 	run.Env = env
 	out, runErr := run.CombinedOutput() // printenv exits 0; output is redacted
 	if strings.Contains(string(out), canary) {

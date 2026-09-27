@@ -29,7 +29,9 @@ type File struct {
 	// syscall filter (Linux). nil means "on". A command's own Seccomp overrides it.
 	SeccompDefault *bool `yaml:"seccomp_default"`
 	// AuditLog overrides the audit log path ("off" disables auditing). When empty,
-	// the IRONRUN_AUDIT_LOG env var or the per-user default location is used.
+	// the per-user default location is used. The legacy IRONRUN_AUDIT_LOG env
+	// var is deliberately NOT honored (agent-reachable kill-switch); if set, a
+	// loud SECURITY WARNING is emitted instead.
 	AuditLog string `yaml:"audit_log"`
 	// AllowProposals lets agents stage NEW commands (via the propose_command MCP
 	// tool) for the user to approve. Off by default. The run path NEVER executes
@@ -66,8 +68,12 @@ type Command struct {
 	Secrets   []string          `yaml:"secrets"`    // onboarding aliases declared in File.Secrets
 	TTL       Duration          `yaml:"ttl"`        // max wall-clock duration
 	MaxBytes  int64             `yaml:"max_bytes"`  // cap on total output bytes (0=unlimited)
-	NoNetwork bool              `yaml:"no_network"` // block child network (best-effort)
-	WorkDir   string            `yaml:"workdir"`    // optional working directory
+	NoNetwork bool              `yaml:"no_network"` // block child network (explicit deny)
+	// AllowNetwork is the explicit opt-out of the default-deny posture: a
+	// secret-bearing command gets no network unless allow_network: true is set.
+	// An explicit no_network: true always wins over allow_network: true.
+	AllowNetwork bool   `yaml:"allow_network"`
+	WorkDir      string `yaml:"workdir"` // optional working directory
 	// Seccomp toggles the Linux seccomp syscall filter for this command. nil
 	// means "use the policy default" (which itself defaults to on). Set false to
 	// opt a command out — e.g. a debugger/strace that legitimately needs ptrace.
@@ -84,6 +90,27 @@ func (c *Command) SeccompEnabled(f *File) bool {
 		return *f.SeccompDefault
 	}
 	return true
+}
+
+// HasSecrets reports whether the command carries secrets — either via the v1
+// provider refs (Env) or the v2 environment-entry bindings (Secrets).
+func (c Command) HasSecrets() bool {
+	return len(c.Env) > 0 || len(c.Secrets) > 0
+}
+
+// EffectiveNoNetwork resolves whether network isolation must be enforced for
+// this command. Posture is default-deny for secret-bearing commands: an
+// explicit no_network: true always denies; an explicit allow_network: true
+// opts out; otherwise a command that carries secrets gets no network, and a
+// command without secrets keeps network access.
+func (c Command) EffectiveNoNetwork() bool {
+	if c.NoNetwork {
+		return true
+	}
+	if c.AllowNetwork {
+		return false
+	}
+	return c.HasSecrets()
 }
 
 // Duration is a yaml-decodable time.Duration.

@@ -1,0 +1,36 @@
+name: Fuzz
+
+# Short fuzzing runs over the redactor's adversarial seed corpus
+# (internal/redact/fuzz_test.go). Catches regressions in exact, nested,
+# whitespace-tolerant and fragment matching. Runs on changes to the redactor
+# and weekly on a schedule.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'internal/redact/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'internal/redact/**'
+  schedule:
+    - cron: '0 6 * * 1' # weekly Monday 06:00 UTC
+
+jobs:
+  fuzz:
+    name: Fuzz redactor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Seed corpus as unit tests
+        run: go test ./internal/redact/ -run 'FuzzRedact' -v -count=1
+
+      - name: Short fuzz run
+        run: go test ./internal/redact/ -fuzz='FuzzRedact' -fuzztime=60s

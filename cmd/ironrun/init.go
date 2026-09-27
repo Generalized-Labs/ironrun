@@ -2,6 +2,9 @@ package main
 
 import (
 	"bytes"
+	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -11,7 +14,10 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/daemon"
+	"github.com/generalized-labs/ironrun/internal/envset"
+	"github.com/generalized-labs/ironrun/internal/execution"
 )
 
 func initCmd() *cobra.Command {
@@ -41,7 +47,7 @@ that need credentials.`,
 			stdout, _ := os.Stdout.Stat()
 			interactive := stdout != nil && stdout.Mode()&os.ModeCharDevice != 0
 			if interactive && !yes {
-				fmt.Println("Setup preview (secret values are never read):")
+				fmt.Println("Setup preview (secret values are never displayed, stored, or transmitted):")
 				fmt.Println("  • ironrun.yml — reviewed commands and secret names")
 				fmt.Println("  • .mcp.json — project MCP registration")
 				fmt.Println("  • CLAUDE.md, AGENTS.md, .cursorrules — agent safety instructions")
@@ -132,12 +138,93 @@ that need credentials.`,
 			fmt.Println("  • Claude Code: uses .mcp.json (per-project, already set up)")
 			fmt.Println("  • Codex:       uses ~/.codex/config.toml (global, registered above)")
 			fmt.Println("  • Cursor:      uses ~/.cursor/mcp.json (global, merged above)")
+
+			if interactive && !yes {
+				fmt.Println()
+				if demo, _ := confirm("Run the 60-second guided demo? It stores a throwaway demo secret and shows sealed redaction live. [y/N] "); demo {
+					runGuidedDemo(cwd)
+				} else {
+					fmt.Println("Skipped. Take it later any time: store a secret with `ironrun env set DEMO_TOKEN`,")
+					fmt.Println("then run `ironrun run <command-id>` and watch values come back [REDACTED].")
+				}
+			}
 			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&yes, "yes", false, "confirm the setup file preview non-interactively")
 	cmd.Flags().BoolVar(&installDaemon, "daemon", false, "install and start the value-blind user service")
 	return cmd
+}
+
+// runGuidedDemo walks a new user through ironrun's core loop in about a
+// minute: store one throwaway secret, then run a sealed command that prints
+// it — showing the value redacted before it reaches the screen. The demo
+// value is randomly generated, so even a failure leaks nothing real.
+//
+// It teaches as it goes: masked input (never flags), encrypted-at-rest
+// storage, below-visibility injection into the child, and output redaction.
+func runGuidedDemo(cwd string) {
+	fmt.Println()
+	fmt.Println("—— Guided demo: your first sealed secret ——")
+	fmt.Println()
+	fmt.Println("Step 1 of 3 — store a demo secret.")
+	fmt.Println("  I'll generate a random throwaway token, so nothing real is at")
+	fmt.Println("  stake. Storing a real secret looks the same, except you type the")
+	fmt.Println("  value into a masked prompt:  ironrun env set API_KEY")
+	fmt.Println("  (values are never passed as flags — flags leak into shell history")
+	fmt.Println("  and process lists).")
+
+	var raw [12]byte
+	if _, err := rand.Read(raw[:]); err != nil {
+		fmt.Printf("  Could not generate a demo token: %v\n", err)
+		fmt.Println("  Skip the demo and store a real secret instead: ironrun env set API_KEY")
+		return
+	}
+	demoValue := "demo-" + hex.EncodeToString(raw[:])
+
+	manager, err := envset.Open(cwd)
+	if err != nil {
+		fmt.Printf("  Could not open the encrypted environment store: %v\n", err)
+		fmt.Println("  Run `ironrun doctor` to diagnose, then take the demo again any time.")
+		return
+	}
+	set, err := manager.Ensure("dev")
+	if err != nil {
+		fmt.Printf("  Could not prepare the dev environment: %v\n", err)
+		return
+	}
+	if err := manager.Put(set.Name, "DEMO_TOKEN", demoValue); err != nil {
+		fmt.Printf("  Could not store the demo secret: %v\n", err)
+		fmt.Println("  The manual equivalent: ironrun env set DEMO_TOKEN")
+		return
+	}
+	fmt.Println("  ✓ Stored DEMO_TOKEN in the dev environment — encrypted at rest,")
+	fmt.Println("    and the value never touched your shell history on the way in.")
+	fmt.Println()
+	fmt.Println("Step 2 of 3 — run a sealed command that prints it on purpose.")
+	fmt.Println("  The child process really receives DEMO_TOKEN in its environment.")
+	fmt.Println("  ironrun redacts the value from the output before it reaches your")
+	fmt.Println("  screen — or your agent's context. Watch for it:")
+	fmt.Println()
+	fmt.Println("  $ printenv DEMO_TOKEN   (sealed: injected below visibility, output redacted)")
+	if _, err := execution.RunWorkspace(context.Background(), cwd, set.Name,
+		[]string{"printenv", "DEMO_TOKEN"},
+		execution.Options{Stdout: os.Stdout, Stderr: os.Stderr, SessionID: audit.NewSessionID()}); err != nil {
+		fmt.Printf("  The sealed run failed: %v\n", err)
+		fmt.Println("  Run `ironrun doctor` to diagnose. The everyday equivalent is")
+		fmt.Println("  `ironrun run <command-id>` for any command in ironrun.yml.")
+		return
+	}
+	fmt.Println()
+	fmt.Println("Step 3 of 3 — that's the whole model:")
+	fmt.Println("  • Secrets live encrypted at rest; ironrun.yml holds only names.")
+	fmt.Println("  • Values resolve into the child process's environment only —")
+	fmt.Println("    never your shell, never the agent's context, never disk.")
+	fmt.Println("  • Everything the child prints is redacted before anyone sees it.")
+	fmt.Println()
+	fmt.Println("  Clean up the demo:   ironrun env delete dev DEMO_TOKEN")
+	fmt.Println("  Store a real secret: ironrun env set API_KEY   (masked prompt)")
+	fmt.Println("  Run a real command:  ironrun run <command-id>")
 }
 
 // writeAgentInstructions writes the rendered instructions to cwd/name unless the

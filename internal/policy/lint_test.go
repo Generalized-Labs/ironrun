@@ -56,13 +56,46 @@ func TestLint_NoTTL(t *testing.T) {
 
 func TestLint_EgressWithSecrets(t *testing.T) {
 	f := &File{Commands: []Command{{
-		ID:   "x",
-		Argv: []string{"go", "test"},
-		TTL:  dur(t, "5m"),
-		Env:  map[string]string{"DB": "op://v/i/f"}, // NoNetwork defaults false
+		ID:           "x",
+		Argv:         []string{"go", "test"},
+		TTL:          dur(t, "5m"),
+		Env:          map[string]string{"DB": "op://v/i/f"},
+		AllowNetwork: true, // explicit opt-out of the default deny
 	}}}
 	if got := findingByCode(Lint(f), "EGRESS_WITH_SECRETS"); got == nil || got.Severity != SeverityWarn {
 		t.Errorf("expected EGRESS_WITH_SECRETS warn, got %+v", got)
+	}
+}
+
+func TestLint_EgressWithSecretsDefaultDeny(t *testing.T) {
+	// A secret-bearing command with no network setting is denied by default:
+	// no EGRESS_WITH_SECRETS, but a NETWORK_DEFAULT_DENY warning nudging the
+	// author to make the posture explicit (per the spec: lint warns when a
+	// secret-bearing command lacks no_network).
+	f := &File{Commands: []Command{{
+		ID:   "x",
+		Argv: []string{"go", "test"},
+		TTL:  dur(t, "5m"),
+		Env:  map[string]string{"DB": "op://v/i/f"},
+	}}}
+	if got := findingByCode(Lint(f), "EGRESS_WITH_SECRETS"); got != nil {
+		t.Errorf("expected no EGRESS_WITH_SECRETS under default deny, got %+v", got)
+	}
+	if got := findingByCode(Lint(f), "NETWORK_DEFAULT_DENY"); got == nil || got.Severity != SeverityWarn {
+		t.Errorf("expected NETWORK_DEFAULT_DENY warn, got %+v", got)
+	}
+}
+
+func TestLint_NoSecretsNoNetworkFindings(t *testing.T) {
+	f := &File{Commands: []Command{{
+		ID:   "x",
+		Argv: []string{"go", "test"},
+		TTL:  dur(t, "5m"),
+	}}}
+	for _, code := range []string{"EGRESS_WITH_SECRETS", "NETWORK_DEFAULT_DENY"} {
+		if got := findingByCode(Lint(f), code); got != nil {
+			t.Errorf("expected no %s for secretless command, got %+v", code, got)
+		}
 	}
 }
 

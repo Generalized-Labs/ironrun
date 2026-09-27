@@ -29,6 +29,9 @@ func main() {
 Secrets are resolved from your secret manager, injected into the child process
 environment, and redacted from all stdout/stderr output before the agent sees it.`,
 		SilenceUsage: true,
+		// Errors print through reportError (errors.go) so every failure gets
+		// a teaching hint; cobra must not print them first.
+		SilenceErrors: true,
 	}
 
 	root.PersistentFlags().StringVarP(&policyPath, "policy", "p", "ironrun.yml", "Path to policy file")
@@ -46,6 +49,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 		&cobra.Group{ID: "agents", Title: "Agents and sharing:"},
 		&cobra.Group{ID: "setup", Title: "Setup and safety:"},
 		&cobra.Group{ID: "advanced", Title: "Advanced commands:"},
+		&cobra.Group{ID: "leak-prevention", Title: "Leak prevention:"},
 	)
 	add := func(group string, commands ...*cobra.Command) {
 		for _, command := range commands {
@@ -57,8 +61,10 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 	add("agents", trustCmd(), accessCmd(), capsuleCmd(), mcpCmd(), daemonCmd(), serveCmd())
 	add("setup", initCmd(), migrateCmd(), doctorCmd(), validateCmd(), lintCmd())
 	add("advanced", projectsCmd(), auditCmd(), reviewCmd(), approveCmd(), rejectCmd(), secretsCmd(), versionCmd())
+	add("leak-prevention", agentScrubCmd(), gitCmd(), ghCmd(), shellCmd(), historyCmd())
 
 	if err := root.Execute(); err != nil {
+		reportError(root, err)
 		os.Exit(1)
 	}
 }
@@ -66,6 +72,7 @@ environment, and redacted from all stdout/stderr output before the agent sees it
 // runCmd: ironrun run <command-id> [-- extra validation args]
 func runCmd() *cobra.Command {
 	var setName string
+	var disableSeccomp, disableEntropyScan, allowPRT, noSeal, emitGitHubMasks bool
 	c := &cobra.Command{
 		Use:     "run <command-id>",
 		Aliases: []string{"exec"},
@@ -86,6 +93,9 @@ func runCmd() *cobra.Command {
 			res, err := execution.Run(context.Background(), f, policyPath, policyProjectRoot(policyPath), args[0], execution.Options{
 				Environment: setName, Stdout: os.Stdout, Stderr: os.Stderr,
 				Audit: auditLog, SessionID: audit.NewSessionID(),
+				DisableSeccomp: disableSeccomp, DisableEntropyScan: disableEntropyScan,
+				AllowPullRequestTarget: allowPRT, NoSeal: noSeal,
+				EmitGitHubMasks: emitGitHubMasks,
 			})
 			if err != nil {
 				return fmt.Errorf("execution failed: %w", err)
@@ -100,6 +110,20 @@ func runCmd() *cobra.Command {
 		},
 	}
 	c.Flags().StringVar(&setName, "set", "", "environment set to use for this run (overrides the active set)")
+	c.Flags().BoolVar(&disableSeccomp, "disable-seccomp", false,
+		"WEAKENS SECURITY: do not install the Linux seccomp syscall filter for this run. The filter blocks ptrace/memory-read syscalls in the child; disabling it is only for diagnosing filter breakage. Logged loudly.")
+	c.Flags().BoolVar(&disableEntropyScan, "disable-entropy-scan", false,
+		"WEAKENS SECURITY: skip the post-run high-entropy scan that flags possibly-unredacted secrets in output. Logged loudly.")
+	c.Flags().BoolVar(&allowPRT, "allow-pull-request-target", false,
+		"WEAKENS SECURITY: allow secret exposure on GitHub pull_request_target CI events. pull_request_target runs untrusted PR code with secrets; only pass this when you have reviewed the PR. Logged loudly.")
+	c.Flags().BoolVar(&noSeal, "no-seal", false,
+		"WEAKENS SECURITY: do not seal the secret-carrying child (skips RLIMIT_CORE=0, re-enabling core dumps that capture the child's secrets). "+
+			"TRADEOFF, stated plainly: the seal blocks CORE DUMPS, not debuggers — PR_SET_DUMPABLE cannot survive execve, so a same-UID debugger can attach to the child either way; use host Yama ptrace_scope if you need that. "+
+			"Use --no-seal only when you need post-mortem core debugging of the child. Logged loudly.")
+	c.Flags().BoolVar(&emitGitHubMasks, "emit-github-masks", false,
+		"Emit ::add-mask:: workflow commands for every managed secret value (GitHub Actions log masking). "+
+			"Operator flag only: pass it when you know this run is inside GitHub Actions. "+
+			"The GITHUB_ACTIONS environment variable is deliberately NOT consulted, because the environment is agent-reachable.")
 	return c
 }
 

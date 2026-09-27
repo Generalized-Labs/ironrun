@@ -1,12 +1,28 @@
 # ironrun GitHub Action
 # Runs a sealed command from your ironrun.yml policy inside GitHub Actions.
-# Secrets are injected into the child process and redacted from all logs —
-# they never appear in CI output, environment dumps, or fork-PR-visible logs.
+#
+# Install: downloads the PREBUILT ironrun release for the runner platform and
+# verifies it before executing anything (fail closed):
+#   1. checksums.txt is Sigstore-verified (keyless cosign, GitHub OIDC
+#      identity of the ironrun release workflow);
+#   2. the tarball's SHA-256 matches checksums.txt;
+#   3. the tarball's own Sigstore bundle verifies.
+# Nothing is installed unless all three checks pass. The Action never builds
+# from source, so no Go toolchain is needed on the runner.
+#
+# Run: executes the sealed command via the verified `ironrun` binary
+# (`ironrun run --emit-github-masks`). Secrets are injected into the child
+# process and redacted from all logs — they never appear in CI output,
+# environment dumps, or fork-PR-visible logs. The --emit-github-masks flag
+# opts in to GitHub's ::add-mask:: log masking (mask emission is an explicit
+# operator flag, never implicit). Fork-PR runs are refused before any secret
+# resolves.
 #
 # Inputs:
 #   command_id  (required)  The policy command ID to execute
 #   policy      (optional)  Path to policy file (default: ironrun.yml)
-#   version     (optional)  ironrun version to install (default: latest)
+#   version     (optional)  Full release tag (e.g. v0.4.1), or "latest"
+#                           (default: latest)
 #
 # Outputs:
 #   exit_code   Exit code of the command
@@ -38,7 +54,7 @@ inputs:
     required: false
     default: ironrun.yml
   version:
-    description: ironrun version to install (a released tag, or "latest")
+    description: ironrun version to install (a full release tag like v0.4.1, or "latest")
     required: false
     default: latest
 
@@ -56,14 +72,153 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: "1.26"
-
-    - name: Install ironrun
+    - name: Download verified ironrun release
       shell: bash
-      run: go install "github.com/generalized-labs/ironrun/cmd/ironrun-action@${{ inputs.version }}"
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+      run: |
+        # Mirrors the verification flow of install.sh (the canonical source —
+        # bump COSIGN_VERSION/hashes together with that script):
+        #   1. cosign-verify checksums.txt (Sigstore, keyless, GitHub OIDC)
+        #   2. SHA-256-check the tarball against checksums.txt
+        #   3. cosign-verify the tarball's own Sigstore bundle
+        # Fail closed at every step: nothing is installed unless all pass.
+        set -euo pipefail
+
+        REPO="generalized-labs/ironrun"
+        VERSION="${INPUT_VERSION:-latest}"
+
+        # Pinned cosign used when no `cosign` is on PATH. Hashes captured from
+        # the official sigstore/cosign release page over TLS.
+        COSIGN_VERSION="v2.4.3"
+        COSIGN_SHA256_LINUX_X86_64="caaad125acef1cb81d58dcdc454a1e429d09a750d1e9e2b3ed1aed8964454708"
+        COSIGN_SHA256_LINUX_ARM64="bd0f9763bca54de88699c3656ade2f39c9a1c7a2916ff35601caf23a79be0629"
+        COSIGN_SHA256_DARWIN_X86_64="98a3bfd691f42c6a5b721880116f89210d8fdff61cc0224cd3ef2f8e55a466fb"
+        COSIGN_SHA256_DARWIN_ARM64="edfc761b27ced77f0f9ca288ff4fac7caa898e1e9db38f4dfdf72160cdf8e638"
+
+        # Expected keyless Sigstore identity: the ironrun release workflow
+        # signing from a tag (see .github/workflows/release.yml).
+        SIGSTORE_IDENTITY_REGEXP='^https://github\.com/generalized-labs/ironrun/\.github/workflows/release\.yml@refs/tags/'
+        SIGSTORE_OIDC_ISSUER='https://token.actions.githubusercontent.com'
+
+        # --- resolve version ---
+        if [ "$VERSION" = "latest" ]; then
+          echo "Resolving latest ironrun release..."
+          VERSION="$(curl -fsSL --proto '=https' --tlsv1.2 \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/releases/latest" \
+            | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+          [ -n "$VERSION" ] || { echo "::error::could not determine the latest ironrun release"; exit 1; }
+          echo "Latest release: $VERSION"
+        fi
+        # The version ends up in download URLs: refuse anything but a plain
+        # release tag, end-anchored (a trailing `*` in a case pattern would
+        # admit `v1.2.3;evil`). Pre-release tags like v0.4.1-rc.1 are allowed.
+        if ! printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+          echo "::error::refusing suspicious version string: $VERSION (want a full tag like v0.4.1, or \"latest\")"; exit 1
+        fi
+
+        # --- detect platform ---
+        OS="$(uname -s)"
+        ARCH="$(uname -m)"
+        case "$OS" in
+          Linux)  OS="Linux" ;;
+          Darwin) OS="Darwin" ;;
+          *) echo "::error::unsupported operating system: $OS"; exit 1 ;;
+        esac
+        case "$ARCH" in
+          x86_64|amd64) ARCH="x86_64" ;;
+          arm64|aarch64) ARCH="arm64" ;;
+          *) echo "::error::unsupported architecture: $ARCH"; exit 1 ;;
+        esac
+        PLATFORM="${OS}_${ARCH}"
+        TARBALL="ironrun_${PLATFORM}.tar.gz"
+        BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+
+        echo "Downloading ironrun ${VERSION} for ${PLATFORM}..."
+        TMP="$(mktemp -d)"
+        trap 'rm -rf "$TMP"' EXIT
+        fetch() {
+          curl -fsSL --retry 2 --proto '=https' --tlsv1.2 "$1" -o "$2" \
+            || { echo "::error::download failed: $1"; exit 1; }
+        }
+        fetch "${BASE_URL}/${TARBALL}" "$TMP/$TARBALL"
+        fetch "${BASE_URL}/checksums.txt" "$TMP/checksums.txt"
+        # Sigstore bundles only exist on releases cut after artifact signing
+        # landed (Phase 0, item 0.8). Fail closed with a clear message when a
+        # release predates signing — never silently skip verification.
+        fetch_bundle() {
+          curl -fsSL --retry 2 --proto '=https' --tlsv1.2 "$1" -o "$2" 2>/dev/null \
+            || { echo "::error::download failed: $1 — this release ships no Sigstore bundle (it predates artifact signing and cannot be verified); use a signed release"; exit 1; }
+        }
+        fetch_bundle "${BASE_URL}/checksums.txt.sigstore.json" "$TMP/checksums.txt.sigstore.json"
+        fetch_bundle "${BASE_URL}/${TARBALL}.sigstore.json" "$TMP/$TARBALL.sigstore.json"
+
+        sha256_of() {
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum "$1" | awk '{print $1}'
+          else
+            shasum -a 256 "$1" | awk '{print $1}'
+          fi
+        }
+
+        # --- provision cosign: system copy if present, else the pinned release
+        # binary, whose SHA-256 is checked against the hash baked in above
+        # before it is executed ---
+        if command -v cosign >/dev/null 2>&1; then
+          COSIGN="cosign"
+          echo "Using system cosign: $(command -v cosign)"
+        else
+          case "$PLATFORM" in
+            Linux_x86_64)  COSIGN_FILE="cosign-linux-amd64";   EXPECTED_COSIGN_SHA="$COSIGN_SHA256_LINUX_X86_64" ;;
+            Linux_arm64)   COSIGN_FILE="cosign-linux-arm64";   EXPECTED_COSIGN_SHA="$COSIGN_SHA256_LINUX_ARM64" ;;
+            Darwin_x86_64) COSIGN_FILE="cosign-darwin-amd64";  EXPECTED_COSIGN_SHA="$COSIGN_SHA256_DARWIN_X86_64" ;;
+            Darwin_arm64)  COSIGN_FILE="cosign-darwin-arm64";  EXPECTED_COSIGN_SHA="$COSIGN_SHA256_DARWIN_ARM64" ;;
+          esac
+          echo "Fetching pinned cosign ${COSIGN_VERSION} (${COSIGN_FILE})..."
+          fetch "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/${COSIGN_FILE}" "$TMP/cosign"
+          ACTUAL_COSIGN_SHA="$(sha256_of "$TMP/cosign")"
+          [ "$ACTUAL_COSIGN_SHA" = "$EXPECTED_COSIGN_SHA" ] \
+            || { echo "::error::cosign SHA-256 mismatch; refusing to verify with an untrusted tool"; exit 1; }
+          chmod 755 "$TMP/cosign"
+          COSIGN="$TMP/cosign"
+        fi
+
+        # --- 1. Sigstore-verify checksums.txt (fail closed) ---
+        echo "Verifying checksums.txt signature (Sigstore)..."
+        "$COSIGN" verify-blob \
+          --bundle "$TMP/checksums.txt.sigstore.json" \
+          --certificate-identity-regexp "$SIGSTORE_IDENTITY_REGEXP" \
+          --certificate-oidc-issuer "$SIGSTORE_OIDC_ISSUER" \
+          "$TMP/checksums.txt" > /dev/null \
+          || { echo "::error::checksums.txt Sigstore verification FAILED; refusing to install"; exit 1; }
+
+        # --- 2. SHA-256-verify the tarball against the now-trusted checksums.txt ---
+        echo "Verifying ${TARBALL} checksum..."
+        EXPECTED="$(awk -v file="$TARBALL" '$2 == file { print $1 }' "$TMP/checksums.txt")"
+        [ -n "$EXPECTED" ] || { echo "::error::no checksum entry for ${TARBALL} in checksums.txt; refusing to install"; exit 1; }
+        ACTUAL="$(sha256_of "$TMP/$TARBALL")"
+        [ "$ACTUAL" = "$EXPECTED" ] \
+          || { echo "::error::checksum MISMATCH for ${TARBALL}; refusing to install"; exit 1; }
+        echo "Checksum OK"
+
+        # --- 3. Sigstore-verify the tarball bundle itself (fail closed) ---
+        echo "Verifying ${TARBALL} signature (Sigstore)..."
+        "$COSIGN" verify-blob \
+          --bundle "$TMP/$TARBALL.sigstore.json" \
+          --certificate-identity-regexp "$SIGSTORE_IDENTITY_REGEXP" \
+          --certificate-oidc-issuer "$SIGSTORE_OIDC_ISSUER" \
+          "$TMP/$TARBALL" > /dev/null \
+          || { echo "::error::${TARBALL} Sigstore verification FAILED; refusing to install"; exit 1; }
+        echo "Signature OK — release is authentic"
+
+        # --- extract and expose on PATH for the next step ---
+        BIN_DIR="${RUNNER_TEMP}/ironrun/bin"
+        mkdir -p "$BIN_DIR"
+        tar -xzf "$TMP/$TARBALL" -C "$TMP"
+        install -m755 "$TMP/ironrun" "$BIN_DIR/ironrun"
+        echo "$BIN_DIR" >> "$GITHUB_PATH"
+        echo "ironrun ${VERSION} verified and installed (Sigstore + SHA-256, fail-closed)"
 
     - name: Run sealed command
       id: run
@@ -71,4 +226,53 @@ runs:
       env:
         INPUT_COMMAND_ID: ${{ inputs.command_id }}
         INPUT_POLICY: ${{ inputs.policy }}
-      run: ironrun-action
+      run: |
+        # Executes the sealed command with the verified prebuilt binary:
+        # GHA inputs, policy path resolved against GITHUB_WORKSPACE, and the
+        # exit_code / duration_ms / truncated step outputs.
+        set -euo pipefail
+
+        # Millisecond clock: GNU date (Linux runners) supports %3N; BSD date
+        # (macOS runners) prints it literally, so fall back to seconds.
+        now_ms() {
+          local t
+          t="$(date +%s%3N 2>/dev/null)" || t=""
+          case "$t" in
+            ''|*%*|*[!0-9]*) t="$(date +%s)000" ;;
+          esac
+          printf '%s' "$t"
+        }
+
+        command_id="${INPUT_COMMAND_ID:?input 'command_id' is required}"
+        policy="${INPUT_POLICY:-ironrun.yml}"
+        if [ -n "${GITHUB_WORKSPACE:-}" ]; then
+          case "$policy" in
+            /*) ;;
+            *) policy="${GITHUB_WORKSPACE}/${policy}" ;;
+          esac
+        fi
+
+        start_ms="$(now_ms)"
+        set +e
+        # --emit-github-masks: opt IN to GitHub log masking. Mask emission is
+        # an explicit operator flag (never implicit on GITHUB_ACTIONS), so the
+        # Action passes it here where masking is wanted.
+        ironrun run --emit-github-masks --policy "$policy" "$command_id" 2> "${RUNNER_TEMP}/ironrun-stderr.log"
+        code=$?
+        set -e
+        end_ms="$(now_ms)"
+
+        {
+          echo "exit_code=${code}"
+          echo "duration_ms=$((end_ms - start_ms))"
+          if grep -q "output truncated at max_bytes" "${RUNNER_TEMP}/ironrun-stderr.log" 2>/dev/null; then
+            echo "truncated=true"
+          else
+            echo "truncated=false"
+          fi
+        } >> "$GITHUB_OUTPUT"
+        cat "${RUNNER_TEMP}/ironrun-stderr.log" >&2
+        if [ "$code" -ne 0 ]; then
+          echo "::error::command \"${command_id}\" exited with code ${code}"
+        fi
+        exit "$code"

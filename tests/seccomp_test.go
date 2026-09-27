@@ -2,7 +2,6 @@ package tests
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
@@ -25,6 +24,7 @@ func runProbe(t *testing.T, probe string, seccompOn bool) string {
 	t.Helper()
 	policy := writeTempPolicyFile(t, fmt.Sprintf(`version: "1"
 provider: passthrough
+audit_log: off
 commands:
   - id: probe
     argv: [%s]
@@ -32,7 +32,6 @@ commands:
     seccomp: %t
 `, probe, seccompOn))
 	cmd := exec.Command(cliBin, "--policy", policy, "run", "probe")
-	cmd.Env = append(os.Environ(), "IRONRUN_AUDIT_LOG=off")
 	out, _ := cmd.CombinedOutput()
 	return string(out)
 }
@@ -69,6 +68,7 @@ func TestSeccomp_NormalCommandUnaffected(t *testing.T) {
 	}
 	policy := writeTempPolicyFile(t, `version: "1"
 provider: passthrough
+audit_log: off
 commands:
   - id: greet
     argv: [echo, hello-world]
@@ -76,7 +76,6 @@ commands:
     seccomp: true
 `)
 	cmd := exec.Command(cliBin, "--policy", policy, "run", "greet")
-	cmd.Env = append(os.Environ(), "IRONRUN_AUDIT_LOG=off")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("echo under seccomp should succeed: %v\n%s", err, out)

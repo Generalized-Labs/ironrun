@@ -22,6 +22,12 @@ request is necessary, but it is not the release decision by itself.
 - [ ] Scan policies, registries, metadata, logs, snapshots, caches, artifacts,
       fixtures, and Git history for test-secret literals and encoded forms
 - [ ] Verify SBOMs, checksums, npm provenance, and Sigstore bundles
+- [ ] Run `install.sh` end-to-end against the release: tampered tarball and
+      missing/altered Sigstore bundle must abort the install (fail closed)
+- [ ] Homebrew formula (`Formula/ironrun.rb`) sha256s match the release
+      `checksums.txt`; tap installs and `ironrun version` matches the tag
+- [ ] npm launcher: `manifest.json` hashes match the release archives;
+      cold-cache install fetches and verifies the binary
 - [ ] OpenSSF Scorecard and repository security checks pass
 
 ## Required product proofs

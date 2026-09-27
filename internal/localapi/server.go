@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -71,18 +72,20 @@ func (s *Server) Handler() http.Handler {
 }
 
 func Serve(ctx context.Context, f *policy.File, policyPath, root, socketPath string) error {
-	if err := prepareSocket(socketPath); err != nil {
-		return err
+	if runtime.GOOS == "windows" {
+		// Fail closed: the owner-only socket guarantee relies on Unix
+		// permissions (umask 0077 + chmod 0600). On Windows chmod is a
+		// near-no-op (read-only bit only, no ACL restriction), so the socket
+		// would be reachable by other users on the machine. Refuse rather
+		// than serve with a weaker guarantee than documented.
+		return errors.New("ironrun serve is not supported on Windows: the local API's owner-only Unix socket guarantee cannot be enforced there")
 	}
-	listener, err := net.Listen("unix", socketPath)
+	listener, err := listenSecureSocket(socketPath)
 	if err != nil {
-		return fmt.Errorf("listen on local socket: %w", err)
+		return err
 	}
 	defer listener.Close()
 	defer os.Remove(socketPath) //nolint:errcheck
-	if err := os.Chmod(socketPath, 0600); err != nil {
-		return fmt.Errorf("secure local socket: %w", err)
-	}
 	server, err := New(f, policyPath, root)
 	if err != nil {
 		return err
@@ -103,6 +106,28 @@ func Serve(ctx context.Context, f *policy.File, policyPath, root, socketPath str
 		return nil
 	}
 	return err
+}
+
+// listenSecureSocket binds the owner-only Unix socket so it is never visible
+// with wider permissions, even briefly. Go cannot pass a file mode to bind,
+// so the umask is narrowed around the listen call — the only atomic option
+// for Unix sockets. (Umask is process-global; this runs once at startup
+// before serving.) The explicit Chmod afterwards is defense in depth.
+func listenSecureSocket(socketPath string) (net.Listener, error) {
+	if err := prepareSocket(socketPath); err != nil {
+		return nil, err
+	}
+	restoreUmask := narrowUmask()
+	listener, err := net.Listen("unix", socketPath)
+	restoreUmask()
+	if err != nil {
+		return nil, fmt.Errorf("listen on local socket: %w", err)
+	}
+	if err := os.Chmod(socketPath, 0600); err != nil {
+		_ = listener.Close()
+		return nil, fmt.Errorf("secure local socket: %w", err)
+	}
+	return listener, nil
 }
 
 func prepareSocket(path string) error {
@@ -198,6 +223,39 @@ func (s *Server) run(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusNotFound, "command is not in the policy")
 		return
 	}
+	if s.policy.RequireAgentLeases {
+		environment, err := s.leaseEnvironment(request.Environment)
+		if err != nil {
+			writeError(w, http.StatusServiceUnavailable, "project environment is unavailable")
+			return
+		}
+		if err := s.access.Authorize(s.sessionID, environment, request.CommandID); err != nil {
+			if errors.Is(err, access.ErrUnauthorized) {
+				// There is no standing lease for the API session, so create
+				// (or reuse) a lease request the operator can approve. Without
+				// this, /v1/run could never succeed under require_agent_leases:
+				// the MCP request_lease tool is bound to MCP sessions and the
+				// API session ID is never exposed. createRequest dedupes, so a
+				// repeat call returns the existing pending request.
+				req, reqErr := s.access.CreateLeaseRequest(s.sessionID, environment,
+					[]string{request.CommandID}, access.DefaultRequestTTL,
+					"local API run request for "+request.CommandID)
+				msg := "agent lease required for this command"
+				if reqErr == nil {
+					msg = fmt.Sprintf("agent lease required for this command — lease request %s is pending; approve it with: ironrun agents approve %s", req.ID, req.ID)
+				}
+				writeError(w, http.StatusForbidden, msg)
+			} else {
+				writeError(w, http.StatusServiceUnavailable, "access state unavailable")
+			}
+			return
+		}
+		// Pin the authorized environment for execution: leaseEnvironment may
+		// resolve the active set, and re-resolving inside execution.Run would
+		// be a TOCTOU if the active environment changed between the check
+		// and the run.
+		request.Environment = environment
+	}
 	result, err := execution.Run(r.Context(), s.policy, s.policyPath, s.root, request.CommandID, execution.Options{
 		Environment: request.Environment, Stdout: io.Discard, Stderr: io.Discard,
 		Audit: s.audit, SessionID: s.sessionID,
@@ -211,6 +269,29 @@ func (s *Server) run(w http.ResponseWriter, r *http.Request) {
 		"duration_ms": result.DurationMs, "truncated": result.Truncated,
 		"entropy_warnings": result.EntropyWarnings,
 	})
+}
+
+// leaseEnvironment resolves the environment a lease check binds to, using the
+// same convention as the MCP path: the caller's explicit environment wins,
+// otherwise the active environment set, defaulting to "default" when the
+// policy does not use environment entries. The lease must be granted for the
+// same environment string the MCP path would authorize against.
+func (s *Server) leaseEnvironment(requested string) (string, error) {
+	if requested != "" {
+		return requested, nil
+	}
+	if !s.policy.UsesEnvironmentEntries() && s.policy.EnvironmentSet != "active" {
+		return "default", nil
+	}
+	manager, err := envset.Open(s.root)
+	if err != nil {
+		return "", err
+	}
+	active, err := manager.Active()
+	if err != nil {
+		return "", err
+	}
+	return active.Name, nil
 }
 
 func (s *Server) denyRequest(w http.ResponseWriter, r *http.Request) {
@@ -228,7 +309,14 @@ func (s *Server) revokeLease(w http.ResponseWriter, r *http.Request) {
 	if err := requireEmptyBody(w, r); err != nil {
 		return
 	}
-	if err := s.access.Revoke(r.PathValue("id"), ""); err != nil {
+	// Thread the local API's own session ID so the session-ownership check in
+	// access.Revoke applies: this endpoint revokes the local API session's own
+	// leases, exactly like the MCP revoke_own_lease tool.
+	if err := s.access.Revoke(r.PathValue("id"), s.sessionID); err != nil {
+		if errors.Is(err, access.ErrUnauthorized) {
+			writeError(w, http.StatusForbidden, "lease belongs to a different session")
+			return
+		}
 		writeError(w, http.StatusNotFound, "lease not found")
 		return
 	}
