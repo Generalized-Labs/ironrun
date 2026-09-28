@@ -21,3 +21,4 @@ jobs:
         with:
           project: zrhdl83c6z
           context: .
+          token: ${{ secrets.DEPOT_TOKEN }}
