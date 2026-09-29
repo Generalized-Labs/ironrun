@@ -239,7 +239,8 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		seccompInstalled, seccompDetail = false, "not requested"
 	default:
 		if _, err := armSealedExec(c, opts.NoSeal, seccompRequested); err != nil {
-			seccompInstalled, seccompDetail = false, "setup failed: "+err.Error()
+			// The run itself fails closed at this point; the per-run seccomp
+			// outcome is never reported, so no detail assignment is needed.
 			return nil, err
 		}
 		if seccompRequested {

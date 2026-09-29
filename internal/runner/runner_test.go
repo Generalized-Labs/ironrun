@@ -336,7 +336,17 @@ func TestRun_NoSealFlagWarnsLoudly(t *testing.T) {
 	}
 }
 
+// SkipSeccompOutsideLinux gates the shim-specific tests: the sealed-exec shim
+// and its sentinel handling are Linux-only by design (runner.go: no shim off
+// Linux), so these expectations cannot hold on darwin/windows.
+func SkipSeccompOutsideLinux(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skipf("sealed-exec shim expectations are Linux-specific; GOOS=%s has no shim", runtime.GOOS)
+	}
+}
+
 func TestSeccompInstalled_AfterRunNotRequested(t *testing.T) {
+	SkipSeccompOutsideLinux(t)
 	cmd := makeCmd("echo", "", "echo", "hi")
 	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
 	if err != nil {
@@ -476,6 +486,7 @@ func TestRun_NoNetworkExplicitOptOut(t *testing.T) {
 }
 
 func TestSeccompInstalled_SealOnlyShim(t *testing.T) {
+	SkipSeccompOutsideLinux(t)
 	// Seccomp not requested, seal on (default): the seal-only shim arms, but
 	// the filter is skipped, so installed=false with a seal-only detail.
 	cmd := makeCmd("echo", "", "echo", "hi")
@@ -492,6 +503,7 @@ func TestSeccompInstalled_SealOnlyShim(t *testing.T) {
 }
 
 func TestSeccompInstalled_FilterRequested(t *testing.T) {
+	SkipSeccompOutsideLinux(t)
 	// Full hardening via the test binary's own re-exec: the shim installs the
 	// real filter in-child and the run completes, so installed=true.
 	seccomp := true
@@ -508,6 +520,7 @@ func TestSeccompInstalled_FilterRequested(t *testing.T) {
 }
 
 func TestSeccompInstalled_NothingHardened(t *testing.T) {
+	SkipSeccompOutsideLinux(t)
 	// NoSeal + no seccomp: no shim at all.
 	seccomp := false
 	cmd := makeCmd("echo", "", "echo", "hi")
@@ -523,6 +536,7 @@ func TestSeccompInstalled_NothingHardened(t *testing.T) {
 }
 
 func TestRun_ShimSentinelsStrippedFromTarget(t *testing.T) {
+	SkipSeccompOutsideLinux(t)
 	// End-to-end: the target's environment must not contain any shim sentinel,
 	// whether the shim runs in full or seal-only mode.
 	t.Setenv("IRONRUN_NO_SEAL", "1")      // must be stripped: env can't disable the seal

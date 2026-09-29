@@ -47,6 +47,7 @@ commands:
   - id: show-key
     argv: [printenv, OPENROUTER_API_KEY]
     secrets: [openrouter]
+    allow_network: true
     ttl: 5s
 `
 

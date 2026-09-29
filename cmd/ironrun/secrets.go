@@ -231,7 +231,7 @@ func readSecret(fromStdin, unsafe bool) (string, error) {
 	// cleartext. Fail loudly before any secret value is read.
 	// See docs/windows.md.
 	if runtime.GOOS == "windows" {
-		return "", errors.New("Windows is not supported by ironrun: terminal input cannot be masked securely on this platform")
+		return "", errors.New("windows is not supported by ironrun: terminal input cannot be masked securely on this platform")
 	}
 	if fromStdin {
 		if !unsafe {
