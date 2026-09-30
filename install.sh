@@ -54,7 +54,7 @@ COSIGN_SHA256_LINUX_ARM64="bd0f9763bca54de88699c3656ade2f39c9a1c7a2916ff35601caf
 
 # Expected keyless Sigstore identity: the ironrun release workflow signing
 # from a tag (see .github/workflows/release.yml).
-SIGSTORE_IDENTITY_REGEXP="^https://github\\.com/generalized-labs/ironrun/\\.github/workflows/release\\.yml@refs/tags/"
+SIGSTORE_IDENTITY_REGEXP="^https://github\\.com/[Gg]eneralized-[Ll]abs/ironrun/\\.github/workflows/release\\.yml@refs/tags/"
 SIGSTORE_OIDC_ISSUER="https://token.actions.githubusercontent.com"
 
 MODE="install"
