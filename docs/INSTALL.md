@@ -79,7 +79,7 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
 
 | Method | Command | Verification |
 |---|---|---|
-| Homebrew tap | `brew tap generalized-labs/ironrun && brew install ironrun` | url sha256 pin + cosign bundle check in the formula (`Formula/ironrun.rb` is the canonical source; publish it to the tap repo at `Formula/ironrun.rb`) |
+| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | url sha256 pin + cosign bundle check in the formula (`Formula/ironrun.rb` is published to `Generalized-Labs/homebrew-tap` by goreleaser on every tag (brews section)) |
 | npm / npx | `npx @generalized-labs/ironrun` | postinstall pre-warms the cache; every run re-verifies archive + binary size and SHA-256 against the release manifest (`npm/manifest.json`, built at release time by `npm/scripts/build-manifest.mjs`) |
 | Go | `go install github.com/generalized-labs/ironrun/cmd/ironrun@v0.4.1` | Go module checksum DB (`GONOSUMDB` off by default); binary prints its own VCS stamping via `ironrun version -v` |
 

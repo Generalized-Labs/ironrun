@@ -32,6 +32,16 @@ builds:
       - -X github.com/generalized-labs/ironrun/internal/buildinfo.Commit={{.Commit}}
       - -X github.com/generalized-labs/ironrun/internal/buildinfo.Date={{.Date}}
 
+brews:
+  - repository:
+      owner: generalized-labs
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    description: "Local-first encrypted environment runtime — agents use secrets, never see them"
+    homepage: "https://github.com/Generalized-Labs/ironrun"
+    license: "MIT"
+
 archives:
   - id: ironrun
     ids:
@@ -115,7 +125,7 @@ release:
     sh /tmp/install-ironrun.sh --version {{.Tag}}
 
     # Homebrew (tap)
-    brew tap generalized-labs/ironrun
+    brew tap generalized-labs/tap
     brew install ironrun
 
     # npm / npx (verified launcher; downloads the matching release binary)
