@@ -159,7 +159,7 @@ func GhPath() (string, error) {
 func Authed(gh string) error {
 	cmd := exec.Command(gh, "auth", "status")
 	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("gh is not authenticated: %v\n%s\nRun `gh auth login` first.", err, strings.TrimSpace(string(out)))
+		return fmt.Errorf("gh is not authenticated: %v\n%s\nrun `gh auth login` first", err, strings.TrimSpace(string(out)))
 	}
 	return nil
 }

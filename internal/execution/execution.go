@@ -54,6 +54,11 @@ type Options struct {
 	// stdout with a single variable. Only pass this flag when the operator
 	// knows the run is inside GitHub Actions.
 	EmitGitHubMasks bool
+	// AllowWorkspaceNetwork opts the transient trusted-workspace policy out of
+	// network isolation (policy-level allow_network on the synthetic
+	// "workspace" command). Used by tests and hosts where unprivileged network
+	// namespaces are unavailable; policy strict mode never sets it.
+	AllowWorkspaceNetwork bool
 }
 
 // resolveSeccomp reports whether the seccomp filter should be requested for
@@ -258,7 +263,7 @@ func RunWorkspace(ctx context.Context, root, environment string, argv []string, 
 	f := &policy.File{
 		Version:  policy.SupportedVersionV2,
 		Provider: "passthrough",
-		Commands: []policy.Command{{ID: "workspace", Argv: append([]string(nil), argv...), Secrets: names}},
+		Commands: []policy.Command{{ID: "workspace", Argv: append([]string(nil), argv...), Secrets: names, AllowNetwork: opts.AllowWorkspaceNetwork}},
 	}
 	opts.Environment = environment
 	opts.AllowShell = true

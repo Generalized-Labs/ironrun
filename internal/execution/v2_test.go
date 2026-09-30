@@ -41,7 +41,7 @@ func TestV2DirectEntryExecutesAndRedacts(t *testing.T) {
 	original := openEnvironment
 	t.Cleanup(func() { openEnvironment = original })
 	openEnvironment = func(string) (*envset.Manager, error) { return manager, nil }
-	f := &policy.File{Version: policy.SupportedVersionV2, EnvironmentSet: "active", Commands: []policy.Command{{ID: "show", Argv: []string{"printenv", "OPENROUTER_API_KEY"}, Secrets: []string{"OPENROUTER_API_KEY"}}}}
+	f := &policy.File{Version: policy.SupportedVersionV2, EnvironmentSet: "active", Commands: []policy.Command{{ID: "show", Argv: []string{"printenv", "OPENROUTER_API_KEY"}, Secrets: []string{"OPENROUTER_API_KEY"}, AllowNetwork: true}}}
 	var stdout, stderr bytes.Buffer
 	result, err := Run(context.Background(), f, "ironrun.yml", root, "show", Options{Environment: "dev", Stdout: &stdout, Stderr: &stderr})
 	if err != nil {
@@ -69,7 +69,7 @@ func TestTrustedWorkspaceExecutesArbitraryArgvAndRedacts(t *testing.T) {
 	t.Cleanup(func() { openEnvironment = original })
 	openEnvironment = func(string) (*envset.Manager, error) { return manager, nil }
 	var stdout, stderr bytes.Buffer
-	result, err := RunWorkspace(context.Background(), root, "dev", []string{"printenv", "OPENROUTER_API_KEY"}, Options{Stdout: &stdout, Stderr: &stderr, SessionID: "test"})
+	result, err := RunWorkspace(context.Background(), root, "dev", []string{"printenv", "OPENROUTER_API_KEY"}, Options{Stdout: &stdout, Stderr: &stderr, SessionID: "test", AllowWorkspaceNetwork: true})
 	if err != nil {
 		t.Fatal(err)
 	}

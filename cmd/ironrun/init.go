@@ -209,7 +209,7 @@ func runGuidedDemo(cwd string) {
 	fmt.Println("  $ printenv DEMO_TOKEN   (sealed: injected below visibility, output redacted)")
 	if _, err := execution.RunWorkspace(context.Background(), cwd, set.Name,
 		[]string{"printenv", "DEMO_TOKEN"},
-		execution.Options{Stdout: os.Stdout, Stderr: os.Stderr, SessionID: audit.NewSessionID()}); err != nil {
+		execution.Options{Stdout: os.Stdout, Stderr: os.Stderr, SessionID: audit.NewSessionID(), AllowWorkspaceNetwork: true}); err != nil {
 		fmt.Printf("  The sealed run failed: %v\n", err)
 		fmt.Println("  Run `ironrun doctor` to diagnose. The everyday equivalent is")
 		fmt.Println("  `ironrun run <command-id>` for any command in ironrun.yml.")

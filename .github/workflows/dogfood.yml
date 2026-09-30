@@ -36,6 +36,10 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       # 1 - INSTALL: build the ironrun we dogfood from this repo's source.
       - name: "1 - Install: build ironrun from source"
         run: go build -o bin/ironrun ./cmd/ironrun

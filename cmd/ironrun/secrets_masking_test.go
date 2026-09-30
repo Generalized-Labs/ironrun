@@ -67,7 +67,14 @@ func TestDisableTerminalEcho_RealTerminal(t *testing.T) {
 		t.Skip("no `script` utility available for pty allocation")
 	}
 	helper := os.Args[0] + " -test.run=TestSttyPtyHelper"
-	cmd := exec.Command("script", "-qec", helper, "/dev/null")
+	var cmd *exec.Cmd
+	// GNU script (util-linux) uses -qec; BSD script (macOS) has no -c flag,
+	// so the command is passed as a PTY-quoted string: script -q /dev/null <cmd>.
+	if runtime.GOOS == "darwin" {
+		cmd = exec.Command("script", "-q", "/dev/null", "bash", "-c", helper)
+	} else {
+		cmd = exec.Command("script", "-qec", helper, "/dev/null")
+	}
 	cmd.Env = append(os.Environ(), "IRONRUN_STTY_PTY_HELPER=1")
 	out, err := cmd.CombinedOutput()
 	if err != nil {

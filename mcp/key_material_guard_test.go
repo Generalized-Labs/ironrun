@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -142,7 +143,26 @@ func TestNoToolResultContainsKeyMaterial(t *testing.T) {
 	f, policyPath := guardFixture(t)
 	root := projectRoot(policyPath)
 
-	m, err := envset.Open(root)
+	// The native credential-store probe can hang (not error) on headless CI
+	// macs waiting on a keychain UI session; bound it so the test skips
+	// instead of stalling the suite past its 10m panic deadline.
+	type openResult struct {
+		m   *envset.Manager
+		err error
+	}
+	opened := make(chan openResult, 1)
+	go func() {
+		m, err := envset.Open(root)
+		opened <- openResult{m, err}
+	}()
+	var m *envset.Manager
+	var err error
+	select {
+	case r := <-opened:
+		m, err = r.m, r.err
+	case <-time.After(15 * time.Second):
+		t.Skip("credential-store probe did not return (headless keychain); live key-material probe skipped — static guard in TestRemovedToolsStayRemoved still enforced")
+	}
 	if err != nil {
 		t.Skipf("no native credential store available (%v); live key-material probe skipped — static guard in TestRemovedToolsStayRemoved still enforced", err)
 	}

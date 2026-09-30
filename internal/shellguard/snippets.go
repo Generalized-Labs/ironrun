@@ -68,10 +68,6 @@ func DefaultRCPath(s Shell) string {
 const BeginMarker = "# >>> ironrun shell-guard >>>"
 const EndMarker = "# <<< ironrun shell-guard <<<"
 
-// genericNames are matched case-sensitively inside the name check; aliases
-// from the vault are embedded alongside.
-const genericNames = "SECRET|TOKEN|KEY|PASSWORD|CREDENTIAL"
-
 var safeAlias = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 // cleanAliases keeps env-var-safe aliases (plus their upper-case form, since
@@ -116,11 +112,7 @@ func header() string {
 func footer() string { return EndMarker + "\n" }
 
 func bashSnippet(aliases []string) string {
-	var cases []string
-	cases = append(cases, "*SECRET*", "*TOKEN*", "*KEY*", "*PASSWORD*", "*CREDENTIAL*")
-	for _, a := range cleanAliases(aliases) {
-		cases = append(cases, a)
-	}
+	cases := append([]string{"*SECRET*", "*TOKEN*", "*KEY*", "*PASSWORD*", "*CREDENTIAL*"}, cleanAliases(aliases)...)
 	return header() +
 		"export HISTCONTROL=ignoreboth\n" +
 		"_ironrun_export_guard() {\n" +
@@ -147,11 +139,7 @@ func bashSnippet(aliases []string) string {
 }
 
 func zshSnippet(aliases []string) string {
-	var cases []string
-	cases = append(cases, "*SECRET*", "*TOKEN*", "*KEY*", "*PASSWORD*", "*CREDENTIAL*")
-	for _, a := range cleanAliases(aliases) {
-		cases = append(cases, a)
-	}
+	cases := append([]string{"*SECRET*", "*TOKEN*", "*KEY*", "*PASSWORD*", "*CREDENTIAL*"}, cleanAliases(aliases)...)
 	return header() +
 		"setopt HIST_IGNORE_SPACE\n" +
 		"_ironrun_export_guard() {\n" +
@@ -180,10 +168,7 @@ func zshSnippet(aliases []string) string {
 
 func fishSnippet(aliases []string) string {
 	alts := []string{"SECRET", "TOKEN", "KEY", "PASSWORD", "CREDENTIAL"}
-	var exact []string
-	for _, a := range cleanAliases(aliases) {
-		exact = append(exact, a)
-	}
+	exact := cleanAliases(aliases)
 	nameRe := strings.Join(alts, "|")
 	if len(exact) > 0 {
 		nameRe += "|^(" + strings.Join(exact, "|") + ")$"

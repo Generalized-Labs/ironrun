@@ -112,7 +112,8 @@ func TestLongestMatchWins(t *testing.T) {
 }
 
 func TestSha8Stable(t *testing.T) {
-	if Sha8(canaryA) != Sha8(canaryA) || len(Sha8(canaryA)) != 8 {
+	first := Sha8("sk-canary-abc123XYZ789qrs-a")
+	if first != Sha8("sk-canary-abc123XYZ789qrs-a") || len(first) != 8 {
 		t.Fatal("sha8 not stable/8-hex")
 	}
 	if Sha8(canaryA) == Sha8(canaryA+"x") {

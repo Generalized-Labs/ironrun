@@ -18,6 +18,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
       - uses: actions/setup-go@v5
         with:
@@ -107,6 +110,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
+        if: runner.os == 'Linux'
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
