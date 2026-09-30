@@ -1,6 +1,6 @@
 {
   "name": "@generalized-labs/ironrun",
-  "version": "1.0.0",
+  "version": "0.5.0",
   "description": "Verified native launcher for the Ironrun encrypted environment workspace",
   "license": "MIT",
   "type": "module",

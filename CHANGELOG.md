@@ -4,6 +4,40 @@ All notable changes to ironrun are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Phase 0 leak-prevention stack: exact-value secret matching and redaction,
+  sealed execution with a fail-closed seccomp sandbox on Linux, git
+  pre-commit/pre-push hooks that block leaked secrets, and a value-blind local
+  API with agent lease enforcement.
+- Verified release pipeline: reproducible builds, Sigstore bundles and
+  checksums, an SBOM, the Homebrew formula, and a native npm launcher whose
+  postinstall verifies the published artifact manifest before install.
+- Universal agent instructions for Claude Code, Grok, Codex, Hermes, Pi,
+  HumanLayer, and Conductor workspaces.
+- Google Drive environment sync, additional MCP tools, and redactor
+  performance optimizations.
+- MCP guard suite: banned-tool registry (share_environment /
+  sync_environment stay removed) and key-material negative probes that fail a
+  build if any tool result ever carries vault key material.
+
+### Fixed
+
+- Linux network isolation now works unprivileged: CLONE_NEWUSER plus
+  identity-mapped uid/gid authorize CLONE_NEWNET on default Ubuntu 24.04+
+  hosts (previously EPERM -> fail-closed refusal). CI exercises the real
+  isolation path instead of bypassing it.
+- macOS CI matrix: pty regression test now uses the BSD util-linux script
+  invocation, and Linux-only sealed-shim expectations skip outside Linux.
+
+### Security
+
+- Removed the MCP share_environment tool (returned the vault root key with no
+  approval gate) and the sync_environment stub; guard tests fail on
+  reintroduction.
+
 ## [0.4.0] - 2026-07-16
 
 ### Added
