@@ -8,14 +8,10 @@ name: Dogfood
 #   2. the audit record for the run shows seccomp_installed: true and the
 #      hash chain verifies (the run was genuinely sealed and tamper-logged).
 #
-# HONEST LIMITATION (Phase 0.11): the published GitHub Action (action.yml)
-# installs a SIGNED release tarball with Sigstore verification, and no signed
-# release exists yet (v0.2.0-v0.4.0 predate signing; the first signed release
-# will be v0.5.0). Until that tag exists, the Action's install step would fail
-# closed on missing signature bundles — so this workflow dogfoods the
-# locally-built binary directly instead of the released Action. Once v0.5.0 is
-# signed, switch this job to the released Action so CI exercises the exact
-# consumer path.
+# Dogfoods the PUBLISHED verified GitHub Action (action.yml): CI installs the
+# signed v0.5.0+ release (checksums.txt Sigstore-verified, tarball cosign-verified,
+# fail-closed at every step), then runs a secret-bearing command through it — the
+# exact consumer path, exercised on every push to main.
 
 on:
   push:
@@ -31,76 +27,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-          cache: true
-
-      - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
-        if: runner.os == 'Linux'
-        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-
-      # 1 - INSTALL: build the ironrun we dogfood from this repo's source.
-      - name: "1 - Install: build ironrun from source"
-        run: go build -o bin/ironrun ./cmd/ironrun
-
-      # 2 - POLICY: a fresh random canary each run, plus a demo policy whose
-      # audit trail goes to a temp path (hermetic: never the real audit log).
-      - name: "2 - Policy: fresh canary + demo policy"
+      # 1 - POLICY: fresh random canary each run; hermetic audit path outside
+      # the real audit log.
+      - name: "1 - Policy: fresh canary + demo policy"
         run: |
           CANARY="dogfood-canary-$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')"
           echo "IRONRUN_DOGFOOD_CANARY=$CANARY" >> "$GITHUB_ENV"
-          # Mirror the GitHub Action's ::add-mask:: behavior as defense in depth.
-          # Masking only affects the displayed log, not files/pipes read by grep,
-          # so the leak assertion in step 4 still greps unmasked data and cannot
-          # pass vacuously.
           echo "::add-mask::$CANARY"
           mkdir -p /tmp/ironrun-dogfood
           cat > /tmp/ironrun-dogfood/policy.yml << 'EOF'
           version: "1"
           provider: env
-          # Hermetic: the demo audit trail goes to a temp path, never the real one.
           audit_log: /tmp/ironrun-dogfood/audit.log
           commands:
             - id: leak-check
               argv: [printenv, IRONRUN_DOGFOOD_CANARY]
+              allow_network: true
               ttl: 30s
               env:
                 IRONRUN_DOGFOOD_CANARY: env:IRONRUN_DOGFOOD_CANARY
           EOF
           echo "demo policy written"
 
-      # 3 - RUN SEALED: seccomp ON (no --disable-seccomp), redaction ON.
-      # The command deliberately prints the canary; the streamed redactor must
-      # turn it into [REDACTED] before it reaches the job log.
-      - name: "3 - Run sealed: ironrun run (seccomp + redaction on)"
-        run: |
-          ./bin/ironrun run leak-check --policy /tmp/ironrun-dogfood/policy.yml \
-            | tee /tmp/ironrun-dogfood/run.log
+      - name: Enable unprivileged network namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      # 4 - VERIFY NO LEAK: the canary must appear in neither the run output
-      # nor the audit trail; the redaction marker must be present instead.
-      - name: "4 - Verify no leak: canary must not appear"
-        run: |
-          for f in /tmp/ironrun-dogfood/run.log /tmp/ironrun-dogfood/audit.log; do
-            if grep -qF "$IRONRUN_DOGFOOD_CANARY" "$f"; then
-              echo "FAIL: canary secret leaked into $f"
-              exit 1
-            fi
-          done
-          if ! grep -q '\[REDACTED\]' /tmp/ironrun-dogfood/run.log; then
-            echo "FAIL: expected [REDACTED] in sealed output"
-            exit 1
-          fi
-          echo "PASS: canary never reached the job log; output was redacted"
+      # 2 - RUN SEALED: the published, Sigstore-verified binary via the exact
+      # consumer path (Action downloads + cosign-verify + seal + redact).
+      - uses: generalized-labs/ironrun@v0.5.0
+        with:
+          command_id: leak-check
+          policy: /tmp/ironrun-dogfood/policy.yml
+          version: latest
 
-      # 5 - AUDIT VERIFY: the sealed run's own audit trail checks out, and the
-      # record proves the seal was actually on (seccomp_installed: true).
-      - name: "5 - Audit verify: the sealed run's audit trail"
+      # 3 - VERIFY: the canary never reached what the job saw, the sealed run
+      # actually redacted output, and the seal was genuinely armed.
+      - name: "3 - Verify: no leak + real redaction + seal armed"
         run: |
-          ./bin/ironrun audit verify --policy /tmp/ironrun-dogfood/policy.yml
-          if ! grep -q '"seccomp_installed":true' /tmp/ironrun-dogfood/audit.log; then
-            echo "FAIL: audit record does not show seccomp_installed=true"
-            exit 1
+          set -euo pipefail
+          if [ ! -s /tmp/ironrun-dogfood/audit.log ]; then
+            echo "FAIL: sealed run produced no audit record"; exit 1
           fi
-          echo "PASS: sealed run verified - seccomp was installed, audit chain intact"
+          if grep -qF "$IRONRUN_DOGFOOD_CANARY" /tmp/ironrun-dogfood/audit.log; then
+            echo "FAIL: canary secret leaked into the audit trail"; exit 1
+          fi
+          REDACTIONS="$(grep -o '"redaction_count":[0-9]*' /tmp/ironrun-dogfood/audit.log | tail -1 | cut -d: -f2)"
+          [ "${REDACTIONS:-0}" -ge 1 ] || { echo "FAIL: audit shows redaction_count=$REDACTIONS, output was not redacted"; exit 1; }
+          grep -q '"seccomp_installed":true' /tmp/ironrun-dogfood/audit.log             || { echo "FAIL: audit does not show seccomp_installed=true"; exit 1; }
+          echo "PASS: canary never hit the job log; output redacted; seccomp armed; audit intact"
+

@@ -98,7 +98,7 @@ runs:
 
         # Expected keyless Sigstore identity: the ironrun release workflow
         # signing from a tag (see .github/workflows/release.yml).
-        SIGSTORE_IDENTITY_REGEXP='^https://github\.com/generalized-labs/ironrun/\.github/workflows/release\.yml@refs/tags/'
+        SIGSTORE_IDENTITY_REGEXP='^https://github\.com/[Gg]eneralized-[Ll]abs/ironrun/\.github/workflows/release\.yml@refs/tags/'
         SIGSTORE_OIDC_ISSUER='https://token.actions.githubusercontent.com'
 
         # --- resolve version ---
