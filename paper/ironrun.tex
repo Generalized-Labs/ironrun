@@ -64,29 +64,28 @@
 % ===========================================================================
 \begin{abstract}
 LLM coding agents run shell commands, and whatever those commands print
-becomes model context. A credential that surfaces in output---through
-\code{printenv}, a verbose \code{curl}, or a stack trace that embeds a
-connection string---is sent to the model provider, persisted in local session
-transcripts, and must be rotated. We present \sys{}, an open-source runtime that
+becomes model context. A credential that surfaces in output---via
+\code{printenv}, a verbose \code{curl}, or a stack trace---reaches the model
+provider and local transcripts and must be rotated. We present \sys{}, an open-source runtime that
 turns the agent's tool boundary into a one-way valve: secret values flow
 \emph{into} child processes as environment variables or temporary files, but
 not back \emph{out}. \sys{} combines (i)~value-blind agent interfaces exposed over
 the Model Context Protocol, (ii)~human authorization tiers bound to a single
 agent session, environment, and expiry, (iii)~a streaming known-value redactor
 with whitespace-tolerant, fragment, and alignment-aware encoding matching under
-a bounded hold-back, and (iv)~defense-in-depth containment: network
-namespaces or Seatbelt, a seccomp denylist, core-dump suppression,
-process-group lifetime control, CI fork gating, and a hash-chained audit log.
+a bounded hold-back, and (iv)~fail-closed containment---network and syscall
+isolation, process-group lifetime control, CI fork gating---with a hash-chained
+audit log.
 We report an adversarial self-audit of the 16.6\,kLOC Go implementation that
 confirmed 49 distinct defects---2 critical and 6 high severity, 44 now fixed---among them a YAML-injection path that let an agent
 smuggle commands past human review and a CLI command that printed the vault
-root key, together with their fixes. On a corpus of 21 output transformations
-$\times$ 6 credential formats driven through the real execution path, the
+root key. On a corpus of 21 output transformations
+$\times$ 6 credential formats run through the real execution path, the
 number of cases that leak at least half of a secret falls from 52 to 28; for
 transformations produced by ordinary tools it falls from 21 of 72 to 3 of 72, all
 three involving a 12-byte password below the fragment threshold. The residue
-consists of deliberate transformations that no known-value redactor can catch. \sys{} adds about 0.1\,ms to spawning a command
-(7\,ms with macOS network isolation), and its redactor sustains 13--35\,MB/s. We argue that redaction is the right safety net for
+consists of deliberate transformations that no known-value redactor can catch. Overhead is about 0.1\,ms per command, and the
+redactor sustains 13--35\,MB/s. We argue that redaction is the right safety net for
 \emph{accidental} disclosure, while authorization and isolation must bound
 \emph{deliberate} exfiltration, and we make the limits of each explicit.
 \end{abstract}
