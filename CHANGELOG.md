@@ -76,7 +76,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   comments flattened, multi-line text rejected at the MCP boundary, and pending
   proposals are immutable so the content cannot change between review and
   approval. Review output shows argv with explicit element boundaries and
-  sanitized text; the TUI shows provider references.
+  sanitized text; the TUI shows provider references. `ironrun setup` renders
+  `package.json` script names through the same escaping, so a hostile
+  repository cannot shape the generated policy either.
 - `--emit-github-masks` (always passed by the Action) printed lines 2..N of
   multi-line secrets — PEM keys, service-account JSON — to the job log in
   cleartext. Each line is now masked separately and workflow-command data is
