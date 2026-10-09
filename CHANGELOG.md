@@ -120,6 +120,10 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   `NODE_PATH`, `GCONV_PATH`, and `RUSTC_WRAPPER`.
 - Policy `env:` keys must be valid environment variable names.
 - Release workflow actions are pinned to full commit SHAs.
+- Build with Go 1.26.9 and patched `golang.org/x/net`, `golang.org/x/crypto`,
+  and `google.golang.org/grpc`: `govulncheck` reported 17 reachable standard
+  library vulnerabilities (net/http, crypto/tls, encoding/asn1, …) in v0.5.0
+  binaries built with Go 1.26.5; it now reports none.
 
 ## [0.4.0] - 2026-07-16
 
