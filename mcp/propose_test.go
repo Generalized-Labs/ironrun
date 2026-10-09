@@ -155,3 +155,42 @@ func TestMCP_ProposeToolListed(t *testing.T) {
 	}
 	t.Error("propose_command not advertised in tools/list")
 }
+
+// The proposal boundary: agent text must be single-line, bindings must be
+// env-var names, a pending id is immutable (approval binds to the id), and
+// allow_proposals is re-read on every call.
+func TestMCP_ProposeBoundary(t *testing.T) {
+	policyFile := writePolicyInDir(t, proposalPolicy)
+	p := startMCP(t, policyFile)
+	p.initialize(t)
+	propose := func(id int, args map[string]interface{}) (string, bool) {
+		return extractToolText(t, p.callTool(t, id, "propose_command", args))
+	}
+
+	if text, isErr := propose(3, map[string]interface{}{"id": "a", "argv": []string{"ls"}, "reason": "x\n  - id: evil"}); !isErr {
+		t.Fatalf("multi-line reason accepted: %s", text)
+	}
+	if text, isErr := propose(4, map[string]interface{}{"id": "a", "argv": []string{"ls"}, "reason": "x", "env": map[string]interface{}{"A: b\n- id: evil": "A"}}); !isErr {
+		t.Fatalf("non env-var binding name accepted: %s", text)
+	}
+	if text, isErr := propose(5, map[string]interface{}{"id": "a", "argv": []string{"ls"}, "reason": "list"}); isErr {
+		t.Fatalf("valid proposal rejected: %s", text)
+	}
+	if text, isErr := propose(6, map[string]interface{}{"id": "a", "argv": []string{"ls"}, "reason": "list"}); isErr {
+		t.Fatalf("identical re-proposal should be idempotent: %s", text)
+	}
+	if text, isErr := propose(7, map[string]interface{}{"id": "a", "argv": []string{"rm", "-rf", "/"}, "reason": "list"}); !isErr {
+		t.Fatalf("pending proposal content was swapped: %s", text)
+	}
+	store, err := pending.Load(filepath.Join(filepath.Dir(policyFile), ".ironrun", "pending.yml"))
+	if err != nil || len(store.Proposals) != 1 || store.Proposals[0].Argv[0] != "ls" {
+		t.Fatalf("pending store = %+v, %v", store, err)
+	}
+
+	if err := os.WriteFile(policyFile, []byte(noProposalPolicy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if text, isErr := propose(8, map[string]interface{}{"id": "b", "argv": []string{"ls"}, "reason": "list"}); !isErr {
+		t.Fatalf("allow_proposals turned off but proposal accepted: %s", text)
+	}
+}

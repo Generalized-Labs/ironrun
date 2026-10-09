@@ -25,7 +25,7 @@ import (
 type Call struct {
 	Method string
 	Path   string            // e.g. "repos/octo/hello"
-	Fields map[string]string // rendered as -f 'a[b]=c'
+	Fields map[string]string // rendered as -F 'a[b]=c' (typed: "true" is a JSON boolean)
 	Body   any               // rendered as --input - JSON via heredoc
 }
 
@@ -46,7 +46,7 @@ func (c Call) Render() string {
 		}
 	}
 	for _, k := range keys {
-		sb.WriteString(" -f " + shellQuote(k+"="+c.Fields[k]))
+		sb.WriteString(" -F " + shellQuote(k+"="+c.Fields[k]))
 	}
 	if c.Body != nil {
 		raw, _ := json.MarshalIndent(c.Body, "", "  ")
@@ -181,7 +181,9 @@ func Preflight() (string, error) {
 func Exec(gh string, c Call) error {
 	args := []string{"api", "--method", c.Method, c.Path}
 	for k, v := range c.Fields {
-		args = append(args, "-f", k+"="+v)
+		// -F, not -f: -f sends every value as a JSON string, and the org
+		// endpoint rejects "true" for its boolean fields.
+		args = append(args, "-F", k+"="+v)
 	}
 	var stdin *strings.Reader
 	if c.Body != nil {

@@ -45,14 +45,39 @@ exposes value-blind RPC schemas. The foreground native TUI writes masked input
 directly to the encrypted vault; secret values are never sent to the daemon.
 
 Trusted workspace sessions are deliberately broad: a human grants one MCP
-session the selected project environment and normal development network access.
-They reduce day-to-day approval friction but do not prevent a deliberately
-malicious trusted process from exfiltrating data. Pause or revoke a session from
-the TUI or `ironrun trust` as soon as it is no longer needed.
+session arbitrary argv against the selected project environment. They reduce
+day-to-day approval friction but do not prevent a deliberately malicious trusted
+process from transforming and printing a secret, and because the session can run
+`ironrun` itself, a grant should be treated as authority over the whole project.
+Pause or revoke a session from the TUI or `ironrun trust` as soon as it is no
+longer needed.
 
 An executable upgrade necessarily requires starting a process from the new
 binary. Once v1 is running, policy approval, secret fulfillment, lease approval,
 revocation, and retry do not require an MCP client or application restart.
+
+## Known limitations
+
+These follow from the threat boundary above and are documented so nobody relies
+on a property Ironrun does not provide:
+
+- **Redaction matches known values.** Literal, encoded (base64 at every
+  alignment, hex, URL, JSON), whitespace-interleaved, and partial forms of
+  injected values are redacted. A process that applies an arbitrary
+  transformation (reversal, compression, encryption) before printing defeats it.
+  Partial prints of values shorter than 24 bytes are not covered.
+- **Agent-writable state.** Approval state (`ironrun.yml`, `.ironrun/`) lives in
+  the project. An agent with unrestricted file-edit or shell tools can change it;
+  pair Ironrun with the agent host's own permission rules or sandbox.
+- **Same-user credential stores.** On macOS, a keychain item created through
+  `/usr/bin/security` can be read by any same-user process that invokes it. The
+  legacy version-1 file store keeps its key beside its ciphertext.
+- **Rollback and truncation.** The vault manifest MAC and the audit hash chain
+  detect modification, not replacement with an older valid copy or deletion of
+  the newest audit records.
+- **CI events.** Fork detection covers `pull_request`, `pull_request_review`,
+  `pull_request_review_comment`, and `workflow_run` payloads; `issue_comment`
+  workflows that check out pull-request code must gate themselves.
 
 ## File-secret limitations
 

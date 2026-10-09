@@ -31,12 +31,95 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   isolation path instead of bypassing it.
 - macOS CI matrix: pty regression test now uses the BSD util-linux script
   invocation, and Linux-only sealed-shim expectations skip outside Linux.
+- HTTPS and SSH remotes of the same repository no longer produce different
+  project identities (which locked users out of their vault); existing projects
+  keep their recorded identity.
+- `environments.json` is updated atomically under the vault lock, so
+  concurrent TUI/CLI/MCP writers no longer drop each other's entries (dropped
+  entries also resurfaced after `env remove`); `.ironrun/pending.yml` is
+  replaced atomically.
+- `.env` import resolves symlinks (and case on macOS) before refusing
+  project-local files, and single-quoted values are kept literal.
+- Wrapped-base64 redaction no longer swallows the newline that ends the line.
+- macOS network isolation no longer blocks `fork`: the Seatbelt profile denied
+  everything except exec and file access, so most secret-bearing commands
+  (`npm`, `go test`, Python and Node subprocesses) failed under the default
+  policy. The macOS network test now distinguishes "blocked" from "crashed".
+- A relative `workdir` resolves against the project root, not the directory
+  ironrun was started from.
+- Git hooks are installed where git reads them (linked worktrees,
+  `core.hooksPath`), and hook scanning checks only added lines, across every
+  environment, including multi-line and binary values.
+- The npm package now includes its postinstall script (installs previously
+  failed), and the release workflow passes the Homebrew tap token.
+- The envfile provider keeps path case, strips `export`, honors inline comments,
+  and expands `\n` only inside double quotes; `ironrun setup` handles `export`
+  lines in `.env`.
+- Exit codes: a cancelled run returns an error, a signal-killed child reports
+  `128+signal`, exit codes 124/125 are attributed to the sealing shim only when
+  it ran, and `truncated` is reported only when output was actually dropped.
+- `ironrun gh protect --org` sends typed booleans; `lint` counts version-2
+  secret bindings.
 
 ### Security
 
 - Removed the MCP share_environment tool (returned the vault root key with no
   approval gate) and the sync_environment stub; guard tests fail on
   reintroduction.
+- Removed `ironrun env share` / `vault share`, which printed the vault root key
+  to stdout without any gate. Agents have shells, so the CLI is now treated as
+  agent-reachable like MCP.
+- Approving a proposal no longer splices agent-written text into
+  `ironrun.yml` unescaped. A line break in a proposal's reason, env binding, or
+  secret name (including U+2028/U+2029, which YAML treats as line breaks) could
+  smuggle extra commands past the human reviewer. Scalars are now quoted,
+  comments flattened, multi-line text rejected at the MCP boundary, and pending
+  proposals are immutable so the content cannot change between review and
+  approval. Review output shows argv with explicit element boundaries and
+  sanitized text; the TUI shows provider references.
+- `--emit-github-masks` (always passed by the Action) printed lines 2..N of
+  multi-line secrets — PEM keys, service-account JSON — to the job log in
+  cleartext. Each line is now masked separately and workflow-command data is
+  escaped.
+- The redactor now covers base64 at all three byte alignments (HTTP Basic
+  `Authorization` headers, docker `auth`, `printenv | base64` previously leaked
+  whole secrets), JSON-escaped forms, JavaScript and Python percent-encoding,
+  partial prints of secrets up to 64 KiB (was 1 KiB, which excluded PEM and
+  JSON file secrets), and hex dumps (`xxd`, `hexdump -C`, `od -c`) via
+  whitespace-tolerant fragment matching. Agent-transcript scrubbing and CI masks
+  share the new alignment and JSON variants.
+- The audit log now fails closed in the CLI and MCP server, as it already did in
+  the local API, instead of continuing unaudited when tampering is detected.
+- The vault root key is no longer passed on the `security` command line on
+  macOS (visible to process listings and EDR); keychain writes go through
+  `security -i` on stdin and are read back to confirm.
+- `env sync pull` verifies the pulled vault's MAC, project, and revision under
+  the vault lock and writes it atomically, instead of blindly overwriting the
+  local vault (data loss and silent rollback).
+- `ironrun api` and `propose_command` re-read the policy on every request, so
+  removing a command, requiring leases, or disabling proposals takes effect
+  without a restart.
+- GitHub fork pull requests were never detected: the check compared a variable
+  GitHub does not set. Fork status now comes from the event payload for
+  `pull_request`, `pull_request_review`, `pull_request_review_comment`, and
+  `workflow_run`, fails closed when the payload is missing, and runs before any
+  secret is resolved or mask printed.
+- A command's time limit now covers its whole process group: grandchildren that
+  held the output pipe could block a run indefinitely, and descendants could
+  outlive the run with secrets in their environment. A signal to ironrun
+  (Ctrl-C, SIGTERM, SIGHUP, a closed pipe) now tears down the child and removes
+  temporary file secrets; leftovers from a crashed ironrun are recovered as
+  soon as the owning process is gone.
+- `no_network` on macOS invokes `/usr/bin/sandbox-exec` by absolute path, so a
+  `sandbox-exec` earlier on `PATH` can no longer disable isolation.
+- `history purge --apply` no longer leaves a plaintext `.ironrun.bak` copy of the
+  purged secret (and removes one left by older versions).
+- The argv[0] shell check matches on the cleaned base name (`/bin//sh`,
+  `/opt/homebrew/bin/bash`), covers more shells, and looks through `env`. The
+  inherited-environment deny list adds `DYLD_*`, `GIT_CONFIG_*`, `GOFLAGS`,
+  `NODE_PATH`, `GCONV_PATH`, and `RUSTC_WRAPPER`.
+- Policy `env:` keys must be valid environment variable names.
+- Release workflow actions are pinned to full commit SHAs.
 
 ## [0.4.0] - 2026-07-16
 

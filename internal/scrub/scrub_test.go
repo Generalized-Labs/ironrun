@@ -2,6 +2,7 @@ package scrub
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -233,5 +234,17 @@ func TestScrubSkipsSymlinks(t *testing.T) {
 	}
 	if !found {
 		t.Fatal("symlink not reported as skipped")
+	}
+}
+
+// REGRESSION (2026-10 audit): agent transcripts are JSONL, so a value with a
+// newline, quote, or backslash is stored escaped and was never matched.
+func TestMatcherFindsJSONEscapedValuesInTranscripts(t *testing.T) {
+	value := "TEST-KEY-LINE-1\nTEST-KEY-LINE-2 \"q\" \\b"
+	line, _ := json.Marshal(map[string]string{"type": "tool_result", "content": "token is " + value})
+	m := NewMatcher([]Secret{{Alias: "k", Value: value}})
+	out, n := m.Redact(string(line))
+	if n == 0 || strings.Contains(out, "TEST-KEY-LINE-2") {
+		t.Fatalf("JSON-escaped value survived: matched=%d out=%s", n, out)
 	}
 }

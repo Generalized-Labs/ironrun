@@ -1,9 +1,11 @@
 package envset
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -180,6 +182,41 @@ func TestParseDotenvQuotedAndMultiline(t *testing.T) {
 	}
 }
 
+func TestParseDotenvSingleQuotedValuesAreLiteral(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "app.env")
+	if err := os.WriteFile(path, []byte("DB_PASS='pa\\ns'\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := ParseDotenv(path, "")
+	if err != nil || len(entries) != 1 || entries[0].Value != `pa\ns` {
+		t.Fatalf("entries = %#v, %v", entries, err)
+	}
+}
+
+func TestParseDotenvRejectsProjectFileViaSymlinkOrCase(t *testing.T) {
+	base := t.TempDir()
+	project := filepath.Join(base, "Project")
+	if err := os.MkdirAll(project, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(project, ".env"), []byte("API_KEY=planted\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(base, "elsewhere")
+	if err := os.Symlink(project, link); err != nil {
+		t.Fatal(err)
+	}
+	paths := []string{filepath.Join(link, ".env")}
+	if runtime.GOOS == "darwin" { // default APFS is case-insensitive
+		paths = append(paths, filepath.Join(base, "project", ".env"))
+	}
+	for _, path := range paths {
+		if _, err := ParseDotenv(path, project); err == nil || !strings.Contains(err.Error(), "inside project") {
+			t.Fatalf("ParseDotenv(%s) = %v, want project-local refusal", path, err)
+		}
+	}
+}
+
 func TestTemplateNeverContainsValues(t *testing.T) {
 	m, _ := testManager(t)
 	if _, err := m.Create("dev", false, 0); err != nil {
@@ -201,11 +238,58 @@ func TestTemplateNeverContainsValues(t *testing.T) {
 	}
 }
 
-func TestNormalizeRemote(t *testing.T) {
-	if got := normalizeRemote("git@GitHub.com:Acme/App.git"); got != "ssh://git@github.com/Acme/App" {
-		t.Fatalf("normalized SSH remote = %q", got)
+// Two processes (for example the TUI and an MCP capsule claim) that loaded the
+// metadata before either wrote must not drop each other's entries; a dropped
+// entry's value would survive `env remove` and resurface on re-create.
+func TestConcurrentManagersKeepEachOthersEntries(t *testing.T) {
+	a, store := testManager(t)
+	if _, err := a.Create("dev", false, 0); err != nil {
+		t.Fatal(err)
 	}
-	if got := normalizeRemote("HTTPS://GitHub.com/Acme/App.git/"); got != "https://github.com/Acme/App" {
-		t.Fatalf("normalized HTTPS remote = %q", got)
+	committed := func() Metadata {
+		var meta Metadata
+		data, err := os.ReadFile(metadataPath(a.Root))
+		if err != nil || json.Unmarshal(data, &meta) != nil {
+			t.Fatalf("read metadata: %v", err)
+		}
+		return meta
+	}
+	b := &Manager{Root: a.Root, Store: store, Now: a.Now, Meta: committed()}
+	if err := a.Put("dev", "OLD_TOKEN", "token-a"); err != nil {
+		t.Fatal(err)
+	}
+	if err := b.Put("dev", "NEW_TOKEN", "token-b"); err != nil {
+		t.Fatal(err)
+	}
+	if keys := committed().Sets["dev"].Keys; len(keys) != 2 {
+		t.Fatalf("committed keys = %v, want both writers' keys", keys)
+	}
+	if err := b.Remove("dev"); err != nil {
+		t.Fatal(err)
+	}
+	if len(store.values) != 0 {
+		t.Fatalf("values survived environment removal: %v", store.values)
+	}
+}
+
+// Switching a repository's remote between its SSH and HTTPS forms must not
+// change the project identity (and lock the user out of the vault).
+func TestNormalizeRemoteIgnoresTransport(t *testing.T) {
+	for _, raw := range []string{
+		"git@GitHub.com:Acme/App.git",
+		"ssh://git@github.com:22/Acme/App.git",
+		"HTTPS://GitHub.com/Acme/App.git/",
+		"https://user@github.com/Acme/App",
+	} {
+		if got := normalizeRemote(raw); got != "https://github.com/Acme/App" {
+			t.Fatalf("normalizeRemote(%q) = %q", raw, got)
+		}
+	}
+	recorded := Identity{RemoteURL: "ssh://git@github.com/Acme/App", CanonicalPath: "/src/app"} // pre-fix SSH form
+	if !sameIdentity(recorded, Identity{RemoteURL: normalizeRemote("https://github.com/Acme/App.git"), CanonicalPath: "/src/app"}) {
+		t.Fatal("recorded SSH identity no longer matches its HTTPS remote")
+	}
+	if sameIdentity(recorded, Identity{RemoteURL: "https://github.com/Acme/Other", CanonicalPath: "/src/app"}) {
+		t.Fatal("different repositories compared equal")
 	}
 }

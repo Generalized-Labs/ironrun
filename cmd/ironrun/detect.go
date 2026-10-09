@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // DetectedCmd is a command discovered for the generated policy.
@@ -199,13 +200,30 @@ func detectPython(dir string) []DetectedCmd {
 	}
 }
 
-// yamlArgvItem quotes an argv element when it contains characters that would
-// break a YAML flow sequence (colons, commas, brackets, spaces, quotes).
-func yamlArgvItem(s string) string {
-	if s == "" || strings.ContainsAny(s, ":,[]{}#\"' \t\n") {
-		return strconv.Quote(s)
+// yamlPlainSafe matches strings that are unambiguous YAML plain scalars in
+// both flow sequences and block mappings.
+var yamlPlainSafe = regexp.MustCompile(`^[A-Za-z0-9_./-][A-Za-z0-9_./=+@%-]*$`)
+
+// yamlScalar renders s as a YAML scalar: plain when it is a simple word,
+// double-quoted otherwise. Approved proposals carry agent-controlled argv and
+// env text into ironrun.yml through here, so a line break (\n, \r, U+2028, …)
+// must always end up escaped inside quotes, never as YAML structure.
+func yamlScalar(s string) string {
+	if s != "-" && !strings.EqualFold(s, "null") && yamlPlainSafe.MatchString(s) {
+		return s
 	}
-	return s
+	return strconv.Quote(s) // Go escapes are a subset of YAML double-quoted escapes
+}
+
+// yamlComment flattens s onto one line so it cannot terminate a YAML comment.
+// YAML (and yaml.v3) treats NEL, U+2028 and U+2029 as line breaks too.
+func yamlComment(s string) string {
+	return strings.Map(func(r rune) rune {
+		if unicode.IsControl(r) || r == '\u2028' || r == '\u2029' {
+			return ' '
+		}
+		return r
+	}, s)
 }
 
 // renderCommandBlock renders a single YAML command list item. It is the single
@@ -214,12 +232,12 @@ func yamlArgvItem(s string) string {
 func renderCommandBlock(id string, argv []string, ttl string, env map[string]string, comment string) string {
 	var b strings.Builder
 	if comment != "" {
-		fmt.Fprintf(&b, "  # %s\n", comment)
+		fmt.Fprintf(&b, "  # %s\n", yamlComment(comment))
 	}
-	fmt.Fprintf(&b, "  - id: %s\n", id)
+	fmt.Fprintf(&b, "  - id: %s\n", yamlScalar(id))
 	items := make([]string, len(argv))
 	for i, a := range argv {
-		items[i] = yamlArgvItem(a)
+		items[i] = yamlScalar(a)
 	}
 	fmt.Fprintf(&b, "    argv: [%s]\n", strings.Join(items, ", "))
 	if ttl != "" {
@@ -233,7 +251,7 @@ func renderCommandBlock(id string, argv []string, ttl string, env map[string]str
 		}
 		sort.Strings(keys)
 		for _, k := range keys {
-			fmt.Fprintf(&b, "      %s: %s\n", k, env[k])
+			fmt.Fprintf(&b, "      %s: %s\n", yamlScalar(k), yamlScalar(env[k]))
 		}
 	}
 	return b.String()

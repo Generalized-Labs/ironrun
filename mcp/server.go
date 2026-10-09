@@ -8,9 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 	"path/filepath"
+	"reflect"
+	"regexp"
 	"strings"
+	"syscall"
 	"time"
+	"unicode"
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -47,7 +52,7 @@ func Serve(f *policy.File, policyPath string) error {
 	// every run_sealed call from the same agent session shares a session id.
 	auditLog, err := audit.Open(audit.ResolvePath(f.AuditLog))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", err)
+		return fmt.Errorf("refusing to serve without a verifiable audit log: %w", err)
 	}
 	defer auditLog.Close()
 	sessionID := audit.NewSessionID()
@@ -61,7 +66,13 @@ func Serve(f *policy.File, policyPath string) error {
 		s.AddTool(rt.tool, rt.handler)
 	}
 
-	return server.ServeStdio(s)
+	// Turn SIGINT/SIGTERM/SIGHUP into cancellation of the context handed to the
+	// tool handlers, so an in-flight run_sealed tears down its child process
+	// group and runs cleanup (file-secret removal, audit) before exit. This
+	// replaces server.ServeStdio, which handles only SIGINT/SIGTERM.
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+	defer stop()
+	return server.NewStdioServer(s).Listen(ctx, os.Stdin, os.Stdout)
 }
 
 // registeredTools builds the complete MCP tool registry. It is the
@@ -757,7 +768,11 @@ func mustCwd() string { cwd, _ := os.Getwd(); return cwd }
 // (a human action in the terminal) can promote a proposal into the policy.
 func makeProposeHandler(f *policy.File, policyPath string) func(context.Context, mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
-		if !f.AllowProposals {
+		current, reloadErr := currentPolicy(f, policyPath)
+		if reloadErr != nil {
+			return mcplib.NewToolResultError("policy reload failed"), nil
+		}
+		if !current.AllowProposals {
 			return mcplib.NewToolResultError("command proposals are disabled. Ask the user to set `allow_proposals: true` in ironrun.yml to enable propose_command."), nil
 		}
 		id := strings.TrimSpace(mustString(req, "id"))
@@ -775,7 +790,10 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 		if reason == "" {
 			return mcplib.NewToolResultError("reason is required — explain why you need this command (the user sees it when reviewing)"), nil
 		}
-		if _, lerr := f.Lookup(id); lerr == nil {
+		if !singleLine(reason) {
+			return mcplib.NewToolResultError("reason must be a single line of plain text (no control characters or line breaks)"), nil
+		}
+		if _, lerr := current.Lookup(id); lerr == nil {
 			return mcplib.NewToolResultError(fmt.Sprintf("%q already exists in the policy — just call run_sealed with it.", id)), nil
 		}
 
@@ -785,7 +803,7 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 			return mcplib.NewToolResultError("could not read the pending store"), nil
 		}
 		proposalEnv := coerceEnv(req.GetArguments()["env"])
-		if current, reloadErr := currentPolicy(f, policyPath); reloadErr == nil && current.UsesEnvironmentEntries() {
+		if current.UsesEnvironmentEntries() {
 			for _, name := range optionalStringSlice(req, "secrets") {
 				if proposalEnv == nil {
 					proposalEnv = map[string]string{}
@@ -793,14 +811,29 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 				proposalEnv[name] = name
 			}
 		}
-		store.Upsert(pending.Proposal{
+		for name, ref := range proposalEnv {
+			if !envNamePattern.MatchString(name) || !singleLine(ref) {
+				return mcplib.NewToolResultError(fmt.Sprintf("invalid secret binding %q: names must look like ENV_VAR names and references must be single-line", name)), nil
+			}
+		}
+		proposal := pending.Proposal{
 			ID:         id,
 			Argv:       argv,
 			Env:        proposalEnv,
 			Reason:     reason,
 			ProposedAt: time.Now().UTC().Format(time.RFC3339), // server-side; agent time is untrusted
 			Status:     "pending",
-		})
+		}
+		// A pending proposal is immutable: approval (TUI or `approve --yes`)
+		// binds to the id, so letting the agent swap the content of an id the
+		// human is already reviewing would approve something they never saw.
+		if existing := store.Find(id); existing != nil {
+			if !reflect.DeepEqual(existing.Argv, proposal.Argv) || !reflect.DeepEqual(existing.Env, proposal.Env) || existing.Reason != proposal.Reason {
+				return mcplib.NewToolResultError(fmt.Sprintf("%q is already pending with different content; propose under a new id (the user can `ironrun reject %s`)", id, id)), nil
+			}
+			proposal.ProposedAt = existing.ProposedAt
+		}
+		store.Upsert(proposal)
 		if err := pending.Save(path, store); err != nil {
 			return mcplib.NewToolResultError("could not save the proposal"), nil
 		}
@@ -833,6 +866,16 @@ func validProposalID(id string) bool {
 		}
 	}
 	return true
+}
+
+var envNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
+// singleLine reports whether s has no control characters or Unicode line
+// breaks, so agent text renders unambiguously to the human reviewer.
+func singleLine(s string) bool {
+	return !strings.ContainsFunc(s, func(r rune) bool {
+		return unicode.IsControl(r) || r == '\u2028' || r == '\u2029'
+	})
 }
 
 func coerceEnv(v any) map[string]string {

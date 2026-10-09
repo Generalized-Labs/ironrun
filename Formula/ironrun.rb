@@ -2,11 +2,11 @@
 #
 # TAP LAYOUT
 # ----------
-# This file lives in-repo as the canonical source of the formula. Publish it
-# to the tap repository `generalized-labs/homebrew-ironrun` at
-# `Formula/ironrun.rb`, then users install with:
+# This file is a reference copy. goreleaser generates and publishes the real
+# formula to `generalized-labs/homebrew-tap` (see .goreleaser.yml), and users
+# install with:
 #
-#   brew tap generalized-labs/ironrun
+#   brew tap generalized-labs/tap
 #   brew install ironrun
 #
 # PER-RELEASE MAINTENANCE

@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strings"
 
 	"github.com/generalized-labs/ironrun/internal/audit"
 	"github.com/generalized-labs/ironrun/internal/envset"
@@ -82,6 +83,11 @@ func resolveSeccomp(f *policy.File, cmd *policy.Command, disableSeccomp bool) bo
 var openEnvironment = envset.Open
 
 func Run(ctx context.Context, f *policy.File, policyPath, root, commandID string, opts Options) (*runner.Result, error) {
+	// Refuse untrusted CI events before any provider is contacted or any mask
+	// is printed; runner.Run repeats the check as defense in depth.
+	if err := runner.CheckCITrust(opts.AllowPullRequestTarget); err != nil {
+		return nil, err
+	}
 	pCmd, err := f.Lookup(commandID)
 	if err != nil {
 		return nil, err
@@ -229,9 +235,26 @@ func emitGitHubMasks(resolved map[string]string, extra []string) {
 	sort.Strings(values)
 	for _, v := range values {
 		for _, variant := range scrub.Variants(v) {
-			fmt.Printf("::add-mask::%s\n", variant)
+			fmt.Printf("::add-mask::%s\n", escapeWorkflowData(variant))
+			// GitHub masks log output line by line, so a multi-line value
+			// (PEM, service-account JSON) only stays hidden if each of its
+			// lines is registered on its own.
+			if strings.ContainsAny(variant, "\r\n") {
+				for _, line := range strings.Split(variant, "\n") {
+					if line = strings.TrimSuffix(line, "\r"); len(line) >= scrub.MinSecretLen {
+						fmt.Printf("::add-mask::%s\n", escapeWorkflowData(line))
+					}
+				}
+			}
 		}
 	}
+}
+
+// escapeWorkflowData escapes a workflow-command value the way the Actions
+// runner unescapes it, so a newline inside a value can never end the command
+// and spill the rest of the value into the log as plain text.
+func escapeWorkflowData(s string) string {
+	return strings.NewReplacer("%", "%25", "\r", "%0D", "\n", "%0A").Replace(s)
 }
 
 // RunWorkspace executes arbitrary argv only after the caller has authorized a

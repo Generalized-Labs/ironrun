@@ -17,12 +17,12 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
         if: runner.os == 'Linux'
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: true
@@ -31,11 +31,13 @@ jobs:
         run: go build ./...
 
       - name: Test (race detector)
-        run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+        # GITHUB_ACTIONS=false: ironrun refuses fork-PR events, and tests must
+        # not inherit this job's event (a fork contributor's PR would fail).
+        run: GITHUB_ACTIONS=false go test -race -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: coverage
           path: coverage.out
@@ -44,8 +46,8 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: true
@@ -72,8 +74,8 @@ jobs:
       matrix:
         node: ["20", "22", "24"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{ matrix.node }}
       - name: Test verified launcher
@@ -82,13 +84,22 @@ jobs:
       - name: Verify publish contents
         working-directory: npm
         run: npm pack --dry-run
+      # Install the real tarball so a lifecycle script missing from `files`
+      # fails here, not for users. Postinstall is fail-open on network errors.
+      - name: Install packed tarball
+        working-directory: npm
+        run: |
+          tmp="$(mktemp -d)"
+          npm pack --pack-destination "$tmp"
+          mkdir "$tmp/install"
+          npm install --prefix "$tmp/install" --no-audit --no-fund "$tmp"/*.tgz
 
   vulncheck:
     name: "Security — govulncheck"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: true
@@ -109,12 +120,12 @@ jobs:
     name: "Security — stdout redaction"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)
         if: runner.os == 'Linux'
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version-file: go.mod
           cache: true
@@ -136,7 +147,8 @@ jobs:
         env:
           IRONRUN_CI_TEST_SECRET: "super-secret-value-that-must-not-appear"
         run: |
-          OUTPUT="$(./bin/ironrun run echo-secret --policy /tmp/redact-test.yml 2>&1)"
+          # The secret is a literal test value; ignore the (possibly fork) PR event.
+          OUTPUT="$(GITHUB_ACTIONS=false ./bin/ironrun run echo-secret --policy /tmp/redact-test.yml 2>&1)"
           echo "Output was: $OUTPUT"
           if echo "$OUTPUT" | grep -q "super-secret-value-that-must-not-appear"; then
             echo "FAIL: secret leaked into output!"

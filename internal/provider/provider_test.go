@@ -3,6 +3,7 @@ package provider
 import (
 	"errors"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -258,6 +259,45 @@ func TestEnvFileProvider_IgnoresComments(t *testing.T) {
 	_, err = p.Resolve("# this is a comment")
 	if err == nil {
 		t.Fatal("comment should not be a resolvable key")
+	}
+}
+
+// REGRESSION: the envfile path was lowercased (unreadable on case-sensitive
+// file systems), `export KEY=` became the key "export KEY", inline comments
+// became part of the value, and \n was expanded even outside double quotes.
+func TestEnvFileProvider_DotenvSyntaxAndPathCase(t *testing.T) {
+	dir := filepath.Join(t.TempDir(), "MixedCase")
+	if err := os.Mkdir(dir, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(dir, "Secrets.env")
+	content := "export EXPORTED=TEST-SECRET-0000\n" +
+		"INLINE=TEST-SECRET-0001 # trailing comment\r\n" +
+		"SINGLE='TEST\\nSECRET'\n" +
+		"DOUBLE=\"TEST\\nSECRET\" # comment\n" +
+		"BARE=TEST\\nSECRET\n" +
+		"HASH=TEST#SECRET\n"
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	p, err := New("ENVFILE:" + path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := p.(*envFileProvider).path; got != path {
+		t.Fatalf("path case not preserved: %q", got)
+	}
+	for key, want := range map[string]string{
+		"EXPORTED": "TEST-SECRET-0000",
+		"INLINE":   "TEST-SECRET-0001",
+		"SINGLE":   `TEST\nSECRET`,
+		"DOUBLE":   "TEST\nSECRET",
+		"BARE":     `TEST\nSECRET`,
+		"HASH":     "TEST#SECRET",
+	} {
+		if got, err := p.Resolve(key); err != nil || got != want {
+			t.Errorf("%s = %q, %v; want %q", key, got, err, want)
+		}
 	}
 }
 

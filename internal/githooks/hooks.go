@@ -17,6 +17,7 @@ package githooks
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -97,11 +98,10 @@ type InstallResult struct {
 // entries. A pre-existing hook NOT managed by ironrun is left alone and
 // reported as an error unless force is true.
 func Install(repoRoot string, force bool) (*InstallResult, error) {
-	gitDir, err := gitDirFor(repoRoot)
+	hooksDir, err := hooksDirFor(repoRoot)
 	if err != nil {
 		return nil, err
 	}
-	hooksDir := filepath.Join(gitDir, "hooks")
 	if err := os.MkdirAll(hooksDir, 0o755); err != nil {
 		return nil, fmt.Errorf("create hooks dir: %w", err)
 	}
@@ -152,11 +152,10 @@ type UninstallResult struct {
 // section from the repo at repoRoot. Hooks that do not carry the ironrun
 // marker are left alone. Idempotent: re-running is a no-op.
 func Uninstall(repoRoot string) (*UninstallResult, error) {
-	gitDir, err := gitDirFor(repoRoot)
+	hooksDir, err := hooksDirFor(repoRoot)
 	if err != nil {
 		return nil, err
 	}
-	hooksDir := filepath.Join(gitDir, "hooks")
 	res := &UninstallResult{}
 	for _, name := range []string{"pre-commit", "pre-push"} {
 		path := filepath.Join(hooksDir, name)
@@ -276,31 +275,20 @@ func ensureGitignore(repoRoot string) ([]string, error) {
 	return added, nil
 }
 
-// gitDirFor resolves the git dir for repoRoot, handling worktrees (where
-// .git is a file containing "gitdir: <path>").
-func gitDirFor(repoRoot string) (string, error) {
-	dotGit := filepath.Join(repoRoot, ".git")
-	info, err := os.Stat(dotGit)
+// hooksDirFor asks git which directory it runs hooks from for repoRoot.
+// `--git-path hooks` honors core.hooksPath (husky and friends) and resolves a
+// linked worktree to the common dir; <gitdir>/hooks is wrong in both cases,
+// and hooks written there silently never run.
+func hooksDirFor(repoRoot string) (string, error) {
+	out, err := exec.Command("git", "-C", repoRoot, "rev-parse", "--git-path", "hooks").Output()
 	if err != nil {
-		return "", fmt.Errorf("%s is not a git repository (.git missing)", repoRoot)
+		return "", fmt.Errorf("%s is not a git repository", repoRoot)
 	}
-	if !info.IsDir() {
-		data, err := os.ReadFile(dotGit)
-		if err != nil {
-			return "", fmt.Errorf("read .git file: %w", err)
-		}
-		line := strings.TrimSpace(string(data))
-		const prefix = "gitdir: "
-		if !strings.HasPrefix(line, prefix) {
-			return "", fmt.Errorf("unrecognized .git file contents")
-		}
-		gd := strings.TrimPrefix(line, prefix)
-		if !filepath.IsAbs(gd) {
-			gd = filepath.Join(repoRoot, gd)
-		}
-		return gd, nil
+	dir := strings.TrimRight(string(out), "\n")
+	if !filepath.IsAbs(dir) {
+		dir = filepath.Join(repoRoot, dir) // relative to the -C directory
 	}
-	return dotGit, nil
+	return dir, nil
 }
 
 // writeExecutable writes path atomically (tmp + rename) with 0755.

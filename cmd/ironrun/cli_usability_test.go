@@ -32,6 +32,14 @@ func TestEverydayCommandAliases(t *testing.T) {
 	}
 }
 
+// `env share` printed the vault root key to any caller, including an agent
+// shell. It must stay removed.
+func TestVaultRootKeyShareCommandRemoved(t *testing.T) {
+	if cmd, _, err := envCmd().Find([]string{"share"}); err == nil && cmd.Name() != "env" {
+		t.Fatalf("`ironrun env share` still resolves to %q", cmd.CommandPath())
+	}
+}
+
 func TestEnvironmentSetTargetDefaultsToActive(t *testing.T) {
 	m := &envset.Manager{Meta: envset.Metadata{Active: "staging"}}
 	name, key, err := environmentSetTarget(m, []string{"OPENAI_API_KEY"})

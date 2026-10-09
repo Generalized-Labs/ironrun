@@ -2,6 +2,7 @@ package githooks
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -34,9 +35,22 @@ func TestPrePushScriptDelegates(t *testing.T) {
 	}
 }
 
+// runGit runs git in dir with the user's global/system config ignored, so a
+// developer's own core.hooksPath cannot leak into the tests.
+func runGit(t *testing.T, dir string, args ...string) {
+	t.Helper()
+	t.Setenv("GIT_CONFIG_GLOBAL", os.DevNull)
+	t.Setenv("GIT_CONFIG_NOSYSTEM", "1")
+	cmd := exec.Command("git", append([]string{"-C", dir, "-c", "user.name=test", "-c", "user.email=test@example.invalid"}, args...)...)
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git %v: %v\n%s", args, err, out)
+	}
+}
+
 func fakeRepo(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
+	runGit(t, root, "init", "-q")
 	if err := os.MkdirAll(filepath.Join(root, ".git", "hooks"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -136,21 +150,28 @@ func TestEnsureGitignoreDedupes(t *testing.T) {
 	}
 }
 
-func TestWorktreeGitFile(t *testing.T) {
-	root := t.TempDir()
-	realGit := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(realGit, "hooks"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(root, ".git"), []byte("gitdir: "+realGit+"\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	res, err := Install(root, false)
+// REGRESSION: hooks were written to <gitdir>/hooks, which git never reads in
+// a linked worktree (it uses the common dir) or when core.hooksPath is set
+// (husky), so install reported success while nothing ran.
+func TestInstallUsesHooksDirGitRuns(t *testing.T) {
+	main := fakeRepo(t)
+	runGit(t, main, "commit", "-q", "--allow-empty", "-m", "init")
+	wt := filepath.Join(t.TempDir(), "wt")
+	runGit(t, main, "worktree", "add", "-q", wt)
+	res, err := Install(wt, false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.HooksDir != filepath.Join(realGit, "hooks") {
-		t.Fatalf("hooks installed to wrong dir: %s", res.HooksDir)
+	if _, err := os.Stat(filepath.Join(main, ".git", "hooks", "pre-commit")); err != nil {
+		t.Fatalf("worktree install did not reach the common hooks dir (wrote to %s): %v", res.HooksDir, err)
+	}
+
+	runGit(t, main, "config", "core.hooksPath", ".husky")
+	if _, err := Install(main, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(main, ".husky", "pre-commit")); err != nil {
+		t.Fatalf("install ignored core.hooksPath: %v", err)
 	}
 }
 

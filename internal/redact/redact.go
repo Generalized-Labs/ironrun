@@ -19,10 +19,12 @@
 //     matches — this catches the "sk-abc\x1bdef" smuggling class and
 //     line-wrapped encodings. The match span is bounded by flexSpanCap so the
 //     hold-back stays small.
-//  3. Fragment match: for long secrets (>= 24 bytes), every contiguous
-//     12-byte window is indexed; a 12+ byte fragment of a secret in the
-//     output is extended to the maximal contiguous run of that secret and
-//     redacted. This catches truncated or pasted fragments.
+//  3. Fragment match: for long secrets (>= 24 non-gap bytes), every 12-byte
+//     window of the secret's non-gap bytes is indexed; 12+ bytes of a secret
+//     in the output, in order and with any whitespace/control bytes between
+//     them, are extended to the maximal run and redacted. This catches
+//     truncated or pasted fragments and line-oriented dumps (xxd, od -c)
+//     whose offset columns break the secret into per-line pieces.
 package redact
 
 import (
@@ -41,13 +43,15 @@ const (
 	// short secrets are already fully covered by exact matching and their
 	// fragments would be false-positive prone.
 	fragmentMinSecretLen = 24 // 2 * fragmentLen
-	// fragmentMaxSecretLen caps fragment indexing memory: a pathological
-	// multi-KB "secret" would otherwise create one map entry per byte.
-	fragmentMaxSecretLen = 1024
+	// fragmentMaxSecretLen caps fragment indexing memory (~100 B per window,
+	// built once per writer). 64 KiB covers PEM/JSON file secrets and their
+	// base64/hex forms; a larger value gets exact and gap-tolerant matching
+	// only. Hold-back is unaffected: it is driven by the longest pattern.
+	fragmentMaxSecretLen = 64 << 10
 )
 
 // fragHit records which secret (and window offset within it) a fragment key
-// belongs to.
+// belongs to. secret is the pattern's non-gap projection.
 type fragHit struct {
 	secret []byte
 	off    int
@@ -79,8 +83,9 @@ func New(out io.Writer, secrets []string, maxOutputBytes int64) *Writer {
 		if s == "" {
 			continue // ignore empty secrets — they'd match everything
 		}
-		w.addSecretLocked([]byte(s))
+		w.secrets = append(w.secrets, []byte(s))
 	}
+	w.reindexLocked()
 	return w
 }
 
@@ -185,27 +190,44 @@ func (w *Writer) matchAt(pos int) int {
 		}
 	}
 	// Tier 3: fragment of a long secret.
-	if len(w.fragments) > 0 && len(buf) >= fragmentLen {
-		var key [fragmentLen]byte
-		copy(key[:], buf[:fragmentLen])
-		if fh, ok := w.fragments[key]; ok {
-			return extendFragment(buf, fh)
-		}
+	if len(w.fragments) > 0 && !isFlexGap(buf[0]) {
+		return w.matchFragment(buf)
 	}
 	return 0
 }
 
-// extendFragment extends a fragment hit (buf[:fragmentLen] equals
-// fh.secret[fh.off:fh.off+fragmentLen]) forward to the maximal contiguous run
-// of the secret, returning the bytes to consume.
+// matchFragment looks up the next fragmentLen non-gap bytes of buf in the
+// fragment index and, on a hit, extends forward over the secret's remaining
+// non-gap bytes (skipping gaps in buf), returning the bytes to consume.
 //
-// No backward extension is needed: the scanner reaches the run's first byte
-// before any later byte, and everything before the current position has
-// already been emitted, so a run necessarily starts at the hit position.
-func extendFragment(buf []byte, fh fragHit) int {
-	end := fragmentLen
-	for end < len(buf) && fh.off+end < len(fh.secret) && buf[end] == fh.secret[fh.off+end] {
-		end++
+// Both the lookup and the extension stay within maxSpan bytes, the lookahead
+// the hold-back guarantees, so the result never depends on bytes that have
+// not arrived yet. No backward extension is needed: everything before the
+// current position has already been emitted, so a run starts here.
+func (w *Writer) matchFragment(buf []byte) int {
+	limit := min(len(buf), w.maxSpan)
+	var key [fragmentLen]byte
+	i, k := 0, 0
+	for ; i < limit && k < fragmentLen; i++ {
+		if !isFlexGap(buf[i]) {
+			key[k] = buf[i]
+			k++
+		}
+	}
+	fh, ok := w.fragments[key]
+	if k < fragmentLen || !ok {
+		return 0
+	}
+	end := i
+	for j := fh.off + fragmentLen; i < limit && j < len(fh.secret); i++ {
+		if isFlexGap(buf[i]) {
+			continue
+		}
+		if buf[i] != fh.secret[j] {
+			break
+		}
+		j++
+		end = i + 1
 	}
 	return end
 }
@@ -299,32 +321,37 @@ func (w *Writer) AddSecret(s string) {
 	}
 	w.mu.Lock()
 	defer w.mu.Unlock()
-	w.addSecretLocked([]byte(s))
+	w.secrets = append(w.secrets, []byte(s))
+	w.reindexLocked()
 }
 
-// addSecretLocked registers b and rebuilds the match indexes.
+// reindexLocked rebuilds the match indexes from w.secrets.
 // Callers must hold w.mu (or be inside New).
-func (w *Writer) addSecretLocked(b []byte) {
-	w.secrets = append(w.secrets, b)
-	if len(b) > w.maxLen {
-		w.maxLen = len(b)
-	}
-	if s := flexSpanCap(len(b)); s > w.maxSpan {
-		w.maxSpan = s
-	}
-	// Re-sort longest-first for greedy matching, then rebuild indexes.
+func (w *Writer) reindexLocked() {
+	// Longest-first for greedy matching.
 	sort.Slice(w.secrets, func(i, j int) bool {
 		return len(w.secrets[i]) > len(w.secrets[j])
 	})
 	w.byFirst = make(map[byte][]int)
 	w.fragments = make(map[[fragmentLen]byte]fragHit)
 	for i, s := range w.secrets {
+		w.maxLen = max(w.maxLen, len(s))
+		w.maxSpan = max(w.maxSpan, flexSpanCap(len(s)))
 		w.byFirst[s[0]] = append(w.byFirst[s[0]], i)
-		if len(s) >= fragmentMinSecretLen && len(s) <= fragmentMaxSecretLen {
-			for off := 0; off+fragmentLen <= len(s); off++ {
-				var key [fragmentLen]byte
-				copy(key[:], s[off:off+fragmentLen])
-				w.fragments[key] = fragHit{secret: s, off: off}
+		proj := make([]byte, 0, len(s)) // byte-wise: secrets need not be UTF-8
+		for _, c := range s {
+			if !isFlexGap(c) {
+				proj = append(proj, c)
+			}
+		}
+		// Tier 2 skips leading gaps, so a secret stored as "\nvalue" must
+		// also be a candidate where the output shows just "value".
+		if len(proj) > 0 && proj[0] != s[0] {
+			w.byFirst[proj[0]] = append(w.byFirst[proj[0]], i)
+		}
+		if len(proj) >= fragmentMinSecretLen && len(proj) <= fragmentMaxSecretLen {
+			for off := 0; off+fragmentLen <= len(proj); off++ {
+				w.fragments[[fragmentLen]byte(proj[off:off+fragmentLen])] = fragHit{secret: proj, off: off}
 			}
 		}
 	}

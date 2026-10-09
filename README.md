@@ -12,6 +12,8 @@ ironrun is a local-first encrypted environment workspace. It gives humans one te
 
 Your tests still get a live `DATABASE_URL`. The agent gets back `exit_code: 0` and `tests passed` — and never the connection string.
 
+The design, threat model, a security self-audit, and a leak evaluation are written up in the paper [*Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them*](paper/ironrun.pdf).
+
 ---
 
 ## Why you might want this
@@ -86,7 +88,7 @@ ironrun redacts secret values from command output before it reaches the agent �
 
 By default, an agent can use arbitrary argv only during a temporary session you explicitly trust. Strict policy commands remain available for CI, production, and sensitive projects. Ironrun never has a tool that returns a secret’s value.
 
-> ironrun adds approximately 5-10ms per command invocation: ~2ms for provider lookup (env/envfile) up to ~100ms for a 1Password CLI call. The redaction layer adds under 1ms for typical output sizes.
+> Measured on an Apple M3 Pro: ironrun adds well under a millisecond to spawn a sealed command, plus about 6 ms on macOS when network isolation (`sandbox-exec`) is on. Provider lookups add their own latency (a 1Password CLI call is far slower than an env file). The streaming redactor processes 13–35 MB/s depending on how many secrets are loaded, far above terminal output rates. See [`paper/`](paper/) for the methodology.
 
 ---
 
@@ -125,7 +127,7 @@ Check it's on your path:
 
 ```bash
 ironrun version
-# ironrun 0.4.0   (a source build prints "ironrun dev")
+# ironrun v0.5.0
 ```
 
 ---
@@ -358,11 +360,13 @@ ironrun trust revoke trust_abc123
 
 Trusted sessions are pinned to the MCP session, project, and environment. A
 server restart creates a new session; an old grant cannot transfer. The default
-scope is the current `dev` environment. `staging` and `prod` require a separate
-explicit grant. Normal development network access is enabled, which means a
-trusted agent could deliberately exfiltrate a secret through network or file
-actions. Ironrun protects agent context, logs, and routine output; it is not an
-OS sandbox for a process you choose to trust.
+scope is the current `dev` environment, and `staging` and `prod` require a
+separate explicit grant. Commands run in a trusted session get the same
+default-deny network isolation as secret-bearing policy commands. A trusted
+session runs arbitrary argv — including `ironrun` itself, which can approve
+requests — so treat a grant as authority over the whole project and revoke it
+when you are done. Ironrun protects agent context, logs, and routine output; it
+is not an OS sandbox for a process you choose to trust.
 
 ### Secret requests and encrypted chat capsules
 
@@ -493,7 +497,7 @@ commands:
   - id: deploy
     argv: [./scripts/deploy.sh, production]
     ttl: 10m
-    no_network: false                # deploy needs the network
+    allow_network: true              # deploy needs the network
     env:
       FLY_API_TOKEN: "op://Engineering/fly/token"
 ```
@@ -501,7 +505,8 @@ commands:
 Every field:
 
 ```yaml
-version: "1"                  # required — always "1" for now
+version: "1"                  # required — "1" (provider references, shown here)
+                              #   or "2" (encrypted environment entries; what `setup` writes)
 provider: 1password           # where secrets come from (see table below)
 
 commands:
@@ -510,9 +515,12 @@ commands:
                               # required — exact command + args.
                               #   No shell, no pipes, no globs, no $VAR expansion.
     ttl: 10m                  # optional — kill the command after this long
-    max_bytes: 10485760       # optional — cap stdout+stderr (here, 10 MB)
+    max_bytes: 10485760       # optional — cap stdout and stderr (each, here 10 MB)
     no_network: true          # optional — block outbound network
-                              #   (Linux: namespace, macOS: sandbox-exec)
+                              #   (Linux: namespace, macOS: sandbox-exec).
+                              #   Commands that receive secrets are already
+                              #   network-blocked by default; opt out with
+                              #   allow_network: true
     seccomp: true             # optional — Linux seccomp filter (default on;
                               #   set false to allow e.g. a debugger that needs ptrace)
     workdir: ./services/api   # optional — run from this directory
@@ -523,12 +531,12 @@ commands:
 ### Extra hardening (on by default)
 
 - **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It is fail-closed: if the filter cannot be installed, the run is refused rather than silently unprotected. Control it per command with `seccomp: false`, or policy-wide with `seccomp_default: false`. There is deliberately no environment kill-switch (an agent-reachable `IRONRUN_SECCOMP=off` would let a compromised agent disarm the filter).
-- **Encoded-secret redaction** — base64, hex, and URL-encoded forms of a secret are redacted alongside the literal value, plus a warn-only entropy scan flags high-entropy tokens that slip through.
-- **Audit log** — every run appends a tamper-evident, hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
+- **Encoded-secret redaction** — base64 (at every byte alignment, so `Authorization: Basic` headers are covered), hex, URL- and JSON-escaped forms of a secret are redacted alongside the literal value, as are partial prints and line-oriented dumps (`xxd`, `od -c`) of longer secrets. A warn-only entropy scan flags high-entropy tokens that slip through.
+- **Audit log** — every run appends a hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
 
 ```bash
 ironrun lint      # security review of the policy (shell argv, missing ttl, secrets + open egress, …)
-ironrun audit verify   # confirm the audit log hasn't been tampered with
+ironrun audit verify   # detect edited or reordered audit records (deleting the newest records is not detectable)
 ```
 
 `argv` is a literal list, not a shell line. `["npm", "test"]` runs `npm test` directly — there's no shell in between, so an injected value can never be re-expanded or piped somewhere unexpected.
@@ -644,7 +652,7 @@ ironrun injects secrets for trusted runs and refuses untrusted ones, so a pull r
 |---|---|
 | `push` to a branch in your repo | ✓ yes |
 | `pull_request` from the same repo | ✓ yes |
-| `pull_request` from a fork | ✗ no — blocked (`ErrCIUntrusted`) |
+| `pull_request`, `pull_request_review(_comment)`, `workflow_run` from a fork | ✗ no — blocked (`ErrCIUntrusted`), detected from the event payload |
 | `pull_request_target` | ✗ no — blocked, unless the operator passes `--allow-pull-request-target` to `ironrun run` (the legacy `IRONRUN_ALLOW_PRT=1` env form is ignored) |
 
 Use it as an action step:
@@ -680,7 +688,8 @@ Or just install the binary and run a command in any job:
 **It does not (in v0) protect against:**
 
 - a command that deliberately writes a secret to a file and reads it back later
-- network exfiltration by a command running with `no_network: false` (the default)
+- network exfiltration by a command that opts out of isolation with `allow_network: true`
+- a command that deliberately transforms a secret (reverses it, compresses it, encrypts it) before printing it — redaction matches known values and their common encodings, not arbitrary transformations
 - secrets in files the command itself creates
 - anyone who already has access to the machine ironrun runs on
 
@@ -695,7 +704,7 @@ Those tools resolve your secrets and inject them as environment variables — wh
 | | ironrun | op / doppler / infisical run |
 |---|---|---|
 | Injects secrets as env vars | ✓ | ✓ |
-| Redacts secret values from output | ✓ | ✗ |
+| Redacts secret values from output | ✓ literal, encoded, and partial forms | `op run` masks values; doppler/infisical ✗ |
 | Exposes a `run_sealed` tool to agents | ✓ | ✗ |
 | Strict saved-command mode for sensitive work | ✓ | ✗ |
 | One trusted development session for normal agent work | ✓ | ✗ |
@@ -703,6 +712,8 @@ Those tools resolve your secrets and inject them as environment variables — wh
 | Works across 1Password, Doppler, Infisical, env files | ✓ | each is tied to its own backend |
 
 Doppler does ship an MCP server, but it [gives agents direct read access to secret values](https://docs.doppler.com/docs/mcp) — the opposite goal. ironrun's MCP server lets agents *run commands*, never *read secrets*.
+
+Other tools in this space: [fnox](https://github.com/jdx/fnox) offers an MCP `exec` tool that injects secrets and redacts their literal values; Claude Code's sandbox can [mask credentials](https://code.claude.com/docs/en/sandboxing) by giving the process a placeholder and substituting the real value in outbound HTTP(S) requests — stronger than redaction where it applies, but limited to HTTP. ironrun targets the remaining cases (database clients, SSH, signing keys, file-based credentials) and adds session-bound approval and OS isolation around every run.
 
 ---
 

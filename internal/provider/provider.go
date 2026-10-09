@@ -52,9 +52,11 @@ var (
 func New(name string) (Provider, error) {
 	nameLower := strings.ToLower(name)
 
-	// Handle envfile:/path/to/file syntax
-	if after, ok := strings.CutPrefix(nameLower, "envfile:"); ok {
-		return newEnvFileProvider(after)
+	// Handle envfile:/path/to/file syntax. Only the scheme is case-insensitive:
+	// the path keeps its case (Linux file systems are case-sensitive).
+	const envfileScheme = "envfile:"
+	if len(name) >= len(envfileScheme) && strings.EqualFold(name[:len(envfileScheme)], envfileScheme) {
+		return newEnvFileProvider(name[len(envfileScheme):])
 	}
 
 	switch nameLower {
@@ -393,19 +395,26 @@ func newEnvFileProvider(path string) (*envFileProvider, error) {
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
 		}
-		key, value, ok := strings.Cut(line, "=")
+		key, value, ok := strings.Cut(strings.TrimPrefix(line, "export "), "=")
 		if !ok {
 			continue
 		}
 		key = strings.TrimSpace(key)
 		value = strings.TrimSpace(value)
-		// Remove surrounding quotes if present
-		if len(value) >= 2 && ((value[0] == '"' && value[len(value)-1] == '"') ||
-			(value[0] == '\'' && value[len(value)-1] == '\'')) {
-			value = value[1 : len(value)-1]
+		end := -1
+		if value != "" && (value[0] == '"' || value[0] == '\'') {
+			end = strings.LastIndexByte(value, value[0])
 		}
-		// Expand \n to actual newlines
-		value = strings.ReplaceAll(value, "\\n", "\n")
+		switch {
+		case end > 0 && value[0] == '"':
+			// Quoted values keep what is between the quotes (a trailing
+			// comment is dropped); only double quotes expand \n.
+			value = strings.ReplaceAll(value[1:end], "\\n", "\n")
+		case end > 0:
+			value = value[1:end]
+		case strings.Contains(value, " #"):
+			value = strings.TrimSpace(value[:strings.Index(value, " #")]) // unquoted inline comment
+		}
 		secrets[key] = value
 	}
 

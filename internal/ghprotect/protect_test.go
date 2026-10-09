@@ -1,6 +1,8 @@
 package ghprotect
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -28,6 +30,27 @@ func TestOrgDefaultsRender(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("render missing %q:\n%s", want, got)
 		}
+	}
+}
+
+// REGRESSION: fields went out via `gh api -f`, which sends "true" as a JSON
+// string; the org endpoint's fields are booleans. -F sends typed values.
+func TestExecSendsTypedFields(t *testing.T) {
+	dir := t.TempDir()
+	argsFile := filepath.Join(dir, "args")
+	gh := filepath.Join(dir, "gh")
+	if err := os.WriteFile(gh, []byte("#!/bin/sh\nprintf '%s\\n' \"$@\" > '"+argsFile+"'\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := Exec(gh, OrgDefaults("octo")); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(argsFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(got), "-F\nsecret_scanning_enabled_for_new_repositories=true\n") || strings.Contains(string(got), "-f\n") {
+		t.Fatalf("org booleans not sent as typed fields:\n%s", got)
 	}
 }
 

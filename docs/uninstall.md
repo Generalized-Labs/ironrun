@@ -28,7 +28,7 @@ their sources after reinstalling.
 
 ## What uninstall never touches
 
-- **The npm launcher cache** (`~/.cache/ironrun`) — delete it manually if
+- **The npm launcher cache** (`~/.cache/ironrun` on Linux, `~/Library/Caches/ironrun` on macOS) — delete it manually if
   you also used `npx @generalized-labs/ironrun`.
 - **Project files** — `ironrun.yml`, `.mcp.json`, `CLAUDE.md`, `AGENTS.md`,
   `.cursorrules` stay in your repos. They're yours; remove them with git or
