@@ -307,7 +307,7 @@ func leakExperiment() error {
 	defer os.RemoveAll(dir)
 	ss := secrets()
 	fmt.Println("% leak experiment: transformation & class & leaked/secrets & mean recovered % & entropy-flagged")
-	totalLeaks, total := 0, 0
+	totalLeaks, total, flaggedClean := 0, 0, 0
 	for _, t := range transforms() {
 		leaks, flagged := 0, 0
 		var pct float64
@@ -324,13 +324,15 @@ func leakExperiment() error {
 				if res.EntropyWarnings > 0 {
 					flagged++
 				}
+			} else if res.EntropyWarnings > 0 {
+				flaggedClean++ // a warning on output that was in fact redacted
 			}
 		}
 		total += len(ss)
 		totalLeaks += leaks
 		fmt.Printf("%-28s & %-10s & %d/%d & %5.1f\\%% & %d \\\\\n", t.name, t.class, leaks, len(ss), 100*pct/float64(len(ss)), flagged)
 	}
-	fmt.Printf("%% total: %d/%d pairs leak >=50%% of the secret\n", totalLeaks, total)
+	fmt.Printf("%% total: %d/%d pairs leak >=50%% of the secret; entropy warnings on the %d non-leaking pairs: %d\n", totalLeaks, total, total-totalLeaks, flaggedClean)
 	return nil
 }
 

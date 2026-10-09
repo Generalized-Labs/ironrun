@@ -88,7 +88,7 @@ ironrun redacts secret values from command output before it reaches the agent �
 
 By default, an agent can use arbitrary argv only during a temporary session you explicitly trust. Strict policy commands remain available for CI, production, and sensitive projects. Ironrun never has a tool that returns a secret’s value.
 
-> Measured on an Apple M3 Pro: ironrun adds well under a millisecond to spawn a sealed command, plus about 6 ms on macOS when network isolation (`sandbox-exec`) is on. Provider lookups add their own latency (a 1Password CLI call is far slower than an env file). The streaming redactor processes 13–35 MB/s depending on how many secrets are loaded, far above terminal output rates. See [`paper/`](paper/) for the methodology.
+> Measured on an Apple M3 Pro: ironrun adds well under a millisecond to spawn a sealed command, plus about 6 ms on macOS when network isolation (`sandbox-exec`) is on. Provider lookups add their own latency (a 1Password CLI call is far slower than an env file). The streaming redactor processes 14–36 MB/s depending on how many secrets are loaded, far above terminal output rates. See [`paper/`](paper/) for the methodology.
 
 ---
 

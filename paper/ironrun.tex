@@ -1,3 +1,5 @@
+% arXiv: compile with pdflatex (all figures are TikZ; no external images)
+\pdfoutput=1
 \documentclass[10pt,twocolumn]{article}
 
 % ---------------------------------------------------------------------------
@@ -13,6 +15,11 @@
 \usepackage[scaled=0.92]{inconsolata}
 \usepackage[letterpaper,margin=0.75in,columnsep=0.28in]{geometry}
 \usepackage{microtype}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dblfloatpagefraction}{0.75}
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -28,6 +35,7 @@
 \usepackage{caption}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[hidelinks,breaklinks]{hyperref}
+\usepackage{xurl}
 \usepackage[capitalise,nameinlink]{cleveref}
 
 \definecolor{ink}{HTML}{1F2933}
@@ -85,7 +93,7 @@ number of cases that leak at least half of a secret falls from 52 to 28; for
 transformations produced by ordinary tools it falls from 21 of 72 to 3 of 72, all
 three involving a 12-byte password below the fragment threshold. The residue
 consists of deliberate transformations that no known-value redactor can catch. Overhead is about 0.1\,ms per command, and the
-redactor sustains 13--35\,MB/s. We argue that redaction is the right safety net for
+redactor sustains 14--36\,MB/s. We argue that redaction is the right safety net for
 \emph{accidental} disclosure, while authorization and isolation must bound
 \emph{deliberate} exfiltration, and we make the limits of each explicit.
 \end{abstract}
@@ -641,7 +649,7 @@ it cannot detect truncation of the tail (\cref{sec:discussion}).
 \label{sec:impl}
 
 \sys{} is a single static Go binary (17.3\,kLOC of production code, 11.5\,kLOC
-of tests across 430 test functions, fuzzing of the redactor) built with
+of tests across 431 test functions, fuzzing of the redactor) built with
 \code{CGO_ENABLED=0}. The MCP server uses \code{mcp-go}. Platforms are macOS and
 Linux on amd64 and arm64; Windows is unsupported because its secret-entry paths
 would require plaintext console input. Releases are reproducible
@@ -668,8 +676,8 @@ review agents directed and checked by the authors; we report this because the
 method is reproducible and because the class of findings is instructive.
 \Cref{tab:audit} summarizes the results.
 
-\begin{table*}[t]
-\centering\small
+\begin{table*}[tp]
+\centering\footnotesize
 \begin{threeparttable}
 \begin{tabularx}{\textwidth}{@{}llXl@{}}
 \toprule
@@ -752,12 +760,12 @@ We ask: \textbf{RQ1} how much of a secret reaches the agent under realistic and
 adversarial output transformations; \textbf{RQ2} how often benign output is
 redacted; \textbf{RQ3} what the runtime costs; and \textbf{RQ4} whether
 streaming behaves exactly like batch processing. All numbers come from the
-open harness in \code{paper/eval} on an Apple M3 Pro (macOS 26.4, Go 1.26.5).
+open harness in \code{paper/eval} on an Apple M3 Pro (macOS 26.4, Go 1.26.9).
 
 \paragraph{Method (RQ1).} We generate six synthetic credentials shaped like real
 formats: a Stripe-style key (32\,B), a GitHub PAT (40\,B), an AWS-style secret
-(40\,B), a Postgres URL with an embedded password (68\,B), a 12-byte password,
-and a JWT (114\,B). For each of 21 transformations we write the transformed
+(40\,B), a Postgres URL with an embedded password (75\,B), a 12-byte password,
+and a JWT (113\,B). For each of 21 transformations we write the transformed
 output to a file and have a real child (\code{cat}) print it through
 \code{runner.Run} with the secret injected---the same injection, pipe,
 registration, and redaction path a sealed run uses. We then attack the
@@ -767,7 +775,7 @@ nesting and gunzip), URL and JSON unescaping, and hexdump column reassembly.
 \emph{Recovered} is the longest contiguous run of secret bytes any decoder
 yields; a case \emph{leaks} if at least 50\% of the secret is recovered.
 
-\begin{table}[t]
+\begin{table}[tp]
 \centering\small
 \setlength{\tabcolsep}{4pt}
 \begin{tabular}{@{}llcc@{}}
@@ -830,11 +838,12 @@ Redaction is therefore a defense against A1, not against an A2 that can choose
 the program. Against A2, \sys{} relies on the strict tier (the agent cannot
 choose the program), on network isolation (the transformed secret cannot leave
 except through output), and on the warn-only entropy scan, which flagged
-21 of the 28 residual leaks (and none of the redacted cases). Compression is the instructive exception:
+21 of the 28 residual leaks, at the cost of 6 false alarms among the 98
+correctly redacted cases. Compression is the instructive exception:
 gzip output is binary and therefore unreadable in a transcript, yet trivially
 decodable, which is why it is in the corpus.
 
-\paragraph{RQ2: false positives.} We run the redactor over 1.0\,MB of benign
+\paragraph{RQ2: false positives.} We run the redactor over 1.1\,MB of benign
 text (the repository's own sources and documentation, plus 1,000 log lines that
 share structure with a connection URL) with each credential and its full
 encoding set registered (\cref{tab:fp}). Random-format credentials produced no
@@ -843,7 +852,7 @@ false positives. The structured Postgres URL produced 1,002 both before and afte
 trigger the fragment tier. Over-redaction is safe but degrades output; we
 discuss mitigations in \cref{sec:discussion}.
 
-\begin{table}[t]
+\begin{table}[tp]
 \centering\small
 \begin{tabular}{@{}lrrr@{}}
 \toprule
@@ -857,17 +866,17 @@ password (12\,B) & 14 & 0 & 0 \\
 JWT & 22 & 0 & 0 \\
 \bottomrule
 \end{tabular}
-\caption{Redactions on 1.0\,MB of benign text (all are false positives).
+\caption{Redactions on 1.1\,MB of benign text (all are false positives).
 $^\dagger$Registered patterns per credential after the fixes.}
 \label{tab:fp}
 \end{table}
 
 \paragraph{RQ3: overhead.} Spawning \code{true} directly takes a median
-1.60\,ms; through \code{runner.Run} with one secret it takes 1.68\,ms
-(+0.08\,ms), and with macOS network isolation 7.37\,ms, dominated by
+1.62\,ms; through \code{runner.Run} with one secret it takes 1.68\,ms
+(+0.06\,ms), and with macOS network isolation 7.43\,ms, dominated by
 \code{sandbox-exec} start-up ($n{=}200$, fixed version). Registering the new
 encodings raises the patterns per 40-byte credential from 15 to 18 and lowers
-single-secret throughput from 56 to 35\,MB/s; both remain far above
+single-secret throughput from 56 to 36\,MB/s; both remain far above
 interactive output rates. Provider look-ups add their own
 latency (e.g.\ a 1Password CLI call). \Cref{fig:throughput} reports redactor
 throughput on 4\,MiB of log text written in 32\,KiB chunks.
@@ -881,7 +890,7 @@ throughput on 4\,MiB of log text written in 32\,KiB chunks.
   tick label style={font=\scriptsize}, label style={font=\small}, grid=major, grid style={ink!10}]
 \addplot[mark=*, thick, color=ink] coordinates {(1,56) (10,33) (50,16)};
 \addlegendentry{v0.5.0 (15 patterns/secret)}
-\addplot[mark=square*, thick, color=accent] coordinates {(1,35) (10,26) (50,13)};
+\addplot[mark=square*, thick, color=accent] coordinates {(1,36) (10,27) (50,14)};
 \addlegendentry{fixed (18 patterns/secret)}
 \end{axis}
 \end{tikzpicture}
@@ -891,9 +900,7 @@ throughput on 4\,MiB of log text written in 32\,KiB chunks.
 
 \paragraph{RQ4: streaming equivalence.} \Cref{prop:chunk} is exercised by a
 differential test that feeds 3,000 random inputs (secrets, their encodings,
-gap-interleaved and fragmentary forms) through the writer in chunks of 1, 2, 3,
-7, and 13 bytes and compares against a single write; no divergence was observed
-before or after the fixes. The repository additionally fuzzes the writer
+gap-interleaved and fragmentary forms) through the writer in chunks of 1--13 bytes and compares against a single write; no divergence was observed on v0.5.0 or after the fixes. The repository additionally fuzzes the writer
 continuously in CI.
 
 % ===========================================================================
@@ -939,7 +946,9 @@ partially---say its first seven characters---is not fragment-indexed, and a
 structured secret's boilerplate windows cause over-redaction (\cref{tab:fp}).
 Both trace to treating every 12-byte window alike; weighting windows by
 estimated entropy, or decomposing URLs into their userinfo component, are
-natural refinements.
+natural refinements. Separately, when two distinct registered values overlap in
+the output, the leftmost match wins and up to eleven bytes of the second can
+survive; we have only reproduced this with hand-built values.
 
 \paragraph{Platform.} macOS's \code{sandbox-exec} is deprecated though
 functional; Windows is unsupported. Provider-side retention of anything that

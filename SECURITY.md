@@ -65,7 +65,8 @@ on a property Ironrun does not provide:
   alignment, hex, URL, JSON), whitespace-interleaved, and partial forms of
   injected values are redacted. A process that applies an arbitrary
   transformation (reversal, compression, encryption) before printing defeats it.
-  Partial prints of values shorter than 24 bytes are not covered.
+  Partial prints of values shorter than 24 bytes are not covered, and when two
+  distinct values overlap in output the leftmost match wins.
 - **Agent-writable state.** Approval state (`ironrun.yml`, `.ironrun/`) lives in
   the project. An agent with unrestricted file-edit or shell tools can change it;
   pair Ironrun with the agent host's own permission rules or sandbox.
