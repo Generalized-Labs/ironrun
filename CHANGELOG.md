@@ -12,11 +12,11 @@ Security release. On v0.5.0, the GitHub Action (any `ironrun run
 --emit-github-masks`) wrote every line after the first of a multi-line secret
 — PEM keys, service-account JSON — to the job log in cleartext. If a v0.5.0
 sealed run in CI used a multi-line secret, treat that secret as exposed to
-anyone who could read the job log: rotate it, then upgrade. The Action's
-default `version: latest` picks this release up automatically; a pinned
-`version: v0.5.0` must be bumped. The other fixes come from an adversarial
-self-audit of v0.5.0 (49 findings, 44 fixed, each with a regression test;
-see `paper/`).
+anyone who could read the job log: rotate it, then upgrade
+(GHSA-vc6w-ghg4-j855). The Action's default `version: latest` picks this
+release up automatically; a pinned `version: v0.5.0` must be bumped. The other
+fixes come from an adversarial self-audit of v0.5.0 (49 findings, 44 fixed,
+each with a regression test; see `paper/`).
 
 ### Added
 
