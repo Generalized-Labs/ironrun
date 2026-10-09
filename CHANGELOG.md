@@ -60,6 +60,9 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   it ran, and `truncated` is reported only when output was actually dropped.
 - `ironrun gh protect --org` sends typed booleans; `lint` counts version-2
   secret bindings.
+- The GitHub Action resolves `version: latest` through the release redirect
+  instead of the REST API, whose unauthenticated rate limit made the step fail
+  with HTTP 403 on busy runners.
 
 ### Security
 

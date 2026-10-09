@@ -104,10 +104,12 @@ runs:
         # --- resolve version ---
         if [ "$VERSION" = "latest" ]; then
           echo "Resolving latest ironrun release..."
-          VERSION="$(curl -fsSL --proto '=https' --tlsv1.2 \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${REPO}/releases/latest" \
-            | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')"
+          # Follow the release redirect instead of calling the REST API: the
+          # API's unauthenticated limit (60/h per IP, shared by hosted
+          # runners) returns 403 under load, which failed the job closed.
+          VERSION="$(curl -fsSLI --retry 2 --proto '=https' --tlsv1.2 -o /dev/null \
+            -w '%{url_effective}' "https://github.com/${REPO}/releases/latest")"
+          VERSION="${VERSION##*/releases/tag/}"
           [ -n "$VERSION" ] || { echo "::error::could not determine the latest ironrun release"; exit 1; }
           echo "Latest release: $VERSION"
         fi
