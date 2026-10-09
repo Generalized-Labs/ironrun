@@ -10,6 +10,7 @@
   "files": [
     "bin/",
     "lib/",
+    "scripts/postinstall.mjs",
     "manifest.json",
     "README.md"
   ],

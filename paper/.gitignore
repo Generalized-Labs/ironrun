@@ -1,0 +1,10 @@
+# LaTeX build artifacts (ironrun.pdf itself is committed)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.tar.gz

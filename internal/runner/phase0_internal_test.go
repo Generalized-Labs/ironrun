@@ -9,12 +9,12 @@ import (
 	"github.com/generalized-labs/ironrun/internal/sealedexec"
 )
 
-// clearCIEnv removes every CI marker checkCITrust reads, so table tests start
+// clearCIEnv removes every CI marker CheckCITrust reads, so table tests start
 // from a clean slate regardless of the ambient environment.
 func clearCIEnv(t *testing.T) {
 	t.Helper()
 	for _, k := range []string{
-		"GITHUB_ACTIONS", "GITHUB_EVENT_NAME", "GITHUB_HEAD_REPOSITORY", "GITHUB_REPOSITORY",
+		"GITHUB_ACTIONS", "GITHUB_EVENT_NAME", "GITHUB_EVENT_PATH", "GITHUB_REPOSITORY",
 		"GITLAB_CI", "CI_PIPELINE_SOURCE", "CI_MERGE_REQUEST_SOURCE_PROJECT_ID", "CI_MERGE_REQUEST_PROJECT_ID",
 		"CIRCLECI", "CIRCLE_PR_NUMBER", "CIRCLE_PR_USERNAME",
 		"JENKINS_URL", "JENKINS_HOME", "CHANGE_ID", "CHANGE_FORK",
@@ -34,6 +34,12 @@ func TestIsDangerousEnv_NewInjectorPrefixes(t *testing.T) {
 		"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS",
 		"ZDOTDIR",
 		"GIT_SSH", "GIT_SSH_COMMAND",
+		// newly covered injection vectors
+		"GOFLAGS",                                                       // go -toolexec
+		"GIT_CONFIG_COUNT", "GIT_CONFIG_KEY_0", "GIT_CONFIG_PARAMETERS", // inline git config
+		"NODE_PATH", "GCONV_PATH", "RUSTC_WRAPPER",
+		"DYLD_FALLBACK_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH", // DYLD_ prefix
+		"ENV", // sh/ash startup file (exact match)
 		// pre-existing entries still hold
 		"LD_PRELOAD", "BASH_ENV", "DYLD_INSERT_LIBRARIES",
 	}
@@ -42,7 +48,8 @@ func TestIsDangerousEnv_NewInjectorPrefixes(t *testing.T) {
 			t.Errorf("expected %q to be treated as dangerous", k)
 		}
 	}
-	safe := []string{"PATH", "HOME", "EDITOR", "MYAPP_TOKEN", "LANG"}
+	// ENV is an EXACT match: ENVIRONMENT and similar must stay safe.
+	safe := []string{"PATH", "HOME", "EDITOR", "MYAPP_TOKEN", "LANG", "ENVIRONMENT", "GOPATH", "NODE_ENV"}
 	for _, k := range safe {
 		if isDangerousEnv(k) {
 			t.Errorf("expected %q to be treated as safe", k)
@@ -93,7 +100,7 @@ func TestCheckCITrust_GitLab(t *testing.T) {
 		t.Setenv("CI_PIPELINE_SOURCE", "merge_request_event")
 		t.Setenv("CI_MERGE_REQUEST_SOURCE_PROJECT_ID", "111")
 		t.Setenv("CI_MERGE_REQUEST_PROJECT_ID", "222")
-		if err := checkCITrust(false); err == nil {
+		if err := CheckCITrust(false); err == nil {
 			t.Error("expected fork MR to be denied")
 		}
 	})
@@ -103,7 +110,7 @@ func TestCheckCITrust_GitLab(t *testing.T) {
 		t.Setenv("CI_PIPELINE_SOURCE", "merge_request_event")
 		t.Setenv("CI_MERGE_REQUEST_SOURCE_PROJECT_ID", "222")
 		t.Setenv("CI_MERGE_REQUEST_PROJECT_ID", "222")
-		if err := checkCITrust(false); err != nil {
+		if err := CheckCITrust(false); err != nil {
 			t.Errorf("expected same-project MR to be allowed, got %v", err)
 		}
 	})
@@ -111,7 +118,7 @@ func TestCheckCITrust_GitLab(t *testing.T) {
 		clearCIEnv(t)
 		t.Setenv("GITLAB_CI", "true")
 		t.Setenv("CI_PIPELINE_SOURCE", "merge_request_event")
-		if err := checkCITrust(false); err == nil {
+		if err := CheckCITrust(false); err == nil {
 			t.Error("expected MR with unknown fork status to be denied (fail closed)")
 		}
 	})
@@ -119,7 +126,7 @@ func TestCheckCITrust_GitLab(t *testing.T) {
 		clearCIEnv(t)
 		t.Setenv("GITLAB_CI", "true")
 		t.Setenv("CI_PIPELINE_SOURCE", "push")
-		if err := checkCITrust(false); err != nil {
+		if err := CheckCITrust(false); err != nil {
 			t.Errorf("expected push pipeline to be allowed, got %v", err)
 		}
 	})
@@ -131,14 +138,14 @@ func TestCheckCITrust_CircleCI(t *testing.T) {
 		t.Setenv("CIRCLECI", "true")
 		t.Setenv("CIRCLE_PR_NUMBER", "42")
 		t.Setenv("CIRCLE_PR_USERNAME", "attacker")
-		if err := checkCITrust(false); err == nil {
+		if err := CheckCITrust(false); err == nil {
 			t.Error("expected CircleCI fork PR build to be denied")
 		}
 	})
 	t.Run("non-PR build allowed", func(t *testing.T) {
 		clearCIEnv(t)
 		t.Setenv("CIRCLECI", "true")
-		if err := checkCITrust(false); err != nil {
+		if err := CheckCITrust(false); err != nil {
 			t.Errorf("expected plain CircleCI build to be allowed, got %v", err)
 		}
 	})
@@ -150,7 +157,7 @@ func TestCheckCITrust_Jenkins(t *testing.T) {
 		t.Setenv("JENKINS_URL", "https://jenkins.example.com/")
 		t.Setenv("CHANGE_ID", "7")
 		t.Setenv("CHANGE_FORK", "attacker/repo")
-		if err := checkCITrust(false); err == nil {
+		if err := CheckCITrust(false); err == nil {
 			t.Error("expected Jenkins fork change build to be denied")
 		}
 	})
@@ -158,14 +165,14 @@ func TestCheckCITrust_Jenkins(t *testing.T) {
 		clearCIEnv(t)
 		t.Setenv("JENKINS_HOME", "/var/jenkins")
 		t.Setenv("CHANGE_ID", "7")
-		if err := checkCITrust(false); err == nil {
+		if err := CheckCITrust(false); err == nil {
 			t.Error("expected Jenkins change build with unknown fork status to be denied (fail closed)")
 		}
 	})
 	t.Run("branch build allowed", func(t *testing.T) {
 		clearCIEnv(t)
 		t.Setenv("JENKINS_URL", "https://jenkins.example.com/")
-		if err := checkCITrust(false); err != nil {
+		if err := CheckCITrust(false); err != nil {
 			t.Errorf("expected Jenkins branch build to be allowed, got %v", err)
 		}
 	})
@@ -177,11 +184,11 @@ func TestCheckCITrust_PullRequestTargetEnvKillSwitchIgnored(t *testing.T) {
 	t.Setenv("GITHUB_EVENT_NAME", "pull_request_target")
 	// The legacy env form must NOT grant access anymore.
 	t.Setenv("IRONRUN_ALLOW_PRT", "1")
-	if err := checkCITrust(false); err == nil {
+	if err := CheckCITrust(false); err == nil {
 		t.Error("expected IRONRUN_ALLOW_PRT=1 to be ignored (env kill-switch is dead)")
 	}
 	// The operator flag form grants access.
-	if err := checkCITrust(true); err != nil {
+	if err := CheckCITrust(true); err != nil {
 		t.Errorf("expected allowPullRequestTarget=true to permit, got %v", err)
 	}
 }

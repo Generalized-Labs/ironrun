@@ -414,7 +414,8 @@ func detectEnvVars(dir string) []string {
 			}
 			parts := strings.SplitN(line, "=", 2)
 			if len(parts) == 2 {
-				key := strings.TrimSpace(parts[0])
+				// `export KEY=value` (shell-sourceable .env) names KEY.
+				key := strings.TrimSpace(strings.TrimPrefix(parts[0], "export "))
 				// Only include things that look like credentials
 				lower := strings.ToLower(key)
 				isSecret := strings.Contains(lower, "key") ||

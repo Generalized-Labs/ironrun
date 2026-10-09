@@ -45,7 +45,7 @@ commands:
 	if err != nil {
 		t.Fatalf("review: %v\n%s", err, out)
 	}
-	if !strings.Contains(out, "list-files") || !strings.Contains(out, "ls -la") {
+	if !strings.Contains(out, "list-files") || !strings.Contains(out, `["ls" "-la"]`) {
 		t.Errorf("review output missing proposal: %s", out)
 	}
 

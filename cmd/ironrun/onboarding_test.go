@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -23,6 +25,23 @@ func TestGeneratePolicyUsesEncryptedLocalVault(t *testing.T) {
 	}
 	if len(parsed.Commands) != 1 || len(parsed.Commands[0].Secrets) != 1 || parsed.Commands[0].Secrets[0] != "OPENAI_API_KEY" {
 		t.Fatalf("generated command bindings = %#v", parsed.Commands)
+	}
+}
+
+// REGRESSION: `export API_KEY=...` was detected as the key "export API_KEY",
+// and the generated policy then failed to load at all.
+func TestDetectEnvVarsStripsExport(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, ".env"), []byte("export API_KEY=TEST-SECRET-0000\nDATABASE_URL=TEST-SECRET-0001\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	vars := detectEnvVars(dir)
+	if strings.Join(vars, ",") != "API_KEY,DATABASE_URL" {
+		t.Fatalf("detected %q", vars)
+	}
+	content := generatePolicy([]DetectedCmd{{ID: "test", Argv: []string{"go", "test"}, NeedsEnv: true}}, vars)
+	if _, err := policy.Parse([]byte(content)); err != nil {
+		t.Fatalf("generated policy does not load: %v\n%s", err, content)
 	}
 }
 

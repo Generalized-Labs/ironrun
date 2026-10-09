@@ -36,7 +36,6 @@ func envCmd() *cobra.Command {
 		envRemoveCmd(),
 		envPruneCmd(),
 		envDoctorCmd(),
-		envShareCmd(),
 		envSyncCmd(),
 	)
 	return c
@@ -528,32 +527,6 @@ func attachPolicyToActiveEnvironment(path string) error {
 	return nil
 }
 
-func envShareCmd() *cobra.Command {
-	return &cobra.Command{
-		Use:   "share",
-		Short: "Export the vault encryption key to securely share with team members or agents",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			m, err := openEnvManager()
-			if err != nil {
-				return err
-			}
-			exporter, ok := m.Store.(interface {
-				ExportRootKey() string
-				VaultPath() string
-			})
-			if !ok {
-				return errors.New("the current store does not support vault export")
-			}
-			key := exporter.ExportRootKey()
-			fmt.Println("Share the following key over a secure channel:")
-			fmt.Printf("Key: %s\n", key)
-			fmt.Printf("Vault Path: %s\n", exporter.VaultPath())
-			return nil
-		},
-	}
-}
-
 func envSyncCmd() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "sync [push|pull]",
@@ -571,6 +544,7 @@ func envSyncCmd() *cobra.Command {
 			}
 			exporter, ok := m.Store.(interface {
 				VaultPath() string
+				ReplaceVault([]byte) error
 			})
 			if !ok {
 				return errors.New("the current store does not support remote sync")
@@ -607,8 +581,8 @@ func envSyncCmd() *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("read remote vault: %w", err)
 				}
-				if err := os.WriteFile(vaultPath, data, 0600); err != nil {
-					return fmt.Errorf("write pulled vault: %w", err)
+				if err := exporter.ReplaceVault(data); err != nil {
+					return fmt.Errorf("refusing pulled vault %s; local vault left unchanged: %w", vaultName, err)
 				}
 				fmt.Printf("✓ Pulled vault %s from Google Drive\n", vaultName)
 			}

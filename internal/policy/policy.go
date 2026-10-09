@@ -207,6 +207,11 @@ func Parse(data []byte) (*File, error) {
 		if len(cmd.Argv) == 0 {
 			return nil, fmt.Errorf("%w: command %q missing argv", ErrMalformed, cmd.ID)
 		}
+		for name := range cmd.Env {
+			if !validEnvTarget(name) {
+				return nil, fmt.Errorf("%w: command %q has invalid environment variable name %q", ErrMalformed, cmd.ID, name)
+			}
+		}
 		commandSecrets := map[string]bool{}
 		for _, alias := range cmd.Secrets {
 			if commandSecrets[alias] {
@@ -321,14 +326,36 @@ func IsShellString(argv []string) bool {
 	if len(argv) == 0 {
 		return false
 	}
-	switch argv[0] {
-	case "sh", "bash", "zsh", "fish", "dash", "ash", "ksh", "csh", "tcsh", "rbash",
-		"/bin/sh", "/bin/bash", "/bin/zsh", "/bin/dash", "/bin/ash", "/bin/ksh", "/bin/csh", "/bin/tcsh",
-		"/usr/bin/sh", "/usr/bin/bash", "/usr/bin/zsh", "/usr/bin/fish", "/usr/bin/dash", "/usr/bin/ksh",
-		"/usr/local/bin/bash", "/usr/local/bin/zsh", "/usr/local/bin/fish":
+	if isShellProgram(argv[0]) {
+		return true
+	}
+	// `env [FLAGS] [VAR=val...] <program> ...` runs <program>: look past the
+	// env leading flags and inline assignments to the real program name.
+	if shellBaseName(argv[0]) == "env" {
+		for _, a := range argv[1:] {
+			if a == "" || strings.HasPrefix(a, "-") || strings.Contains(a, "=") {
+				continue // env flag or VAR=val assignment
+			}
+			return isShellProgram(a)
+		}
+	}
+	return false
+}
+
+// isShellProgram reports whether a path/name refers to a known shell,
+// independent of the directory it lives in or the case of its name (macOS
+// filesystems are case-insensitive, so /bin/SH resolves to /bin/sh).
+func isShellProgram(arg string) bool {
+	switch shellBaseName(arg) {
+	case "sh", "bash", "zsh", "fish", "dash", "ash", "ksh", "csh", "tcsh",
+		"rbash", "mksh", "busybox", "toybox":
 		return true
 	}
 	return false
+}
+
+func shellBaseName(arg string) string {
+	return strings.ToLower(filepath.Base(filepath.Clean(arg)))
 }
 
 // SetDuration sets the Duration from a string — useful in tests.

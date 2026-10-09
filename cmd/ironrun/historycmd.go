@@ -22,8 +22,8 @@ func historyCmd() *cobra.Command {
 
 // historyPurgeCmd: ironrun history purge — exact-value (+encoded variants)
 // cleanup of bash/zsh/fish history files. Dry-run by default: lists files and
-// the lines that would be dropped. --apply backs up each touched file first
-// (<path>.ironrun.bak, never overwritten) and rewrites atomically.
+// the lines that would be dropped. --apply rewrites each touched file
+// atomically with no plaintext backup (a backup would re-persist the secrets).
 func historyPurgeCmd() *cobra.Command {
 	var apply bool
 	var shells []string
@@ -36,9 +36,9 @@ lines — zero false positives, because ironrun knows the exact values.
 
 Safety:
   • dry-run by default: reports per-file line counts, changes nothing
-  • --apply backs up each touched file to <history>.ironrun.bak first
-    (an existing backup is never overwritten), then rewrites atomically
-    (temp file + rename); re-running is a no-op`,
+  • --apply rewrites each touched file atomically (temp file + rename) with
+    NO plaintext backup kept — a backup would re-persist the purged secrets;
+    re-running is a no-op and also removes any stale .ironrun.bak`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			out := cmd.OutOrStdout()
 			secrets, err := loadActiveSecrets()
@@ -75,7 +75,7 @@ Safety:
 				case !apply:
 					fmt.Fprintf(out, "  %s (%s): %d line(s) would be dropped\n", f.Path, f.Shell, f.MatchedLines)
 				default:
-					fmt.Fprintf(out, "  %s (%s): dropped %d line(s), backup %s\n", f.Path, f.Shell, f.MatchedLines, f.Backup)
+					fmt.Fprintf(out, "  %s (%s): dropped %d line(s), rewritten\n", f.Path, f.Shell, f.MatchedLines)
 				}
 			}
 			fmt.Fprintf(out, "\n%d matched line(s) across %d file(s), %d rewritten\n", res.Matched, len(res.Files), res.Rewrote)

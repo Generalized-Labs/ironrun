@@ -130,7 +130,7 @@ func Open(path string) (*Logger, error) {
 		return nil, fmt.Errorf("audit: cannot verify existing log %s: %w", path, verr)
 	} else if broken != -1 {
 		f.Close()
-		return nil, fmt.Errorf("audit: TAMPER DETECTED: hash chain of %s is broken at record %d — refusing to open; inspect the log (ironrun audit verify --log %s) before appending", path, broken, path)
+		return nil, fmt.Errorf("audit: TAMPER DETECTED: hash chain of %s is broken at record %d — refusing to open. Inspect it with `ironrun audit verify --log %s`; to recover, move it aside as evidence (mv %s %s.tampered) and the next run starts a new chain", path, broken, path, path, path)
 	}
 	return &Logger{f: f}, nil
 }

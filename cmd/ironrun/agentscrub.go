@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 
@@ -24,7 +25,39 @@ func loadActiveSecrets() ([]scrub.Secret, error) {
 	if err != nil {
 		return nil, fmt.Errorf("no active environment set: %w", err)
 	}
+	out := setSecrets(m, s, nil)
+	if len(out) == 0 {
+		return nil, fmt.Errorf("active environment set %q holds no values to match against", s.Name)
+	}
+	return out, nil
+}
+
+// loadAllSecrets is loadActiveSecrets over every unexpired environment set:
+// the git hooks must block a prod value committed while dev is active.
+func loadAllSecrets() ([]scrub.Secret, error) {
+	m, err := openEnvManager()
+	if err != nil {
+		return nil, fmt.Errorf("open ironrun project: %w (run `ironrun init` in a project directory first)", err)
+	}
+	return allSetSecrets(m)
+}
+
+func allSetSecrets(m *envset.Manager) ([]scrub.Secret, error) {
 	var out []scrub.Secret
+	for _, name := range m.Names() {
+		if s, ok := m.Set(name); ok && !m.Expired(s) {
+			out = setSecrets(m, s, out)
+		}
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("no environment set holds values to match against")
+	}
+	return out, nil
+}
+
+// setSecrets appends set s's non-empty values to out, skipping an alias/value
+// pair already present (the same value stored in two sets).
+func setSecrets(m *envset.Manager, s envset.Set, out []scrub.Secret) []scrub.Secret {
 	for _, e := range s.Entries {
 		var v string
 		switch e.Kind {
@@ -36,21 +69,19 @@ func loadActiveSecrets() ([]scrub.Secret, error) {
 			}
 			v = string(b)
 		default:
+			var err error
 			v, err = m.Get(s.Name, e.Name)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "ironrun: warning: skipping unreadable entry %q: %v (scan continues with the remaining values)\n", e.Name, err)
 				continue
 			}
 		}
-		if v == "" {
+		if v == "" || slices.Contains(out, scrub.Secret{Alias: e.Name, Value: v}) {
 			continue
 		}
 		out = append(out, scrub.Secret{Alias: e.Name, Value: v})
 	}
-	if len(out) == 0 {
-		return nil, fmt.Errorf("active environment set %q holds no values to match against", s.Name)
-	}
-	return out, nil
+	return out
 }
 
 // aliasHit is one alias matched inside scanned text, with its safe summary.

@@ -143,11 +143,11 @@ func gitCheckStagedCmd() *cobra.Command {
 		Short:  "Block when the staged diff contains a managed secret (hook helper)",
 		Hidden: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			diff, err := exec.Command("git", "diff", "--cached", "--no-color").CombinedOutput()
+			diff, err := exec.Command("git", append([]string{"diff", "--cached"}, scanDiffFlags...)...).Output()
 			if err != nil {
 				return fmt.Errorf("git diff --cached: %w", err)
 			}
-			return blockOnHits("staged diff", string(diff))
+			return blockOnHits("staged diff", addedContent(string(diff)))
 		},
 	}
 }
@@ -180,12 +180,12 @@ func gitCheckPushCmd() *cobra.Command {
 				if err != nil {
 					return err
 				}
-				args := append([]string{"log", "-p", "--no-color"}, revArgs...)
-				diff, err := exec.Command("git", args...).CombinedOutput()
+				args := append(append([]string{"log", "-p"}, scanDiffFlags...), revArgs...)
+				diff, err := exec.Command("git", args...).Output()
 				if err != nil {
 					return fmt.Errorf("git log for %s: %w", localRef, err)
 				}
-				if err := blockOnHits("push of "+localRef, string(diff)); err != nil {
+				if err := blockOnHits("push of "+localRef, addedContent(string(diff))); err != nil {
 					return err
 				}
 			}
@@ -206,9 +206,40 @@ func gitScanDiffCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			return blockOnHits("diff", string(diff))
+			return blockOnHits("diff", addedContent(string(diff)))
 		},
 	}
+}
+
+// scanDiffFlags make git print the real bytes of every change: --text so
+// binary files (keystores, .p12 file secrets) are diffed instead of reduced
+// to "Binary files differ", and no external diff driver or textconv filter
+// may rewrite what is scanned.
+var scanDiffFlags = []string{"--no-color", "--text", "--no-ext-diff", "--no-textconv"}
+
+// addedContent keeps only what a unified diff (or `git log -p` output) adds:
+// every hunk's '+' lines with the marker stripped, newline-joined, so a
+// multi-line value (PEM, JSON key file) reappears verbatim. Removed and
+// context lines are dropped: deleting a leaked value must not be blocked.
+func addedContent(diff string) string {
+	var b strings.Builder
+	inHunk := false
+	for _, line := range strings.Split(diff, "\n") {
+		switch {
+		case strings.HasPrefix(line, "@@"):
+			inHunk = true
+		case !inHunk:
+			// file or commit header: "+++ b/path" is not content
+		case strings.HasPrefix(line, "+"):
+			b.WriteString(line[1:])
+			b.WriteByte('\n')
+		case line == "" || line[0] == ' ' || line[0] == '-' || line[0] == '\\':
+			// context, removal, or "\ No newline at end of file"
+		default:
+			inHunk = false // next "diff --git" or "commit <sha>" header
+		}
+	}
+	return b.String()
 }
 
 // pushRange returns the git-log revision arguments covering the commits a
@@ -240,7 +271,7 @@ func pushRange(localRef, localSha, remoteSha string) ([]string, error) {
 // pre-push hook has no other layer at all, so warn-and-pass there would be
 // pure theater.) The error message says how to recover.
 func blockOnHits(where, text string) error {
-	secrets, err := loadActiveSecrets()
+	secrets, err := loadAllSecrets()
 	if err != nil {
 		return fmt.Errorf("ironrun: BLOCKED — exact-value check could not load the vault (%v). Run `ironrun init` in this project, or remove the hooks with `ironrun git uninstall-hooks`", err)
 	}

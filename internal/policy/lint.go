@@ -3,7 +3,9 @@ package policy
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -65,10 +67,11 @@ const (
 func Lint(f *File) []Finding {
 	var out []Finding
 
-	// Cross-command: which commands reference each secret ref (privilege creep).
+	// Cross-command: which commands reference each secret ref (privilege creep),
+	// counting both provider refs (env:) and environment entries (secrets:).
 	refCmds := map[string]map[string]bool{}
 	for _, c := range f.Commands {
-		for _, ref := range c.Env {
+		for _, ref := range append(slices.Collect(maps.Values(c.Env)), c.Secrets...) {
 			if refCmds[ref] == nil {
 				refCmds[ref] = map[string]bool{}
 			}

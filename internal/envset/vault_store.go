@@ -56,6 +56,10 @@ func (s *migratingVaultStore) ExportRootKey() string {
 func (s *migratingVaultStore) VaultPath() string {
 	return s.vault.Path()
 }
+
+func (s *migratingVaultStore) ReplaceVault(data []byte) error {
+	return s.vault.Replace(data)
+}
 func (s *migratingVaultStore) Set(scope, key, value string) error {
 	return s.vault.Set(scope, key, value)
 }

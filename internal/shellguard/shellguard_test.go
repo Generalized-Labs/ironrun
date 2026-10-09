@@ -102,7 +102,7 @@ func TestPurgeDryRunThenApply(t *testing.T) {
 		t.Fatal("dry-run modified the file")
 	}
 
-	// Apply: backup first, then rewrite atomically.
+	// Apply: rewrite atomically, leaving NO plaintext backup behind.
 	res, err = Purge(testMatcher(), files, true)
 	if err != nil {
 		t.Fatal(err)
@@ -110,12 +110,8 @@ func TestPurgeDryRunThenApply(t *testing.T) {
 	if res.Matched != 1 || res.Rewrote != 1 {
 		t.Fatalf("apply: matched=%d rewrote=%d", res.Matched, res.Rewrote)
 	}
-	bak, err := os.ReadFile(bashHist + ".ironrun.bak")
-	if err != nil {
-		t.Fatalf("backup missing: %v", err)
-	}
-	if string(bak) != content {
-		t.Fatal("backup does not hold the original content")
+	if _, err := os.Stat(bashHist + ".ironrun.bak"); !os.IsNotExist(err) {
+		t.Fatalf("purge left a plaintext backup behind (err=%v)", err)
 	}
 	raw, _ = os.ReadFile(bashHist)
 	if strings.Contains(string(raw), canaryH) {
@@ -132,6 +128,28 @@ func TestPurgeDryRunThenApply(t *testing.T) {
 	}
 	if res.Matched != 0 || res.Rewrote != 0 {
 		t.Fatalf("not idempotent: matched=%d rewrote=%d", res.Matched, res.Rewrote)
+	}
+}
+
+// A stale .ironrun.bak left by an older ironrun (which DID keep a plaintext
+// backup) must be removed when purge runs, so re-running purge self-heals that
+// historical leak.
+func TestPurgeRemovesStalePlaintextBackup(t *testing.T) {
+	dir := t.TempDir()
+	hist := filepath.Join(dir, ".bash_history")
+	content := "ls\nexport HIST_KEY=" + canaryH + "\necho ok\n"
+	if err := os.WriteFile(hist, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	// Simulate the old behavior's leftover.
+	if err := os.WriteFile(hist+".ironrun.bak", []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Purge(testMatcher(), []HistoryFile{{Shell: "bash", Path: hist}}, true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(hist + ".ironrun.bak"); !os.IsNotExist(err) {
+		t.Errorf("stale plaintext backup was not removed (err=%v)", err)
 	}
 }
 

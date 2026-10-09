@@ -47,7 +47,7 @@ func reviewCmd() *cobra.Command {
 // and which secrets it would receive — the anti-rubber-stamp surface.
 func printProposal(out io.Writer, p pending.Proposal) {
 	fmt.Fprintf(out, "  %s\n", p.ID)
-	fmt.Fprintf(out, "      argv:   %s\n", strings.Join(p.Argv, " "))
+	fmt.Fprintf(out, "      argv:   %q\n", p.Argv)
 	if len(p.Env) > 0 {
 		names := make([]string, 0, len(p.Env))
 		for k := range p.Env {
@@ -55,13 +55,13 @@ func printProposal(out io.Writer, p pending.Proposal) {
 		}
 		sort.Strings(names)
 		for _, k := range names {
-			fmt.Fprintf(out, "      env:    %s  <-  %s\n", k, p.Env[k])
+			fmt.Fprintf(out, "      env:    %q  <-  %q\n", k, p.Env[k])
 		}
 	} else {
 		fmt.Fprintln(out, "      env:    (none)")
 	}
 	if p.Reason != "" {
-		fmt.Fprintf(out, "      reason: %s\n", p.Reason)
+		fmt.Fprintf(out, "      reason: %s\n", yamlComment(p.Reason))
 	}
 	if flag := riskFlag(p); flag != "" {
 		fmt.Fprintf(out, "      !  %s\n", flag)
@@ -190,7 +190,7 @@ func appendCommandToPolicy(policyPath string, p pending.Proposal) error {
 	if current.UsesEnvironmentEntries() && len(p.Env) > 0 {
 		names := make([]string, 0, len(p.Env))
 		for name := range p.Env {
-			names = append(names, name)
+			names = append(names, yamlScalar(name))
 		}
 		sort.Strings(names)
 		block += fmt.Sprintf("    secrets: [%s]\n", strings.Join(names, ", "))

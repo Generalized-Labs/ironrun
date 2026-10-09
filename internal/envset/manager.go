@@ -10,9 +10,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/generalized-labs/ironrun/internal/vault"
 )
 
 const metadataVersion = 2
@@ -68,36 +71,56 @@ func Open(root string) (*Manager, error) {
 	if err != nil {
 		return nil, err
 	}
-	store, err := OpenVault(identity)
-	if err != nil {
-		return nil, err
-	}
-	m := &Manager{Root: root, Store: store, Now: time.Now}
-	path := metadataPath(root)
-	if data, readErr := os.ReadFile(path); readErr == nil {
-		if err := json.Unmarshal(data, &m.Meta); err != nil {
-			return nil, fmt.Errorf("parse environment metadata: %w", err)
-		}
-		if m.Meta.Version != 1 && m.Meta.Version != metadataVersion {
-			return nil, fmt.Errorf("unsupported environment metadata version %d", m.Meta.Version)
-		}
-		if m.Meta.Sets == nil {
-			m.Meta.Sets = map[string]Set{}
-		}
-		if m.Meta.Identity != identity {
+	m := &Manager{Root: root, Now: time.Now}
+	migrated := false
+	if meta, readErr := readMetadata(metadataPath(root)); readErr == nil {
+		if !sameIdentity(meta.Identity, identity) {
 			return nil, errors.New("project identity changed; run `ironrun env init` to inspect or migrate")
 		}
-		if migrateMetadata(&m.Meta) {
-			if err := m.Save(); err != nil {
-				return nil, fmt.Errorf("migrate environment metadata: %w", err)
-			}
-		}
+		// Keep the recorded identity: the vault and its scopes are keyed by it.
+		identity = meta.Identity
+		migrated = migrateMetadata(&meta)
+		m.Meta = meta
 	} else if !os.IsNotExist(readErr) {
 		return nil, readErr
 	} else {
 		m.Meta = Metadata{Version: metadataVersion, Identity: identity, Sets: map[string]Set{}}
 	}
+	store, err := OpenVault(identity)
+	if err != nil {
+		return nil, err
+	}
+	m.Store = store
+	if migrated {
+		if err := m.update(func() error { return nil }); err != nil {
+			return nil, fmt.Errorf("migrate environment metadata: %w", err)
+		}
+	}
 	return m, nil
+}
+
+func readMetadata(path string) (Metadata, error) {
+	var meta Metadata
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return meta, err
+	}
+	if err := json.Unmarshal(data, &meta); err != nil {
+		return meta, fmt.Errorf("parse environment metadata: %w", err)
+	}
+	if meta.Version != 1 && meta.Version != metadataVersion {
+		return meta, fmt.Errorf("unsupported environment metadata version %d", meta.Version)
+	}
+	if meta.Sets == nil {
+		meta.Sets = map[string]Set{}
+	}
+	return meta, nil
+}
+
+// sameIdentity compares projects independently of how the remote was
+// recorded; older metadata kept SSH remotes in their transport form.
+func sameIdentity(a, b Identity) bool {
+	return a.CanonicalPath == b.CanonicalPath && normalizeRemote(a.RemoteURL) == normalizeRemote(b.RemoteURL)
 }
 
 func migrateMetadata(meta *Metadata) bool {
@@ -144,6 +167,12 @@ func normalizeRemote(raw string) string {
 	if u, err := url.Parse(raw); err == nil && u.Host != "" {
 		u.Scheme = strings.ToLower(u.Scheme)
 		u.Host = strings.ToLower(u.Host)
+		u.User = nil
+		// The transport is not part of a repository's identity: its SSH and
+		// HTTPS remotes must resolve to the same project vault.
+		if u.Scheme == "ssh" || u.Scheme == "git+ssh" || u.Scheme == "git" {
+			u.Scheme, u.Host = "https", u.Hostname()
+		}
 		u.Path = strings.TrimRight(u.Path, "/")
 		u.Path = strings.TrimSuffix(u.Path, ".git")
 		u.RawQuery = ""
@@ -153,19 +182,34 @@ func normalizeRemote(raw string) string {
 	return strings.TrimSuffix(strings.TrimRight(raw, "/"), ".git")
 }
 
-func (m *Manager) Save() error {
+// update applies one metadata mutation for all processes: under the
+// environments.json lock it reloads the committed metadata, applies fn, and
+// commits atomically, so concurrent CLI, TUI, and MCP writers cannot drop each
+// other's entries.
+func (m *Manager) update(fn func() error) error {
 	if err := os.MkdirAll(filepath.Join(m.Root, ".ironrun"), 0700); err != nil {
 		return err
 	}
-	data, err := json.MarshalIndent(m.Meta, "", "  ")
-	if err != nil {
-		return err
-	}
 	path := metadataPath(m.Root)
-	if err := os.WriteFile(path, append(data, '\n'), 0600); err != nil {
-		return err
-	}
-	return os.Chmod(path, 0600)
+	return vault.WithLock(path+".lock", func() error {
+		if meta, err := readMetadata(path); err == nil {
+			if !sameIdentity(meta.Identity, m.Meta.Identity) {
+				return errors.New("project identity changed; reopen the project")
+			}
+			migrateMetadata(&meta)
+			m.Meta = meta
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+		if err := fn(); err != nil {
+			return err
+		}
+		data, err := json.MarshalIndent(m.Meta, "", "  ")
+		if err != nil {
+			return err
+		}
+		return vault.WriteFileAtomic(path, append(data, '\n'))
+	})
 }
 func metadataPath(root string) string          { return filepath.Join(root, ".ironrun", "environments.json") }
 func MetadataExists(root string) bool          { _, err := os.Stat(metadataPath(root)); return err == nil }
@@ -174,23 +218,27 @@ func (m *Manager) Create(name string, temporary bool, ttl time.Duration) (Set, e
 	if err := validateName(name); err != nil {
 		return Set{}, err
 	}
-	if _, ok := m.Meta.Sets[name]; ok {
-		return Set{}, fmt.Errorf("environment set %q already exists", name)
-	}
 	if temporary && ttl <= 0 {
 		ttl = DefaultTTL
 	}
-	now := m.Now()
-	s := Set{Name: name, Temporary: temporary, CreatedAt: now}
-	if temporary {
-		expires := now.Add(ttl)
-		s.ExpiresAt = &expires
-	}
-	m.Meta.Sets[name] = s
-	if m.Meta.Active == "" {
-		m.Meta.Active = name
-	}
-	return s, m.Save()
+	var s Set
+	err := m.update(func() error {
+		if _, ok := m.Meta.Sets[name]; ok {
+			return fmt.Errorf("environment set %q already exists", name)
+		}
+		now := m.Now()
+		s = Set{Name: name, Temporary: temporary, CreatedAt: now}
+		if temporary {
+			expires := now.Add(ttl)
+			s.ExpiresAt = &expires
+		}
+		m.Meta.Sets[name] = s
+		if m.Meta.Active == "" {
+			m.Meta.Active = name
+		}
+		return nil
+	})
+	return s, err
 }
 func (m *Manager) Ensure(name string) (Set, error) {
 	if s, ok := m.Set(name); ok {
@@ -199,11 +247,13 @@ func (m *Manager) Ensure(name string) (Set, error) {
 	return m.Create(name, false, 0)
 }
 func (m *Manager) Use(name string) error {
-	if _, ok := m.Set(name); !ok {
-		return fmt.Errorf("environment set %q not found", name)
-	}
-	m.Meta.Active = name
-	return m.Save()
+	return m.update(func() error {
+		if _, ok := m.Set(name); !ok {
+			return fmt.Errorf("environment set %q not found", name)
+		}
+		m.Meta.Active = name
+		return nil
+	})
 }
 func (m *Manager) Active() (Set, error) {
 	if m.Meta.Active == "" {
@@ -224,6 +274,10 @@ func (m *Manager) Put(setName, key, value string) error {
 }
 
 func (m *Manager) PutEntry(setName string, entry Entry, value []byte) error {
+	return m.update(func() error { return m.putEntry(setName, entry, value) })
+}
+
+func (m *Manager) putEntry(setName string, entry Entry, value []byte) error {
 	s, ok := m.Set(setName)
 	if !ok {
 		return fmt.Errorf("environment set %q not found", setName)
@@ -279,7 +333,7 @@ func (m *Manager) PutEntry(setName string, entry Entry, value []byte) error {
 	}
 	sort.Slice(s.Entries, func(i, j int) bool { return s.Entries[i].Name < s.Entries[j].Name })
 	m.Meta.Sets[setName] = s
-	return m.Save()
+	return nil
 }
 func (m *Manager) Get(setName, key string) (string, error) {
 	s, ok := m.Set(setName)
@@ -322,6 +376,10 @@ func (m *Manager) Entry(setName, name string) (Entry, bool) {
 	return Entry{}, false
 }
 func (m *Manager) DeleteKey(setName, key string) error {
+	return m.update(func() error { return m.deleteKey(setName, key) })
+}
+
+func (m *Manager) deleteKey(setName, key string) error {
 	s, ok := m.Set(setName)
 	if !ok {
 		return fmt.Errorf("environment set %q not found", setName)
@@ -337,7 +395,7 @@ func (m *Manager) DeleteKey(setName, key string) error {
 		}
 	}
 	m.Meta.Sets[setName] = s
-	return m.Save()
+	return nil
 }
 
 func validateEntry(entry Entry) error {
@@ -361,6 +419,10 @@ func validateEntry(entry Entry) error {
 	return nil
 }
 func (m *Manager) Remove(setName string) error {
+	return m.update(func() error { return m.remove(setName) })
+}
+
+func (m *Manager) remove(setName string) error {
 	s, ok := m.Set(setName)
 	if !ok {
 		return fmt.Errorf("environment set %q not found", setName)
@@ -378,7 +440,7 @@ func (m *Manager) Remove(setName string) error {
 			m.Meta.Active = names[0]
 		}
 	}
-	return m.Save()
+	return nil
 }
 func (m *Manager) Clone(from, to string) error {
 	src, ok := m.Set(from)
@@ -489,12 +551,7 @@ func ParseDotenv(path, projectRoot string) ([]DotenvEntry, error) {
 	if info.Mode().Perm()&0077 != 0 {
 		return nil, fmt.Errorf("refusing env file %q: permissions must be owner-only", path)
 	}
-	abs, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-	root, _ := filepath.Abs(projectRoot)
-	if projectRoot != "" && strings.HasPrefix(abs, filepath.Clean(root)+string(os.PathSeparator)) {
+	if projectRoot != "" && insideProject(path, projectRoot) {
 		return nil, fmt.Errorf("refusing env file inside project; pass an explicit unsafe override")
 	}
 	f, err := os.Open(path)
@@ -532,16 +589,40 @@ func ParseDotenv(path, projectRoot string) ([]DotenvEntry, error) {
 				return nil, fmt.Errorf("unterminated quoted value for %q", key)
 			}
 		}
-		if len(value) >= 2 && ((value[0] == '"' && value[len(value)-1] == '"') || (value[0] == '\'' && value[len(value)-1] == '\'')) {
+		literal := len(value) >= 2 && value[0] == '\'' && value[len(value)-1] == '\''
+		if len(value) >= 2 && ((value[0] == '"' && value[len(value)-1] == '"') || literal) {
 			value = value[1 : len(value)-1]
 		}
-		entries = append(entries, DotenvEntry{Key: key, Value: strings.ReplaceAll(value, "\\n", "\n")})
+		if !literal { // single-quoted dotenv values are literal
+			value = strings.ReplaceAll(value, "\\n", "\n")
+		}
+		entries = append(entries, DotenvEntry{Key: key, Value: value})
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 	return entries, nil
 }
+
+// insideProject compares symlink-resolved paths, case-insensitively on macOS
+// whose default filesystem folds case, so neither a symlinked directory nor a
+// re-cased path can slip a project-local file past the import guard.
+func insideProject(path, root string) bool {
+	resolve := func(p string) string {
+		if abs, err := filepath.Abs(p); err == nil {
+			p = abs
+		}
+		if real, err := filepath.EvalSymlinks(p); err == nil {
+			p = real
+		}
+		if runtime.GOOS == "darwin" {
+			p = strings.ToLower(p)
+		}
+		return filepath.Clean(p)
+	}
+	return strings.HasPrefix(resolve(path), resolve(root)+string(os.PathSeparator))
+}
+
 func (m *Manager) Template(setName, path string, keys []string) error {
 	if _, ok := m.Set(setName); !ok {
 		return fmt.Errorf("environment set %q not found", setName)

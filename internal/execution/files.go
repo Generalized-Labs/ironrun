@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -29,7 +30,10 @@ func newFileWorkspace() (*fileWorkspace, error) {
 		return nil, fmt.Errorf("secure runtime directory: %w", err)
 	}
 	_ = cleanupStaleFileWorkspaces(base, time.Now())
-	dir, err := os.MkdirTemp(base, "run-")
+	// Tag the run directory with the owning ironrun PID so stale recovery can
+	// reclaim crash remnants promptly (dead owner) without ever deleting a live
+	// run's directory, independent of the age fallback.
+	dir, err := os.MkdirTemp(base, fmt.Sprintf("run-%d-", os.Getpid()))
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +95,46 @@ func cleanupStaleFileWorkspaces(base string, now time.Time) error {
 		}
 		path := filepath.Join(base, entry.Name())
 		info, err := os.Lstat(path)
-		if err != nil || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0077 != 0 || now.Sub(info.ModTime()) < staleRunAge {
+		// Never touch symlinks or group/world-accessible dirs: not ours to trust.
+		if err != nil || info.Mode()&os.ModeSymlink != 0 || info.Mode().Perm()&0077 != 0 {
+			continue
+		}
+		pid, hasPID := runDirOwnerPID(entry.Name())
+		var remove bool
+		switch {
+		case hasPID && processAlive(pid):
+			// A live run — NEVER reclaim it, regardless of age, or we would
+			// delete a long-running command's file secrets out from under it.
+			remove = false
+		case hasPID:
+			// Owner is gone: a crash remnant, reclaim promptly.
+			remove = true
+		default:
+			// Legacy directory with no owner PID: fall back to the age rule.
+			remove = now.Sub(info.ModTime()) >= staleRunAge
+		}
+		if !remove {
 			continue
 		}
 		_ = os.RemoveAll(path)
 	}
 	return nil
+}
+
+// runDirOwnerPID extracts the owning ironrun PID from a run directory named
+// "run-<pid>-<rand>". hasPID is false for older "run-<rand>" layouts, which
+// fall back to the age rule.
+func runDirOwnerPID(name string) (pid int, hasPID bool) {
+	rest := strings.TrimPrefix(name, "run-")
+	i := strings.IndexByte(rest, '-')
+	if i <= 0 {
+		return 0, false
+	}
+	p, err := strconv.Atoi(rest[:i])
+	if err != nil || p <= 0 {
+		return 0, false
+	}
+	return p, true
 }
 
 // CleanupStale removes validated Ironrun-owned crash remnants. Unknown paths,

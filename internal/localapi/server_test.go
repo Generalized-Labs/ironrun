@@ -254,3 +254,18 @@ func TestSocketIsOwnerOnly(t *testing.T) {
 		t.Fatalf("socket permission = %04o, want 0600", perm)
 	}
 }
+
+// Tightening ironrun.yml must take effect on the next /v1/run without
+// restarting `ironrun api`.
+func TestRunReloadsPolicyPerRequest(t *testing.T) {
+	server := testServer(t)
+	if response := postRun(t, server, `{"command_id":"greet"}`); response.Code != http.StatusOK {
+		t.Fatalf("baseline run = %d %s", response.Code, response.Body)
+	}
+	if err := os.WriteFile(server.policyPath, []byte(leaseTestPolicy), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if response := postRun(t, server, `{"command_id":"greet"}`); response.Code != http.StatusForbidden {
+		t.Fatalf("run after enabling require_agent_leases = %d, want 403", response.Code)
+	}
+}

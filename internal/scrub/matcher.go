@@ -6,8 +6,9 @@
 // false positives near zero: a match is only reported when bytes ironrun
 // itself issued appear in the scanned text.
 //
-// This is a deliberately small, self-contained matcher. It does NOT import
-// internal/redact (owned by another worker this wave).
+// The variant set reuses internal/redact's base64 alignment cores and JSON
+// escapes, so transcripts (which store tool output JSON-escaped) and CI masks
+// cover the same shapes the streaming redactor does.
 package scrub
 
 import (
@@ -15,6 +16,8 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"strings"
+
+	"github.com/generalized-labs/ironrun/internal/redact"
 )
 
 // MinSecretLen is the minimum byte length of a value eligible for matching.
@@ -41,8 +44,9 @@ func Placeholder(alias, value string) string {
 }
 
 // Variants returns the exact value plus the encoded spellings tools persist:
-// base64 (padded + raw), base64-url (padded + raw), and percent-encoding
-// (uppercase and lowercase hex). Duplicates and no-op encodings are dropped.
+// base64 (padded + raw), base64-url (padded + raw), base64 at the other two
+// byte alignments, percent-encoding (uppercase and lowercase hex), and
+// JSON-string escaping. Duplicates, no-op and too-short encodings are dropped.
 func Variants(value string) []string {
 	out := []string{value}
 	seen := map[string]bool{value: true}
@@ -60,6 +64,11 @@ func Variants(value string) []string {
 	add(base64.RawURLEncoding.EncodeToString(b))
 	add(percentEncode(b, true))
 	add(percentEncode(b, false))
+	for _, v := range append(redact.Base64Cores(value), redact.JSONEscapes(value)...) {
+		if len(v) >= MinSecretLen {
+			add(v)
+		}
+	}
 	return out
 }
 

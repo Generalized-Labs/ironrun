@@ -2,10 +2,15 @@ package execution
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"io"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/generalized-labs/ironrun/internal/policy"
+	"github.com/generalized-labs/ironrun/internal/runner"
 )
 
 // captureStdout redirects os.Stdout for the duration of fn and returns what
@@ -86,5 +91,58 @@ func TestEmitGitHubMasks_Dedupes(t *testing.T) {
 	})
 	if n := strings.Count(out, "::add-mask::"+value+"\n"); n != 1 {
 		t.Errorf("expected value masked exactly once, got %d in: %q", n, out)
+	}
+}
+
+// REGRESSION (2026-10 audit): GitHub reads workflow commands line by line, so
+// printing a multi-line value after ::add-mask:: masked only its first line
+// and wrote every later line to the job log in cleartext.
+func TestEmitGitHubMasks_MultiLineValueNeverPrintedRaw(t *testing.T) {
+	value := "TEST-FILE-SECRET-HEADER-0000\nTEST-FILE-SECRET-BODY-1111\nTEST-FILE-SECRET-FOOTER-2222\n"
+	out := captureStdout(t, func() { emitGitHubMasks(nil, []string{value}) })
+	masked := map[string]bool{}
+	for _, line := range strings.Split(strings.TrimSuffix(out, "\n"), "\n") {
+		if !strings.HasPrefix(line, "::add-mask::") {
+			t.Fatalf("non-command line reached the job log: %q", line)
+		}
+		masked[strings.TrimPrefix(line, "::add-mask::")] = true
+	}
+	for _, want := range []string{"TEST-FILE-SECRET-HEADER-0000", "TEST-FILE-SECRET-BODY-1111", "TEST-FILE-SECRET-FOOTER-2222"} {
+		if !masked[want] {
+			t.Errorf("line %q has no mask of its own", want)
+		}
+	}
+}
+
+// REGRESSION: the CI trust gate used to run inside runner.Run, after the
+// provider had resolved every secret and after the masks were printed. An
+// untrusted event must be refused before either happens.
+func TestRun_UntrustedCIRefusedBeforeResolution(t *testing.T) {
+	t.Setenv("GITHUB_ACTIONS", "true")
+	t.Setenv("GITHUB_EVENT_NAME", "pull_request_target")
+	t.Setenv("IRONRUN_TEST_CI_GATE", "TEST-SECRET-0000")
+	f, err := policy.Parse([]byte(`version: "1"
+provider: env
+commands:
+  - id: gated
+    argv: [printenv, TOKEN]
+    allow_network: true
+    env:
+      TOKEN: env:IRONRUN_TEST_CI_GATE
+`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var runErr error
+	out := captureStdout(t, func() {
+		_, runErr = Run(context.Background(), f, "ironrun.yml", t.TempDir(), "gated", Options{
+			Stdout: io.Discard, Stderr: io.Discard, EmitGitHubMasks: true,
+		})
+	})
+	if !errors.Is(runErr, runner.ErrCIUntrusted) {
+		t.Fatalf("expected ErrCIUntrusted, got %v", runErr)
+	}
+	if out != "" {
+		t.Fatalf("resolved secrets reached stdout before the CI gate: %q", out)
 	}
 }

@@ -250,6 +250,20 @@ commands:
 	}
 }
 
+// REGRESSION: `env:` keys were never validated, so "" or "PATH=/tmp/x"
+// (which overrides PATH in the child) was accepted.
+func TestParse_RejectsInvalidEnvKeys(t *testing.T) {
+	for _, key := range []string{`""`, `"PATH=/tmp/x"`, `"1BAD"`, `"A-B"`} {
+		src := "version: \"1\"\ncommands:\n  - id: a\n    argv: [x]\n    env:\n      " + key + ": literal:TEST-SECRET-0000\n"
+		if _, err := policy.Parse([]byte(src)); !errors.Is(err, policy.ErrMalformed) {
+			t.Errorf("env key %s accepted: %v", key, err)
+		}
+	}
+	if _, err := policy.Parse([]byte("version: \"1\"\ncommands:\n  - id: a\n    argv: [x]\n    env:\n      API_KEY_2: literal:TEST-SECRET-0000\n")); err != nil {
+		t.Errorf("valid env key rejected: %v", err)
+	}
+}
+
 func TestParse_V2RejectsInvalidAndDuplicateEntryNames(t *testing.T) {
 	invalid := `version: "2"
 commands:

@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 
@@ -21,6 +23,14 @@ func main() {
 	// Note: when this binary is re-executed as the sealed-exec shim, the
 	// sealedexec package's init() intercepts it (installing the seccomp filter
 	// and execve'ing the target) before main runs — see internal/sealedexec.
+
+	// Turn SIGPIPE into an EPIPE error on writes to stdout/stderr instead of
+	// letting it kill ironrun. Without this, `ironrun run … | head` dies mid-run
+	// (no cleanup), orphaning the child and leaving file-secret plaintext behind.
+	// The channel is intentionally never drained — notifying is what flips the
+	// kernel-default behavior; see os/signal docs on SIGPIPE.
+	signal.Notify(make(chan os.Signal, 1), syscall.SIGPIPE)
+
 	_ = execution.CleanupStale()
 	root := &cobra.Command{
 		Use:   "ironrun",
@@ -84,13 +94,19 @@ func runCmd() *cobra.Command {
 				return err
 			}
 
-			auditLog, auditErr := audit.Open(audit.ResolvePath(f.AuditLog))
-			if auditErr != nil {
-				fmt.Fprintf(os.Stderr, "[ironrun] warning: audit log disabled: %v\n", auditErr)
+			auditLog, err := audit.Open(audit.ResolvePath(f.AuditLog))
+			if err != nil {
+				return fmt.Errorf("refusing to run without a verifiable audit log: %w", err)
 			}
 			defer auditLog.Close()
 
-			res, err := execution.Run(context.Background(), f, policyPath, policyProjectRoot(policyPath), args[0], execution.Options{
+			// Turn SIGINT/SIGTERM/SIGHUP into context cancellation so the runner
+			// tears down the whole child process group and cleanup (file-secret
+			// removal, audit) runs, instead of ironrun dying and orphaning the child.
+			ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
+			defer stop()
+
+			res, err := execution.Run(ctx, f, policyPath, policyProjectRoot(policyPath), args[0], execution.Options{
 				Environment: setName, Stdout: os.Stdout, Stderr: os.Stderr,
 				Audit: auditLog, SessionID: audit.NewSessionID(),
 				DisableSeccomp: disableSeccomp, DisableEntropyScan: disableEntropyScan,

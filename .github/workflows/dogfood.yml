@@ -1,7 +1,7 @@
 name: Dogfood
 
 # ironrun's own CI runs sealed: this workflow dogfoods the tool we ship.
-# It builds ironrun from this repo's source, runs a secret-bearing command
+# It installs the published ironrun Action/release, runs a secret-bearing command
 # through `ironrun run` with the seal ON (seccomp sandbox + streamed
 # redaction + audit trail), then proves:
 #   1. the canary secret never appears in anything the job saw (redactor works), and
@@ -22,10 +22,12 @@ on:
 jobs:
   dogfood:
     name: "Dogfood — CI runs sealed"
+    # The Action correctly refuses fork-PR events, so only dogfood trusted ones.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     # seccomp is the Linux story; the seal is proven on the Linux runner.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # 1 - POLICY: fresh random canary each run; hermetic audit path outside
       # the real audit log.

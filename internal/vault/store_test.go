@@ -173,3 +173,68 @@ func TestOpenDoesNotReplaceMissingKeyForExistingVault(t *testing.T) {
 		t.Fatalf("missing protected key error = %v", err)
 	}
 }
+
+func TestReplaceRefusesForeignOlderAndConflictingDocuments(t *testing.T) {
+	key := bytes.Repeat([]byte{7}, rootKeySize)
+	open := func(projectID string, key []byte) *Store {
+		t.Helper()
+		s, err := OpenWithKey(filepath.Join(t.TempDir(), "p.irvault"), projectID, key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	snapshot := func(s *Store) []byte {
+		t.Helper()
+		data, err := os.ReadFile(s.Path())
+		if err != nil {
+			t.Fatal(err)
+		}
+		return data
+	}
+	remote := open("project", key)
+	_ = remote.Set("dev", "TOKEN", "first")
+	older := snapshot(remote)
+	_ = remote.Set("dev", "TOKEN", "second")
+	newer := snapshot(remote)
+
+	local := open("project", key)
+	if err := local.Replace(older); err != nil {
+		t.Fatalf("authentic document refused: %v", err)
+	}
+	if err := local.Replace(older); err != nil {
+		t.Fatalf("identical document refused: %v", err)
+	}
+	conflicting := open("project", key)
+	_ = conflicting.Set("dev", "TOKEN", "diverged")
+	foreign := open("project", bytes.Repeat([]byte{9}, rootKeySize))
+	otherProject := open("other", key)
+	for i := 0; i < 5; i++ {
+		_ = foreign.Set("dev", "TOKEN", "foreign")
+		_ = otherProject.Set("dev", "TOKEN", "other")
+	}
+	before := snapshot(local)
+	for name, data := range map[string][]byte{
+		"conflicting same revision": snapshot(conflicting),
+		"different root key":        snapshot(foreign),
+		"different project":         snapshot(otherProject),
+		"not a vault":               []byte("<html>not found</html>"),
+	} {
+		if err := local.Replace(data); err == nil {
+			t.Fatalf("%s: replace succeeded", name)
+		}
+		if !bytes.Equal(snapshot(local), before) {
+			t.Fatalf("%s: local vault changed after refusal", name)
+		}
+	}
+
+	if err := local.Replace(newer); err != nil {
+		t.Fatalf("authentic newer document refused: %v", err)
+	}
+	if err := local.Replace(older); err == nil {
+		t.Fatal("older revision replaced the local vault")
+	}
+	if got, err := local.Get("dev", "TOKEN"); err != nil || got != "second" {
+		t.Fatalf("value = %q, %v", got, err)
+	}
+}

@@ -1223,13 +1223,16 @@ func (m *Model) renderRun(s styles, width, height int) string {
 			secrets := "none"
 			if len(proposal.Env) > 0 {
 				names := make([]string, 0, len(proposal.Env))
-				for name := range proposal.Env {
+				for name, ref := range proposal.Env {
+					if ref != "" && ref != name {
+						name += " <- " + ref
+					}
 					names = append(names, name)
 				}
 				sort.Strings(names)
-				secrets = strings.Join(names, ", ")
+				secrets = fmt.Sprintf("%q", names)
 			}
-			row := fmt.Sprintf("%s\n  argv: %q\n  workdir: project · secrets: %s\n  timeout: 120s · network: allowed · output: unlimited\n  reason: %s", proposal.ID, proposal.Argv, secrets, proposal.Reason)
+			row := fmt.Sprintf("%s\n  argv: %q\n  workdir: project · secrets: %s\n  timeout: 120s · network: allowed · output: unlimited\n  reason: %q", proposal.ID, proposal.Argv, secrets, proposal.Reason)
 			rows = append(rows, s.row(len(m.policy.Commands)+i == m.commandCursor).Render(row))
 		}
 	}

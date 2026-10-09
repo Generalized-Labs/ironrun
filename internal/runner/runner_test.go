@@ -197,11 +197,26 @@ func TestRun_DurationMs(t *testing.T) {
 	}
 }
 
-func TestRun_CIForkPRDenied(t *testing.T) {
+// setGitHubEvent mimics a real GitHub Actions run: the event name in the
+// environment and the payload in the file GITHUB_EVENT_PATH points at.
+func setGitHubEvent(t *testing.T, event, payload string) {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "event.json")
+	if err := os.WriteFile(path, []byte(payload), 0o600); err != nil {
+		t.Fatal(err)
+	}
 	t.Setenv("GITHUB_ACTIONS", "true")
-	t.Setenv("GITHUB_EVENT_NAME", "pull_request")
-	t.Setenv("GITHUB_HEAD_REPOSITORY", "attacker/fork")
+	t.Setenv("GITHUB_EVENT_NAME", event)
+	t.Setenv("GITHUB_EVENT_PATH", path)
 	t.Setenv("GITHUB_REPOSITORY", "owner/repo")
+}
+
+func prPayload(head, base string) string {
+	return `{"pull_request":{"head":{"repo":{"full_name":"` + head + `"}},"base":{"repo":{"full_name":"` + base + `"}}}}`
+}
+
+func TestRun_CIForkPRDenied(t *testing.T) {
+	setGitHubEvent(t, "pull_request", prPayload("attacker/fork", "owner/repo"))
 
 	cmd := makeCmd("echo", "", "echo", "hi")
 	_, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
@@ -210,11 +225,48 @@ func TestRun_CIForkPRDenied(t *testing.T) {
 	}
 }
 
+// REGRESSION: fork status used to come from GITHUB_HEAD_REPOSITORY, which
+// GitHub never sets, so every real fork PR passed. It must come from the
+// event payload, cover the review and workflow_run events, and fail closed
+// when the payload cannot prove the code is same-repo.
+func TestCheckCITrust_GitHubEventPayload(t *testing.T) {
+	cases := []struct {
+		name, event, payload string
+		trusted              bool
+	}{
+		{"same-repo PR", "pull_request", prPayload("owner/repo", "owner/repo"), true},
+		{"same repo, different case", "pull_request", prPayload("Owner/Repo", "owner/repo"), true},
+		{"fork PR", "pull_request", prPayload("attacker/repo", "owner/repo"), false},
+		{"fork PR review", "pull_request_review", prPayload("attacker/repo", "owner/repo"), false},
+		{"fork PR review comment", "pull_request_review_comment", prPayload("attacker/repo", "owner/repo"), false},
+		{"deleted fork (null head repo)", "pull_request", `{"pull_request":{"head":{"repo":null},"base":{"repo":{"full_name":"owner/repo"}}}}`, false},
+		{"unparsable payload", "pull_request", `not json`, false},
+		{"workflow_run from fork", "workflow_run", `{"workflow_run":{"head_repository":{"full_name":"attacker/repo"}},"repository":{"full_name":"owner/repo"}}`, false},
+		{"workflow_run same repo", "workflow_run", `{"workflow_run":{"head_repository":{"full_name":"owner/repo"}},"repository":{"full_name":"owner/repo"}}`, true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			setGitHubEvent(t, tc.event, tc.payload)
+			err := runner.CheckCITrust(false)
+			if tc.trusted && err != nil {
+				t.Fatalf("expected trusted, got %v", err)
+			}
+			if !tc.trusted && !errors.Is(err, runner.ErrCIUntrusted) {
+				t.Fatalf("expected ErrCIUntrusted, got %v", err)
+			}
+		})
+	}
+	t.Run("missing payload file", func(t *testing.T) {
+		setGitHubEvent(t, "pull_request", prPayload("owner/repo", "owner/repo"))
+		t.Setenv("GITHUB_EVENT_PATH", filepath.Join(t.TempDir(), "absent.json"))
+		if err := runner.CheckCITrust(false); !errors.Is(err, runner.ErrCIUntrusted) {
+			t.Fatalf("expected ErrCIUntrusted, got %v", err)
+		}
+	})
+}
+
 func TestRun_CITrustedPR(t *testing.T) {
-	t.Setenv("GITHUB_ACTIONS", "true")
-	t.Setenv("GITHUB_EVENT_NAME", "pull_request")
-	t.Setenv("GITHUB_HEAD_REPOSITORY", "owner/repo")
-	t.Setenv("GITHUB_REPOSITORY", "owner/repo")
+	setGitHubEvent(t, "pull_request", prPayload("owner/repo", "owner/repo"))
 
 	cmd := makeCmd("echo", "", "echo", "hi")
 	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})

@@ -1,0 +1,571 @@
+% ===================== 1. Prompt injection & agent-security foundations =====================
+@inproceedings{greshake2023youve,
+  author    = {Greshake, Kai and Abdelnabi, Sahar and Mishra, Shailesh and Endres, Christoph and Holz, Thorsten and Fritz, Mario},
+  title     = {Not What You've Signed Up For: Compromising Real-World {LLM}-Integrated Applications with Indirect Prompt Injection},
+  booktitle = {Proceedings of the 16th ACM Workshop on Artificial Intelligence and Security (AISec '23)},
+  pages     = {79--90},
+  year      = {2023},
+  publisher = {ACM},
+  doi       = {10.1145/3605764.3623985},
+  eprint    = {2302.12173},
+  archivePrefix = {arXiv}
+}
+@inproceedings{perez2022ignore,
+  author    = {Perez, F{\'a}bio and Ribeiro, Ian},
+  title     = {Ignore Previous Prompt: Attack Techniques For Language Models},
+  booktitle = {NeurIPS ML Safety Workshop},
+  year      = {2022},
+  eprint    = {2211.09527},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2211.09527}
+}
+@inproceedings{liu2024formalizing,
+  author    = {Liu, Yupei and Jia, Yuqi and Geng, Runpeng and Jia, Jinyuan and Gong, Neil Zhenqiang},
+  title     = {Formalizing and Benchmarking Prompt Injection Attacks and Defenses},
+  booktitle = {33rd USENIX Security Symposium (USENIX Security 24)},
+  year      = {2024},
+  url       = {https://www.usenix.org/conference/usenixsecurity24/presentation/liu-yupei},
+  eprint    = {2310.12815},
+  archivePrefix = {arXiv}
+}
+@inproceedings{debenedetti2024agentdojo,
+  author    = {Debenedetti, Edoardo and Zhang, Jie and Balunovi{\'c}, Mislav and Beurer-Kellner, Luca and Fischer, Marc and Tram{\`e}r, Florian},
+  title     = {{AgentDojo}: A Dynamic Environment to Evaluate Prompt Injection Attacks and Defenses for {LLM} Agents},
+  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS 2024), Datasets and Benchmarks Track},
+  year      = {2024},
+  url       = {https://proceedings.neurips.cc/paper_files/paper/2024/hash/97091a5177d8dc64b1da8bf3e1f6fb54-Abstract-Datasets_and_Benchmarks_Track.html},
+  eprint    = {2406.13352},
+  archivePrefix = {arXiv}
+}
+@inproceedings{zhan2024injecagent,
+  author    = {Zhan, Qiusi and Liang, Zhixiang and Ying, Zifan and Kang, Daniel},
+  title     = {{InjecAgent}: Benchmarking Indirect Prompt Injections in Tool-Integrated Large Language Model Agents},
+  booktitle = {Findings of the Association for Computational Linguistics: ACL 2024},
+  pages     = {10471--10506},
+  year      = {2024},
+  address   = {Bangkok, Thailand},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2024.findings-acl.624},
+  url       = {https://aclanthology.org/2024.findings-acl.624/}
+}
+@misc{nasr2025attacker,
+  author    = {Nasr, Milad and Carlini, Nicholas and Sitawarin, Chawin and Schulhoff, Sander V. and Hayes, Jamie and Ilie, Michael and Pluto, Juliette and Song, Shuang and Chaudhari, Harsh and Shumailov, Ilia and Thakurta, Abhradeep and Xiao, Kai Yuanqing and Terzis, Andreas and Tram{\`e}r, Florian},
+  title     = {The Attacker Moves Second: Stronger Adaptive Attacks Bypass Defenses Against {LLM} Jailbreaks and Prompt Injections},
+  year      = {2025},
+  eprint    = {2510.09023},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CR},
+  url       = {https://arxiv.org/abs/2510.09023}
+}
+@misc{willison2023dual,
+  author       = {Willison, Simon},
+  title        = {The Dual {LLM} pattern for building {AI} assistants that can resist prompt injection},
+  howpublished = {Blog post},
+  year         = {2023},
+  month        = apr,
+  url          = {https://simonwillison.net/2023/Apr/25/dual-llm-pattern/},
+  note         = {Accessed 2026-10-09}
+}
+@misc{willison2025trifecta,
+  author       = {Willison, Simon},
+  title        = {The lethal trifecta for {AI} agents: private data, untrusted content, and external communication},
+  howpublished = {Blog post},
+  year         = {2025},
+  month        = jun,
+  url          = {https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/},
+  note         = {Accessed 2026-10-09}
+}
+@misc{meta2025ruleoftwo,
+  author       = {{Meta AI}},
+  title        = {Agents Rule of Two: A Practical Approach to {AI} Agent Security},
+  howpublished = {Meta AI blog},
+  year         = {2025},
+  month        = oct,
+  url          = {https://ai.meta.com/blog/practical-ai-agent-security/},
+  note         = {Published 2025-10-31. Accessed 2026-10-09}
+}
+
+% ===================== 2. System-level / by-design agent defenses =====================
+@misc{debenedetti2025camel,
+  author    = {Debenedetti, Edoardo and Shumailov, Ilia and Fan, Tianqi and Hayes, Jamie and Carlini, Nicholas and Fabian, Daniel and Kern, Christoph and Shi, Chongyang and Terzis, Andreas and Tram{\`e}r, Florian},
+  title     = {Defeating Prompt Injections by Design},
+  year      = {2025},
+  eprint    = {2503.18813},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CR},
+  url       = {https://arxiv.org/abs/2503.18813}
+}
+@misc{beurerkellner2025design,
+  author    = {Beurer-Kellner, Luca and Buesser, Beat and Cre{\c{t}}u, Ana-Maria and Debenedetti, Edoardo and Dobos, Daniel and Fabian, Daniel and Fischer, Marc and Froelicher, David and Grosse, Kathrin and Naeff, Daniel and Ozoani, Ezinwanne and Paverd, Andrew and Tram{\`e}r, Florian and Volhejn, V{\'a}clav},
+  title     = {Design Patterns for Securing {LLM} Agents against Prompt Injections},
+  year      = {2025},
+  eprint    = {2506.08837},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  doi       = {10.48550/arXiv.2506.08837},
+  url       = {https://arxiv.org/abs/2506.08837}
+}
+@misc{costa2025fides,
+  author    = {Costa, Manuel and K{\"o}pf, Boris and Kolluri, Aashish and Paverd, Andrew and Russinovich, Mark and Salem, Ahmed and Tople, Shruti and Wutschitz, Lukas and Zanella-B{\'e}guelin, Santiago},
+  title     = {Securing {AI} Agents with Information-Flow Control},
+  year      = {2025},
+  eprint    = {2505.23643},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CR},
+  url       = {https://arxiv.org/abs/2505.23643}
+}
+@misc{shi2025progent,
+  author    = {Shi, Tianneng and He, Jingxuan and Wang, Zhun and Li, Hongwei and Wu, Linyu and Guo, Wenbo and Song, Dawn},
+  title     = {Progent: Securing {AI} Agents with Privilege Control},
+  year      = {2025},
+  eprint    = {2504.11703},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CR},
+  url       = {https://arxiv.org/abs/2504.11703},
+  note      = {v1/v2 titled ``Progent: Programmable Privilege Control for LLM Agents''}
+}
+@inproceedings{wu2025isolategpt,
+  author    = {Wu, Yuhao and Roesner, Franziska and Kohno, Tadayoshi and Zhang, Ning and Iqbal, Umar},
+  title     = {{IsolateGPT}: An Execution Isolation Architecture for {LLM}-Based Agentic Systems},
+  booktitle = {Network and Distributed System Security Symposium (NDSS)},
+  year      = {2025},
+  doi       = {10.14722/ndss.2025.241131},
+  eprint    = {2403.04960},
+  archivePrefix = {arXiv}
+}
+@misc{wu2024fsecure,
+  author    = {Wu, Fangzhou and Cecchetti, Ethan and Xiao, Chaowei},
+  title     = {System-Level Defense against Indirect Prompt Injection Attacks: An Information Flow Control Perspective},
+  year      = {2024},
+  eprint    = {2409.19091},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CR},
+  url       = {https://arxiv.org/abs/2409.19091}
+}
+
+% ===================== 3. MCP-specific security =====================
+@misc{mcp2026spec,
+  author       = {{Model Context Protocol}},
+  title        = {Model Context Protocol Specification (version 2026-07-28)},
+  year         = {2026},
+  url          = {https://modelcontextprotocol.io/specification/2026-07-28},
+  note         = {Accessed 2026-10-09}
+}
+@misc{invariant2025toolpoisoning,
+  author       = {{Invariant Labs}},
+  title        = {{MCP} Security Notification: Tool Poisoning Attacks},
+  year         = {2025},
+  month        = apr,
+  url          = {https://invariantlabs.ai/blog/mcp-security-notification},
+  note         = {Published 2025-04-01. Accessed 2026-10-09}
+}
+@misc{radosevich2025mcpsafety,
+  author    = {Radosevich, Brandon and Halloran, John},
+  title     = {{MCP} Safety Audit: {LLMs} with the Model Context Protocol Allow Major Security Exploits},
+  year      = {2025},
+  eprint    = {2504.03767},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2504.03767}
+}
+@misc{hou2025mcplandscape,
+  author    = {Hou, Xinyi and Zhao, Yanjie and Wang, Shenao and Wang, Haoyu},
+  title     = {Model Context Protocol ({MCP}): Landscape, Security Threats, and Future Research Directions},
+  year      = {2025},
+  eprint    = {2503.23278},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2503.23278}
+}
+@misc{hasan2025mcpfirstglance,
+  author    = {Hasan, Mohammed Mehedi and Li, Hao and Fallahzadeh, Emad and Rajbahadur, Gopi Krishnan and Adams, Bram and Hassan, Ahmed E.},
+  title     = {Model Context Protocol ({MCP}) at First Glance: Studying the Security and Maintainability of {MCP} Servers},
+  year      = {2025},
+  eprint    = {2506.13538},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2506.13538}
+}
+@inproceedings{zhao2026parasites,
+  author    = {Zhao, Shuli and Hou, Qinsheng and Zhan, Zihan and Wang, Yanhao and Xie, Yuchong and Guo, Yu and Chen, Libo and Li, Shenghong and Xue, Zhi},
+  title     = {Parasites in the Toolchain: A Large-Scale Analysis of Attacks on the {MCP} Ecosystem},
+  booktitle = {IEEE Symposium on Security and Privacy (S\&P)},
+  year      = {2026},
+  eprint    = {2509.06572},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2509.06572}
+}
+@misc{guo2025mcpmeasurement,
+  author    = {Guo, Hechuan and Hao, Yongle and Zhang, Yue and Xu, Minghui and Lv, Peizhuo and Chen, Jiezhi and Cheng, Xiuzhen},
+  title     = {A Measurement Study of Model Context Protocol Ecosystem},
+  year      = {2025},
+  eprint    = {2509.25292},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2509.25292}
+}
+@inproceedings{wang2026mcptox,
+  author    = {Wang, Zhiqiang and Gao, Yichao and Wang, Yanting and Liu, Suyuan and Sun, Haifeng and Cheng, Haoran and Shi, Guanquan and Du, Haohua and Li, Xiangyang},
+  title     = {{MCPTox}: A Benchmark for Tool Poisoning on Real-World {MCP} Servers},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {40},
+  pages     = {35811--35819},
+  year      = {2026},
+  doi       = {10.1609/aaai.v40i42.40895},
+  eprint    = {2508.14925},
+  archivePrefix = {arXiv}
+}
+@misc{zhou2026mcpauth,
+  author    = {Zhou, Huijun and Zhang, Xiaohan and Zhang, Haozhe and Zhang, Haoyang and Zhang, Mi and Yang, Min},
+  title     = {A First Measurement Study on Authentication Security in Real-World Remote {MCP} Servers},
+  year      = {2026},
+  eprint    = {2605.22333},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2605.22333}
+}
+@misc{chen2026rethinkingmcp,
+  author    = {Chen, Pei and An, Baichao and Wu, Mengying and Wan, Binwang and Hong, Geng and Chen, Jinsong and Pan, Xudong and Dai, Jiarun and Yang, Min},
+  title     = {Rethinking {MCP} Security: A Large-Scale Study of Runtime {MCP} Servers and Security Scanner Reliability},
+  year      = {2026},
+  eprint    = {2607.11086},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2607.11086}
+}
+@misc{hou2026unsafeflow,
+  author    = {Hou, Xinyi and Zhao, Yanjie and Wang, Haoyu},
+  title     = {Unsafe by Flow: Uncovering Bidirectional Data-Flow Risks in {MCP} Ecosystem},
+  year      = {2026},
+  eprint    = {2605.07836},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2605.07836}
+}
+@misc{xie2025toolleak,
+  author    = {Xie, Yuchong and Luo, Mingyu and Liu, Zesen and Zhang, Zhixiang and Zhang, Kaikai and Liu, Yu and Li, Zongjie and Chen, Ping and Wang, Shuai and She, Dongdong},
+  title     = {Red-Teaming Coding Agents from a Tool-Invocation Perspective: An Empirical Security Assessment},
+  year      = {2025},
+  eprint    = {2509.05755},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2509.05755}
+}
+
+% ===================== 4. Secret leakage in software, CI, and agents =====================
+@inproceedings{meli2019git,
+  author    = {Meli, Michael and McNiece, Matthew R. and Reaves, Bradley},
+  title     = {How Bad Can It Git? Characterizing Secret Leakage in Public {GitHub} Repositories},
+  booktitle = {Network and Distributed System Security Symposium (NDSS)},
+  year      = {2019},
+  doi       = {10.14722/ndss.2019.23418}
+}
+@inproceedings{basak2023comparative,
+  author    = {Basak, Setu Kumar and Cox, Jamison and Reaves, Bradley and Williams, Laurie},
+  title     = {A Comparative Study of Software Secrets Reporting by Secret Detection Tools},
+  booktitle = {ACM/IEEE International Symposium on Empirical Software Engineering and Measurement (ESEM)},
+  pages     = {1--12},
+  year      = {2023},
+  doi       = {10.1109/ESEM56168.2023.10304853},
+  eprint    = {2307.00714},
+  archivePrefix = {arXiv}
+}
+@inproceedings{basak2023secretbench,
+  author    = {Basak, Setu Kumar and Neil, Lorenzo and Reaves, Bradley and Williams, Laurie},
+  title     = {{SecretBench}: A Dataset of Software Secrets},
+  booktitle = {IEEE/ACM 20th International Conference on Mining Software Repositories (MSR)},
+  pages     = {347--351},
+  year      = {2023},
+  doi       = {10.1109/MSR59073.2023.00053}
+}
+@article{huang2024codesecret,
+  author    = {Huang, Yizhan and Li, Yichen and Wu, Weibin and Zhang, Jianping and Lyu, Michael R.},
+  title     = {Your Code Secret Belongs to Me: Neural Code Completion Tools Can Memorize Hard-Coded Credentials},
+  journal   = {Proceedings of the ACM on Software Engineering},
+  volume    = {1},
+  number    = {FSE},
+  articleno = {111},
+  pages     = {2515--2537},
+  year      = {2024},
+  doi       = {10.1145/3660818}
+}
+@inproceedings{koishybayev2022ci,
+  author    = {Koishybayev, Igibek and Nahapetyan, Aleksandr and Zachariah, Raima and Muralee, Siddharth and Reaves, Bradley and Kapravelos, Alexandros and Machiry, Aravind},
+  title     = {Characterizing the Security of {GitHub} {CI} Workflows},
+  booktitle = {31st USENIX Security Symposium (USENIX Security 22)},
+  year      = {2022},
+  url       = {https://www.usenix.org/conference/usenixsecurity22/presentation/koishybayev}
+}
+@misc{github2026secureuse,
+  author       = {{GitHub}},
+  title        = {Secure use reference ({GitHub} Actions)},
+  howpublished = {GitHub Docs},
+  year         = {2026},
+  url          = {https://docs.github.com/en/actions/reference/security/secure-use},
+  note         = {Accessed 2026-10-09}
+}
+@misc{githubrunner2019encoders,
+  author       = {{GitHub}},
+  title        = {actions/runner: \texttt{ValueEncoders.cs} (secret-masker value encoders)},
+  howpublished = {Source code},
+  year         = {2019},
+  url          = {https://github.com/actions/runner/blob/main/src/Sdk/DTLogging/Logging/ValueEncoders.cs},
+  note         = {Registered in \texttt{src/Runner.Common/HostContext.cs}; present since the initial commit, 2019-10-10. Accessed 2026-10-09}
+}
+@misc{lobacevski2021pwn,
+  author       = {Loba{\v{c}}evski, Jaroslav},
+  title        = {Keeping your {GitHub} Actions and workflows secure Part 1: Preventing pwn requests},
+  howpublished = {GitHub Security Lab},
+  year         = {2021},
+  month        = aug,
+  url          = {https://securitylab.github.com/resources/github-actions-preventing-pwn-requests/},
+  note         = {Accessed 2026-10-09}
+}
+@misc{gitguardian2025sprawl,
+  author       = {{GitGuardian}},
+  title        = {The State of Secrets Sprawl 2025},
+  year         = {2025},
+  url          = {https://www.gitguardian.com/state-of-secrets-sprawl-report-2025},
+  note         = {Accessed 2026-10-09}
+}
+@misc{gitguardian2026sprawl,
+  author       = {{GitGuardian}},
+  title        = {The State of Secrets Sprawl 2026},
+  year         = {2026},
+  url          = {https://www.gitguardian.com/state-of-secrets-sprawl-report-2026},
+  note         = {5th edition (covers 2025 data). Accessed 2026-10-09}
+}
+@misc{chen2026skillsleak,
+  author    = {Chen, Zhihao and Zhang, Ying and Liu, Yi and Deng, Gelei and Li, Yuekang and Zhang, Yanjun and Ning, Jianting and Zhang, Leo Yu and Ma, Lei and Li, Zhiqiang},
+  title     = {How Your Credentials Are Leaked by {LLM} Agent Skills: An Empirical Study},
+  year      = {2026},
+  eprint    = {2604.03070},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2604.03070},
+  note      = {Accepted to ASE 2026}
+}
+@misc{kenney2026vault,
+  author    = {Kenney, Patrick and Ahmadi, Hadi and Lusson, Denis and Nguyen, Donald and Gill, Gurbinder},
+  title     = {{API} Secrets Should Never Become Tokens in the {LLM}'s Vocabulary: A Threat Analysis of {API} Credential Handling in {LLM} Agent Systems and an Empirical Evaluation of a Vault-Mediated Execution Boundary},
+  year      = {2026},
+  eprint    = {2609.33371},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.33371}
+}
+@inproceedings{xia2026slotguard,
+  author    = {Xia, Haocheng and Park, Yongjoo},
+  title     = {{SlotGuard}: Stop Oversharing Private Local Context in {LLM} Agent Transcripts},
+  booktitle = {ICML 2026 Workshop (AIWILD)},
+  year      = {2026},
+  eprint    = {2607.17147},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2607.17147}
+}
+@misc{panfilov2026reasoning,
+  author    = {Panfilov, Alexander and Schmotz, David and Shumailov, Ilia and Beurer-Kellner, Luca and Schaeffer, Joachim and Prabhu, Ameya and Geiping, Jonas and Andriushchenko, Maksym},
+  title     = {Stealing Reasoning Traces from Proprietary {LLM} {APIs}},
+  year      = {2026},
+  eprint    = {2608.09867},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2608.09867}
+}
+@misc{rashidi2026balkanization,
+  author    = {Rashidi, Mohammadreza},
+  title     = {The Balkanization of Execution-Security Research for {AI} Coding Agents: Isolation, Access Control, and Time-of-Check-to-Time-of-Use Vulnerabilities},
+  year      = {2026},
+  eprint    = {2607.05743},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2607.05743}
+}
+
+% ===================== 5. Industry tools & incident reports =====================
+@misc{onepassword_oprun,
+  author = {{1Password}}, title = {\texttt{op run} --- 1Password {CLI} reference},
+  year = {2026}, url = {https://www.1password.dev/cli/reference/commands/run/}, note = {Accessed 2026-10-09}
+}
+@misc{onepassword2026unified,
+  author = {{1Password}}, title = {1Password Launches Unified Access Platform to Help Companies Securely Deploy {AI} Agents},
+  howpublished = {Press release}, year = {2026}, month = mar,
+  url = {https://1password.com/press/2026/mar/1password-unified-access}, note = {Published 2026-03-17. Accessed 2026-10-09}
+}
+@misc{doppler_cli,
+  author = {{Doppler}}, title = {{CLI} Guide (\texttt{doppler run})}, year = {2026},
+  url = {https://docs.doppler.com/docs/cli}, note = {Accessed 2026-10-09}
+}
+@misc{doppler_mcp,
+  author = {{Doppler}}, title = {Doppler {MCP} Server}, howpublished = {GitHub repository DopplerHQ/mcp-server}, year = {2025},
+  url = {https://github.com/DopplerHQ/mcp-server}, note = {Experimental. Accessed 2026-10-09}
+}
+@misc{infisical_run,
+  author = {{Infisical}}, title = {{CLI} reference: \texttt{infisical run}}, year = {2026},
+  url = {https://infisical.com/docs/cli/commands/run}, note = {Accessed 2026-10-09}
+}
+@misc{infisical_mcp,
+  author = {{Infisical}}, title = {Infisical {MCP} Server}, howpublished = {GitHub repository Infisical/infisical-mcp-server}, year = {2025},
+  url = {https://github.com/Infisical/infisical-mcp-server}, note = {See \texttt{INFISICAL\_MASK\_SECRET\_VALUES}. Accessed 2026-10-09}
+}
+@misc{infisical_agentproxy,
+  author = {{Infisical}}, title = {Agent Proxy}, howpublished = {Infisical documentation}, year = {2026},
+  url = {https://infisical.com/docs/documentation/platform/agent-proxy/overview}, note = {Accessed 2026-10-09}
+}
+@misc{bitwarden2026agentaccess,
+  author = {{Bitwarden}}, title = {Shadow {AI} agents are already in your organization. Here's how to secure their credential access with Agent Access {SDK}},
+  howpublished = {Bitwarden blog}, year = {2026}, month = jun,
+  url = {https://bitwarden.com/blog/shadow-ai-agents-how-to-secure-credential-access-with-agent-access-sdk/},
+  note = {Code: https://github.com/bitwarden/agent-access. Accessed 2026-10-09}
+}
+@misc{fnox_mcp,
+  author = {{fnox project}}, title = {fnox: {MCP} Server guide}, howpublished = {Documentation for jdx/fnox}, year = {2026},
+  url = {https://fnox.jdx.dev/guide/mcp.html}, note = {Repository: https://github.com/jdx/fnox. Accessed 2026-10-09}
+}
+@misc{prismor2026,
+  author = {{PrismorSec}}, title = {Prismor: self-hosted runtime control plane for {AI} agents (Sweep and Cloak)},
+  howpublished = {GitHub repository (formerly immunity-agent)}, year = {2026},
+  url = {https://github.com/PrismorSec/prismor}, note = {Accessed 2026-10-09}
+}
+@misc{redactmcp2026,
+  author = {{r3352}}, title = {redact-mcp: {MCP} server that auto-obfuscates sensitive data},
+  howpublished = {GitHub repository}, year = {2026}, url = {https://github.com/r3352/redact-mcp}, note = {Accessed 2026-10-09}
+}
+@misc{mcpguard2026,
+  author = {{sainitish1609}}, title = {mcp-guard: local security firewall and secret sanitizer for {MCP}},
+  howpublished = {GitHub repository}, year = {2026}, url = {https://github.com/sainitish1609/mcp-guard}, note = {Accessed 2026-10-09}
+}
+@misc{ggshield_aihook,
+  author = {{GitGuardian}}, title = {ggshield secret scan ai-hook}, howpublished = {ggshield documentation}, year = {2026},
+  url = {https://docs.gitguardian.com/ggshield-docs/reference/secret/scan/ai-hook}, note = {Accessed 2026-10-09}
+}
+@misc{truefoundry_secrets,
+  author = {{TrueFoundry}}, title = {{AI} Gateway: Secrets Detection guardrail}, year = {2026},
+  url = {https://www.truefoundry.com/docs/ai-gateway/secrets-detection}, note = {Accessed 2026-10-09}
+}
+@misc{langwatch_redaction,
+  author = {{LangWatch}}, title = {Secrets Redaction in Coding Agent Traces}, year = {2026},
+  url = {https://langwatch.ai/docs/coding-agents/secrets-redaction}, note = {Accessed 2026-10-09}
+}
+@misc{agentsweep2026,
+  author = {Naik, Ishan}, title = {agent-sweep: Find and redact secrets in {AI} coding agent histories},
+  howpublished = {GitHub repository Ishannaik/agent-sweep}, year = {2026}, url = {https://github.com/Ishannaik/agent-sweep}, note = {Accessed 2026-10-09}
+}
+@misc{flyio_tokenizer,
+  author = {{Fly.io}}, title = {tokenizer: {HTTP} proxy that injects 3rd party credentials into requests},
+  howpublished = {GitHub repository superfly/tokenizer}, year = {2023}, url = {https://github.com/superfly/tokenizer}, note = {Accessed 2026-10-09}
+}
+@misc{onecli2026,
+  author = {{OneCLI}}, title = {OneCLI: open-source sandboxed agent harness with credential-injecting gateway},
+  howpublished = {GitHub repository onecli/onecli}, year = {2026}, url = {https://github.com/onecli/onecli}, note = {Accessed 2026-10-09}
+}
+@misc{cyberark_secretless,
+  author = {{CyberArk}}, title = {Secretless Broker}, howpublished = {GitHub repository cyberark/secretless-broker}, year = {2017},
+  url = {https://github.com/cyberark/secretless-broker}, note = {Accessed 2026-10-09}
+}
+@misc{claudecode_sandboxing,
+  author = {{Anthropic}}, title = {Configure the sandboxed Bash tool}, howpublished = {Claude Code documentation}, year = {2026},
+  url = {https://code.claude.com/docs/en/sandboxing}, note = {Sections ``Protect credentials'' and ``Mask credentials''. Accessed 2026-10-09}
+}
+@misc{claudecode_permissions,
+  author = {{Anthropic}}, title = {Configure permissions}, howpublished = {Claude Code documentation}, year = {2026},
+  url = {https://code.claude.com/docs/en/permissions}, note = {Accessed 2026-10-09}
+}
+@misc{claudecode_hooks,
+  author = {{Anthropic}}, title = {Hooks reference (PostToolUse \texttt{updatedToolOutput})}, howpublished = {Claude Code documentation}, year = {2026},
+  url = {https://code.claude.com/docs/en/hooks}, note = {Accessed 2026-10-09}
+}
+@misc{anthropic_srt,
+  author = {{Anthropic}}, title = {sandbox-runtime: lightweight OS-level filesystem and network sandboxing for arbitrary processes},
+  howpublished = {GitHub repository anthropics/sandbox-runtime}, year = {2025}, url = {https://github.com/anthropics/sandbox-runtime}, note = {Accessed 2026-10-09}
+}
+@misc{cc_issue65122,
+  author = {{KAGDACI}}, title = {Feature request: harness-level Bash-output secret redaction (3 leak incidents in 6 days, willing to contribute regex set + test suite)},
+  howpublished = {GitHub issue anthropics/claude-code\#65122}, year = {2026},
+  url = {https://github.com/anthropics/claude-code/issues/65122}, note = {Opened 2026-06-03; auto-closed as duplicate of \#64326. Accessed 2026-10-09}
+}
+@misc{cc_issue64326,
+  author = {{nbyk115}}, title = {[Feature Request] Allow a PostToolUse hook to modify (redact) the output string},
+  howpublished = {GitHub issue anthropics/claude-code\#64326}, year = {2026},
+  url = {https://github.com/anthropics/claude-code/issues/64326}, note = {Title translated from Japanese. Opened 2026-05-31; closed. Accessed 2026-10-09}
+}
+@misc{cc_issue32523,
+  author = {{castours-dev}}, title = {{SECURITY}: Claude Code reveals secret keys and credentials in terminal output despite explicit prohibitions},
+  howpublished = {GitHub issue anthropics/claude-code\#32523}, year = {2026},
+  url = {https://github.com/anthropics/claude-code/issues/32523}, note = {Opened 2026-03-09; closed. Accessed 2026-10-09}
+}
+@misc{cc_issue6699,
+  author = {{coygeek}}, title = {Critical Security Bug: \texttt{deny} permissions in \texttt{settings.json} are not enforced},
+  howpublished = {GitHub issue anthropics/claude-code\#6699}, year = {2025},
+  url = {https://github.com/anthropics/claude-code/issues/6699}, note = {Opened 2025-08-28; closed as completed. Accessed 2026-10-09}
+}
+@misc{cc_issue8961,
+  author = {{sbs44}}, title = {Claude Code ignores deny rules in .claude/settings.local.json - security vulnerability},
+  howpublished = {GitHub issue anthropics/claude-code\#8961}, year = {2025},
+  url = {https://github.com/anthropics/claude-code/issues/8961}, note = {Opened 2025-10-05; still open on 2026-10-09. Accessed 2026-10-09}
+}
+@misc{munis2025knostic,
+  author = {Munis, Dor}, title = {Claude Code Automatically Loads .env Secrets, Without Telling You},
+  howpublished = {Knostic blog}, year = {2025}, month = dec,
+  url = {https://www.knostic.ai/blog/claude-loads-secrets-without-permission}, note = {Published 2025-12-08. Accessed 2026-10-09}
+}
+@misc{eve2026env,
+  author = {Eve, Martin Paul}, title = {Claude Code can consume, transmit, and compromise your .env files even if you tell it not to},
+  howpublished = {Blog post}, year = {2026}, month = apr,
+  url = {https://eve.gd/2026/04/19/claude-code-can-consume-transmit-and-compromise-your-env-files-even-if-you-tell-it-not-to/}, note = {Accessed 2026-10-09}
+}
+@misc{claburn2026register,
+  author = {Claburn, Thomas}, title = {Claude Code's prying {AIs} read off-limits secret files},
+  howpublished = {The Register}, year = {2026}, month = jan,
+  url = {https://www.theregister.com/2026/01/28/claude_code_ai_secrets_files/}, note = {Published 2026-01-28. Accessed 2026-10-09}
+}
+
+% ===================== 6. Sandboxing, signing, audit primitives =====================
+@misc{linux_seccomp,
+  author = {{The Linux Kernel documentation}}, title = {Seccomp {BPF} ({SECure} {COMPuting} with filters)},
+  url = {https://www.kernel.org/doc/html/latest/userspace-api/seccomp_filter.html}, year = {2026}, note = {Accessed 2026-10-09}
+}
+@misc{man_netns,
+  author = {{Linux man-pages project}}, title = {network\_namespaces(7) --- overview of Linux network namespaces},
+  url = {https://man7.org/linux/man-pages/man7/network_namespaces.7.html}, year = {2026}, note = {Accessed 2026-10-09}
+}
+@misc{man_userns,
+  author = {{Linux man-pages project}}, title = {user\_namespaces(7) --- overview of Linux user namespaces},
+  url = {https://man7.org/linux/man-pages/man7/user_namespaces.7.html}, year = {2026}, note = {Accessed 2026-10-09}
+}
+@misc{bubblewrap,
+  author = {{containers/bubblewrap contributors}}, title = {bubblewrap: low-level unprivileged sandboxing tool},
+  howpublished = {GitHub repository}, url = {https://github.com/containers/bubblewrap}, year = {2016}, note = {Accessed 2026-10-09}
+}
+@misc{apple_sandboxexec,
+  author = {{Apple Inc.}}, title = {sandbox-exec(1) --- execute within a sandbox ({DEPRECATED})},
+  howpublished = {macOS General Commands Manual}, year = {2026}, note = {Checked on macOS 26.4; accessed 2026-10-09}
+}
+@misc{blazakis2011apple,
+  author = {Blazakis, Dionysus}, title = {The Apple Sandbox}, howpublished = {Black Hat DC 2011 (whitepaper)}, year = {2011},
+  url = {https://media.blackhat.com/bh-dc-11/Blazakis/BlackHat_DC_2011_Blazakis_Apple_Sandbox-wp.pdf}, note = {Accessed 2026-10-09}
+}
+@inproceedings{young2019gvisor,
+  author    = {Young, Ethan G. and Zhu, Pengfei and Caraza-Harter, Tyler and Arpaci-Dusseau, Andrea C. and Arpaci-Dusseau, Remzi H.},
+  title     = {The True Cost of Containing: A {gVisor} Case Study},
+  booktitle = {11th USENIX Workshop on Hot Topics in Cloud Computing (HotCloud 19)},
+  year      = {2019},
+  url       = {https://www.usenix.org/conference/hotcloud19/presentation/young}
+}
+@inproceedings{agache2020firecracker,
+  author    = {Agache, Alexandru and Brooker, Marc and Florescu, Andreea and Iordache, Alexandra and Liguori, Anthony and Neugebauer, Rolf and Piwonka, Phil and Popa, Diana-Maria},
+  title     = {Firecracker: Lightweight Virtualization for Serverless Applications},
+  booktitle = {17th USENIX Symposium on Networked Systems Design and Implementation (NSDI 20)},
+  year      = {2020},
+  url       = {https://www.usenix.org/conference/nsdi20/presentation/agache}
+}
+@inproceedings{newman2022sigstore,
+  author    = {Newman, Zachary and Meyers, John Speed and Torres-Arias, Santiago},
+  title     = {Sigstore: Software Signing for Everybody},
+  booktitle = {Proceedings of the 2022 ACM SIGSAC Conference on Computer and Communications Security (CCS '22)},
+  pages     = {2353--2367},
+  year      = {2022},
+  doi       = {10.1145/3548606.3560596}
+}
+@article{schneier1999audit,
+  author    = {Schneier, Bruce and Kelsey, John},
+  title     = {Secure Audit Logs to Support Computer Forensics},
+  journal   = {ACM Transactions on Information and System Security},
+  volume    = {2}, number = {2}, pages = {159--176}, year = {1999},
+  doi       = {10.1145/317087.317089}
+}
+@inproceedings{crosby2009tamper,
+  author    = {Crosby, Scott A. and Wallach, Dan S.},
+  title     = {Efficient Data Structures for Tamper-Evident Logging},
+  booktitle = {18th USENIX Security Symposium},
+  year      = {2009},
+  url       = {https://www.usenix.org/conference/usenixsecurity09/technical-sessions/presentation/efficient-data-structures-tamper-evident}
+}

@@ -1,8 +1,10 @@
 package redact
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"net/url"
 	"strings"
 )
@@ -10,9 +12,11 @@ import (
 // Encodings returns common encodings of secret worth registering for redaction
 // in addition to the literal value.
 //
-// Level 1 (single derivations): base64 (std/raw and url/raw-url), lower- and
-// upper-case hex, and URL query/path escaping in both upper- and lower-case
-// %xx hex form (%2F and %2f must both match — some encoders emit lowercase).
+// Level 1 (single derivations): base64 (std/raw and url/raw-url) plus its
+// cores at the other two byte alignments (see Base64Cores), lower- and
+// upper-case hex, percent-encoding as Go, JavaScript and Python escape it in
+// both upper- and lower-case %xx form (%2F and %2f must both match), and
+// JSON-string escaping (see JSONEscapes).
 //
 // Level 2 (nested derivations): the level-1 transforms applied again to each
 // level-1 base64/hex derivation, catching base64(base64(v)),
@@ -55,11 +59,19 @@ func EncodingsWithDepth(secret string, minLen, depth int) []string {
 	qesc := url.QueryEscape(secret)
 	pesc := url.PathEscape(secret)
 	urlforms := []string{qesc, lowerPctEscapes(qesc), pesc, lowerPctEscapes(pesc)}
+	// Other ecosystems' escapers keep different characters: RFC 3986 /
+	// Python quote(safe=''), JS encodeURIComponent, Python quote() (keeps '/').
+	for _, safe := range []string{"", "!*'()", "/"} {
+		e := percentEncode(secret, safe)
+		urlforms = append(urlforms, e, lowerPctEscapes(e))
+	}
 
 	candidates := make([]string, 0, 64)
 	candidates = append(candidates, b64forms...)
+	candidates = append(candidates, Base64Cores(secret)...)
 	candidates = append(candidates, hexforms...)
 	candidates = append(candidates, urlforms...)
+	candidates = append(candidates, JSONEscapes(secret)...)
 
 	if depth >= 2 {
 		// Nested encodings: apply the second-level transforms to each
@@ -124,21 +136,83 @@ func lowerHexDigit(c byte) byte {
 	return c
 }
 
-// wrapLines inserts '\n' every width bytes (openssl/MIME style wrapping).
-// Inputs shorter than width are returned unchanged.
+// wrapLines inserts '\n' between every width bytes (openssl/MIME style
+// wrapping). No newline follows the last chunk: that newline belongs to the
+// surrounding output, and consuming it would join the next line onto the
+// placeholder. Inputs shorter than width are returned unchanged.
 func wrapLines(s string, width int) string {
 	if len(s) <= width {
 		return s
 	}
 	var b strings.Builder
-	b.Grow(len(s) + len(s)/width + 1)
+	b.Grow(len(s) + len(s)/width)
 	for i := 0; i < len(s); i += width {
-		end := i + width
-		if end > len(s) {
-			end = len(s)
+		if i > 0 {
+			b.WriteByte('\n')
 		}
-		b.WriteString(s[i:end])
-		b.WriteByte('\n')
+		b.WriteString(s[i:min(i+width, len(s))])
+	}
+	return b.String()
+}
+
+// Base64Cores returns, for each byte alignment of secret inside a larger
+// base64-encoded message (offset mod 3 = 0, 1, 2), the run of characters
+// that depend only on the secret's bytes, in the standard and URL alphabets.
+//
+// Base64 maps 3-byte groups to 4 characters, so the encoding of a secret that
+// follows k bytes of other data (HTTP Basic "user:token", printenv | base64,
+// docker "auth") shares no characters with base64(secret) unless k = 0. With
+// k leading bytes, the characters whose 6 bits all come from the secret are
+// enc(pad_k || s)[ceil(8k/6) : floor(8(k+n)/6)]; the final partial character
+// mixes in whatever follows and is dropped.
+func Base64Cores(secret string) []string {
+	n := len(secret)
+	var out []string
+	for k := 0; k < 3; k++ {
+		padded := append(make([]byte, k), secret...)
+		start, end := (8*k+5)/6, 8*(k+n)/6
+		for _, enc := range []*base64.Encoding{base64.RawStdEncoding, base64.RawURLEncoding} {
+			out = append(out, enc.EncodeToString(padded)[start:end])
+		}
+	}
+	return out
+}
+
+// JSONEscapes returns secret as it appears inside a JSON string literal when
+// that differs from the raw bytes: minimally escaped (", \, control bytes —
+// JSON.stringify, Python json.dumps for ASCII) and Go's default HTML-safe form
+// (<, >, & as \u003c, \u003e, \u0026).
+func JSONEscapes(secret string) []string {
+	var out []string
+	var plain bytes.Buffer
+	enc := json.NewEncoder(&plain)
+	enc.SetEscapeHTML(false)
+	if enc.Encode(secret) == nil {
+		out = append(out, strings.TrimSuffix(plain.String(), "\n"))
+	}
+	if b, err := json.Marshal(secret); err == nil {
+		out = append(out, string(b))
+	}
+	for i := range out {
+		out[i] = out[i][1 : len(out[i])-1] // drop the quotes
+	}
+	return out
+}
+
+// percentEncode %XX-escapes every byte outside the RFC 3986 unreserved set
+// and the extra characters in safe.
+func percentEncode(s, safe string) string {
+	const hexUp = "0123456789ABCDEF"
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || strings.IndexByte("-_.~"+safe, c) >= 0 {
+			b.WriteByte(c)
+			continue
+		}
+		b.WriteByte('%')
+		b.WriteByte(hexUp[c>>4])
+		b.WriteByte(hexUp[c&0xf])
 	}
 	return b.String()
 }

@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/generalized-labs/ironrun/internal/runner"
@@ -39,24 +40,33 @@ func TestNoNetwork_BlocksOutbound(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
+	// A DISTINCT marker proves the dial was actively blocked, not that the probe
+	// crashed before dialing (the old assertion — exit != 0 — could not tell the
+	// two apart).
+	if !strings.Contains(out.String(), "DIAL_BLOCKED") {
+		t.Errorf("no_network did not block the dial (exit=%d stdout=%q stderr=%q)", res.ExitCode, out.String(), errb.String())
+	}
 	if res.ExitCode == 0 {
-		t.Errorf("network probe succeeded under no_network — isolation did NOT block it (stdout=%q stderr=%q)", out.String(), errb.String())
+		t.Errorf("network probe exited 0 under no_network (stdout=%q)", out.String())
 	}
 }
 
-// TestNoNetwork_FailsClosedWhenUnenforceable proves we refuse to run rather than
-// run with the network open. On macOS we force the unenforceable path by hiding
-// sandbox-exec (empty PATH); the command binary is given as an absolute path so
-// it still resolves.
-func TestNoNetwork_FailsClosedWhenUnenforceable(t *testing.T) {
+// TestNoNetwork_AllowsFork proves the macOS sandbox profile lets a sandboxed
+// command fork/exec a child — the old (deny default) profile broke this for
+// python/node/ruby/cargo and every Go binary.
+func TestNoNetwork_AllowsFork(t *testing.T) {
 	if runtime.GOOS != "darwin" {
-		t.Skip("darwin-specific: forces the sandbox-exec-missing path")
+		t.Skip("darwin-specific sandbox profile behavior")
 	}
-	t.Setenv("PATH", "") // sandbox-exec will not resolve
-	cmd := makeCmd("echo", "", "/bin/echo", "hi")
+	bin := buildProcfix(t)
+	cmd := makeCmd("fork", "", bin, "fork-exec")
 	cmd.NoNetwork = true
-	_, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &bytes.Buffer{}, Stderr: &bytes.Buffer{}})
-	if !errors.Is(err, runner.ErrNoNetworkUnsupported) {
-		t.Errorf("expected ErrNoNetworkUnsupported (fail-closed), got %v", err)
+	var out bytes.Buffer
+	res, err := runner.Run(context.Background(), cmd, runner.Options{Stdout: &out, Stderr: &out})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if res.ExitCode != 0 || !strings.Contains(out.String(), "child-ok") {
+		t.Errorf("sandboxed command could not fork a child: exit=%d out=%q", res.ExitCode, out.String())
 	}
 }

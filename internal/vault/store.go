@@ -155,8 +155,9 @@ func OpenWithKey(path, projectID string, key []byte) (*Store, error) {
 
 func (s *Store) Path() string { return s.path }
 
-// ExportRootKey returns the base64-encoded root key of the vault.
-// This allows authorized users or agents to securely share or sync the vault payload.
+// ExportRootKey returns the base64-encoded root key of the vault. It exists
+// only so key-material guard tests can scan tool results for the key; it must
+// never be reachable from a CLI, TUI, MCP, or API surface.
 func (s *Store) ExportRootKey() string {
 	return base64.RawStdEncoding.EncodeToString(s.rootKey)
 }
@@ -348,20 +349,51 @@ func (s *Store) DeleteScope(scope string) error {
 	})
 }
 
+// Replace commits a vault document obtained elsewhere (for example by remote
+// sync) only if it authenticates under this project's root key and is newer
+// than the local revision. An older or conflicting same-revision document is
+// refused, and every refusal leaves the local vault untouched.
+func (s *Store) Replace(data []byte) error {
+	return s.withLock(func() error {
+		incoming, err := s.parse(data)
+		if err != nil {
+			return fmt.Errorf("document does not authenticate for this project and root key: %w", err)
+		}
+		local, err := s.load()
+		if err != nil {
+			return err
+		}
+		switch {
+		case incoming.Revision < local.Revision:
+			return fmt.Errorf("vault revision %d is older than local revision %d", incoming.Revision, local.Revision)
+		case incoming.Revision == local.Revision && incoming.MAC != local.MAC:
+			return fmt.Errorf("vault revision %d conflicts with the different local revision %d", incoming.Revision, local.Revision)
+		case incoming.Revision == local.Revision:
+			return nil
+		}
+		return s.save(incoming)
+	})
+}
+
 func (s *Store) load() (document, error) {
-	doc := document{
-		Version:   formatVersion,
-		Cipher:    cipherName,
-		ProjectID: s.projectID,
-		Scopes:    map[string]sealedScope{},
-	}
 	data, err := os.ReadFile(s.path)
 	if os.IsNotExist(err) {
-		return doc, nil
+		return document{
+			Version:   formatVersion,
+			Cipher:    cipherName,
+			ProjectID: s.projectID,
+			Scopes:    map[string]sealedScope{},
+		}, nil
 	}
 	if err != nil {
 		return document{}, fmt.Errorf("read vault: %w", err)
 	}
+	return s.parse(data)
+}
+
+// parse authenticates a serialized vault document for this project and key.
+func (s *Store) parse(data []byte) (document, error) {
+	var doc document
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return document{}, fmt.Errorf("parse vault: %w", ErrIntegrity)
 	}
@@ -388,8 +420,13 @@ func (s *Store) save(doc document) error {
 	if err != nil {
 		return err
 	}
-	data = append(data, '\n')
-	dir := filepath.Dir(s.path)
+	return WriteFileAtomic(s.path, append(data, '\n'))
+}
+
+// WriteFileAtomic commits an owner-only file so readers observe either the
+// previous complete file or the new one, never a partial write.
+func WriteFileAtomic(path string, data []byte) error {
+	dir := filepath.Dir(path)
 	tmp, err := os.CreateTemp(dir, ".vault-*.tmp")
 	if err != nil {
 		return fmt.Errorf("create vault transaction: %w", err)
@@ -416,11 +453,11 @@ func (s *Store) save(doc document) error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	if err := os.Rename(tmpName, s.path); err != nil {
+	if err := os.Rename(tmpName, path); err != nil {
 		return fmt.Errorf("commit vault transaction: %w", err)
 	}
 	committed = true
-	if err := os.Chmod(s.path, 0600); err != nil {
+	if err := os.Chmod(path, 0600); err != nil {
 		return err
 	}
 	if d, err := os.Open(dir); err == nil {
@@ -543,8 +580,10 @@ func (s *Store) scopeAAD(kind, scope string) []byte {
 	return []byte(fmt.Sprintf("ironrun-vault-v%d\x00%s\x00%s\x00%s", formatVersion, kind, s.projectID, scope))
 }
 
-func (s *Store) withLock(fn func() error) error {
-	lockPath := s.path + ".lock"
+func (s *Store) withLock(fn func() error) error { return WithLock(s.path+".lock", fn) }
+
+// WithLock runs fn while holding the cross-process lock directory lockPath.
+func WithLock(lockPath string, fn func() error) error {
 	deadline := time.Now().Add(5 * time.Second)
 	for {
 		err := os.Mkdir(lockPath, 0700)

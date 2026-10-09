@@ -122,6 +122,19 @@ func TestLint_SecretSpread(t *testing.T) {
 	}
 }
 
+// REGRESSION: SECRET_SPREAD only counted v1 `env:` refs, so it never fired
+// for version-2 policies (the format `ironrun setup` writes).
+func TestLint_SecretSpreadV2(t *testing.T) {
+	mk := func(id string) Command {
+		return Command{ID: id, Argv: []string{"go", "test"}, TTL: dur(t, "5m"), NoNetwork: true,
+			Secrets: []string{"SHARED"}}
+	}
+	f := &File{Version: SupportedVersionV2, Commands: []Command{mk("a"), mk("b"), mk("c"), mk("d")}}
+	if got := findingByCode(Lint(f), "SECRET_SPREAD"); got == nil {
+		t.Error("expected SECRET_SPREAD for an entry shared by 4 commands")
+	}
+}
+
 func TestLint_CleanPolicyNoErrors(t *testing.T) {
 	f := &File{Commands: []Command{{
 		ID:        "build",

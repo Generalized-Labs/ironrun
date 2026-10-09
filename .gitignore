@@ -34,3 +34,7 @@ dist/
 
 # Local Ironrun project metadata and pending approvals
 .ironrun/
+
+# Claude Code local state
+.claude/worktrees/
+.claude/settings.local.json

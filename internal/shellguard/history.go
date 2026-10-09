@@ -53,7 +53,6 @@ type PurgeFileResult struct {
 	Shell        string
 	Path         string
 	MatchedLines int
-	Backup       string // backup path written (apply mode only)
 	Rewritten    bool
 	Missing      bool // file did not exist: nothing to do
 }
@@ -68,9 +67,8 @@ type PurgeResult struct {
 
 // Purge drops every history line containing a managed value (or an encoded
 // variant). With apply=false it is a dry-run: files are only counted. With
-// apply=true each touched file is first backed up to <path>.ironrun.bak
-// (an existing backup is never overwritten) and then rewritten atomically
-// (temp file + rename). Re-running is a no-op: no matches, no rewrites.
+// apply=true each touched file is rewritten atomically (temp file + rename)
+// with no plaintext backup kept. Re-running is a no-op: no matches, no rewrites.
 func Purge(m *scrub.Matcher, files []HistoryFile, apply bool) (*PurgeResult, error) {
 	res := &PurgeResult{DryRun: !apply}
 	for _, f := range files {
@@ -117,31 +115,18 @@ func purgeFile(f HistoryFile, m *scrub.Matcher, apply bool) (PurgeFileResult, er
 	if dropped == 0 || !apply {
 		return fr, nil
 	}
-	backup := f.Path + ".ironrun.bak"
-	if _, err := os.Stat(backup); os.IsNotExist(err) {
-		if err := copyFile(f.Path, backup); err != nil {
-			return fr, fmt.Errorf("backup %s: %w", f.Path, err)
-		}
-		fr.Backup = backup
-	} else {
-		fr.Backup = backup + " (already existed; kept)"
-	}
+	// Deliberately NO plaintext backup: a <path>.ironrun.bak would re-persist
+	// exactly the secret values we are purging, defeating the point. The rewrite
+	// is already crash-safe on its own (temp file + atomic rename), so a backup
+	// would buy nothing but a leak.
 	if err := atomicWrite(f.Path, []byte(strings.Join(kept, "\n")), 0o600); err != nil {
 		return fr, fmt.Errorf("rewrite %s: %w", f.Path, err)
 	}
+	// Remove any plaintext backup an older ironrun left behind, so re-running
+	// purge also cleans up that historical leak.
+	_ = os.Remove(f.Path + ".ironrun.bak")
 	fr.Rewritten = true
 	return fr, nil
-}
-
-func copyFile(src, dst string) error {
-	data, err := os.ReadFile(src)
-	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(filepath.Dir(dst), 0o755); err != nil {
-		return err
-	}
-	return os.WriteFile(dst, data, 0o600)
 }
 
 // atomicWrite replaces path via temp file + rename.

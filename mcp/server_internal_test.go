@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -225,5 +226,33 @@ commands:
 		}
 	case <-time.After(2 * time.Second):
 		t.Fatal("trusted workspace run did not resume after approval")
+	}
+}
+
+// A tampered audit log must stop the MCP server instead of serving every
+// agent call with auditing silently disabled.
+func TestServeRefusesTamperedAuditLog(t *testing.T) {
+	root := t.TempDir()
+	logPath := filepath.Join(root, "audit.log")
+	l, err := audit.Open(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = l.Append(audit.Entry{CommandID: "deploy", ExitCode: 1})
+	_ = l.Close()
+	data, _ := os.ReadFile(logPath)
+	_ = os.WriteFile(logPath, []byte(strings.Replace(string(data), `"exit_code":1`, `"exit_code":0`, 1)), 0o600)
+
+	served := make(chan error, 1)
+	go func() {
+		served <- Serve(&policy.File{Version: "1", Provider: "passthrough", AuditLog: logPath}, filepath.Join(root, "ironrun.yml"))
+	}()
+	select {
+	case err := <-served:
+		if err == nil || !strings.Contains(err.Error(), "ironrun audit verify") {
+			t.Fatalf("Serve with tampered audit log: %v", err)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("Serve started with a tampered audit log")
 	}
 }

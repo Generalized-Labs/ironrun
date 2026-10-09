@@ -219,11 +219,22 @@ func (s *Server) run(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "command_id is required")
 		return
 	}
-	if _, err := s.policy.Lookup(request.CommandID); err != nil {
+	// Reload per request so removing a command or enabling
+	// require_agent_leases takes effect without restarting `ironrun api`.
+	current := s.policy
+	if s.policyPath != "" {
+		reloaded, err := policy.Load(s.policyPath)
+		if err != nil {
+			writeError(w, http.StatusServiceUnavailable, "policy reload failed")
+			return
+		}
+		current = reloaded
+	}
+	if _, err := current.Lookup(request.CommandID); err != nil {
 		writeError(w, http.StatusNotFound, "command is not in the policy")
 		return
 	}
-	if s.policy.RequireAgentLeases {
+	if current.RequireAgentLeases {
 		environment, err := s.leaseEnvironment(request.Environment)
 		if err != nil {
 			writeError(w, http.StatusServiceUnavailable, "project environment is unavailable")
@@ -256,7 +267,7 @@ func (s *Server) run(w http.ResponseWriter, r *http.Request) {
 		// and the run.
 		request.Environment = environment
 	}
-	result, err := execution.Run(r.Context(), s.policy, s.policyPath, s.root, request.CommandID, execution.Options{
+	result, err := execution.Run(r.Context(), current, s.policyPath, s.root, request.CommandID, execution.Options{
 		Environment: request.Environment, Stdout: io.Discard, Stderr: io.Discard,
 		Audit: s.audit, SessionID: s.sessionID,
 	})
