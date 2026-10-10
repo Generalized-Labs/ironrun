@@ -127,7 +127,7 @@ Check it's on your path:
 
 ```bash
 ironrun version
-# ironrun v0.5.0
+# ironrun v0.5.1
 ```
 
 ---

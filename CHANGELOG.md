@@ -6,31 +6,26 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-09
+
+Security release. On v0.5.0, the GitHub Action (any `ironrun run
+--emit-github-masks`) wrote every line after the first of a multi-line secret
+— PEM keys, service-account JSON — to the job log in cleartext. If a v0.5.0
+sealed run in CI used a multi-line secret, treat that secret as exposed to
+anyone who could read the job log: rotate it, then upgrade
+(GHSA-vc6w-ghg4-j855). The Action's default `version: latest` picks this
+release up automatically; a pinned `version: v0.5.0` must be bumped. The other
+fixes come from an adversarial self-audit of v0.5.0 (49 findings, 44 fixed,
+each with a regression test; see `paper/`).
+
 ### Added
 
-- Phase 0 leak-prevention stack: exact-value secret matching and redaction,
-  sealed execution with a fail-closed seccomp sandbox on Linux, git
-  pre-commit/pre-push hooks that block leaked secrets, and a value-blind local
-  API with agent lease enforcement.
-- Verified release pipeline: reproducible builds, Sigstore bundles and
-  checksums, an SBOM, the Homebrew formula, and a native npm launcher whose
-  postinstall verifies the published artifact manifest before install.
-- Universal agent instructions for Claude Code, Grok, Codex, Hermes, Pi,
-  HumanLayer, and Conductor workspaces.
-- Google Drive environment sync, additional MCP tools, and redactor
-  performance optimizations.
-- MCP guard suite: banned-tool registry (share_environment /
-  sync_environment stay removed) and key-material negative probes that fail a
-  build if any tool result ever carries vault key material.
+- Research paper, "Sealed Execution: Letting LLM Coding Agents Use Credentials
+  Without Seeing Them" (`paper/`): the design, the audit method, and a leak
+  evaluation whose numbers `go run ./paper/eval` regenerates.
 
 ### Fixed
 
-- Linux network isolation now works unprivileged: CLONE_NEWUSER plus
-  identity-mapped uid/gid authorize CLONE_NEWNET on default Ubuntu 24.04+
-  hosts (previously EPERM -> fail-closed refusal). CI exercises the real
-  isolation path instead of bypassing it.
-- macOS CI matrix: pty regression test now uses the BSD util-linux script
-  invocation, and Linux-only sealed-shim expectations skip outside Linux.
 - HTTPS and SSH remotes of the same repository no longer produce different
   project identities (which locked users out of their vault); existing projects
   keep their recorded identity.
@@ -66,9 +61,6 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Security
 
-- Removed the MCP share_environment tool (returned the vault root key with no
-  approval gate) and the sync_environment stub; guard tests fail on
-  reintroduction.
 - Removed `ironrun env share` / `vault share`, which printed the vault root key
   to stdout without any gate. Agents have shells, so the CLI is now treated as
   agent-reachable like MCP.
@@ -129,6 +121,40 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   and `google.golang.org/grpc`: `govulncheck` reported 17 reachable standard
   library vulnerabilities (net/http, crypto/tls, encoding/asn1, …) in v0.5.0
   binaries built with Go 1.26.5; it now reports none.
+
+## [0.5.0] - 2026-09-30
+
+### Added
+
+- Phase 0 leak-prevention stack: exact-value secret matching and redaction,
+  sealed execution with a fail-closed seccomp sandbox on Linux, git
+  pre-commit/pre-push hooks that block leaked secrets, and a value-blind local
+  API with agent lease enforcement.
+- Verified release pipeline: reproducible builds, Sigstore bundles and
+  checksums, an SBOM, the Homebrew formula, and a native npm launcher whose
+  postinstall verifies the published artifact manifest before install.
+- Universal agent instructions for Claude Code, Grok, Codex, Hermes, Pi,
+  HumanLayer, and Conductor workspaces.
+- Google Drive environment sync, additional MCP tools, and redactor
+  performance optimizations.
+- MCP guard suite: banned-tool registry (share_environment /
+  sync_environment stay removed) and key-material negative probes that fail a
+  build if any tool result ever carries vault key material.
+
+### Fixed
+
+- Linux network isolation now works unprivileged: CLONE_NEWUSER plus
+  identity-mapped uid/gid authorize CLONE_NEWNET on default Ubuntu 24.04+
+  hosts (previously EPERM -> fail-closed refusal). CI exercises the real
+  isolation path instead of bypassing it.
+- macOS CI matrix: pty regression test now uses the BSD util-linux script
+  invocation, and Linux-only sealed-shim expectations skip outside Linux.
+
+### Security
+
+- Removed the MCP share_environment tool (returned the vault root key with no
+  approval gate) and the sync_environment stub; guard tests fail on
+  reintroduction.
 
 ## [0.4.0] - 2026-07-16
 
@@ -325,7 +351,9 @@ Initial public release: agent-safe sealed command execution.
 - Rolling-buffer redaction engine that catches secrets split across write
   boundaries.
 
-[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/generalized-labs/ironrun/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/generalized-labs/ironrun/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/generalized-labs/ironrun/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/generalized-labs/ironrun/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/generalized-labs/ironrun/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/generalized-labs/ironrun/releases/tag/v0.2.0
