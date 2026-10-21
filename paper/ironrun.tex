@@ -75,9 +75,9 @@ LLM coding agents run shell commands, and whatever those commands print
 becomes model context. A credential that surfaces in output---via
 \code{printenv}, a verbose \code{curl}, or a stack trace---reaches the model
 provider and local transcripts and must be rotated. We present \sys{}, an open-source runtime that
-turns the agent's tool boundary into a one-way valve: secret values flow
-\emph{into} child processes as environment variables or temporary files, but
-not back \emph{out}. \sys{} combines (i)~value-blind agent interfaces exposed over
+injects secret values into child processes as environment variables or
+temporary files and filters known values and supported encodings from their
+output before it reaches the agent. \sys{} combines (i)~value-blind agent interfaces exposed over
 the Model Context Protocol, (ii)~human authorization tiers bound to a single
 agent session, environment, and expiry, (iii)~a streaming known-value redactor
 with whitespace-tolerant, fragment, and alignment-aware encoding matching under
@@ -91,11 +91,11 @@ root key. On a corpus of 21 output transformations
 $\times$ 6 credential formats run through the real execution path, the
 number of cases that leak at least half of a secret falls from 52 to 28; for
 transformations produced by ordinary tools it falls from 21 of 72 to 3 of 72, all
-three involving a 12-byte password below the fragment threshold. The residue
-consists of deliberate transformations that no known-value redactor can catch. Overhead is about 0.1\,ms per command, and the
-redactor sustains 14--36\,MB/s. We argue that redaction is the right safety net for
+three involving a 12-byte password below the fragment threshold. The residue includes these three accidental cases and deliberate transformations
+not covered by the registered patterns. Overhead is about 0.1\,ms per command, and the
+redactor sustains 14--36\,MB/s. We argue that redaction is a safety net for
 \emph{accidental} disclosure, while authorization and isolation must bound
-\emph{deliberate} exfiltration, and we make the limits of each explicit.
+\emph{deliberate} exfiltration.
 \end{abstract}
 
 % ===========================================================================
@@ -119,9 +119,10 @@ message embeds the database URL. Each of these discloses a secret the human
 never intended to share, and because transcripts cannot be retracted from a
 provider's logs, the only safe response is rotation. Practitioners report this
 happening repeatedly in normal use~\citep{cc_issue64326,cc_issue32523},
-and a recent study of 17{,}022 agent skills attributes 73.5\% of credential leaks
-to debug output that agent frameworks feed back into model
-context~\citep{chen2026skillsleak}. Once a value has entered context it also
+and a study of 17{,}022 agent skills reports debug-output exposure in
+1{,}007 of 1{,}371 vulnerability issues (73.5\%), where agent frameworks feed
+output into model context~\citep{chen2026skillsleak}. This percentage describes
+that study's issue category, not a population-wide rate of agent credential leakage. Once a value has entered context it also
 resurfaces in places transcript scrubbing cannot reach, such as reasoning
 traces~\citep{panfilov2026reasoning}.
 
@@ -147,9 +148,10 @@ command-line programs: database clients, test runners, \code{kubectl},
 passing test, a successful deploy---not its \emph{value}. If the same component
 that resolves and injects secrets also mediates the command's output, then
 redaction becomes a problem over \emph{known} values rather than a detection
-problem over unknown ones. Known-value redaction is deterministic, has no
-false negatives for literal occurrences, and can be extended systematically to
-the encodings that ordinary tools apply.
+problem over unknown ones. Known-value redaction is deterministic over a fixed pattern set and can be
+extended systematically to the encodings that ordinary tools apply. Coverage
+still depends on registration thresholds and overlapping-match behavior; it is
+not a universal confidentiality guarantee.
 
 \paragraph{Contributions.}
 \begin{itemize}
@@ -490,7 +492,7 @@ the Basic-auth scenario---the \emph{alignment cores} of base64 at byte offsets
   interleaved whitespace or control bytes ($\leq$\,\code{0x20}, \code{0x7F}),
   which covers terminal line wrapping, \code{\r\n} injection, UTF-16LE
   null interleaving, and one-character-per-line output. The consumed span is
-  capped at $2|p|+32$ bytes.
+  capped at the global span $m$ defined below.
 \item \textbf{Fragment}: for patterns with 24 to 65{,}536 non-whitespace bytes,
   every 12-byte window of the pattern's whitespace-free projection is indexed.
   Twelve output bytes that match a window, in order and with any gap bytes
@@ -502,8 +504,8 @@ the Basic-auth scenario---the \emph{alignment cores} of base64 at byte offsets
 A match is replaced by \red{}; unmatched bytes are emitted only once no pattern
 could still begin at them.
 
-\paragraph{Bounded hold-back.} Let $m = \max_{p\in P}(2|p|+32)$ be the largest
-span any tier may consume. The writer withholds the last $m-1$ bytes of its
+\paragraph{Bounded hold-back.} Let $m = \max(\{1\} \cup \{2|p|+32 : p\in P\})$ bound the
+span any tier may consume, including when $P$ is empty. The writer withholds the last $m-1$ bytes of its
 buffer until more input arrives or the stream is flushed
 (\cref{alg:redact,fig:buffer}).
 
@@ -518,7 +520,9 @@ buffer until more input arrives or the stream is flushed
   \While{$|B| > h$}
     \State $i \gets 0$
     \While{$i < |B| - h$ \textbf{and} $\textsc{Match}(B, i) = 0$} \State $i \gets i+1$ \EndWhile
-    \State \Call{Emit}{$B[0{:}i]$}; $\ell \gets \textsc{Match}(B,i)$
+    \State $\ell \gets 0$
+    \If{$i < |B|-h$} \State $\ell \gets \textsc{Match}(B,i)$ \EndIf
+    \State \Call{Emit}{$B[0{:}i]$}
     \If{$\ell = 0$} \State $B \gets B[i{:}]$; \textbf{break} \EndIf
     \State \Call{Emit}{\red}; $B \gets B[i+\ell{:}]$
   \EndWhile
@@ -554,15 +558,14 @@ still seen whole.}
 
 \begin{property}[Chunking invariance]
 \label{prop:chunk}
-For any input $x$ and any partition of $x$ into \code{Write} calls followed by
-\code{Flush}, the emitted output equals that of a single \code{Write}$(x)$
-followed by \code{Flush}.
+For fixed patterns and matching indexes, complete successful underlying writes,
+and a single final \code{Flush}, any partition of input $x$ into \code{Write}
+calls emits the same output as \code{Write}$(x)$ followed by \code{Flush}.
 \end{property}
 \begin{proof}[Proof sketch]
 \textsc{Scan} decides position $i$ only if $|B| - i > m - 1$, i.e.\ at least $m$
-bytes starting at $i$ are buffered. Every tier inspects at most $m$ bytes from
-$i$: exact matching reads $|p| < m$ bytes; gap-tolerant matching is capped at
-$2|p|+32 \le m$; fragment lookup and extension are explicitly limited to $m$
+bytes starting at $i$ are buffered. Every tier's decision depends on at most $m$ bytes from
+$i$: exact matching reads $|p| < m$ bytes; gap-tolerant matching accepts spans of at most $m$; fragment lookup and extension are explicitly limited to $m$
 bytes. Hence
 $\textsc{Match}(B,i)$ depends only on bytes already present and is identical to
 its value on the complete input. Positions are decided left to right in the same
@@ -571,8 +574,9 @@ the full suffix present. Induction on decided positions gives equal output.
 \end{proof}
 
 The cost of this guarantee is latency: up to $m-1$ bytes (a few hundred bytes for
-typical tokens) are delayed until the next write or process exit. Interactive
-output therefore appears with a short lag, never out of order.
+typical tokens) are delayed until the next write or process exit. This bounds buffered bytes, not wall-clock delay: a quiet interactive process
+may leave output buffered until it prints more data or exits. Output order is
+preserved.
 
 \subsubsection{Base64 alignment}
 \label{sec:align}
@@ -617,9 +621,11 @@ and all of them fail closed:
   \code{RLIMIT_CORE=0} and execs the target in place.
 \item \textbf{Lifetime.} The child runs in its own process group; on timeout,
   cancellation, or a signal to \sys{}, the whole group is killed, and any group
-  member left after the child exits is killed too, so no descendant outlives the
-  run holding secrets in its environment. Temporary file secrets are removed on
-  every exit path.
+  member left after the child exits is killed too. Descendants that detach with
+  \code{setsid} can escape this group and retain injected values; this is not
+  whole-process-tree containment. Temporary file secrets are removed during
+  normal error, cancellation, timeout, and success cleanup, with stale-directory
+  recovery after crashes.
 \item \textbf{Environment.} The inherited environment is stripped of loader,
   shell-startup, interpreter, and tool hijack variables (\code{LD_*},
   \code{DYLD_*}, \code{BASH_ENV}, \code{NODE_OPTIONS}, \code{PYTHON*},
@@ -652,12 +658,12 @@ it cannot detect truncation of the tail (\cref{sec:discussion}).
 of tests across 431 test functions, fuzzing of the redactor) built with
 \code{CGO_ENABLED=0}. The MCP server uses \code{mcp-go}. Platforms are macOS and
 Linux on amd64 and arm64; Windows is unsupported because its secret-entry paths
-would require plaintext console input. Releases are reproducible
-(\code{-trimpath}, commit-date timestamps, pinned modules), published with
-SHA-256 checksums, an SBOM, and keyless Sigstore bundles~\citep{newman2022sigstore};
-the installer and the npm launcher refuse to install an artifact whose checksum
-or signature does not verify. The repository runs CodeQL, OpenSSF Scorecard,
-\code{govulncheck}, and a scheduled fuzzing job in CI.
+would require plaintext console input. Builds use \code{-trimpath}, commit-date
+timestamps, and pinned modules. Releases carry SHA-256 checksums, an SBOM, and
+keyless Sigstore bundles~\citep{newman2022sigstore}. The installer and GitHub
+Action verify checksums and bundles; npm verifies archive and binary hashes
+against its bundled manifest, without independent Sigstore verification. CI runs
+OpenSSF Scorecard, \code{govulncheck}, and scheduled fuzzing.
 
 % ===========================================================================
 \section{Adversarial Self-Audit}
@@ -772,8 +778,12 @@ registration, and redaction path a sealed run uses. We then attack the
 agent-visible output with a decoder battery: identity, gap stripping, case
 folding, reversal, ROT13, base64 and hex decoding at every alignment (with
 nesting and gunzip), URL and JSON unescaping, and hexdump column reassembly.
-\emph{Recovered} is the longest contiguous run of secret bytes any decoder
-yields; a case \emph{leaks} if at least 50\% of the secret is recovered.
+\emph{Recovered} is the longest contiguous run matched after case folding by
+any decoder; a case \emph{leaks} if at least 50\% of the secret matches. This
+measures case-insensitive contiguous disclosure, not necessarily a usable
+credential. A shorter recovered component can still expose the entire password
+inside a structured URL. Rates describe this deterministic corpus, not a
+real-world probability of leakage.
 
 \begin{table}[tp]
 \centering\small
@@ -829,14 +839,14 @@ prints it in two pieces.
 Four deliberate transformations remain out of reach, and necessarily so:
 \begin{observation}
 \label{obs:arbitrary}
-For any finite set of registered encodings, an authorized process that applies
-an unregistered invertible transformation $f$ (reversal, ROT13, XOR with a
-constant, compression) to a secret and prints the result defeats known-value
-redaction, since $f(s)$ shares no registered pattern with $s$.
+Known-value matching alone does not guarantee confidentiality against arbitrary
+transformations. An authorized process can disclose a secret through an
+invertible representation if the emitted representation avoids every registered
+match. Being unregistered is not sufficient: a transformation can still produce
+a registered pattern (for example, reversal of a palindrome).
 \end{observation}
 Redaction is therefore a defense against A1, not against an A2 that can choose
-the program. Against A2, \sys{} relies on the strict tier (the agent cannot
-choose the program), on network isolation (the transformed secret cannot leave
+the program. Against A2, \sys{} relies on the strict tier with host-enforced protection of executable code and inputs, on network isolation (the transformed secret cannot leave
 except through output), and on the warn-only entropy scan, which flagged
 21 of the 28 residual leaks, at the cost of 6 false alarms among the 98
 correctly redacted cases. Compression is the instructive exception:
@@ -917,8 +927,8 @@ credentials---which is the space \sys{} targets; the two compose.
 
 \paragraph{Redaction is a safety net, not a sandbox.} \Cref{obs:arbitrary} is
 fundamental. \sys{}'s strongest configuration---strict commands, leases, and no
-network---lets the agent choose \emph{when} to run a reviewed program but not
-\emph{what} it computes. Trusted workspace sessions trade this away for
+network---restricts argv. Restricting what the program computes additionally
+requires protecting its code, dependencies, and inputs from agent edits. Trusted workspace sessions trade this away for
 convenience: the agent chooses argv, receives every entry of the environment in
 the child, and could deliberately encode a secret. We document trusted sessions
 as protecting context and logs from accidents, not as containment.
@@ -1043,11 +1053,11 @@ dependency-free binary. Release signing follows Sigstore~\citep{newman2022sigsto
 \label{sec:conclusion}
 
 Coding agents need to use credentials far more often than they need to know
-them. \sys{} makes the tool boundary a one-way valve: secrets enter child
-processes, and their literal and encoded forms are stripped from everything
-that returns. A streaming known-value redactor with a provable chunking
+them. \sys{} filters known secret values and supported encodings from intercepted
+child-process output. Its protection is limited by matching thresholds,
+transformations, and the host-enforced execution boundary. A streaming known-value redactor with a provable chunking
 property, session-bound human authorization with in-place continuation, and
-fail-closed containment together remove the common accidental-disclosure paths
+fail-closed containment together reduce common accidental-disclosure paths
 at a cost of well under a millisecond of redaction per command. Our self-audit
 shows where such systems actually break---in the rendering of what humans
 approve, in surfaces built for humans that agents can also reach, and in the
@@ -1056,8 +1066,16 @@ redaction explicit. \sys{} is available under the MIT license at
 \url{https://github.com/Generalized-Labs/ironrun}.
 
 \paragraph{Availability.} The evaluation harness (\code{go run ./paper/eval})
-regenerates every number in \cref{sec:eval}; \code{make -C paper} builds this
-document.
+runs current-implementation leakage, false-positive, and performance
+experiments; \code{make -C paper} builds this document. The procedure in
+\code{paper/REPRODUCING.md} copies the same checked harness into the pinned
+v0.5.0 baseline. A Linux/Go~1.26.9 rerun reproduced 52/126 baseline and 28/126
+current threshold cases, including 21/72 and 3/72 accidental cases. Raw outputs,
+source hashes, and host metadata are provided under
+\code{docs/validation/2026-10-20/}. Historical timing, false-positive, self-audit,
+and RQ4 results still require their separate supporting records; the leakage
+rerun does not validate those claims. The current source must be pinned to a
+final commit before publication.
 
 \paragraph{Disclosure.} Portions of the audit and of this manuscript's
 preparation were assisted by LLM-based tools under the authors' direction; all

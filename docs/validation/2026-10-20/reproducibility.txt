@@ -1,0 +1,8 @@
+Two GoReleaser 2.18.2 snapshot builds produced identical binary SHA-256 hashes for all four targets.
+All snapshot checksums verified. Signing, SBOM generation, publishing, and before hooks were skipped.
+{
+  "dist/ironrun_linux_amd64_v1/ironrun": "580e2b21a1fe93340a9a718dafbf65f710580c59c8afa4f251ac38cd1e251b5c",
+  "dist/ironrun_linux_arm64_v8.0/ironrun": "a0d13a34f5b8699d9b45a383a81a7fbd78f51b6c0e17e71306c4748acaf55974",
+  "dist/ironrun_darwin_amd64_v1/ironrun": "48cdec38de096e4d7d0d43c192db3f6a3ac6a83c3b3661add9a98155b06c6341",
+  "dist/ironrun_darwin_arm64_v8.0/ironrun": "0c4e3a0abbdfb14333da38ddd10759a4fced59ed11c76d862d56fddf9c2be8fe"
+}

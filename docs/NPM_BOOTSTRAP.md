@@ -17,10 +17,35 @@ npm login
 #    https://www.npmjs.com/org/create  ->  name: generalized-labs
 #    (a free org is fine for public scoped packages)
 
-# 3. First manual publish from the built launcher package.
+# 3. From the repository root, prepare the exact signed release artifacts.
+# Set this to the already-published release being bootstrapped, not a snapshot.
+release_tag=vX.Y.Z
+mkdir -p dist
+gh release download "$release_tag" --dir dist --clobber \
+  --pattern 'ironrun_*.tar.gz' --pattern 'checksums.txt' \
+  --pattern '*.sigstore.json'
+# Follow docs/INSTALL.md to verify checksums.txt and each archive using
+# the release workflow's Sigstore identity for this exact tag BEFORE proceeding.
+
+# 4. Generate the package version and immutable hashes from those archives.
+# This checks each archive against checksums.txt and hashes the extracted binary.
+node npm/scripts/build-manifest.mjs "$release_tag" dist
+node --test npm/test/*.test.js
+npm --prefix npm run validate-manifest
+
+# 5. Inspect and publish the prepared launcher package.
 cd npm
+npm pack --dry-run
 npm publish --access public --tag latest
 ```
+
+Use `--tag next` for any prerelease (alpha, beta, or RC), and `latest` only for
+a stable release. The checked-in manifest is deliberately unprepared; publishing
+directly from checkout is refused by `prepublishOnly`. Do not bypass lifecycle
+scripts with `--ignore-scripts`. Metadata validation checks version, all four
+platforms, filenames, sizes, and digest formats; it does not replace signature
+verification of the release inputs. Keep the prepared package and manifest
+together, and never hand-fill artifact hashes.
 
 ## Then enable trusted publishing (so CI publishes every future release)
 

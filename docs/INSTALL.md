@@ -18,7 +18,7 @@ Download the installer that shipped with the release you want — this pins
 the *script itself*, not just the binary — then run it:
 
 ```bash
-VERSION=v0.4.1   # pick the release you want
+VERSION=vX.Y.Z   # pick the release you want
 curl -fsSL "https://github.com/generalized-labs/ironrun/releases/download/${VERSION}/install.sh" \
   -o /tmp/install-ironrun.sh
 sh /tmp/install-ironrun.sh --version "$VERSION"
@@ -31,7 +31,7 @@ Before touching your system the script:
    `sigstore/cosign v2.4.3` release binary, whose SHA-256 is hardcoded in the
    script and checked before it is executed;
 3. Sigstore-verifies `checksums.txt` against the release workflow's OIDC
-   identity (`.../.github/workflows/release.yml@refs/tags/`);
+   identity bound to the requested tag (`.../.github/workflows/release.yml@refs/tags/vX.Y.Z`);
 4. SHA-256-verifies the tarball against `checksums.txt`;
 5. Sigstore-verifies the tarball bundle itself.
 
@@ -49,10 +49,14 @@ Flags: `--version vX.Y.Z` (or `IRONRUN_VERSION`), `--dir PATH`
 Everything the script does can be done by hand:
 
 ```bash
-VERSION=v0.4.1
+VERSION=vX.Y.Z
 OS=Linux; ARCH=x86_64   # or Darwin / arm64
 TARBALL="ironrun_${OS}_${ARCH}.tar.gz"
 BASE="https://github.com/generalized-labs/ironrun/releases/download/${VERSION}"
+# VERSION must be a release tag; escape dots and bind the complete identity.
+printf '%s\n' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$' || exit 1
+TAG_PATTERN=$(printf '%s' "$VERSION" | sed 's/\./\\./g')
+IDENTITY="^https://github\.com/[Gg]eneralized-[Ll]abs/ironrun/\.github/workflows/release\.yml@refs/tags/${TAG_PATTERN}\$"
 
 curl -fsSLO "${BASE}/${TARBALL}" "${BASE}/${TARBALL}.sigstore.json" \
           "${BASE}/checksums.txt" "${BASE}/checksums.txt.sigstore.json"
@@ -60,7 +64,7 @@ curl -fsSLO "${BASE}/${TARBALL}" "${BASE}/${TARBALL}.sigstore.json" \
 # 1. checksums.txt is signed by the release workflow
 cosign verify-blob --bundle checksums.txt.sigstore.json \
   --certificate-identity-regexp \
-  '^https://github\.com/generalized-labs/ironrun/\.github/workflows/release\.yml@refs/tags/' \
+  "$IDENTITY" \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   checksums.txt
 
@@ -70,7 +74,7 @@ grep " ${TARBALL}\$" checksums.txt | sha256sum -c -
 # 3. tarball bundle verifies
 cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
   --certificate-identity-regexp \
-  '^https://github\.com/generalized-labs/ironrun/\.github/workflows/release\.yml@refs/tags/' \
+  "$IDENTITY" \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   "${TARBALL}"
 ```
@@ -79,7 +83,7 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
 
 | Method | Command | Verification |
 |---|---|---|
-| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | url + sha256 pin in the formula that goreleaser publishes to `Generalized-Labs/homebrew-tap` on every stable tag (no Sigstore check; use the installer for that) |
+| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | url + sha256 pin in the formula reviewed in GoReleaser’s draft PR to `Generalized-Labs/homebrew-tap` for each stable tag (no Sigstore check; use the installer for that) |
 | npm / npx | `npx @generalized-labs/ironrun` | postinstall pre-warms the cache; every run re-verifies archive + binary size and SHA-256 against the release manifest (`npm/manifest.json`, built at release time by `npm/scripts/build-manifest.mjs`) |
 | Go | `go install github.com/generalized-labs/ironrun/cmd/ironrun@latest` | Go module checksum DB (`GONOSUMDB` off by default); binary prints its own VCS stamping via `ironrun version -v` |
 
@@ -107,7 +111,7 @@ change them in all four places or not at all.
 |---|---|---|
 | `Version` | `{{.Version}}` — the tag, e.g. `v0.4.1` (displayed without the `v`) | `git describe --tags --always --dirty` |
 | `Commit` | `{{.Commit}}` — full commit SHA | `git rev-parse HEAD` |
-| `Date` | `{{.Date}}` — RFC 3339 *commit* date | `git log -1 --format=%cI` (commit date) |
+| `Date` | `{{.CommitDate}}` — RFC 3339 *commit* date | `git log -1 --format=%cI` (commit date) |
 
 The date is always the commit date, never wall-clock time — this is what
 makes the stamping reproducible.

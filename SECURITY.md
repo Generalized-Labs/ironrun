@@ -73,6 +73,9 @@ on a property Ironrun does not provide:
 - **Same-user credential stores.** On macOS, a keychain item created through
   `/usr/bin/security` can be read by any same-user process that invokes it. The
   legacy version-1 file store keeps its key beside its ciphertext.
+- **Process lifetime.** Cleanup kills the original process group. Descendants
+  that detach with `setsid` can escape that group and retain injected values.
+  Use external process containment when whole-tree termination is required.
 - **Rollback and truncation.** The vault manifest MAC and the audit hash chain
   detect modification, not replacement with an older valid copy or deletion of
   the newest audit records.

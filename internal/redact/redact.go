@@ -262,7 +262,7 @@ func matchFlex(buf, secret []byte, maxSpan int) (int, bool) {
 		if j == len(secret) {
 			return end, true
 		}
-		for i < len(buf) && isFlexGap(buf[i]) {
+		for i < len(buf) && i < maxSpan && isFlexGap(buf[i]) {
 			i++
 		}
 		// The consumed span must stay within maxSpan (the hold-back

@@ -37,9 +37,9 @@ commands:
 }
 
 // TestSeccomp_BlocksPtrace verifies the seccomp denylist blocks ptrace when the
-// command opts in, and that disabling it restores access. It skips (rather than
-// fails) when the kernel/environment doesn't enforce seccomp, matching the
-// fail-open posture.
+// command opts in, and that disabling it restores access. A host that already
+// blocks ptrace cannot establish this differential and is skipped. If the
+// enabled filter permits ptrace, that is a security regression, not a skip.
 func TestSeccomp_BlocksPtrace(t *testing.T) {
 	if runtime.GOOS != "linux" {
 		t.Skip("seccomp is Linux-only")
@@ -53,7 +53,7 @@ func TestSeccomp_BlocksPtrace(t *testing.T) {
 
 	on := runProbe(t, probe, true)
 	if strings.Contains(on, "PTRACE_ALLOWED") {
-		t.Skipf("seccomp not enforced here (fail-open, e.g. unsupported kernel): %q", on)
+		t.Fatalf("seccomp enabled but ptrace was allowed: %q", on)
 	}
 	if !strings.Contains(on, "PTRACE_BLOCKED") {
 		t.Errorf("expected PTRACE_BLOCKED with seccomp on, got: %q", on)

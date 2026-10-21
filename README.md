@@ -12,7 +12,7 @@ ironrun is a local-first encrypted environment workspace. It gives humans one te
 
 Your tests still get a live `DATABASE_URL`. The agent gets back `exit_code: 0` and `tests passed` — and never the connection string.
 
-The design, threat model, a security self-audit, and a leak evaluation are written up in the paper [*Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them*](paper/ironrun.pdf).
+The design, threat model, a security self-audit, and a leak evaluation are written up in the paper [*Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them*](paper/ironrun.pdf). Read the [full paper walkthrough](docs/PAPER_WALKTHROUGH.md), [redaction algorithm and proof walkthrough](docs/REDACTION_WALKTHROUGH.md), [reproduction instructions](paper/REPRODUCING.md), and [launch readiness review](docs/LAUNCH_READINESS.md) for verified results and remaining checks.
 
 ---
 
@@ -34,7 +34,10 @@ This isn't hypothetical. From the Claude Code issue tracker:
 > *"Three confirmed incidents at one operator workstation in ~6 days. Each incident forced a credential rotation. None of these are exotic — they're shapes that came up during normal diagnosis work the model was asked to do."*
 > — [anthropics/claude-code#65122](https://github.com/anthropics/claude-code/issues/65122)
 
-The agents don't redact their own output, and the secret managers you already use (`op run`, `doppler run`, `infisical run`) inject secrets but don't redact either. ironrun adds the missing piece: it sits between the agent and the command so secrets flow **in** but never flow back **out**.
+Secret-manager wrappers inject secrets into child processes; `op run` also masks
+values in output. ironrun combines output redaction with agent-facing execution
+tools and authorization. It filters known values and supported encodings before
+output reaches the agent, subject to the limitations described below.
 
 ### The threat you probably haven't seen yet
 

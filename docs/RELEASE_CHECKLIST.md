@@ -12,7 +12,7 @@ request is necessary, but it is not the release decision by itself.
 - [ ] `govulncheck ./...`
 - [ ] Fuzz-smoke policy, dotenv, capsule, metadata, RPC, and audit parsers
 - [ ] Build macOS and Linux for amd64 and arm64
-- [ ] Build and smoke-test the Windows amd64 beta
+- [ ] Confirm release artifacts and installation instructions exclude Windows
 - [ ] Produce a GoReleaser snapshot and verify every archive and checksum
 - [ ] Run installer tampering and missing-checksum tests
 - [ ] Run the npm launcher tests on Node 20, 22, and 24
@@ -26,6 +26,8 @@ request is necessary, but it is not the release decision by itself.
       missing/altered Sigstore bundle must abort the install (fail closed)
 - [ ] Homebrew formula (`Formula/ironrun.rb`) sha256s match the release
       `checksums.txt`; tap installs and `ironrun version` matches the tag
+- [ ] Review and merge the generated Homebrew tap draft PR only after the
+      signed GitHub release is public; prereleases do not update the tap
 - [ ] npm launcher: `manifest.json` hashes match the release archives;
       cold-cache install fetches and verifies the binary
 - [ ] OpenSSF Scorecard and repository security checks pass
@@ -61,7 +63,8 @@ These gates cannot be inferred from CI or replaced with simulated results.
 - [ ] At least 7/10 users complete the agent approval flow
 - [ ] At least five users return within seven days
 - [ ] Dogfood `v1.0.0-rc.1` on macOS amd64/arm64 and Ubuntu amd64/arm64
-- [ ] Confirm the Windows amd64 beta smoke suite
+- [ ] Confirm Windows limitations match `docs/windows.md`; Windows is not a
+      launch target
 - [ ] Resolve every critical and high-severity issue
 
 ## Publication gates
