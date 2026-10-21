@@ -1,15 +1,16 @@
 {
+  "toolchain": "go1.26.10",
   "checksums": {
     "install.sh": "81a7e26fbeb86c11c6ce6fc53c308a8b692a2c5c6979caebf99f14638040d633",
-    "ironrun_Darwin_arm64.tar.gz": "2b80cb4477709ec9a480bf3684338f350a5bf2147d4104c088c5d69e7ebff149",
-    "ironrun_Darwin_x86_64.tar.gz": "d33d8fc32c57636f4547b136236764f99ed712f24abe59a313630edab31887cc",
-    "ironrun_Linux_arm64.tar.gz": "a4ad88ecbb4dc8291b15711d45e6e447e7dd09a09c68726a74747ea8fabb2094",
-    "ironrun_Linux_x86_64.tar.gz": "a9b5a908b8fdb5c2b621003ab30ab0f0169807521ddf35612049225713d2a5ab"
+    "ironrun_Darwin_arm64.tar.gz": "1b22d21ae5de543fa72dcfdaef656d47c28b35bf14033140d05d1618be361f7f",
+    "ironrun_Darwin_x86_64.tar.gz": "5dd9f855aa6207034b55c6530e06ae0b8524319809785246698543ea99603a0a",
+    "ironrun_Linux_arm64.tar.gz": "d8a756bce4a36dd63ea4c293785a96763dbdef5159ff284cae5830abf4f5f62e",
+    "ironrun_Linux_x86_64.tar.gz": "e9c8a19b89bb964776c48b5ed0e4cf5f4a64ee11912a09358df78d068757a7b1"
   },
   "binaries": {
-    "dist/ironrun_linux_amd64_v1/ironrun": "fd6ceb9cd51e92337418763cff92be75f135bbf04c04bbc754262b06394f1d02",
-    "dist/ironrun_linux_arm64_v8.0/ironrun": "33d0eb5f86b7024ce2dd67ce44cda78cdf5b2c3f61feaf63730b8a1006f16541",
-    "dist/ironrun_darwin_amd64_v1/ironrun": "247f9c83558c3ebfd8508c30770d83488217c00322cdb64a8bc7c59448cffcb1",
-    "dist/ironrun_darwin_arm64_v8.0/ironrun": "92c062c5e30aad688bed1077e9ed8761ee7528ef1a72138f163a64f049846832"
+    "dist/ironrun_linux_amd64_v1/ironrun": "e4397d98ee083ee423f57026320376f020563063b4995ba147ab58b4ad10999a",
+    "dist/ironrun_linux_arm64_v8.0/ironrun": "f67637dd05a01b4b135e8fbfdd7c9603f4ce4fb8a192fe95eafb3900b95ba407",
+    "dist/ironrun_darwin_amd64_v1/ironrun": "e4a0c12ce83ead8d4b750c15e0bbb89b1ef5590183a474f08a0ab61909400c27",
+    "dist/ironrun_darwin_arm64_v8.0/ironrun": "69f5d698fb420800514c238f8db730984da7bc5c5b806e58f590b7486a1fce08"
   }
 }

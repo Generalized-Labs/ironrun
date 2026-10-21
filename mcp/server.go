@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"strings"
 	"syscall"
@@ -798,10 +797,6 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 		}
 
 		path := pending.Path(policyPath)
-		store, err := pending.Load(path)
-		if err != nil {
-			return mcplib.NewToolResultError("could not read the pending store"), nil
-		}
 		proposalEnv := coerceEnv(req.GetArguments()["env"])
 		if current.UsesEnvironmentEntries() {
 			for _, name := range optionalStringSlice(req, "secrets") {
@@ -824,17 +819,12 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 			ProposedAt: time.Now().UTC().Format(time.RFC3339), // server-side; agent time is untrusted
 			Status:     "pending",
 		}
-		// A pending proposal is immutable: approval (TUI or `approve --yes`)
-		// binds to the id, so letting the agent swap the content of an id the
-		// human is already reviewing would approve something they never saw.
-		if existing := store.Find(id); existing != nil {
-			if !reflect.DeepEqual(existing.Argv, proposal.Argv) || !reflect.DeepEqual(existing.Env, proposal.Env) || existing.Reason != proposal.Reason {
+		// Creation and immutability checks share a cross-process transaction;
+		// concurrent MCP workers must never swap an ID under human review.
+		if _, err := pending.Create(path, proposal); err != nil {
+			if errors.Is(err, pending.ErrConflict) {
 				return mcplib.NewToolResultError(fmt.Sprintf("%q is already pending with different content; propose under a new id (the user can `ironrun reject %s`)", id, id)), nil
 			}
-			proposal.ProposedAt = existing.ProposedAt
-		}
-		store.Upsert(proposal)
-		if err := pending.Save(path, store); err != nil {
 			return mcplib.NewToolResultError("could not save the proposal"), nil
 		}
 		return mcplib.NewToolResultText(fmt.Sprintf(

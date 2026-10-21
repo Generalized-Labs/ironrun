@@ -89,6 +89,7 @@ func riskFlag(p pending.Proposal) string {
 // approveCmd: ironrun approve <id> — promote a proposal into ironrun.yml.
 func approveCmd() *cobra.Command {
 	var yes bool
+	var expectedDigest string
 	cmd := &cobra.Command{
 		Use:   "approve <id>",
 		Short: "Approve a proposed command and add it to ironrun.yml",
@@ -103,6 +104,10 @@ func approveCmd() *cobra.Command {
 			p := store.Find(id)
 			if p == nil {
 				return fmt.Errorf("no pending proposal with id %q (run `ironrun review`)", id)
+			}
+			reviewedDigest := pending.ReviewDigest(*p)
+			if expectedDigest != "" && reviewedDigest != expectedDigest {
+				return fmt.Errorf("proposal %q changed since review; review it again before approving", id)
 			}
 			// Re-validate at approve time (defense in depth).
 			if policy.IsShellString(p.Argv) {
@@ -127,11 +132,17 @@ func approveCmd() *cobra.Command {
 				}
 			}
 
-			if err := appendCommandToPolicy(policyPath, *p); err != nil {
-				return err
-			}
-			store.Remove(id)
-			if err := pending.Save(path, store); err != nil {
+			if err := pending.Update(path, func(current *pending.Store) error {
+				proposal := current.Find(id)
+				if proposal == nil || pending.ReviewDigest(*proposal) != reviewedDigest {
+					return fmt.Errorf("proposal %q changed since review; review it again before approving", id)
+				}
+				if err := appendCommandToPolicy(policyPath, *proposal); err != nil {
+					return err
+				}
+				current.Remove(id)
+				return nil
+			}); err != nil {
 				return err
 			}
 			fmt.Fprintf(out, "Approved %q -> added to %s. The agent can now run it via run_sealed.\n", id, policyPath)
@@ -139,6 +150,7 @@ func approveCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&yes, "yes", false, "skip the confirmation prompt")
+	cmd.Flags().StringVar(&expectedDigest, "expected-digest", "", "require the exact proposal previously reviewed")
 	return cmd
 }
 
@@ -151,14 +163,12 @@ func rejectCmd() *cobra.Command {
 		RunE: func(c *cobra.Command, args []string) error {
 			id := args[0]
 			path := pending.Path(policyPath)
-			store, err := pending.Load(path)
-			if err != nil {
-				return err
-			}
-			if _, ok := store.Remove(id); !ok {
-				return fmt.Errorf("no pending proposal with id %q", id)
-			}
-			if err := pending.Save(path, store); err != nil {
+			if err := pending.Update(path, func(store *pending.Store) error {
+				if _, ok := store.Remove(id); !ok {
+					return fmt.Errorf("no pending proposal with id %q", id)
+				}
+				return nil
+			}); err != nil {
 				return err
 			}
 			fmt.Fprintf(c.OutOrStdout(), "Rejected %q. %s unchanged.\n", id, policyPath)

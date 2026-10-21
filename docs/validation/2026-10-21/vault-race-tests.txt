@@ -1,0 +1,4 @@
+ok  	github.com/generalized-labs/ironrun/internal/vault	1.221s
+ok  	github.com/generalized-labs/ironrun/internal/envset	1.119s
+ok  	github.com/generalized-labs/ironrun/internal/execution	1.209s
+ok  	github.com/generalized-labs/ironrun/internal/audit	1.099s

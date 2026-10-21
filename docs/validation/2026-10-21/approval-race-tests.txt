@@ -1,0 +1,4 @@
+ok  	github.com/generalized-labs/ironrun/internal/pending	(cached)
+ok  	github.com/generalized-labs/ironrun/cmd/ironrun	(cached)
+ok  	github.com/generalized-labs/ironrun/internal/tui	(cached)
+ok  	github.com/generalized-labs/ironrun/mcp	(cached)

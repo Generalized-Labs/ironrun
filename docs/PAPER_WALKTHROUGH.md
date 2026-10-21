@@ -200,7 +200,7 @@ battery tries reversal, case folding, encodings, gap removal, and related
 reconstruction. A case crosses the threshold when a case-insensitive contiguous
 run of at least 50% of the registered value can be recovered.
 
-The same corrected harness with Go 1.26.9 reproduced **52/126 → 28/126** overall
+The same corrected harness with Go 1.26.10 reproduced **52/126 → 28/126** overall
 and **21/72 → 3/72** for the accidental subset. The pinned baseline and raw logs
 are documented in [REPRODUCING.md](../paper/REPRODUCING.md). This is a deterministic
 corpus result, not a probability that a real execution leaks. Matching half a

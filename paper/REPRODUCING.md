@@ -1,6 +1,6 @@
 # Reproducing the leakage comparison
 
-Verified October 20, 2026 on Linux amd64 using Go 1.26.9. Both runs use the
+Verified October 21, 2026 on Linux amd64 using Go 1.26.10. Both runs use the
 same current evaluation harness, including successful-exit and output-sentinel
 checks. The v0.5.0 runtime is unchanged; only the harness is copied into it.
 No real credentials are required. All credential-shaped values are synthetic.
@@ -18,7 +18,7 @@ experiment, or RQ4 containment results.
 
 ## Commands
 
-Run from the repository root with Go 1.26.9 on PATH:
+Run from the repository root with Go 1.26.10 on PATH:
 
 ```sh
 go test ./paper/eval
@@ -39,7 +39,10 @@ removing it.
 
 ## Evidence and scope
 
-Raw outputs and provenance are under `docs/validation/2026-10-20/`:
+Latest raw outputs and source hashes are under `docs/validation/2026-10-21/`:
+`go1.26.10-baseline-leak.txt`, `go1.26.10-current-leak.txt`, and
+`go1.26.10-provenance.json`. The earlier Go 1.26.9 reproduction and baseline
+archive/harness provenance remain under `docs/validation/2026-10-20/` in
 `baseline-leak.txt`, `current-leak.txt`, and `leak-comparison-provenance.json`.
 The provenance records the baseline archive hash, harness hash, current runtime
 source hashes, host, toolchain, and Git base commit. The current tree contains
@@ -47,6 +50,6 @@ uncommitted fixes, so its base commit alone does not identify the tested code.
 A final publication must pin the committed current source as well.
 
 The baseline declares Go 1.26.5; this comparison deliberately builds both sides
-with Go 1.26.9 to keep the compiler constant. Baseline dependencies remain those
+with Go 1.26.10 to keep the compiler constant. Baseline dependencies remain those
 in the baseline's own module files. This is a fresh reproduction of leakage
 counts, not a reconstruction of the authors' original machine or run logs.

@@ -83,7 +83,7 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
 
 | Method | Command | Verification |
 |---|---|---|
-| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | url + sha256 pin in the formula reviewed in GoReleaser’s draft PR to `Generalized-Labs/homebrew-tap` for each stable tag (no Sigstore check; use the installer for that) |
+| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | URL + SHA-256 pin in the cask staged by GoReleaser’s draft tap PR; see [migration and install/upgrade checks](HOMEBREW_MIGRATION.md). Homebrew does not verify Sigstore bundles; use the installer for that |
 | npm / npx | `npx @generalized-labs/ironrun` | postinstall pre-warms the cache; every run re-verifies archive + binary size and SHA-256 against the release manifest (`npm/manifest.json`, built at release time by `npm/scripts/build-manifest.mjs`) |
 | Go | `go install github.com/generalized-labs/ironrun/cmd/ironrun@latest` | Go module checksum DB (`GONOSUMDB` off by default); binary prints its own VCS stamping via `ironrun version -v` |
 
@@ -99,8 +99,9 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
 
 `<OS>` is `Linux` or `Darwin`; `<arch>` is `x86_64` or `arm64`.
 These names are produced by `.goreleaser.yml` (`archives.name_template`) and
-consumed by `install.sh`, `npm/lib/launcher.js`, and `Formula/ironrun.rb` —
-change them in all four places or not at all.
+consumed by `install.sh`, `npm/lib/launcher.js`, and the generated Homebrew
+cask. The legacy `Formula/ironrun.rb` remains historical packaging until the
+tap migration. Update and verify every consumer when changing archive names.
 
 ## Version stamping
 

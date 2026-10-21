@@ -38,7 +38,7 @@ successful PDF build does not validate those results.
   commands, raw results, and failures. The leakage reproduction does not validate
   these other tables.
 - Follow [REPRODUCING.md](REPRODUCING.md) for the corrected leakage experiment.
-  The same harness and Go 1.26.9 reproduced 52/126 threshold cases on v0.5.0 and
+  The same harness and Go 1.26.10 reproduced 52/126 threshold cases on v0.5.0 and
   28/126 on the reviewed working tree; accidental cases were 21/72 and 3/72.
   Pin the final committed current source and retain its hashes and raw outputs.
   These case-insensitive 50% recovery counts are a deterministic corpus metric,

@@ -17,8 +17,8 @@ agent configuration, credentials, remote graph, or project dependency was change
 
 ## Graph evidence and limits
 
-Final graph: **1819 nodes, 6429 relationships**, with
-5980 tagged EXTRACTED and 449 tagged INFERRED.
+Final graph: **1840 nodes, 6474 relationships**, with
+6020 tagged EXTRACTED and 454 tagged INFERRED.
 Graphify used code-only extraction, skipping docs/PDFs for semantic extraction.
 Five code-classified files yielded no symbols, including the npm entry point and
 postinstall script. Large hubs such as `testing.T` and standard-library package
@@ -49,12 +49,12 @@ EXTRACTED links, do not prove a path executes or an authorization property holds
 
 ## REA evidence and limits
 
-`inspect-go-binary` was refreshed on the October 21 four-platform snapshot's Linux amd64 ELF:
-SHA-256 `fd6ceb9cd51e92337418763cff92be75f135bbf04c04bbc754262b06394f1d02`,
-Go 1.26.9, 21,758,114 bytes. It includes the working-directory, final-flush, and
-bounded-gap fixes. Signing, SBOM generation, before hooks and publication were
-skipped for this local snapshot; it is not a signed release. The earlier
-two-build reproducibility comparison used the prior source state.
+`inspect-go-binary` was refreshed on the final October 21 snapshot's Linux amd64 ELF:
+SHA-256 `e4397d98ee083ee423f57026320376f020563063b4995ba147ab58b4ad10999a`,
+Go 1.26.10, 21,770,402 bytes. It includes the execution, bounded-gap, vault-init,
+and proposal-approval fixes. Signing, SBOM generation, before hooks and publication
+were skipped; this is a local snapshot. The archive/cask hashes and repeated-build
+comparison are recorded in `docs/validation/2026-10-21/`.
 REA extracted build metadata and dependencies, not a native-code decompilation
 or dynamic security audit.
 

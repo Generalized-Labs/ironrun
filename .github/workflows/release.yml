@@ -52,7 +52,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # .goreleaser.yml brews.repository.token; GITHUB_TOKEN cannot push
+          # .goreleaser.yml homebrew_casks.repository.token; GITHUB_TOKEN cannot push
           # to the tap repo, and an unset value fails the publish step.
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
 

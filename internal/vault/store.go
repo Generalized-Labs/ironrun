@@ -99,6 +99,20 @@ func Open(dir, projectID string, protector Protector) (*Store, error) {
 	}
 
 	path := filepath.Join(dir, projectFilename(projectID))
+	var store *Store
+	// Creating the protected key is a read-modify-write transaction too. Two
+	// first opens must not save different keys and orphan one caller's vault.
+	// Use a kernel-backed lock: key-manager prompts can outlive the ordinary
+	// mutation lock's stale-directory timeout, and crashes must release it.
+	err := withInitializationLock(path+".init.lock", func() error {
+		var err error
+		store, err = openProtected(path, projectID, protector)
+		return err
+	})
+	return store, err
+}
+
+func openProtected(path, projectID string, protector Protector) (*Store, error) {
 	keyName := "project-" + shortHash(projectID)
 	encoded, err := protector.Load(keyName)
 	if err != nil {

@@ -83,6 +83,18 @@ on a property Ironrun does not provide:
   `pull_request_review_comment`, and `workflow_run` payloads; `issue_comment`
   workflows that check out pull-request code must gate themselves.
 
+## Pending approval integrity
+
+Pending proposal IDs are immutable until approved or rejected. CLI approval
+rechecks the reviewed content digest inside the same transaction lock used by
+proposal creation and rejection. The dashboard preserves the reviewed proposal
+across list refreshes and cancels confirmation if its contents change.
+
+An interrupted pending-store transaction can leave `.ironrun/pending.yml.lock`.
+If operations report that this lock is busy, first ensure no approval or proposal
+process is still running, then remove that lock directory and retry. Locks are
+never stolen based on age; a slow live transaction must retain exclusive access.
+
 ## File-secret limitations
 
 During an approved command, a file secret exists temporarily as plaintext in a

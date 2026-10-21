@@ -24,8 +24,9 @@ request is necessary, but it is not the release decision by itself.
 - [ ] Verify SBOMs, checksums, npm provenance, and Sigstore bundles
 - [ ] Run `install.sh` end-to-end against the release: tampered tarball and
       missing/altered Sigstore bundle must abort the install (fail closed)
-- [ ] Homebrew formula (`Formula/ironrun.rb`) sha256s match the release
-      `checksums.txt`; tap installs and `ironrun version` matches the tag
+- [ ] Homebrew cask (`Casks/ironrun.rb` in the tap) SHA-256 digests match release
+      `checksums.txt`; clean installs and formula upgrades pass on Linux/macOS
+      following `docs/HOMEBREW_MIGRATION.md`, and `ironrun version` matches the tag
 - [ ] Review and merge the generated Homebrew tap draft PR only after the
       signed GitHub release is public; prereleases do not update the tap
 - [ ] npm launcher: `manifest.json` hashes match the release archives;

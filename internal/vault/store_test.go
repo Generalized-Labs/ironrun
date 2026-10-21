@@ -7,7 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 )
 
 type memoryProtector struct{ values map[string]string }
@@ -236,5 +238,106 @@ func TestReplaceRefusesForeignOlderAndConflictingDocuments(t *testing.T) {
 	}
 	if got, err := local.Get("dev", "TOKEN"); err != nil || got != "second" {
 		t.Fatalf("value = %q, %v", got, err)
+	}
+}
+
+// initializationProtector makes concurrent missing-key reads observable while
+// holding the first key-manager save. It never uses platform credentials.
+type initializationProtector struct {
+	mu               sync.Mutex
+	value            string
+	loads, saves     int
+	firstSaveStarted chan struct{}
+	releaseFirstSave chan struct{}
+	secondLoad       chan struct{}
+}
+
+func (p *initializationProtector) Load(string) (string, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.loads++
+	if p.loads == 2 {
+		close(p.secondLoad)
+	}
+	if p.value == "" {
+		return "", ErrKeyMissing
+	}
+	return p.value, nil
+}
+
+func (p *initializationProtector) Save(_ string, value string) error {
+	p.mu.Lock()
+	p.saves++
+	first := p.saves == 1
+	p.mu.Unlock()
+	if first {
+		close(p.firstSaveStarted)
+		<-p.releaseFirstSave
+	}
+	p.mu.Lock()
+	p.value = value
+	p.mu.Unlock()
+	return nil
+}
+
+func TestOpenConcurrentInitializationKeepsPersistedKey(t *testing.T) {
+	dir := t.TempDir()
+	p := &initializationProtector{
+		firstSaveStarted: make(chan struct{}),
+		releaseFirstSave: make(chan struct{}),
+		secondLoad:       make(chan struct{}),
+	}
+	type opened struct {
+		store *Store
+		err   error
+	}
+	results := make(chan opened, 2)
+	open := func() {
+		s, err := Open(dir, "concurrent-project", p)
+		results <- opened{s, err}
+	}
+	go open()
+	select {
+	case <-p.firstSaveStarted:
+	case <-time.After(5 * time.Second):
+		t.Fatal("first Open did not reach key-manager save")
+	}
+	go open()
+	// Before the fix the second Open reaches Load while the first Save is
+	// pending, observes another missing key, and creates a different root key.
+	// Correct initialization holds the OS lock until the key is persisted.
+	select {
+	case <-p.secondLoad:
+	case <-time.After(100 * time.Millisecond):
+	}
+	close(p.releaseFirstSave)
+	var stores []*Store
+	for range 2 {
+		select {
+		case result := <-results:
+			if result.err != nil {
+				t.Fatalf("concurrent Open failed: %v", result.err)
+			}
+			stores = append(stores, result.store)
+		case <-time.After(5 * time.Second):
+			t.Fatal("concurrent Open did not finish")
+		}
+	}
+	if p.saves != 1 {
+		t.Errorf("saved %d root keys; want one shared project key", p.saves)
+	}
+	for i, s := range stores {
+		if err := s.Set("dev", []string{"ONE", "TWO"}[i], "synthetic-init-value"); err != nil {
+			t.Fatalf("store %d cannot read the other's committed vault: %v", i, err)
+		}
+	}
+	reopened, err := Open(dir, "concurrent-project", p)
+	if err != nil {
+		t.Fatalf("reopen with persisted key: %v", err)
+	}
+	for _, name := range []string{"ONE", "TWO"} {
+		if value, err := reopened.Get("dev", name); err != nil || value != "synthetic-init-value" {
+			t.Errorf("reopened %s = %q, %v", name, value, err)
+		}
 	}
 }

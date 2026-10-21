@@ -1,0 +1,1 @@
+{"pairs": 30, "different_content_both_accepted": 0}

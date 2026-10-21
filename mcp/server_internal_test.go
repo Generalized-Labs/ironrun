@@ -2,6 +2,7 @@ package mcp
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -254,5 +255,42 @@ func TestServeRefusesTamperedAuditLog(t *testing.T) {
 		}
 	case <-time.After(5 * time.Second):
 		t.Fatal("Serve started with a tampered audit log")
+	}
+}
+
+// Concurrent calls must not replace an ID a human may already be reviewing.
+func TestConcurrentProposalsCannotSwapPendingContent(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "ironrun.yml")
+	if err := os.WriteFile(path, []byte("version: \"1\"\nprovider: passthrough\nallow_proposals: true\ncommands:\n  - id: greet\n    argv: [echo, hello]\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	f, err := policy.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	handler := makeProposeHandler(f, path)
+	const callers = 32
+	start := make(chan struct{})
+	results := make(chan bool, callers)
+	for i := range callers {
+		go func() {
+			<-start
+			req := mcplib.CallToolRequest{Params: mcplib.CallToolParams{Arguments: map[string]any{
+				"id": "shared-id", "argv": []string{"echo", fmt.Sprintf("variant-%d", i)}, "reason": "concurrent fixture",
+			}}}
+			result, err := handler(context.Background(), req)
+			results <- err == nil && result != nil && !result.IsError
+		}()
+	}
+	close(start)
+	accepted := 0
+	for range callers {
+		if <-results {
+			accepted++
+		}
+	}
+	if accepted != 1 {
+		t.Fatalf("accepted %d different proposals for the same immutable ID; want 1", accepted)
 	}
 }
