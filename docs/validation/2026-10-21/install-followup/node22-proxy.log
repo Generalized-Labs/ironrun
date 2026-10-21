@@ -1,0 +1,66 @@
+TAP version 13
+# Subtest: real launcher proxy transport on Node 22.23.3
+    # Subtest: valid proxied HTTPS redirect
+        # Subtest: warm cache works without a usable proxy
+        ok 1 - warm cache works without a usable proxy
+          ---
+          duration_ms: 56.782457
+          type: 'test'
+          ...
+        1..1
+    ok 1 - valid proxied HTTPS redirect
+      ---
+      duration_ms: 166.696823
+      type: 'test'
+      ...
+    # Subtest: no startup opt-in
+    ok 2 - no startup opt-in
+      ---
+      duration_ms: 84.245746
+      type: 'test'
+      ...
+    # Subtest: npm proxy configuration alone
+    ok 3 - npm proxy configuration alone
+      ---
+      duration_ms: 69.435102
+      type: 'test'
+      ...
+    # Subtest: NO_PROXY bypass
+    ok 4 - NO_PROXY bypass
+      ---
+      duration_ms: 70.049216
+      type: 'test'
+      ...
+    # Subtest: tampered archive
+    ok 5 - tampered archive
+      ---
+      duration_ms: 101.123822
+      type: 'test'
+      ...
+    # Subtest: untrusted certificate
+    ok 6 - untrusted certificate
+      ---
+      duration_ms: 88.928212
+      type: 'test'
+      ...
+    # Subtest: failed proxy
+    ok 7 - failed proxy
+      ---
+      duration_ms: 77.763588
+      type: 'test'
+      ...
+    1..7
+ok 1 - real launcher proxy transport on Node 22.23.3
+  ---
+  duration_ms: 758.6882
+  type: 'test'
+  ...
+1..1
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 764.43817

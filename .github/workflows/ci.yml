@@ -83,6 +83,9 @@ jobs:
       - name: Test verified launcher
         working-directory: npm
         run: node --test test/*.test.js
+      - name: Test proxy download transport
+        working-directory: npm
+        run: node test/proxy-audit.mjs
       - name: Verify publish contents
         working-directory: npm
         run: npm pack --dry-run

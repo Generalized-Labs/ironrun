@@ -1,0 +1,438 @@
+{
+  "checked_at": "2026-10-21T21:23:56.839410+00:00",
+  "scope": "Historical published v0.5.0 only; not current PR source or future release. No installer or Ironrun binary executed.",
+  "release": {
+    "tag_name": "v0.5.0",
+    "html_url": "https://github.com/Generalized-Labs/ironrun/releases/tag/v0.5.0",
+    "published_at": "2026-09-30T03:46:10Z",
+    "assets": [
+      {
+        "name": "checksums.txt",
+        "size": 869,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/checksums.txt",
+        "digest": "sha256:bb85bc2f6ab69c41f0b799d52b119801ff05b37e172d8cdc0738d34503339f0a"
+      },
+      {
+        "name": "checksums.txt.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/checksums.txt.sigstore.json",
+        "digest": "sha256:0cdece00df62757d5e10f7ff2f15c7d18fdab38f20727cc40d1d6450b88917f5"
+      },
+      {
+        "name": "install.sh",
+        "size": 13419,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/install.sh",
+        "digest": "sha256:e4a5b488346766efd3a5552ec473110838e428ac40b9b7a44ab6ef431d77f040"
+      },
+      {
+        "name": "install.sh.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/install.sh.sigstore.json",
+        "digest": "sha256:9c26b9a5c53124770cc04ae47c239bfc1a8f8e1df24df46c219d51d47711779f"
+      },
+      {
+        "name": "ironrun_Darwin_arm64.tar.gz",
+        "size": 7741317,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_arm64.tar.gz",
+        "digest": "sha256:7a6af39f28e4d023186f2343f83a92aca22444f49864d0303a53b77aaa949d7f"
+      },
+      {
+        "name": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+        "size": 82469,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_arm64.tar.gz.sbom.json",
+        "digest": "sha256:ab163956c0ae836020d4e15207ecbd84173bac0412943d595aa20da4a2a62f86"
+      },
+      {
+        "name": "ironrun_Darwin_arm64.tar.gz.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_arm64.tar.gz.sigstore.json",
+        "digest": "sha256:0d547f6a56cad746f8bcfc24139ef51b2a99f6b0007978e56d0454595c4e7e3d"
+      },
+      {
+        "name": "ironrun_Darwin_x86_64.tar.gz",
+        "size": 8334953,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_x86_64.tar.gz",
+        "digest": "sha256:b9446248088076c831dd7354ee84a8f2e4d89706a1e6f08ff43da1718f333a1a"
+      },
+      {
+        "name": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+        "size": 82527,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_x86_64.tar.gz.sbom.json",
+        "digest": "sha256:bdf57dac32a8934c2bf15395ed5273f7775a741370794525c3969d684bbaa7da"
+      },
+      {
+        "name": "ironrun_Darwin_x86_64.tar.gz.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Darwin_x86_64.tar.gz.sigstore.json",
+        "digest": "sha256:21e6988729ec0f34608034c42ce9c29cc4aa3a326664bf1180d2204b13b5e4d5"
+      },
+      {
+        "name": "ironrun_Linux_arm64.tar.gz",
+        "size": 7402454,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_arm64.tar.gz",
+        "digest": "sha256:1da5a18b78b17b8785534a7bb817474e4b8625b504dbb0779b38c8ee1421836f"
+      },
+      {
+        "name": "ironrun_Linux_arm64.tar.gz.sbom.json",
+        "size": 82411,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_arm64.tar.gz.sbom.json",
+        "digest": "sha256:08f9761368022c4890b0e3d6a211169ccb1c3b002c0b3a3929217c619130e3c9"
+      },
+      {
+        "name": "ironrun_Linux_arm64.tar.gz.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_arm64.tar.gz.sigstore.json",
+        "digest": "sha256:a40ff1493675a7532bfb3c4e6826d791633749296a3824b2232b54c983473bd4"
+      },
+      {
+        "name": "ironrun_Linux_x86_64.tar.gz",
+        "size": 8156061,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_x86_64.tar.gz",
+        "digest": "sha256:74f20749774a2c89a09958d8dde09b339fc308821ceb9f736e4c3c0bec475f2c"
+      },
+      {
+        "name": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+        "size": 82469,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_x86_64.tar.gz.sbom.json",
+        "digest": "sha256:9718e0fad4f396df78d01e20dccd8cfe3750a2551cc6439e4689379ee781fa1a"
+      },
+      {
+        "name": "ironrun_Linux_x86_64.tar.gz.sigstore.json",
+        "size": 8725,
+        "browser_download_url": "https://github.com/Generalized-Labs/ironrun/releases/download/v0.5.0/ironrun_Linux_x86_64.tar.gz.sigstore.json",
+        "digest": "sha256:c83dd8c5c9ac588c1c379ecee1993a6364513edd777faceaad13141b7700cd7d"
+      }
+    ]
+  },
+  "verifier": {
+    "version": "v2.4.3",
+    "sha256": "caaad125acef1cb81d58dcdc454a1e429d09a750d1e9e2b3ed1aed8964454708",
+    "download_url": "https://github.com/sigstore/cosign/releases/download/v2.4.3/cosign-linux-amd64",
+    "configuration": "SIGSTORE_NO_CACHE=true; exact identity and OIDC issuer; no verification bypass flags"
+  },
+  "signature_verification": [
+    {
+      "asset": "checksums.txt",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com"
+    },
+    {
+      "asset": "install.sh",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/install.sh.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/install.sh"
+      ]
+    },
+    {
+      "asset": "ironrun_Darwin_arm64.tar.gz",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/ironrun_Darwin_arm64.tar.gz.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/ironrun_Darwin_arm64.tar.gz"
+      ]
+    },
+    {
+      "asset": "ironrun_Darwin_x86_64.tar.gz",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/ironrun_Darwin_x86_64.tar.gz.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/ironrun_Darwin_x86_64.tar.gz"
+      ]
+    },
+    {
+      "asset": "ironrun_Linux_arm64.tar.gz",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/ironrun_Linux_arm64.tar.gz.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/ironrun_Linux_arm64.tar.gz"
+      ]
+    },
+    {
+      "asset": "ironrun_Linux_x86_64.tar.gz",
+      "exit_code": 0,
+      "output": "Verified OK",
+      "identity": "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+      "issuer": "https://token.actions.githubusercontent.com",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/ironrun_Linux_x86_64.tar.gz.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/ironrun_Linux_x86_64.tar.gz"
+      ]
+    }
+  ],
+  "negative_controls": [
+    {
+      "case": "wrong-tag",
+      "exit_code": 1,
+      "output": "Error: none of the expected identities matched what was in the certificate, got subjects [https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0] with issuer https://token.actions.githubusercontent.com\nerror during command execution: none of the expected identities matched what was in the certificate, got subjects [https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0] with issuer https://token.actions.githubusercontent.com\n",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/checksums.txt.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.1",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/checksums.txt"
+      ]
+    },
+    {
+      "case": "tampered-blob",
+      "exit_code": 1,
+      "output": "Error: error verifying bundle: matching bundle to payload: bundle=\"bb85bc2f6ab69c41f0b799d52b119801ff05b37e172d8cdc0738d34503339f0a\", payload=\"541cf21a7304e6907b45234994fea7bcabdf0f8abb8a6f5b9874e781ede56f29\"\nerror during command execution: error verifying bundle: matching bundle to payload: bundle=\"bb85bc2f6ab69c41f0b799d52b119801ff05b37e172d8cdc0738d34503339f0a\", payload=\"541cf21a7304e6907b45234994fea7bcabdf0f8abb8a6f5b9874e781ede56f29\"\n",
+      "argv": [
+        "/workspace/ironrun-analysis/live-release/cosign-v2.4.3",
+        "verify-blob",
+        "--bundle",
+        "/workspace/ironrun-analysis/live-release/checksums.txt.sigstore.json",
+        "--certificate-identity",
+        "https://github.com/Generalized-Labs/ironrun/.github/workflows/release.yml@refs/tags/v0.5.0",
+        "--certificate-oidc-issuer",
+        "https://token.actions.githubusercontent.com",
+        "/workspace/ironrun-analysis/live-release/checksums-tampered.txt"
+      ]
+    }
+  ],
+  "signed_checksum_comparisons": [
+    {
+      "asset": "install.sh",
+      "sha256": "e4a5b488346766efd3a5552ec473110838e428ac40b9b7a44ab6ef431d77f040"
+    },
+    {
+      "asset": "ironrun_Darwin_arm64.tar.gz",
+      "sha256": "7a6af39f28e4d023186f2343f83a92aca22444f49864d0303a53b77aaa949d7f"
+    },
+    {
+      "asset": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "sha256": "ab163956c0ae836020d4e15207ecbd84173bac0412943d595aa20da4a2a62f86"
+    },
+    {
+      "asset": "ironrun_Darwin_x86_64.tar.gz",
+      "sha256": "b9446248088076c831dd7354ee84a8f2e4d89706a1e6f08ff43da1718f333a1a"
+    },
+    {
+      "asset": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "sha256": "bdf57dac32a8934c2bf15395ed5273f7775a741370794525c3969d684bbaa7da"
+    },
+    {
+      "asset": "ironrun_Linux_arm64.tar.gz",
+      "sha256": "1da5a18b78b17b8785534a7bb817474e4b8625b504dbb0779b38c8ee1421836f"
+    },
+    {
+      "asset": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "sha256": "08f9761368022c4890b0e3d6a211169ccb1c3b002c0b3a3929217c619130e3c9"
+    },
+    {
+      "asset": "ironrun_Linux_x86_64.tar.gz",
+      "sha256": "74f20749774a2c89a09958d8dde09b339fc308821ceb9f736e4c3c0bec475f2c"
+    },
+    {
+      "asset": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "sha256": "9718e0fad4f396df78d01e20dccd8cfe3750a2551cc6439e4689379ee781fa1a"
+    }
+  ],
+  "sboms": [
+    {
+      "asset": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "format": "SPDX-2.3",
+      "packages": 54,
+      "document_name": "ironrun_Darwin_arm64.tar.gz",
+      "creation_info": {
+        "licenseListVersion": "3.28",
+        "creators": [
+          "Organization: Anchore, Inc",
+          "Tool: syft-1.42.3"
+        ],
+        "created": "2026-09-30T03:46:04Z"
+      }
+    },
+    {
+      "asset": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "format": "SPDX-2.3",
+      "packages": 54,
+      "document_name": "ironrun_Darwin_x86_64.tar.gz",
+      "creation_info": {
+        "licenseListVersion": "3.28",
+        "creators": [
+          "Organization: Anchore, Inc",
+          "Tool: syft-1.42.3"
+        ],
+        "created": "2026-09-30T03:46:06Z"
+      }
+    },
+    {
+      "asset": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "format": "SPDX-2.3",
+      "packages": 54,
+      "document_name": "ironrun_Linux_arm64.tar.gz",
+      "creation_info": {
+        "licenseListVersion": "3.28",
+        "creators": [
+          "Organization: Anchore, Inc",
+          "Tool: syft-1.42.3"
+        ],
+        "created": "2026-09-30T03:46:05Z"
+      }
+    },
+    {
+      "asset": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "format": "SPDX-2.3",
+      "packages": 54,
+      "document_name": "ironrun_Linux_x86_64.tar.gz",
+      "creation_info": {
+        "licenseListVersion": "3.28",
+        "creators": [
+          "Organization: Anchore, Inc",
+          "Tool: syft-1.42.3"
+        ],
+        "created": "2026-09-30T03:46:07Z"
+      }
+    }
+  ],
+  "inert_binary_metadata": [
+    {
+      "archive": "ironrun_Darwin_arm64.tar.gz",
+      "binary_sha256": "d223e398a44b55c9c65807ce56474c539487b2fc11e080fbc4363c06b45ff786",
+      "binary_size": 20756914,
+      "archive_members": [
+        "LICENSE",
+        "README.md",
+        "ironrun.example.yml",
+        "ironrun"
+      ],
+      "go_version_line": "/workspace/ironrun-analysis/live-release/ironrun_Darwin_arm64.tar.gz.binary: go1.26.5",
+      "build_flags": [
+        "build\tvcs.revision=d16e04b09ec8c24e6d6e255caad9209182635af8",
+        "build\tvcs.time=2026-09-30T03:42:48Z",
+        "build\tvcs.modified=true"
+      ]
+    },
+    {
+      "archive": "ironrun_Darwin_x86_64.tar.gz",
+      "binary_sha256": "225577c7b6dca4a3337328fa4b35dbf1a25f5dff85fdf3fca84575238f737c53",
+      "binary_size": 22165456,
+      "archive_members": [
+        "LICENSE",
+        "README.md",
+        "ironrun.example.yml",
+        "ironrun"
+      ],
+      "go_version_line": "/workspace/ironrun-analysis/live-release/ironrun_Darwin_x86_64.tar.gz.binary: go1.26.5",
+      "build_flags": [
+        "build\tvcs.revision=d16e04b09ec8c24e6d6e255caad9209182635af8",
+        "build\tvcs.time=2026-09-30T03:42:48Z",
+        "build\tvcs.modified=true"
+      ]
+    },
+    {
+      "archive": "ironrun_Linux_arm64.tar.gz",
+      "binary_sha256": "a400d2916a343fd91ec989ad9244a671667d3b9bfc2ed7932b2057ac6cdf29da",
+      "binary_size": 20054178,
+      "archive_members": [
+        "LICENSE",
+        "README.md",
+        "ironrun.example.yml",
+        "ironrun"
+      ],
+      "go_version_line": "/workspace/ironrun-analysis/live-release/ironrun_Linux_arm64.tar.gz.binary: go1.26.5",
+      "build_flags": [
+        "build\tvcs.revision=d16e04b09ec8c24e6d6e255caad9209182635af8",
+        "build\tvcs.time=2026-09-30T03:42:48Z",
+        "build\tvcs.modified=true"
+      ]
+    },
+    {
+      "archive": "ironrun_Linux_x86_64.tar.gz",
+      "binary_sha256": "1e9f4ee8145e6bd0fb00952ee1ff20c274ce44e73ec83a28884205eb4b0c1fac",
+      "binary_size": 21561506,
+      "archive_members": [
+        "LICENSE",
+        "README.md",
+        "ironrun.example.yml",
+        "ironrun"
+      ],
+      "go_version_line": "/workspace/ironrun-analysis/live-release/ironrun_Linux_x86_64.tar.gz.binary: go1.26.5",
+      "build_flags": [
+        "build\tvcs.revision=d16e04b09ec8c24e6d6e255caad9209182635af8",
+        "build\tvcs.time=2026-09-30T03:42:48Z",
+        "build\tvcs.modified=true"
+      ]
+    }
+  ],
+  "public_availability": {
+    "checked_at": "2026-10-21T21:23:24.541684+00:00",
+    "observations": [
+      {
+        "url": "https://api.github.com/repos/Generalized-Labs/ironrun/releases/latest",
+        "status": 200,
+        "tag_name": "v0.5.0",
+        "html_url": "https://github.com/Generalized-Labs/ironrun/releases/tag/v0.5.0"
+      },
+      {
+        "url": "https://api.github.com/repos/Generalized-Labs/ironrun/releases/tags/v0.5.1",
+        "status": 404,
+        "body": "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/releases/releases#get-a-release-by-tag-name\",\"status\":\"404\"}"
+      },
+      {
+        "url": "https://api.github.com/repos/Generalized-Labs/ironrun/git/ref/tags/v0.5.1",
+        "status": 404,
+        "body": "{\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/git/refs#get-a-reference\",\"status\":\"404\"}"
+      },
+      {
+        "url": "https://registry.npmjs.org/%40generalized-labs%2Fironrun",
+        "status": 404,
+        "body": "{\"error\":\"Not found\"}"
+      }
+    ]
+  }
+}

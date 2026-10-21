@@ -1,0 +1,28 @@
+✔ manifest builder validates archives before updating publication metadata (322.395693ms)
+✔ launcher verifies cold download, uses warm cache offline, and repairs corruption (410.755514ms)
+✔ launcher rejects a tampered archive without executing it (123.391836ms)
+✔ concurrent cold launches share one verified download (206.439794ms)
+✔ launcher preserves child exit code and independently raised signal (222.122918ms)
+✔ launcher forwards termination requested by its caller (134.80864ms)
+▶ termination during native spawn cleans up the child promptly
+  ✔ OS signal during spawn (126.38118ms)
+  ✔ synchronous signal before child assignment (148.378997ms)
+✔ termination during native spawn cleans up the child promptly (275.596116ms)
+✔ cold offline launch fails without executing a binary (61.510283ms)
+✔ archive hash alone is insufficient: extracted binary must match too (149.261124ms)
+✔ verified warm cache runs offline with read-only directory permissions (207.389291ms)
+✔ cold read-only cache fails before download or execution (77.740665ms)
+✔ corrupt read-only cache refuses execution and preserves its contents (157.033106ms)
+✔ platform mapping is explicit (0.94545ms)
+✔ verified cache rejects modified and truncated files (10.532663ms)
+✔ complete stable and prerelease manifests are accepted (1.255468ms)
+✔ unprepared checkout and mismatched releases cannot be published (0.424639ms)
+✔ malformed versions and artifact metadata are rejected (1.4529ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2700.62386

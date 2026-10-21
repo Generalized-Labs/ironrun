@@ -1,0 +1,21 @@
+TAP version 13
+# Subtest: real launcher proxy transport on Node 20.20.2
+    # Subtest: runtime has no built-in environment-proxy opt-in; external fallback is blocked
+    ok 1 - runtime has no built-in environment-proxy opt-in; external fallback is blocked
+      ---
+      duration_ms: 138.335403
+      ...
+    1..1
+ok 1 - real launcher proxy transport on Node 20.20.2
+  ---
+  duration_ms: 287.779687
+  ...
+1..1
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 291.950811

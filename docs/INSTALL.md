@@ -87,6 +87,9 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
 | npm / npx | `npx @generalized-labs/ironrun` | postinstall pre-warms the cache; every run re-verifies archive + binary size and SHA-256 against the release manifest (`npm/manifest.json`, built at release time by `npm/scripts/build-manifest.mjs`) |
 | Go | `go install github.com/generalized-labs/ironrun/cmd/ironrun@latest` | Go module checksum DB (`GONOSUMDB` off by default); binary prints its own VCS stamping via `ironrun version -v` |
 
+For npm proxy opt-in, read-only cache behavior, and current package availability,
+see [npm runtime support](NPM_RUNTIME_SUPPORT.md).
+
 ## Artifact naming
 
 | Artifact | Name template | Example |

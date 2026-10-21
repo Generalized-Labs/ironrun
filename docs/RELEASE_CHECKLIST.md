@@ -16,6 +16,8 @@ request is necessary, but it is not the release decision by itself.
 - [ ] Produce a GoReleaser snapshot and verify every archive and checksum
 - [ ] Run installer tampering and missing-checksum tests
 - [ ] Run the npm launcher tests on Node 20, 22, and 24
+- [ ] Run `node test/proxy-audit.mjs` from `npm/` on each Node CI runtime;
+      confirm modern proxy transport and the documented Node 20 limitation
 - [ ] Pack the npm package and install the tarball in an isolated project
 - [ ] Verify cold cache, warm cache, corrupt cache, concurrent launch, offline,
       proxy, read-only cache, signal forwarding, non-TTY, and paths with spaces

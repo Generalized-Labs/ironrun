@@ -131,16 +131,24 @@ export async function verifiedBinary() {
 
 export async function launch(args) {
   const binary = await verifiedBinary();
-  const child = spawn(binary, args, { stdio: "inherit", env: process.env });
-  const forwarders = ["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => child.kill(signal)]);
+  let child;
+  const pendingSignals = [];
+  const forwarders = ["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => {
+    if (child) child.kill(signal);
+    else pendingSignals.push(signal);
+  }]);
+  // The native process may run before spawn returns. Install handlers first so
+  // a caller's immediate termination cannot leave that process orphaned.
   for (const [signal, forward] of forwarders) {
     process.once(signal, forward);
   }
   let result;
   try {
+    child = spawn(binary, args, { stdio: "inherit", env: process.env });
     result = await new Promise((resolve, reject) => {
       child.once("error", reject);
       child.once("exit", (code, signal) => resolve({ code, signal }));
+      for (const signal of pendingSignals) child.kill(signal);
     });
   } finally {
     // Restore normal signal handling before mirroring the child's exit.

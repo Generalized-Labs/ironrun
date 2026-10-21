@@ -1,0 +1,80 @@
+{
+  "recorded_at_utc": "2026-10-21T21:30:26.328137+00:00",
+  "parent_commit": "87a53b9ec7661333fb86197ec8837e8d3005960c",
+  "tested_working_tree_changes_uncommitted_at_run_time": true,
+  "scope": "npm launcher, manifest, scripts, tests, package metadata and CI; no Go runtime or manuscript changes",
+  "platform": "linux/amd64",
+  "uid": 1000,
+  "commands_from_npm": [
+    "node --test test/*.test.js",
+    "node test/proxy-audit.mjs"
+  ],
+  "matrix": [
+    {
+      "runtime": "20.20.2",
+      "unit": {
+        "tests": 19,
+        "pass": 19,
+        "skip": 0
+      },
+      "proxy": {
+        "tests": 2,
+        "pass": 2,
+        "skip": 0
+      }
+    },
+    {
+      "runtime": "22.23.3",
+      "unit": {
+        "tests": 19,
+        "pass": 19,
+        "skip": 0
+      },
+      "proxy": {
+        "tests": 9,
+        "pass": 9,
+        "skip": 0
+      }
+    },
+    {
+      "runtime": "24.19.0",
+      "unit": {
+        "tests": 19,
+        "pass": 19,
+        "skip": 0
+      },
+      "proxy": {
+        "tests": 9,
+        "pass": 9,
+        "skip": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    ".github/workflows/ci.yml": "df9312c900d435b53b572200376c058c85ed57329d1a2222158aa2af239c51dc",
+    "npm/README.md": "766b4af1198ef81c04359fc773422a108ba2a58c94387ad161dc57d20d63b760",
+    "npm/bin/ironrun.js": "bc8e1289f25d142937bbb8fb5f40edc7daaab624a56fe13e6ffd01be0b12cdc5",
+    "npm/lib/launcher.js": "38a4b08b9f751e92a294f2e6d5b3fa34de6ff8a72deb39546246eaa43ce3db14",
+    "npm/lib/manifest.js": "1a3f1da2653b9f25df346879cef03b511080f756ab82a67db884ed309f8572b0",
+    "npm/manifest.json": "cfb545ddbee071e5e547d1d851e764e3dee5229ff5bfa692d7396cb2c5780a02",
+    "npm/package.json": "8232bd62640eed651db75ff5bff2f573b57a08d2ed48e447ddc6056bbbc78cdc",
+    "npm/scripts/build-manifest.mjs": "70d663cb0b110287716753b8b91019fc28a4eaf3048fbdef55ae0c7825b07156",
+    "npm/scripts/postinstall.mjs": "c0b6456a5cc896b536dbfbcc92f2c36b7e9aff06f72b1e9f970aa215e571d954",
+    "npm/scripts/validate-manifest.mjs": "fb68782d3914fb0e693eb78d9c099b2ed6b3cbfc48fa048ff145cfaff732a23f",
+    "npm/test/build-manifest.test.js": "ef241cae84284c558525b6f2c3aa94d58d4d2f37efd4cd646cd15a3b54ba80ae",
+    "npm/test/launcher.integration.test.js": "ffbee6b35c3c5e82b20e9ab5325adf88be6e5fa19bcac62a0774755fef7cabb2",
+    "npm/test/launcher.test.js": "50102dd5a8c4a7d5439d91f5075654a96088953e3fb89e879e2775c0a72127b9",
+    "npm/test/manifest.test.js": "ece7b8d54d84ba95407844aef08c47706e427e863ac457835d3969261818520a",
+    "npm/test/proxy-audit.mjs": "a5130b2dfea289bcfb48b37a00da4e80b85300293ccbf305fb330f5ed61933e3"
+  },
+  "evidence_sha256": {
+    "historical-release-evidence.json": "84b5ca9e006afc25a23816ccd58745ccfe2063ab1ce04587892b5878403d791c",
+    "node20-proxy.log": "5189e246c5790a603880ac22198a8e6a28d8383096f69f5c61e737c84b7dbdca",
+    "node20-unit.log": "2016606985ccfa3e1ac4eb22eac917b9b8c72b45f64e2355847cd858d54e47f3",
+    "node22-proxy.log": "5dda3e09cfea90379975029a211aa2826942e33fdc536f50f99796853ab5a8b5",
+    "node22-unit.log": "5ad6267fd8834fdec4fffaaa00f3707d299edc96fd6b45444237350fb0e4812b",
+    "node24-proxy.log": "1586a21d9c6c835d9b8b6d9785677c1e8f1757402076bde0be6e54db5df72242",
+    "node24-unit.log": "f5c045b91ed75c7e225ba08b1907e926d4e1f30b9cd3d1f8eb4ff78603f70768",
+    "signal-race-before.log": "a624c575915e177f061428c75b76a3c1abff02f684e2f665c1f9b79fd4c2fffb"
+  }
+}

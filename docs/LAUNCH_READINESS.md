@@ -18,8 +18,9 @@ and bounded source review do not establish perfect correctness or certify securi
 - Make pending proposals immutable and transactional across processes. Approval
   checks the reviewed content digest; dashboard refreshes preserve the reviewed
   item or cancel confirmation when its contents change.
-- Preserve child signals in the npm launcher; reject invalid release manifests
-  before npm publication and validate archive and extracted-binary hashes.
+- Preserve child signals in the npm launcher, including termination during
+  native-process startup; reject invalid release manifests before npm publication
+  and validate archive and extracted-binary hashes.
 - Bind installer/Action signatures to the requested release tag, including
   hyphenated prereleases. Keep GitHub releases draft until signing and
   verification finish; route prerelease npm packages to `next`.
@@ -42,7 +43,9 @@ and bounded source review do not establish perfect correctness or certify securi
 | Focused concurrency tests | Vault initialization, immutable concurrent proposals, stale approval digests, and dashboard refresh behavior pass under the race detector |
 | Actual MCP race probe | Both conflicting proposals accepted in 23/30 pre-fix pairs, 0/30 after repair; illustrative executions, not a statistical security bound |
 | Offline release tests | 11 pass; synthetic downloads/verifier test control flow, not Sigstore cryptography |
-| npm launcher | 13 tests pass on Node 20/22/24 locally and in GitHub CI; packed-package installation also passes in CI |
+| npm launcher | 19 tests pass locally on Node 20/22/24, including startup termination and real read-only cache permissions; prior 13-test suite and packed installation passed GitHub CI at `87a53b9` |
+| npm proxy transport | Real TLS/CONNECT/redirect fixture passes 9 tests on Node 22/24; Node 20 passes 2 tests confirming unsupported environment-proxy opt-in fails safely |
+| Historical public release | Real cosign verification passes for 6 v0.5.0 blobs; all 9 signed checksum entries match; wrong-tag and tampered-blob controls fail as expected |
 | Redactor fuzz smoke | 22,581 executions pass; checks chunked/batch equivalence and existing fixed-pattern leakage invariants |
 | Four-platform snapshot | Linux/macOS amd64/arm64 archives build, archive checksums and cask mappings verify, Linux amd64 binary runs |
 | GoReleaser configuration | Version 2.18.2 check passes; cask generation covers all four platforms |
@@ -54,10 +57,12 @@ Earlier Go 1.26.9 experiments remain in the prior evidence and commit history.
 Local snapshots skipped signing, SBOM generation, before hooks, and publication.
 Cross-compilation does not prove execution on every target architecture.
 
-The initial PR head `9794795` passed Linux/macOS tests, lint, all three Node
-jobs, redaction, dogfood, and fuzz in GitHub. Its blocking vulnerability check
-caught the Go advisory above. The final head must pass CI again after the
-concurrency fixes and Go update; consult the PR's checks for current status.
+Head `87a53b9` passed every GitHub CI, dogfood, and fuzz job, including Go
+1.26.10 on Linux/macOS. The installation follow-up changes must pass CI again;
+consult the PR's checks for current status. Their source hashes, local results,
+and historical-release evidence are in
+[install-followup](validation/2026-10-21/install-followup/README.md).
+Earlier source-hash manifests remain records of their original measured trees.
 
 ## Review scope
 
@@ -84,8 +89,10 @@ and [algorithm walkthrough](REDACTION_WALKTHROUGH.md) explain the design and pro
    installation and formula-to-cask upgrade on Linux and macOS before merging
    the tap change. Apple signing/Gatekeeper behavior must be tested; Sigstore
    does not supply Apple notarization. No quarantine bypass is configured.
-4. Exercise remaining target architectures and proxy/read-only-cache paths.
-   Complete the repository's external-user and product checks in
+4. Exercise remaining target architectures and installation environments beyond
+   the tested Node proxy and directory-permission cases. See
+   [NPM_RUNTIME_SUPPORT.md](NPM_RUNTIME_SUPPORT.md) for Node 20 proxy limitations
+   and the read-only filesystem scope. Complete the external-user/product checks in
    [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 5. Supply or reproduce the historical self-audit, performance, false-positive,
    and RQ4 evidence before presenting those claims as validated arXiv results.

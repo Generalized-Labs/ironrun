@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir, platform } from "node:os";
 import { join } from "node:path";
 import { platformKey } from "../lib/launcher.js";
@@ -29,14 +29,31 @@ async function fixture(t) {
     version: "1.2.3",
     artifacts: { [platformKey()]: { filename: "release.tar.gz", size: bytes.length, sha256: digest(bytes), binarySize: body.length, binarySha256: digest(body) } },
   }));
-  // Replace only the home-directory lookup and HTTP transport inside this test
-  // subprocess. The real launcher, tar extraction and hash checks still run.
+  // Redirect home and HTTP transport inside this test subprocess. Native
+  // spawning remains real; the wrapper records its PID and can inject a signal
+  // before spawn returns to exercise termination during startup deterministically.
+  // The real launcher, tar extraction and hash checks still run.
   const preload = join(root, "fixture.mjs");
   await writeFile(preload, `
     import os from 'node:os';
+    import childProcess from 'node:child_process';
+    import { writeFileSync } from 'node:fs';
     import { syncBuiltinESMExports } from 'node:module';
     import { readFile, appendFile } from 'node:fs/promises';
     os.homedir = () => ${JSON.stringify(root)};
+    const originalSpawn = childProcess.spawn;
+    childProcess.spawn = (...args) => {
+      const child = originalSpawn(...args);
+      if (args[1]?.[0] === 'wait') {
+        writeFileSync(${JSON.stringify(join(root, "native-pid"))}, String(child.pid));
+      }
+      if (process.env.IRONRUN_FIXTURE_SIGNAL_DURING_SPAWN === '1') {
+        process.kill(process.pid, 'SIGTERM');
+      } else if (process.env.IRONRUN_FIXTURE_SIGNAL_DURING_SPAWN === 'sync') {
+        process.emit('SIGTERM');
+      }
+      return child;
+    };
     syncBuiltinESMExports();
     globalThis.fetch = async () => {
       await appendFile(${JSON.stringify(join(root, "fetches"))}, 'fetch\\n');
@@ -103,14 +120,44 @@ test("launcher preserves child exit code and independently raised signal", async
 });
 
 
+async function terminateWaitPromptly(f, extraEnv = {}, onChild) {
+  let launcher, timer;
+  const completion = f.run("wait", extraEnv, (child) => { launcher = child; onChild?.(child); });
+  try {
+    const result = await Promise.race([
+      completion,
+      new Promise((_, reject) => { timer = setTimeout(() => reject(new Error("launcher left its native child or output pipes alive after SIGTERM")), 2000); }),
+    ]);
+    assert.equal(result.signal, "SIGTERM", JSON.stringify(result));
+    assert.equal(result.code, null);
+    const pid = Number(await readFile(join(f.root, "native-pid"), "utf8"));
+    assert.throws(() => process.kill(pid, 0), { code: "ESRCH" }, "native child survived launcher termination");
+    return result;
+  } finally {
+    clearTimeout(timer);
+    // A failing implementation must not leave the synthetic 30-second sleeper
+    // holding the test's pipes open after the bounded assertion fires.
+    try { process.kill(Number(await readFile(join(f.root, "native-pid"), "utf8")), "SIGKILL"); } catch {}
+    launcher?.kill("SIGKILL");
+    await completion;
+  }
+}
+
 test("launcher forwards termination requested by its caller", async (t) => {
   const f = await fixture(t);
-  const result = await f.run("wait", {}, (child) => {
+  const result = await terminateWaitPromptly(f, {}, (child) => {
     child.stdout.once("data", () => child.kill("SIGTERM"));
   });
   assert.equal(result.stdout, "ready\n");
-  assert.equal(result.signal, "SIGTERM", JSON.stringify(result));
-  assert.equal(result.code, null);
+});
+
+test("termination during native spawn cleans up the child promptly", async (t) => {
+  for (const delivery of ["1", "sync"]) {
+    await t.test(delivery === "1" ? "OS signal during spawn" : "synchronous signal before child assignment", async (t) => {
+      const f = await fixture(t);
+      await terminateWaitPromptly(f, { IRONRUN_FIXTURE_SIGNAL_DURING_SPAWN: delivery });
+    });
+  }
 });
 
 test("cold offline launch fails without executing a binary", async (t) => {
@@ -131,4 +178,55 @@ test("archive hash alone is insufficient: extracted binary must match too", asyn
   assert.notEqual(result.code, 0);
   assert.equal(result.stdout, "");
   assert.match(result.stderr, /extracted native binary failed SHA-256/);
+});
+
+test("verified warm cache runs offline with read-only directory permissions", async (t) => {
+  if (process.getuid?.() === 0) return t.skip("root bypasses directory permissions");
+  const f = await fixture(t);
+  const cold = await f.run("prepare");
+  assert.equal(cold.code, 0, cold.stderr);
+  await chmod(f.cache, 0o555);
+  try {
+    const result = await f.run("read-only warm", { IRONRUN_FIXTURE_OFFLINE: "1" });
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(result.stdout, "fixture:read-only warm\n");
+    assert.equal(await readFile(join(f.root, "fetches"), "utf8"), "fetch\n");
+  } finally {
+    await chmod(f.cache, 0o700);
+  }
+});
+
+test("cold read-only cache fails before download or execution", async (t) => {
+  if (process.getuid?.() === 0) return t.skip("root bypasses directory permissions");
+  const f = await fixture(t);
+  await mkdir(f.cache, { recursive: true, mode: 0o700 });
+  await chmod(f.cache, 0o555);
+  try {
+    const result = await f.run("must-not-run");
+    assert.notEqual(result.code, 0);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /EACCES|EPERM|EROFS|cache is not writable/);
+    await assert.rejects(readFile(join(f.root, "fetches")), { code: "ENOENT" });
+  } finally {
+    await chmod(f.cache, 0o700);
+  }
+});
+
+test("corrupt read-only cache refuses execution and preserves its contents", async (t) => {
+  if (process.getuid?.() === 0) return t.skip("root bypasses directory permissions");
+  const f = await fixture(t);
+  const cold = await f.run("prepare");
+  assert.equal(cold.code, 0, cold.stderr);
+  const binary = join(f.cache, "ironrun");
+  await writeFile(binary, "corrupt cache");
+  await chmod(f.cache, 0o555);
+  try {
+    const result = await f.run("must-not-run", { IRONRUN_FIXTURE_OFFLINE: "1" });
+    assert.notEqual(result.code, 0);
+    assert.equal(result.stdout, "");
+    assert.equal(await readFile(binary, "utf8"), "corrupt cache");
+    assert.equal(await readFile(join(f.root, "fetches"), "utf8"), "fetch\n");
+  } finally {
+    await chmod(f.cache, 0o700);
+  }
 });

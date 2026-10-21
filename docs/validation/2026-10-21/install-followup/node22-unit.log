@@ -1,0 +1,125 @@
+TAP version 13
+# Subtest: manifest builder validates archives before updating publication metadata
+ok 1 - manifest builder validates archives before updating publication metadata
+  ---
+  duration_ms: 427.798831
+  type: 'test'
+  ...
+# Subtest: launcher verifies cold download, uses warm cache offline, and repairs corruption
+ok 2 - launcher verifies cold download, uses warm cache offline, and repairs corruption
+  ---
+  duration_ms: 506.683197
+  type: 'test'
+  ...
+# Subtest: launcher rejects a tampered archive without executing it
+ok 3 - launcher rejects a tampered archive without executing it
+  ---
+  duration_ms: 127.25206
+  type: 'test'
+  ...
+# Subtest: concurrent cold launches share one verified download
+ok 4 - concurrent cold launches share one verified download
+  ---
+  duration_ms: 259.75334
+  type: 'test'
+  ...
+# Subtest: launcher preserves child exit code and independently raised signal
+ok 5 - launcher preserves child exit code and independently raised signal
+  ---
+  duration_ms: 181.278047
+  type: 'test'
+  ...
+# Subtest: launcher forwards termination requested by its caller
+ok 6 - launcher forwards termination requested by its caller
+  ---
+  duration_ms: 127.393734
+  type: 'test'
+  ...
+# Subtest: termination during native spawn cleans up the child promptly
+    # Subtest: OS signal during spawn
+    ok 1 - OS signal during spawn
+      ---
+      duration_ms: 138.937318
+      type: 'test'
+      ...
+    # Subtest: synchronous signal before child assignment
+    ok 2 - synchronous signal before child assignment
+      ---
+      duration_ms: 134.640855
+      type: 'test'
+      ...
+    1..2
+ok 7 - termination during native spawn cleans up the child promptly
+  ---
+  duration_ms: 274.223339
+  type: 'test'
+  ...
+# Subtest: cold offline launch fails without executing a binary
+ok 8 - cold offline launch fails without executing a binary
+  ---
+  duration_ms: 72.148248
+  type: 'test'
+  ...
+# Subtest: archive hash alone is insufficient: extracted binary must match too
+ok 9 - archive hash alone is insufficient: extracted binary must match too
+  ---
+  duration_ms: 128.522
+  type: 'test'
+  ...
+# Subtest: verified warm cache runs offline with read-only directory permissions
+ok 10 - verified warm cache runs offline with read-only directory permissions
+  ---
+  duration_ms: 191.093899
+  type: 'test'
+  ...
+# Subtest: cold read-only cache fails before download or execution
+ok 11 - cold read-only cache fails before download or execution
+  ---
+  duration_ms: 57.410922
+  type: 'test'
+  ...
+# Subtest: corrupt read-only cache refuses execution and preserves its contents
+ok 12 - corrupt read-only cache refuses execution and preserves its contents
+  ---
+  duration_ms: 183.026535
+  type: 'test'
+  ...
+# Subtest: platform mapping is explicit
+ok 13 - platform mapping is explicit
+  ---
+  duration_ms: 0.832943
+  type: 'test'
+  ...
+# Subtest: verified cache rejects modified and truncated files
+ok 14 - verified cache rejects modified and truncated files
+  ---
+  duration_ms: 11.095621
+  type: 'test'
+  ...
+# Subtest: complete stable and prerelease manifests are accepted
+ok 15 - complete stable and prerelease manifests are accepted
+  ---
+  duration_ms: 1.171885
+  type: 'test'
+  ...
+# Subtest: unprepared checkout and mismatched releases cannot be published
+ok 16 - unprepared checkout and mismatched releases cannot be published
+  ---
+  duration_ms: 0.527231
+  type: 'test'
+  ...
+# Subtest: malformed versions and artifact metadata are rejected
+ok 17 - malformed versions and artifact metadata are rejected
+  ---
+  duration_ms: 1.268978
+  type: 'test'
+  ...
+1..17
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2881.44254
