@@ -23,12 +23,19 @@ arXiv submission.** This review is not a security certification.
 | Strict command approval | Fixed argv does not make attacker-writable executables, dependencies, or inputs safe |
 | Distribution | Installer/Action verify Sigstore bundles; npm verifies hashes against its bundled manifest |
 | Prior systems | 1Password `op run` masks stdout/stderr by default; redaction alone is not unique |
+| Closest systems | fnox provides tool/secret allowlists; Prismor documents command policy and human approval alongside filtering; broad missing-design/firstness wording removed |
 | Leakage-study citation | The 73.5% statistic concerns 1,007 of 1,371 vulnerability issues in the cited study, not all agent executions |
 
 The evaluation now checks returned errors, child exit codes, and expected output
 sentinels. Failed or unexecuted probes cannot count as successful redaction.
 Performance probes also check execution results and sample counts. Regression
 coverage passes in the Go 1.26.10 race suite.
+
+The [source follow-up](validation/2026-10-21/source-followup/README.md) records
+fresh Graphify/REA evidence and primary-source prior-work checks. The related-work
+correction is based on current documentation and pinned source inspection, not
+competitor execution or proof of historical feature availability. The updated
+PDF and extracted source bundle compile to 14 pages.
 
 The code audit additionally repaired final-flush errors, quadratic gap scanning,
 first-time vault key initialization, and concurrent proposal/approval integrity.

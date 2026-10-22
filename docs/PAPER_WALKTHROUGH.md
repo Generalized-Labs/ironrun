@@ -234,6 +234,11 @@ including database, signing, SSH, and file credentials. CI masking, secret-manag
 wrappers, agent hooks, and policy/isolation systems supply related pieces.
 Differentiation should rest on the combined boundary and tested supported forms,
 not a claim that output masking is new or absent from 1Password.
+Current fnox documentation includes tool/secret allowlists, and Prismor documents
+command policy and human approval alongside output filtering. The manuscript now
+acknowledges those overlapping controls and avoids a broad firstness claim.
+This comparison does not establish when those features became available or prove
+equivalent enforcement across systems.
 
 The conclusion should carry all these conditions forward: known-value filtering
 reduces common accidental output disclosure; deliberate transformations and

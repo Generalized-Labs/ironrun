@@ -138,11 +138,12 @@ designs never give the process the real value at all, but apply only to HTTP(S)
 traffic through a TLS-terminating proxy~\citep{claudecode_sandboxing,infisical_agentproxy,flyio_tokenizer}.
 CI runners have long masked known secrets and their encodings in job
 logs~\citep{githubrunner2019encoders,github2026secureuse}, and agent-side tools
-have recently begun to scrub tool output by literal
-matching~\citep{fnox_mcp,prismor2026}. What is missing is a design---and an
-evaluation---that combines these at the agent's tool boundary for arbitrary
-command-line programs: database clients, test runners, \code{kubectl},
-\code{terraform}.
+also inject secrets and scrub tool output by literal
+matching~\citep{fnox_mcp,prismor2026}; Prismor additionally documents command
+policy and human approval~\citep{prismor_decisions,prismor_approvals}. Our focus
+is the specific combination of transformation-aware streaming known-value
+redaction, session-bound authorization, and OS containment, evaluated at the
+agent's tool boundary for command-line programs.
 
 \paragraph{Insight.} The agent needs the \emph{effect} of a credential---a
 passing test, a successful deploy---not its \emph{value}. If the same component
@@ -166,7 +167,7 @@ not a universal confidentiality guarantee.
   lessons they teach about where such systems fail: in the text-rendering and
   state surfaces around the cryptography, not in the cryptography
   (\cref{sec:audit}).
-\item To our knowledge the first adversarial evaluation of known-value redaction
+\item An adversarial evaluation of known-value redaction
   at an agent's tool boundary: a 126-case leak corpus driven through the real
   execution path and attacked with a decoder battery, plus false-positive and
   overhead measurements, with an open harness (\cref{sec:eval}).
@@ -1029,15 +1030,19 @@ MCP server deliberately exposes values to agents~\citep{doppler_mcp} and
 Infisical's can mask values in its own responses~\citep{infisical_mcp}.
 Proxy substitution keeps values out of processes for
 HTTP(S)~\citep{claudecode_sandboxing,infisical_agentproxy,onecli2026,flyio_tokenizer,cyberark_secretless}.
-The nearest tools to \sys{} are fnox's MCP \code{exec}, which injects secrets
-and redacts their literal values from output~\citep{fnox_mcp}, and Prismor's
-Cloak, which substitutes placeholders through agent-host hooks and scrubs
-literal values~\citep{prismor2026}. Pattern-based scanners and gateways inspect
+The nearest tools include fnox's MCP server, with tool/secret allowlists and
+\code{exec} that accepts agent-chosen argv, injects secrets, and masks literal
+values~\citep{fnox_mcp}. Prismor's Cloak substitutes placeholders before
+execution and filters literal output; its current documentation also describes
+command policy and human approval~\citep{prismor2026,prismor_decisions,prismor_approvals}.
+These documented controls overlap with \sys{}; we do not establish their
+historical availability or equivalent enforcement semantics.
+Pattern-based scanners and gateways inspect
 tool traffic~\citep{ggshield_aihook,truefoundry_secrets,mcpguard2026,redactmcp2026},
 and other tools scrub traces or histories after the
 fact~\citep{langwatch_redaction,agentsweep2026}. Agent hosts now expose hooks
 that can rewrite tool output~\citep{claudecode_hooks} and ship their own
-sandboxes~\citep{claudecode_sandboxing,anthropic_srt}. \sys{} differs in
+sandboxes~\citep{claudecode_sandboxing,anthropic_srt}. \sys{} focuses on
 combining encoding-, alignment-, whitespace-, and fragment-aware known-value
 redaction with session-bound authorization and OS containment for arbitrary
 programs, and in evaluating that redaction adversarially.

@@ -1,0 +1,33 @@
+{
+  "recorded_at_utc": "2026-10-22T02:45:06.861405+00:00",
+  "parent_commit": "803aa420d35af969ca4ff858a374a7dcdf20796d",
+  "paper_working_tree_changes_uncommitted_at_build_time": true,
+  "runtime_source_changed": false,
+  "scope": "Prior-work wording and citations; historical results and abstract unchanged",
+  "pdf_pages": 14,
+  "extracted_bundle_pdf_pages": 14,
+  "abstract_ascii": true,
+  "abstract_characters": 1905,
+  "final_logs": {
+    "undefined_citations_or_references": false,
+    "overfull_boxes": false,
+    "font_fallback": "T1/zi4/m/it"
+  },
+  "visual_review": "14-page contact sheets inspected; no obvious clipping",
+  "commands": [
+    "latexmk -pdf -outdir=/tmp/ironrun-paper-build -interaction=nonstopmode -halt-on-error ironrun.tex",
+    "pdflatex -interaction=nonstopmode -halt-on-error ironrun.tex (twice in freshly extracted bundle)"
+  ],
+  "artifact_sha256": {
+    "paper/ironrun.tex": "0170c9a7c722501bc8208113cf46f51e63bd02d4abc6a8e85d514e12048ae908",
+    "paper/references.bib": "3f928197a9966c8ee84fff786c9bd63a771d417ed237e784ea3f627063367a8c",
+    "paper/ironrun.pdf": "00cf5bf085d916d46bae24da6c9a4b430a21c1cd7723f970dc0876c53960483f",
+    "ironrun-arxiv.tar.gz": "fb450c65573183d1b71abc9818e1bd85f3909c0243c9a96a7df1cfc2280968b9",
+    "ironrun.bbl": "3ce0bd6e230a5c182f934cdf3b4f01cdddfd848165523a55ffee73ab42d820bd"
+  },
+  "build_log_sha256": {
+    "paper-build.log": "bcac196fb60bfd93ffd141fea74f952d9d722a6daf6cb17f8c5535c5165ce3d1",
+    "paper-extracted-pass1.log": "d3a4356ca43f0ed73b986967b44605c96b245392a072686d52b758bfe73e212e",
+    "paper-extracted-pass2.log": "3e187e52f42324479704e1cbfb42c4f1b27408ac35bcba2db24670868493b6a4"
+  }
+}

@@ -43,7 +43,7 @@ and bounded source review do not establish perfect correctness or certify securi
 | Focused concurrency tests | Vault initialization, immutable concurrent proposals, stale approval digests, and dashboard refresh behavior pass under the race detector |
 | Actual MCP race probe | Both conflicting proposals accepted in 23/30 pre-fix pairs, 0/30 after repair; illustrative executions, not a statistical security bound |
 | Offline release tests | 11 pass; synthetic downloads/verifier test control flow, not Sigstore cryptography |
-| npm launcher | 19 tests pass locally on Node 20/22/24, including startup termination and real read-only cache permissions; prior 13-test suite and packed installation passed GitHub CI at `87a53b9` |
+| npm launcher | 19 tests pass on Node 20/22/24 locally and in GitHub CI at `803aa42`, including startup termination and real read-only cache permissions; packed installation also passes |
 | npm proxy transport | Real TLS/CONNECT/redirect fixture passes 9 tests on Node 22/24; Node 20 passes 2 tests confirming unsupported environment-proxy opt-in fails safely |
 | Historical public release | Real cosign verification passes for 6 v0.5.0 blobs; all 9 signed checksum entries match; wrong-tag and tampered-blob controls fail as expected |
 | Redactor fuzz smoke | 22,581 executions pass; checks chunked/batch equivalence and existing fixed-pattern leakage invariants |
@@ -57,12 +57,15 @@ Earlier Go 1.26.9 experiments remain in the prior evidence and commit history.
 Local snapshots skipped signing, SBOM generation, before hooks, and publication.
 Cross-compilation does not prove execution on every target architecture.
 
-Head `87a53b9` passed every GitHub CI, dogfood, and fuzz job, including Go
-1.26.10 on Linux/macOS. The installation follow-up changes must pass CI again;
-consult the PR's checks for current status. Their source hashes, local results,
+Head `803aa42` passed every GitHub CI, dogfood, and fuzz job, including Go
+1.26.10 on Linux/macOS and the npm proxy fixture. Consult the PR's checks for
+the current head after later paper/documentation edits. Installation source hashes, local results,
 and historical-release evidence are in
 [install-followup](validation/2026-10-21/install-followup/README.md).
 Earlier source-hash manifests remain records of their original measured trees.
+The later [source follow-up](validation/2026-10-21/source-followup/README.md)
+refreshes Graphify/REA and corrects the paper's closest-system comparison using
+primary sources; it does not change runtime source.
 
 ## Review scope
 
