@@ -1,0 +1,7 @@
+version: "2"
+environment_set: active
+require_agent_leases: true
+commands:
+  - id: needs-secret
+    argv: [/usr/bin/true]
+    secrets: [IRONRUN_REVIEW_TOKEN]

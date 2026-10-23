@@ -1,6 +1,6 @@
 # Open-source launch readiness
 
-Updated October 21, 2026 (America/New_York). Repository baseline: `8e3c354`;
+Updated October 23, 2026 (America/New_York). Repository baseline: `8e3c354`;
 review and repairs: [PR #16](https://github.com/Generalized-Labs/ironrun/pull/16).
 
 **Automated local checks pass. The changes are ready for pull-request review;
@@ -9,6 +9,9 @@ and bounded source review do not establish perfect correctness or certify securi
 
 ## Repairs completed
 
+- Make `doctor` check local environment metadata for project identity, selection,
+  expiry, and required entry names. Print recovery steps, preserve legacy
+  checks, and explicitly distinguish metadata configuration from vault access.
 - Resolve explicit relative executables from the effective child directory.
 - Preserve errors from final stdout/stderr redaction flushes while flushing both
   streams and completing temporary-secret cleanup.
@@ -50,7 +53,8 @@ and bounded source review do not establish perfect correctness or certify securi
 | Four-platform snapshot | Linux/macOS amd64/arm64 archives build, archive checksums and cask mappings verify, Linux amd64 binary runs |
 | GoReleaser configuration | Version 2.18.2 check passes; cask generation covers all four platforms |
 | Leakage comparison | Same harness and Go 1.26.10 reproduce 52/126 baseline versus 28/126 current threshold cases; accidental subset 21/72 versus 3/72 |
-| Paper and arXiv bundle | 14-page PDF builds; extracted source bundle compiles; ASCII abstract is 1,905 characters |
+| Paper and arXiv bundle | Revised 13-page PDF and extracted source bundle compile with matching text; ASCII abstract is 1,812 characters |
+| Fresh current-only paper diagnostics | Current leakage counts reproduce; frozen 1,209,966-byte corpus and raw outputs retained; shared-host performance medians and scanning measurements replace unsupported old timing claims |
 
 Raw results and source hashes are in [validation/2026-10-21](validation/2026-10-21/).
 Earlier Go 1.26.9 experiments remain in the prior evidence and commit history.
@@ -66,6 +70,13 @@ Earlier source-hash manifests remain records of their original measured trees.
 The later [source follow-up](validation/2026-10-21/source-followup/README.md)
 refreshes Graphify/REA and corrects the paper's closest-system comparison using
 primary sources; it does not change runtime source.
+The [fresh experiment archive](validation/2026-10-22/fresh-pilot/README.md)
+pins the measured runtime to `a4ab72e`, freezes inputs, and separates failed and
+successful performance attempts. The [product review](PRODUCT_REVIEW.md) records
+the approved doctor scope and the next setup/approval candidates.
+The [October 23 verification records](validation/2026-10-23/product-followup/README.md)
+retain doctor red/green regressions, the final uncached race suite and vet,
+REA before/after captures, and the revised paper/source-bundle checks.
 
 ## Review scope
 
@@ -97,9 +108,12 @@ and [algorithm walkthrough](REDACTION_WALKTHROUGH.md) explain the design and pro
    [NPM_RUNTIME_SUPPORT.md](NPM_RUNTIME_SUPPORT.md) for Node 20 proxy limitations
    and the read-only filesystem scope. Complete the external-user/product checks in
    [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
-5. Supply or reproduce the historical self-audit, performance, false-positive,
-   and RQ4 evidence before presenting those claims as validated arXiv results.
-   See [PAPER_REVIEW.md](PAPER_REVIEW.md) and [ARXIV.md](../paper/ARXIV.md).
+5. Confirm authorship, license, metadata, final publication source, and final
+   artifact identities. Unsupported historical audit totals and timing claims
+   have been removed; current-only diagnostics and current regression case
+   studies replace them, with explicit limits. See [PAPER_REVIEW.md](PAPER_REVIEW.md)
+   and [ARXIV.md](../paper/ARXIV.md). Component-level disclosure, tail/delivery
+   latency, and actual developer usability remain research opportunities.
 
 This PR creates no release tag, registry package, external tap change, or arXiv
 submission. Reverting the PR restores the previous source; no data migration has

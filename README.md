@@ -722,7 +722,7 @@ Other tools in this space: [fnox](https://github.com/jdx/fnox) offers an MCP `ex
 
 ## Troubleshooting
 
-**Start with `ironrun doctor`.** It runs read-only checks in one shot: the policy parses, the provider CLI is installed and authenticated, the redactor strips a known secret, and every command's binary resolves on PATH. It exits non-zero and points at whatever is broken.
+**Start with `ironrun doctor`.** It checks the policy, redactor, and saved-command binaries. For commands using local environment entries, it also checks project identity, environment selection/expiry, and required entry names, with repair commands for missing configuration. Legacy provider installation/authentication checks remain available where supported. It exits non-zero when a check fails. Local environment checks read metadata only: they do not open the vault, resolve secret values, or change files, and cannot verify vault access or application authentication.
 
 ```bash
 ironrun doctor
@@ -739,7 +739,7 @@ ironrun doctor
 The 1Password CLI isn't installed or not in your PATH. Install it from [1password.com/downloads/command-line](https://1password.com/downloads/command-line/) and run `op signin`.
 
 **`secret resolution failed`**
-Run `ironrun doctor` — it validates the policy and checks that your provider is installed and authenticated (`op`, `vault`, `doppler`, `infisical`). (`ironrun validate` only parses the policy file; it does not check provider auth.)
+Run `ironrun doctor` to check local environment configuration or legacy provider installation/authentication (`op`, `vault`, `doppler`, `infisical`). Passing local metadata checks does not verify that encrypted values can be opened. (`ironrun validate` only parses the policy file.)
 
 **`command timed out`**
 The command ran longer than its `ttl`. Increase it in `ironrun.yml`:

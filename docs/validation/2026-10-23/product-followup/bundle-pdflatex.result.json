@@ -1,0 +1,33 @@
+{
+  "extracted_files": [
+    "ironrun.tex",
+    "ironrun.bbl",
+    "references.bib"
+  ],
+  "commands": [
+    "pdflatex -interaction=nonstopmode -halt-on-error ironrun.tex",
+    "pdflatex -interaction=nonstopmode -halt-on-error ironrun.tex",
+    "pdflatex -interaction=nonstopmode -halt-on-error ironrun.tex"
+  ],
+  "bibtex_invoked": false,
+  "results": [
+    {
+      "pass": 1,
+      "exit_code": 0,
+      "log": "/workspace/ironrun-product-research/arxiv-final-pdflatex/pdflatex-pass1.log",
+      "sha256": "69f77620cbe5c12d6eb54dd703817d3583d89a1ff1d8c234d57298752e111f75"
+    },
+    {
+      "pass": 2,
+      "exit_code": 0,
+      "log": "/workspace/ironrun-product-research/arxiv-final-pdflatex/pdflatex-pass2.log",
+      "sha256": "7341c0ff0ebaa0382cd25b5c150ac1ca8a9e32de495f698030ce648c836e5ac4"
+    },
+    {
+      "pass": 3,
+      "exit_code": 0,
+      "log": "/workspace/ironrun-product-research/arxiv-final-pdflatex/pdflatex-pass3.log",
+      "sha256": "7341c0ff0ebaa0382cd25b5c150ac1ca8a9e32de495f698030ce648c836e5ac4"
+    }
+  ]
+}

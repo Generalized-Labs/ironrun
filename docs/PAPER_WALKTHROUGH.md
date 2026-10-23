@@ -169,12 +169,12 @@ trust chains. Snapshot builds and fixture verifiers do not validate the final
 published signing workflow. The [launch assessment](LAUNCH_READINESS.md) records
 which checks ran and which platform/release gates remain open.
 
-## Self-audit: useful lessons and unfinished evidence
+## Regression case studies: lessons backed by current tests
 
-The manuscript reports five LLM-based reviewers directed and checked by the
-authors, 49 deduplicated defects, and 44 fixes. Those are reported historical
-results. The original finding records, severity decisions, and mappings to
-commits/regression tests still need supporting evidence before submission.
+The revised manuscript removes historical defect and severity totals because
+the original finding-to-commit records are unavailable. Four case studies link
+current regression tests to source commit `a4ab72e`; they establish current
+behavior and do not claim every test failed on v0.5.0.
 
 Four lessons carry beyond the tally: humans must approve the artifact actually
 enforced; every agent-reachable surface matters, including human-oriented CLIs;
@@ -191,8 +191,8 @@ proving every historical measurement.
 | Question | What is measured | Evidence status |
 | --- | --- | --- |
 | RQ1 | Recoverable synthetic credential content after output transformations | Baseline/current threshold counts reproduced with the same corrected harness |
-| RQ2 | Unwanted redactions on benign text | Historical table still needs its exact corpus and raw records |
-| RQ3 | Spawn overhead and redactor throughput | Historical machine-specific results still need supporting records |
+| RQ2 | Unwanted redactions on benign text | Fresh current-only run on a frozen, archived 1,209,966-byte corpus |
+| RQ3 | Spawn medians and scanning throughput | Fresh shared-host Linux diagnostics; constructor, tail latency, and delivery delay remain unmeasured |
 | RQ4 | Streaming output equals batch output | Current differential/fuzz checks support the property; historical before/after records remain separate |
 
 RQ1 uses 21 transformations and six credential shapes: 126 cases. A decoder
@@ -212,15 +212,18 @@ prints. Deliberate transformations also remain. Warn-only entropy scanning can
 flag some output but cannot establish confidentiality or replace authorization.
 
 RQ2 exposes a usability tradeoff: a structured Postgres URL contains common
-12-byte windows, causing reported masking of benign log text. Those are false
-positives even though their removal does not itself expose a secret. Reproducing
-the exact counts requires fixed corpus bytes; a changing checkout changes the
-experiment.
+12-byte windows. On the frozen corpus it causes 1,002 unwanted replacement
+events; the five other formats cause zero. The appended synthetic DSN log lines
+dominate this result. Counts of replacements do not measure changed bytes or
+deployment precision; a changing checkout also changes the experiment.
 
-RQ3 reports historical sub-millisecond wrapper overhead without network isolation
-and lower throughput as more secrets/patterns are registered. Spawn cost, OS
-isolation, provider lookup, and filtering are different contributors. Shared-host
-Linux diagnostics cannot be substituted for the reported Apple M3 Pro timings.
+RQ3 replaces the old overhead claim with shared-host Linux diagnostics: direct,
+runner, and network-isolated spawn medians are 1.043, 2.561, and 3.342 ms, with
+200 samples per mode. Differences of medians are not paired overhead estimates.
+Scanning reports 34, 21, and 9 MB/s for 1, 10, and 50 values, choosing the fastest
+of five repetitions and excluding matcher construction. No p95/p99 or delivery
+latency is measured. A failed sandbox attempt is retained separately from the
+successful run outside that filesystem sandbox, with runtime isolation enabled.
 
 RQ4 is exercised by 3,000 deterministically randomized batch-versus-stream cases,
 plus fuzzing. Current checks are evidence for the present implementation. They
@@ -249,15 +252,15 @@ credential confidentiality.
 
 ## Preparing this version for arXiv
 
-The current PDF is 14 pages. [ARXIV.md](../paper/ARXIV.md) supplies the synchronized
-1,905-character ASCII metadata abstract and source-bundle checklist. The revised
+The current PDF is 13 pages. [ARXIV.md](../paper/ARXIV.md) supplies the synchronized
+1,812-character ASCII metadata abstract and source-bundle checklist. The revised
 build handles the bibliography on a fresh checkout, and a source-bundle build was
 checked during this review.
 
 Before submission, retain the final source commit, PDF, source archive, experiment
-corpus and logs, and toolchain/host metadata together. Resolve the original
-audit/performance/false-positive and historical RQ4 records, or revise unsupported
-claims. Account eligibility, authorship agreement, and arXiv moderation remain
+corpus and logs, and toolchain/host metadata together. The revised manuscript
+uses fresh current-only FP/performance evidence and removes unsupported audit
+totals and old timing comparisons. Account eligibility, authorship agreement, and arXiv moderation remain
 submission matters. The [paper review](PAPER_REVIEW.md) preserves the audit trail
 and current validation, so a reader can distinguish fresh evidence from claims
 still awaiting records.

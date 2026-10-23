@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-research/fresh-pilot/eval",
+    "-only",
+    "perf"
+  ],
+  "binary_sha256": "c2e95a3c610a675995f4699fe5cb6c8bc2ae105460e1e76ccdc39190c28bc50b",
+  "command": "/workspace/ironrun-product-research/fresh-pilot/eval -only perf",
+  "end_utc": null,
+  "exit_code": 0,
+  "filesystem_sandbox": "execution outside the agent filesystem sandbox",
+  "limitations": "shared-host diagnostic; not a controlled performance study; no tail-percentile data",
+  "network_namespace_isolation": "enabled for the runner+no_network probes",
+  "phase": "perf-outside-sandbox",
+  "record_source": "supplemental record assembled from retained stdout/stderr and the supervising agent observed execution result",
+  "start_utc": null,
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 209,
+  "stdout_sha256": "e806f471dfc3072c328a94c00da8a9f23278bd8ff76973761410983396283e7a",
+  "unavailable_metadata": [
+    "start/end timestamps",
+    "elapsed walltime",
+    "per-sample durations",
+    "outside-run load/cgroup counters",
+    "independently captured outside-run environment"
+  ],
+  "wall_ns": null
+}

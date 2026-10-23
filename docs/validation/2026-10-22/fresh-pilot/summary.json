@@ -1,0 +1,118 @@
+{
+  "archive": {
+    "archive_inventory": "artifact-manifest.json",
+    "evaluation_binary_included": false,
+    "frozen_corpus_compressed_sha256": "5cabc452a9cd81e8216b40ed800dc0931e9d1ebff179c05dd0f4a58dca21b2b5",
+    "frozen_corpus_compression": "gzip level 9, mtime 0, empty filename",
+    "frozen_corpus_file": "fp-corpus.bin.gz",
+    "frozen_corpus_uncompressed_sha256": "b266fe95e7a15bf7caafc68580e2efa150e76b119e1102632bc2b0fe3b8cb056",
+    "original_artifact_inventory": "original-artifact-manifest.json"
+  },
+  "commit": "a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d",
+  "exit_codes": {
+    "build": 0,
+    "fp": 0,
+    "leak": 0,
+    "perf": 1,
+    "perf-outside-sandbox": 0,
+    "test": 0
+  },
+  "fp": {
+    "corpus_bytes": 1209966,
+    "replacement_events": {
+      "aws": 0,
+      "github": 0,
+      "jwt": 0,
+      "password": 0,
+      "pg-url": 1002,
+      "stripe": 0
+    },
+    "secret_format_passes": 6,
+    "source_input_files": 209
+  },
+  "fp_snapshot_source_unchanged": true,
+  "leak": {
+    "accidental_denominator": 72,
+    "accidental_threshold_leaks": 3,
+    "below_threshold_denominator": 98,
+    "denominator": 126,
+    "successful_child_probes": 126,
+    "threshold_leaks": 28,
+    "warned_below_threshold_cases": 6,
+    "warned_threshold_leaks": 21
+  },
+  "perf": {
+    "inside_filesystem_sandbox": {
+      "completed_direct_spawn_samples_inferred_from_code": 1,
+      "completed_isolated_spawn_samples": 0,
+      "completed_sealed_spawn_samples_inferred_from_code": 1,
+      "completed_throughput_repetitions_inferred_from_code": 15,
+      "failed_isolated_spawn_attempts": 1,
+      "failure": "isolated probe: execution failed: runner: exec error: fork/exec /workspace/ironrun-product-research/fresh-pilot/eval: read-only file system",
+      "filesystem_sandbox": "inside the agent filesystem sandbox",
+      "overall_status": "failed",
+      "result_file": "perf.result.json",
+      "spawn_sample_durations_available": false,
+      "tail_latency_available": false,
+      "throughput_rows_partial_diagnostics_mbps": [
+        {
+          "mbps": 34,
+          "patterns": 18,
+          "secrets": 1
+        },
+        {
+          "mbps": 21,
+          "patterns": 180,
+          "secrets": 10
+        },
+        {
+          "mbps": 9,
+          "patterns": 900,
+          "secrets": 50
+        }
+      ]
+    },
+    "outside_filesystem_sandbox": {
+      "exit_code": 0,
+      "measurement_scope": "fresh shared-host diagnostic; does not validate historical timing tables",
+      "network_namespace_isolation_enabled": true,
+      "overall_status": "completed",
+      "result_file": "perf-outside-sandbox.result.json",
+      "spawn_medians_ms": {
+        "direct": 1.042919,
+        "runner": 2.5609,
+        "runner_no_network": 3.34219
+      },
+      "spawn_sample_durations_available": false,
+      "spawn_samples_per_mode": 200,
+      "tail_latency_available": false,
+      "throughput_rows_mbps": [
+        {
+          "mbps": 34,
+          "patterns": 18,
+          "secrets": 1
+        },
+        {
+          "mbps": 21,
+          "patterns": 180,
+          "secrets": 10
+        },
+        {
+          "mbps": 9,
+          "patterns": 900,
+          "secrets": 50
+        }
+      ],
+      "walltime_and_timestamps_available": false
+    }
+  },
+  "source_hashes": {
+    "go.mod": "c89f7ba72251b558248f77d8eb05bb4c9139746fee427017501caaa6344d640d",
+    "go.sum": "6cb2a977cb18e4f0d254c0c498bb920caa917970dffc435fb6215818d17f2de6",
+    "internal/redact/encodings.go": "bb007c856ec7aa96a5b5d9fa0a0b4fe0ea60917779e5f5586b16b5e2ea4e2015",
+    "internal/redact/redact.go": "8d8f4dbf09431c0c27c7221ff95b1aa8631ca2ae46661e484e1dc983d965969f",
+    "internal/runner/runner.go": "c86d7c7016fd2f6c56756420bebffe83dff5e25825573c51b91b3c5905dd5e41",
+    "paper/eval/main.go": "288872f61ca3bf64590ac3dd823da65ec51a260c124ebdc7cf179a6b0ad5b4ea",
+    "paper/eval/main_test.go": "e6d666d5053d48f8d8847b9f963480fefa776d812d6cbbb2efa246b4dadbba5f"
+  }
+}

@@ -1,21 +1,28 @@
 # Paper review and evidence status
 
-Updated October 21, 2026. The manuscript, harness, PDF, code, and submission guide
-have been reviewed together. Read [PAPER_WALKTHROUGH.md](PAPER_WALKTHROUGH.md) for
-an explanation of the full paper and [REDACTION_WALKTHROUGH.md](REDACTION_WALKTHROUGH.md)
-for examples, equations, code paths, and proof assumptions.
+Updated October 23, 2026. The revised manuscript separates retained paired
+leakage evidence from fresh current-only diagnostics and current regression
+case studies. It removes unsupported historical self-audit/severity/fix totals,
+old before/after timing comparisons, and blanket sub-millisecond overhead claims.
+The revised 13-page PDF and freshly extracted three-file source bundle compile.
+Their extracted text matches, with no undefined citations/references, font
+substitutions, or overflowing boxes in the final logs.
+All 13 final pages were visually inspected, including diagrams, tables, and
+the chunking property's page break.
 
-**The corrected paper builds and its leakage comparison reproduces. Historical
-self-audit and other measurements still need their supporting records before
-arXiv submission.** This review is not a security certification.
+Read [REPRODUCING.md](../paper/REPRODUCING.md) for exact source identities,
+commands, failure checks, corpus hashes and measurement limits.
+[REDACTION_WALKTHROUGH.md](REDACTION_WALKTHROUGH.md) explains the proof and its
+assumptions. Older walkthroughs/reviews can retain superseded historical
+figures; the revised manuscript and pinned raw evidence control those claims.
 
-## Corrected claims and implementation
+## Claims and implementation boundaries
 
 | Topic | Current statement |
 | --- | --- |
 | Secret handling | The child receives real values; known-value filtering reduces disclosure through intercepted output |
 | Chunking invariance | Fixed patterns/indexes, complete successful underlying writes, and one final flush yield identical batch/chunked output |
-| Match window | All match decisions depend on a bounded global span; empty pattern sets are included |
+| Match window | Match decisions depend on a bounded global span; empty pattern sets are included |
 | Pseudocode | Matching stops at the safe lookahead boundary, as the implementation does |
 | Latency | Hold-back bounds retained bytes, not wall-clock delay for quiet interactive output |
 | Coverage | Tier priority, overlaps, thresholds, and unsupported transformations limit recognition |
@@ -23,70 +30,122 @@ arXiv submission.** This review is not a security certification.
 | Strict command approval | Fixed argv does not make attacker-writable executables, dependencies, or inputs safe |
 | Distribution | Installer/Action verify Sigstore bundles; npm verifies hashes against its bundled manifest |
 | Prior systems | 1Password `op run` masks stdout/stderr by default; redaction alone is not unique |
-| Closest systems | fnox provides tool/secret allowlists; Prismor documents command policy and human approval alongside filtering; broad missing-design/firstness wording removed |
+| Closest systems | fnox provides tool/secret allowlists; Prismor documents command policy and human approval alongside filtering; broad missing-design/firstness wording is not claimed |
 | Leakage-study citation | The 73.5% statistic concerns 1,007 of 1,371 vulnerability issues in the cited study, not all agent executions |
 
-The evaluation now checks returned errors, child exit codes, and expected output
+The evaluation checks returned errors, child exit codes and expected leakage
 sentinels. Failed or unexecuted probes cannot count as successful redaction.
-Performance probes also check execution results and sample counts. Regression
-coverage passes in the Go 1.26.10 race suite.
+The streaming property does not establish absence of arbitrary transformed or
+partial disclosure. A 50% whole-value threshold can miss an exposed URL password;
+its complement is not a corpus of proven secret-free output.
 
-The [source follow-up](validation/2026-10-21/source-followup/README.md) records
-fresh Graphify/REA evidence and primary-source prior-work checks. The related-work
-correction is based on current documentation and pinned source inspection, not
-competitor execution or proof of historical feature availability. The updated
-PDF and extracted source bundle compile to 14 pages.
+## Retained paired evidence, October 21
 
-The code audit additionally repaired final-flush errors, quadratic gap scanning,
-first-time vault key initialization, and concurrent proposal/approval integrity.
-These launch-review findings are recorded separately from the paper's historical
-49-defect tally; no unsupported new tally is inferred.
-
-## Experiments checked
-
-| Evidence | Status |
+| Evidence | Scope |
 | --- | --- |
 | v0.5.0 baseline | Pinned to `d16e04b09ec8c24e6d6e255caad9209182635af8`; original runtime and dependencies retained |
-| Harness comparison | Same corrected harness on both runtimes; baseline contains no original paper harness, so it is copied in explicitly |
-| Compiler | Both sides freshly rerun with Go 1.26.10; earlier paired Go 1.26.9 run is retained |
-| Overall leakage | 52/126 baseline versus 28/126 current threshold cases reproduced |
-| Accidental subset | 21/72 versus 3/72 reproduced |
-| Entropy warning | Six warnings among the current 98 cases below the leakage threshold |
-| Historical audit | Original 49-defect/severity/44-fix records and regression mapping not independently available |
-| Historical latency/throughput | Original machine and run records needed; shared-host diagnostic runs do not validate those tables |
-| False positives | Published corpus identity and original raw outputs still needed; the repository corpus changes as code/docs are added |
-| RQ4 streaming equivalence | Existing 3,000-case batch/chunked test and expanded fuzz checks support the property; original historical experiment records still needed |
+| Harness | Same checked harness copied into both runtimes; the baseline contains no original paper harness |
+| Compiler | Both sides freshly run with Go 1.26.10; earlier Go 1.26.9 paired output retained |
+| Overall threshold cases | 52/126 baseline versus 28/126 reviewed runtime |
+| Accidental threshold cases | 21/72 versus 3/72 |
+| Code identity | The reviewed tree had uncommitted fixes; source-file hashes, not the base commit alone, identify it |
 
-The leakage metric is case-insensitive longest contiguous recovery of at least
-50% after the harness's decoder battery. It is a deterministic corpus metric,
-not a usable-credential test or a real-world leakage rate. A shorter recovered
-URL password can be important even when less than half of the whole URL leaks.
-The three remaining accidental cases involve a 12-byte password below fragment
-protection. Deliberate transformations remain outside the registered patterns.
+Raw paired output and compiler/source provenance remain under
+[validation/2026-10-21](validation/2026-10-21/). The baseline archive hash and
+older paired run remain under [validation/2026-10-20](validation/2026-10-20/).
+This comparison measures case-insensitive longest contiguous recovery of at
+least 50% after the decoder battery. It does not establish a production leak
+probability or usable-credential recovery rate.
 
-[REPRODUCING.md](../paper/REPRODUCING.md) gives the procedure. Raw paired outputs,
-source hashes, and compiler details are in
-[validation/2026-10-21](validation/2026-10-21/); the baseline archive hash and
-prior run provenance remain in [validation/2026-10-20](validation/2026-10-20/).
+The [source follow-up](validation/2026-10-21/source-followup/README.md) records
+Graphify/REA evidence and primary-source prior-work checks. The related-work
+correction is based on current documentation and pinned source inspection, not
+competitor execution or proof of historical feature availability.
+
+## Fresh current-only diagnostics, October 22
+
+The fresh run uses clean source commit
+`a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d`, Go 1.26.10 and the existing harness.
+It ran on shared Linux amd64 hardware with a two-CPU cgroup quota and 8 GiB memory
+limit. The frozen-source manifests, raw outputs, phase status records and corpus
+are archived under
+[validation/2026-10-22/fresh-pilot](validation/2026-10-22/fresh-pilot/).
+
+| Evidence | Fresh result and limitation |
+| --- | --- |
+| Harness tests/build | Exit 0; fixed evaluation binary retained and hashed |
+| Current leakage | 28/126 threshold cases, accidental subset 3/72; all 126 child probes completed successfully with sentinels |
+| Entropy warnings | 21 warned threshold cases, six warned below-threshold cases; the latter are not necessarily false alarms |
+| FP corpus identity | 209 Go/Markdown files plus 1,000 generated DSN log lines, exactly 1,209,966 bytes; ordered file hashes and compressed corpus retained |
+| Current FP events | Postgres URL 1,002, each other format zero; no fresh baseline FP comparison, byte/line preservation or mixed-corpus precision/recall |
+| Complete performance run | Exit 0 outside an additional filesystem sandbox; runtime isolation still enabled; 34/21/9 MB/s for 1/10/50 synthetic values |
+| Spawn medians | Direct/runner/runner+no_network 1.042919/2.5609/3.34219 ms, n=200 successful samples per mode |
+| Preceding sandboxed performance attempt | Exit 1 at first isolated spawn with `read-only file system`; original failure retained separately in `perf.*` |
+
+The throughput figures are best-of-five scanning/flush measurements over
+repeated no-match text in 32 KiB writes. Encoding generation and writer
+construction are excluded; padded random values share prefixes. Spawn modes use
+fixed direct/runner/isolated ordering; differences between the reported medians
+are not measured paired per-command increments. No p95/p99, interactive delivery
+delay, provider lookup or long-value scaling claim follows. A fresh successful
+run does not reconstruct the old M3/macOS performance records.
+
+The FP result is now reproducible for its frozen input, but 1,000 deliberately
+similar generated log lines dominate the structured-value collision. A matching
+old aggregate count does not establish identical original inputs or validate a
+before/after claim. No human usability study has been performed. Shared-host
+microbenchmarks do not validate every deployment or replace end-to-end workflow
+measurement.
+
+## Current regression case studies
+
+The historical aggregate audit table is replaced by four lessons supported by
+current source/tests at the measured commit:
+
+- Approval serialization and content binding: newline/Unicode/YAML-shaped
+  proposal fixtures and stale-digest rejection in `cmd/ironrun/review_test.go`.
+- Agent-reachable surfaces: absence of the CLI root-key-sharing command and
+  line-safe CI masking in `cmd/ironrun/cli_usability_test.go` and
+  `internal/execution/github_masks_test.go`.
+- Encoding structure: alignment, JSON/percent forms, hexdump columns and file
+  fragments in `internal/redact/shapes_test.go`.
+- Non-vacuous containment: `DIAL_BLOCKED` and platform-specific fork/sandbox
+  checks in `internal/runner/net_test.go` and `net_internal_test.go`.
+
+These checks specify current behavior. They are not an original defect manifest,
+a severity census or proof that each check failed on v0.5.0. The original
+finding/fix ledger remains unavailable and is not required to substantiate a
+removed tally. Separate source-review fixes such as final-flush propagation,
+gap-scanning cost, initial vault key persistence and concurrent approval integrity
+must not be folded into a fabricated historical or replacement defect count.
+
+`TestStreamingMatchesBatch` contains 3,000 deterministic cases with 1–13-byte
+chunks; `FuzzRedact` separately exercises streaming/batch agreement and fragment
+coverage. These tests are separate from `paper/eval`. The harness-only pilot does
+not itself execute them or establish a new full race-suite outcome. Retain final
+race-suite output and platform skips separately; macOS-only checks are not
+validated by a Linux run, and skips are not successful containment samples.
 
 ## arXiv preparation
 
-- The final PDF builds to 14 pages, including a short final references page.
-  Contact-sheet inspection found no obvious clipping; a monospace italic font
-  fallback remains. No undefined citations or overfull boxes were reported.
-- The ASCII metadata abstract matches the manuscript after expanding formatting
-  macros: 1,905 characters, within the official 1,920 limit.
-- `make arxiv` now generates the missing bibliography on a fresh checkout even
-  when the tracked PDF is current. The extracted source archive compiles.
-- [ARXIV.md](../paper/ARXIV.md) records metadata, authors, proposed categories and
-  license, submission checks, and the evidence still required. No submission has
-  been made by this review.
+- The revised TeX and ASCII metadata abstract match: **1,812 characters**, within
+  the official 1,920-character limit. Historical audit counts and blanket
+  overhead claims are absent from the abstract.
+- The review build has 13 pages, 5 figures, and 3 tables. The upright monospace
+  selection fixes the earlier italic-font fallback. Rebuild and inspect again
+  after any publication edits.
+- `make arxiv` generates the bibliography on a fresh checkout even when the
+  tracked PDF is current. The extracted bundle sources match the built sources;
+  compilation uses the shipped bibliography without a BibTeX step.
+- [ARXIV.md](../paper/ARXIV.md) retains proposed authors, categories, license and
+  submission checks. No submission has been made by this review.
 
-Before submission, retain the original audit manifest with defect/fix commit
-mapping and raw performance/false-positive/streaming records, or revise the
-unsupported historical claims. The fresh leakage reproduction alone does not
-validate the entire paper. Pin the final code commit and retain the source
-archive, PDF, harness, toolchain, and raw results together.
+Pin the final publication source, retain the exact measured runtime separately
+if later changes modify it, and preserve source/archive/PDF hashes, raw outputs,
+failures and frozen inputs together. Successful compilation is not a security
+certification or validation of the whole product.
 
 The detailed original findings and interim follow-ups remain available in
-[the first review commit](https://github.com/Generalized-Labs/ironrun/blob/9794795e0f4de675d452d5769718ef0c14491e87/docs/PAPER_REVIEW.md).
+[the first review commit](https://github.com/Generalized-Labs/ironrun/blob/9794795e0f4de675d452d5769718ef0c14491e87/docs/PAPER_REVIEW.md)
+as historical review material, rather than support for the removed aggregate
+claims.
