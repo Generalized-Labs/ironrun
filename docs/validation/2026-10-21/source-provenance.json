@@ -1,0 +1,16 @@
+{
+  "graphify_commit": "b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+  "rea_version": "6.7.0",
+  "source_sha256": {
+    "internal/runner/runner.go": "c86d7c7016fd2f6c56756420bebffe83dff5e25825573c51b91b3c5905dd5e41",
+    "internal/runner/runner_test.go": "f27e7c297f32784df835f051a12ffcf404126006585f0d94daddd61a5ba8ca8c",
+    "paper/ironrun.tex": "ce04fb31a8d4f3ed8ca83ce561aab7e286e60b2a4a2975276982a5d80c180b09",
+    "paper/references.bib": "975836616e6241d4843269795d57f116b82484873afd52b8072b129dfacd19d8",
+    "npm/lib/launcher.js": "086f5b2fb487a0051a73edbfa99d69736f78c18a03df2e0588dcba9ee4fcc9ae",
+    "npm/test/launcher.integration.test.js": "b1ecbbdb8f64db5803e50e20d01e030ae7eed318461feae8ce263750867e27b3",
+    "internal/redact/redact.go": "8d8f4dbf09431c0c27c7221ff95b1aa8631ca2ae46661e484e1dc983d965969f",
+    "internal/redact/fuzz_test.go": "5fbabf37f65f4561934ae3da0d0fb1223b8c7591a6d14ae12bca8d9e648384b2"
+  },
+  "refreshed": "2026-10-21",
+  "binary_scope": "Final local snapshot includes runner path, final-flush and bounded-gap fixes. Signing/SBOM/before hooks/publication skipped."
+}

@@ -1,0 +1,7 @@
+% fp experiment: corpus 1209966 bytes
+stripe     & 18 patterns & 0 false-positive redactions \\
+github     & 18 patterns & 0 false-positive redactions \\
+aws        & 18 patterns & 0 false-positive redactions \\
+pg-url     & 22 patterns & 1002 false-positive redactions \\
+password   & 14 patterns & 0 false-positive redactions \\
+jwt        & 22 patterns & 0 false-positive redactions \\

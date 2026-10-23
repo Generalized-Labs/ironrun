@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/go/bin/go",
+    "test",
+    "./paper/eval"
+  ],
+  "cpu_stat_after": "usage_usec 192094727\nuser_usec 152820984\nsystem_usec 39273742\nnice_usec 0\nnr_periods 29005\nnr_throttled 557\nthrottled_usec 48286743\nnr_bursts 0\nburst_usec 0",
+  "cpu_stat_before": "usage_usec 191449253\nuser_usec 152336471\nsystem_usec 39112782\nnice_usec 0\nnr_periods 29001\nnr_throttled 556\nthrottled_usec 48217134\nnr_bursts 0\nburst_usec 0",
+  "cwd": "/workspace/ironrun-product-review",
+  "end_utc": "2026-10-22T13:47:37.618741+00:00",
+  "exit_code": 0,
+  "load_average_after": [
+    0.03564453125,
+    0.1650390625,
+    0.10107421875
+  ],
+  "load_average_before": [
+    0.03564453125,
+    0.1650390625,
+    0.10107421875
+  ],
+  "phase": "test",
+  "start_utc": "2026-10-22T13:47:37.195675+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 59,
+  "stdout_sha256": "3f27f07e1ad70147a4a2df1fa5fb69b6c5069a46b8f556fadacd54238681a23f",
+  "wall_ns": 422997634
+}

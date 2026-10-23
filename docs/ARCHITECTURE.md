@@ -52,7 +52,9 @@ writes masked input directly through the native vault library.
 
 ## Platform support
 
-macOS and Linux are GA targets. Windows amd64 remains beta and uses on-demand
-operation until the persistent service has a Windows-native transport.
+macOS and Linux are the supported targets for the open-source launch. Windows
+is excluded from this launch; see [windows.md](windows.md) for the unsupported
+operations and requirements for future support. GA readiness still requires the
+evidence in [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 
 See [SECURITY.md](../SECURITY.md) for the threat boundary and disclosure process.

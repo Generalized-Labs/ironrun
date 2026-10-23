@@ -1,0 +1,44 @@
+[
+  {
+    "package": "libertine",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/libertine.tar.xz",
+    "resolved_url": "https://ctan.math.illinois.edu/systems/texlive/tlnet/archive/libertine.tar.xz",
+    "sha256": "22c57eb8fb021c16a98c1c4ad286c4852133527b6e7de27ac1f9781f42e6b20e",
+    "bytes": 13846900
+  },
+  {
+    "package": "newtx",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/newtx.tar.xz",
+    "resolved_url": "https://mirrors.ibiblio.org/pub/mirrors/CTAN/systems/texlive/tlnet/archive/newtx.tar.xz",
+    "sha256": "9db54b6d82b5bef37886ac526201088f58bc5910b9e068f14d7c918ff7a637d7",
+    "bytes": 6073248
+  },
+  {
+    "package": "inconsolata",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/inconsolata.tar.xz",
+    "resolved_url": "https://mirrors.ibiblio.org/pub/mirrors/CTAN/systems/texlive/tlnet/archive/inconsolata.tar.xz",
+    "sha256": "d3d9d4c42f421588a8f50f34e4aa8d482ec684d8baed536c27b7b3604a7af06e",
+    "bytes": 299552
+  },
+  {
+    "package": "algorithms",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/algorithms.tar.xz",
+    "resolved_url": "https://ctan.katoptra.org/systems/texlive/tlnet/archive/algorithms.tar.xz",
+    "sha256": "24981ccfbd8c00c622fe9090a11a524d714ad42e294459ae5fde7e46e97f2919",
+    "bytes": 3464
+  },
+  {
+    "package": "algorithmicx",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/algorithmicx.tar.xz",
+    "resolved_url": "https://mirror.clarkson.edu/ctan/systems/texlive/tlnet/archive/algorithmicx.tar.xz",
+    "sha256": "5a48148ecf4354ed690240224bea1f76aacb736638be5b31a7aca7283f6d18ce",
+    "bytes": 7708
+  },
+  {
+    "package": "kastrup",
+    "url": "https://mirrors.ctan.org/systems/texlive/tlnet/archive/kastrup.tar.xz",
+    "resolved_url": "https://latex.us/systems/texlive/tlnet/archive/kastrup.tar.xz",
+    "sha256": "83826e6adbe51306e46c2037c01b2910dec67a46988ca7dafbfcec130061ce9f",
+    "bytes": 1388
+  }
+]

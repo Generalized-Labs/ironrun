@@ -38,3 +38,7 @@ dist/
 # Claude Code local state
 .claude/worktrees/
 .claude/settings.local.json
+
+# Python release-test bytecode
+__pycache__/
+*.pyc

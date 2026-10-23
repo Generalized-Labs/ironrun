@@ -23,8 +23,14 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Enable unprivileged network namespaces for integration tests
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
       - name: Test before release
         run: go test -race ./...
+
+      - name: Test release verification flows
+        run: python3 -m unittest discover -s tests -p release_test.py -v
 
       - uses: anchore/sbom-action/download-syft@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
 
@@ -46,7 +52,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # .goreleaser.yml brews.repository.token; GITHUB_TOKEN cannot push
+          # .goreleaser.yml homebrew_casks.repository.token; GITHUB_TOKEN cannot push
           # to the tap repo, and an unset value fails the publish step.
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
 
@@ -56,22 +62,6 @@ jobs:
           node --test npm/test/*.test.js
           cd npm
           npm pack --dry-run
-
-      # Non-blocking until the @generalized-labs npm scope is bootstrapped
-      # (see docs/NPM_BOOTSTRAP.md). Remove continue-on-error to enforce npm
-      # publishing once the scope + trusted publisher exist. The GitHub release,
-      # curl installer, go install, and Sigstore signing do not depend on npm.
-      - name: Stage release candidate on npm
-        if: contains(github.ref_name, '-rc.')
-        continue-on-error: true
-        working-directory: npm
-        run: npm publish --access public --provenance --tag next
-
-      - name: Publish stable npm launcher
-        if: ${{ !contains(github.ref_name, '-rc.') }}
-        continue-on-error: true
-        working-directory: npm
-        run: npm publish --access public --provenance --tag latest
 
       - name: Keyless-sign release artifacts and checksums
         shell: bash
@@ -83,7 +73,33 @@ jobs:
           for artifact in dist/*.tar.gz dist/*.zip dist/checksums.txt install.sh; do
             [ -f "$artifact" ] || continue
             cosign sign-blob --yes --bundle "${artifact}.sigstore.json" "$artifact"
+            cosign verify-blob \
+              --bundle "${artifact}.sigstore.json" \
+              --certificate-identity "https://github.com/${GITHUB_WORKFLOW_REF}" \
+              --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+              "$artifact"
           done
           gh release upload "$GITHUB_REF_NAME" dist/*.sigstore.json install.sh.sigstore.json --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish verified GitHub release
+        run: gh release edit "$GITHUB_REF_NAME" --draft=false
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Non-blocking until the @generalized-labs npm scope is bootstrapped
+      # (see docs/NPM_BOOTSTRAP.md). Remove continue-on-error to enforce npm
+      # publishing once the scope + trusted publisher exist. Only publish npm
+      # after its verified native assets are publicly downloadable.
+      - name: Stage release candidate on npm
+        if: contains(github.ref_name, '-')
+        continue-on-error: true
+        working-directory: npm
+        run: npm publish --access public --provenance --tag next
+
+      - name: Publish stable npm launcher
+        if: ${{ !contains(github.ref_name, '-') }}
+        continue-on-error: true
+        working-directory: npm
+        run: npm publish --access public --provenance --tag latest

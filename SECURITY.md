@@ -73,12 +73,27 @@ on a property Ironrun does not provide:
 - **Same-user credential stores.** On macOS, a keychain item created through
   `/usr/bin/security` can be read by any same-user process that invokes it. The
   legacy version-1 file store keeps its key beside its ciphertext.
+- **Process lifetime.** Cleanup kills the original process group. Descendants
+  that detach with `setsid` can escape that group and retain injected values.
+  Use external process containment when whole-tree termination is required.
 - **Rollback and truncation.** The vault manifest MAC and the audit hash chain
   detect modification, not replacement with an older valid copy or deletion of
   the newest audit records.
 - **CI events.** Fork detection covers `pull_request`, `pull_request_review`,
   `pull_request_review_comment`, and `workflow_run` payloads; `issue_comment`
   workflows that check out pull-request code must gate themselves.
+
+## Pending approval integrity
+
+Pending proposal IDs are immutable until approved or rejected. CLI approval
+rechecks the reviewed content digest inside the same transaction lock used by
+proposal creation and rejection. The dashboard preserves the reviewed proposal
+across list refreshes and cancels confirmation if its contents change.
+
+An interrupted pending-store transaction can leave `.ironrun/pending.yml.lock`.
+If operations report that this lock is busy, first ensure no approval or proposal
+process is still running, then remove that lock directory and retry. Locks are
+never stolen based on age; a slow live transaction must retain exclusive access.
 
 ## File-secret limitations
 

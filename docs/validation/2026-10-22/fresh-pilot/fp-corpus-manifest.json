@@ -1,0 +1,1271 @@
+{
+  "appended_log_lines": 1000,
+  "appended_logs_bytes": 67890,
+  "appended_logs_sha256": "62aa60f3472d36e2091e9b046182c0932825ab670bcf5fbdd10fb0fd0f227a26",
+  "corpus_sha256": "b266fe95e7a15bf7caafc68580e2efa150e76b119e1102632bc2b0fe3b8cb056",
+  "excluded_directory_names": [
+    ".claude",
+    ".git",
+    "paper"
+  ],
+  "files": [
+    {
+      "bytes": 860,
+      "corpus_offset": 0,
+      "path": ".github/pull_request_template.md",
+      "sha256": "e321728df7f3e24e50c0fbc8621ba384663c1f68b66957e4728156eb052ca2c9"
+    },
+    {
+      "bytes": 664,
+      "corpus_offset": 860,
+      "path": "AGENTS.md",
+      "sha256": "23df53b411485506a087759db53b0643b0a7abe0ec0718529cbbb1a987a45f86"
+    },
+    {
+      "bytes": 20561,
+      "corpus_offset": 1524,
+      "path": "CHANGELOG.md",
+      "sha256": "689426c5695dd2d79179f4e9573d14f0beab9ed0c7c8e5cd4e0c00597383845c"
+    },
+    {
+      "bytes": 664,
+      "corpus_offset": 22085,
+      "path": "CLAUDE.md",
+      "sha256": "23df53b411485506a087759db53b0643b0a7abe0ec0718529cbbb1a987a45f86"
+    },
+    {
+      "bytes": 2415,
+      "corpus_offset": 22749,
+      "path": "CODE_OF_CONDUCT.md",
+      "sha256": "4706a6e7fbcf187223481acbad77124bc3dcfae8903aff8668500d0ed7dd6c7f"
+    },
+    {
+      "bytes": 1164,
+      "corpus_offset": 25164,
+      "path": "CONTRIBUTING.md",
+      "sha256": "261d17b181f3bccd98c617fdc0dd99ae0c0829c80d324377dfcb0627f31be99e"
+    },
+    {
+      "bytes": 33733,
+      "corpus_offset": 26328,
+      "path": "README.md",
+      "sha256": "25ddca7af56d3720a76a1c88d687ac43a376048b47ba3efcf7e59f8c3e95a99a"
+    },
+    {
+      "bytes": 6362,
+      "corpus_offset": 60061,
+      "path": "SECURITY.md",
+      "sha256": "d732de6a7fc9a16d4487839582fd507d981e9803671e1bc75ffb10ed3e42eff9"
+    },
+    {
+      "bytes": 7068,
+      "corpus_offset": 66423,
+      "path": "cmd/ironrun/access.go",
+      "sha256": "dd9f51ea5a67d60c32d623447e02cdd1847724bc1e3e148ca8bdc79cef323b5e"
+    },
+    {
+      "bytes": 7040,
+      "corpus_offset": 73491,
+      "path": "cmd/ironrun/agentscrub.go",
+      "sha256": "cd6dc24608befcb876a1fca5920941a106c5f9d5574321136376d27b4f4a1407"
+    },
+    {
+      "bytes": 1580,
+      "corpus_offset": 80531,
+      "path": "cmd/ironrun/audit.go",
+      "sha256": "f2b9b00667e2d4140e6e8d0711321e5e1dd2fd5d2a0b44c36fcf83d74bd60183"
+    },
+    {
+      "bytes": 1949,
+      "corpus_offset": 82111,
+      "path": "cmd/ironrun/capsule.go",
+      "sha256": "d53d7a7a6c727763d5398b3d5f0cea1a94f5d7945a547153e0437d57c7f54818"
+    },
+    {
+      "bytes": 1756,
+      "corpus_offset": 84060,
+      "path": "cmd/ironrun/cli_usability_test.go",
+      "sha256": "5d73dd93fa0ce4a7c685160a6929fdbd42887d48df3bb7b385da995ba0c66cb5"
+    },
+    {
+      "bytes": 2442,
+      "corpus_offset": 85816,
+      "path": "cmd/ironrun/daemon.go",
+      "sha256": "863909d9e861cbd49ccddded80996632d1626931dfd32dba270371f0d18ef659"
+    },
+    {
+      "bytes": 7154,
+      "corpus_offset": 88258,
+      "path": "cmd/ironrun/detect.go",
+      "sha256": "3b47ffe317d8d08e30d27be15b358051722b5c9e3732e7afb4ec13e60f3fb467"
+    },
+    {
+      "bytes": 2300,
+      "corpus_offset": 95412,
+      "path": "cmd/ironrun/detect_test.go",
+      "sha256": "14d0b1e19e6065c873cfe472abc3db0ece42662ade8f07a9bd4e3d9f3b82a176"
+    },
+    {
+      "bytes": 3710,
+      "corpus_offset": 97712,
+      "path": "cmd/ironrun/doctor.go",
+      "sha256": "d0c70c4a7f0e6e09b26a2a26716c4c594efba47016db723acbf9d857ea9266cd"
+    },
+    {
+      "bytes": 16885,
+      "corpus_offset": 101422,
+      "path": "cmd/ironrun/env.go",
+      "sha256": "656dad724895a74897d10ce3111ccd05d625c83b9ec057e336e7c1a8a277e8d3"
+    },
+    {
+      "bytes": 786,
+      "corpus_offset": 118307,
+      "path": "cmd/ironrun/env_test.go",
+      "sha256": "02377856ede28ce2632aa4932093ac52f923b3aa4cc42b5c596ad91aca718520"
+    },
+    {
+      "bytes": 5898,
+      "corpus_offset": 119093,
+      "path": "cmd/ironrun/errors.go",
+      "sha256": "88ee04aaa5a3140279c0ba29587a1fd5595314b981a193c25ebbc170a7654399"
+    },
+    {
+      "bytes": 2189,
+      "corpus_offset": 124991,
+      "path": "cmd/ironrun/errors_test.go",
+      "sha256": "0e6399c9b8ba036d65118b7e5b0311978ce15e8c1feb024f09f985fb8469ae14"
+    },
+    {
+      "bytes": 5496,
+      "corpus_offset": 127180,
+      "path": "cmd/ironrun/ghcmd.go",
+      "sha256": "f06807409e47486460a9a537bb257ceedf5addde503497fa92195ce491574955"
+    },
+    {
+      "bytes": 10629,
+      "corpus_offset": 132676,
+      "path": "cmd/ironrun/gitcmd.go",
+      "sha256": "5cf8ec470eda2bb7e7714314e0651c0e031ca4839cf4c9930f2a7db6b29c600c"
+    },
+    {
+      "bytes": 4139,
+      "corpus_offset": 143305,
+      "path": "cmd/ironrun/gitcmd_test.go",
+      "sha256": "4cbbf1abea263d1078103ecf3ca8858acde7e1694ca6df31e2b151b290d01f26"
+    },
+    {
+      "bytes": 3416,
+      "corpus_offset": 147444,
+      "path": "cmd/ironrun/historycmd.go",
+      "sha256": "ac51c5bb2d4219b707f7cbfc0b335c6cbb27b3642ab8337437d84fd4d9ea295b"
+    },
+    {
+      "bytes": 16379,
+      "corpus_offset": 150860,
+      "path": "cmd/ironrun/init.go",
+      "sha256": "99c42c6705d25bb7b4e90ca62bf99d7391f340266ffbcfa282d0fe43c526c9f1"
+    },
+    {
+      "bytes": 1156,
+      "corpus_offset": 167239,
+      "path": "cmd/ironrun/init_injection_test.go",
+      "sha256": "3988aae6ee9257381c2635e92f0d636f23cccd40d54b951eff77fc3a9596f81a"
+    },
+    {
+      "bytes": 2040,
+      "corpus_offset": 168395,
+      "path": "cmd/ironrun/instructions.go",
+      "sha256": "9bf9525daa3f3e5d026ea76e2cc163848e2aa82482c7c2666866c050cc0c622d"
+    },
+    {
+      "bytes": 2064,
+      "corpus_offset": 170435,
+      "path": "cmd/ironrun/lint.go",
+      "sha256": "8d88b74467305b527e180f1fc4db141be75e588faa6b733c84bda46a4cc752b2"
+    },
+    {
+      "bytes": 8438,
+      "corpus_offset": 172499,
+      "path": "cmd/ironrun/main.go",
+      "sha256": "7ceba67c8b423c8704e84dc01400be2d96144c9ab6260676567f5c11c2801418"
+    },
+    {
+      "bytes": 3081,
+      "corpus_offset": 180937,
+      "path": "cmd/ironrun/migrate.go",
+      "sha256": "e6f459acab22508df5e9f5d5e284bfcda3de70c04595929db54ab8e48f6cda00"
+    },
+    {
+      "bytes": 2647,
+      "corpus_offset": 184018,
+      "path": "cmd/ironrun/onboarding_test.go",
+      "sha256": "47f5cc585a1ec22ecdd2089a1a86b0fe6c4a33b55dcc21887efc82e93c121ce0"
+    },
+    {
+      "bytes": 5268,
+      "corpus_offset": 186665,
+      "path": "cmd/ironrun/quick.go",
+      "sha256": "cc12d642d906b7a49dffe114fde494c523c898e125ebaf1b36dadf9bd52fd991"
+    },
+    {
+      "bytes": 7699,
+      "corpus_offset": 191933,
+      "path": "cmd/ironrun/review.go",
+      "sha256": "8910a33d1f7c06ec076c0c4b3d8abb7041cca34fdf2d8c8bfbc9b092cc3cf368"
+    },
+    {
+      "bytes": 5390,
+      "corpus_offset": 199632,
+      "path": "cmd/ironrun/review_test.go",
+      "sha256": "ff96adab5aa3f4d131e71c4ea04c47b2c5a2b2134fae341c0ecad5d8136ea519"
+    },
+    {
+      "bytes": 2343,
+      "corpus_offset": 205022,
+      "path": "cmd/ironrun/run_flags_test.go",
+      "sha256": "7eb40766c34933c624e4db1d219aaa51be1d156b4752bf9580989ae3fbb84f56"
+    },
+    {
+      "bytes": 8907,
+      "corpus_offset": 207365,
+      "path": "cmd/ironrun/secrets.go",
+      "sha256": "78e5f90a2bea39aa51a61addeff8c618ceab5f6027da98c7dcc454e014ef7460"
+    },
+    {
+      "bytes": 3548,
+      "corpus_offset": 216272,
+      "path": "cmd/ironrun/secrets_masking_test.go",
+      "sha256": "c3b1380a1f241b8414a470f8b8fac278a9b827267b13665c3aad869f42e2bdec"
+    },
+    {
+      "bytes": 926,
+      "corpus_offset": 219820,
+      "path": "cmd/ironrun/secrets_windows_test.go",
+      "sha256": "21e88a800a5b5a85784aa8a83997578dbab2df73c1952e0e1e1b31870c46eca4"
+    },
+    {
+      "bytes": 1498,
+      "corpus_offset": 220746,
+      "path": "cmd/ironrun/serve.go",
+      "sha256": "e829a39b37541c26574c73faf2402e37904fb6f48d4809f58a7624d70aca061d"
+    },
+    {
+      "bytes": 2803,
+      "corpus_offset": 222244,
+      "path": "cmd/ironrun/shellcmd.go",
+      "sha256": "fc11457897af1429a70ef44c449eb24699575ef1d9d717902a3b5bda8d5ccb8b"
+    },
+    {
+      "bytes": 4311,
+      "corpus_offset": 225047,
+      "path": "cmd/ironrun/trust.go",
+      "sha256": "e9769ad5ada7311356b1cd6fbcbd62795061e00daef5ed509c96f30014b0b1b3"
+    },
+    {
+      "bytes": 2014,
+      "corpus_offset": 229358,
+      "path": "cmd/ironrun/tui.go",
+      "sha256": "c922604a5d08d6c2e2eba2713459e5253c5beaad516679fec50d54b363543c53"
+    },
+    {
+      "bytes": 6939,
+      "corpus_offset": 231372,
+      "path": "cmd/ironrun/workspace.go",
+      "sha256": "46b8456a029f1b81044c11ba3a781499f1be0dcffc364054f5a33f272a8c93c4"
+    },
+    {
+      "bytes": 7321,
+      "corpus_offset": 238311,
+      "path": "docs/ADR-0001-local-vault-agent-leases.md",
+      "sha256": "b241e7f155cc51cac49b765f7cf1e25cabc7cba75314dc3efc80288a675d9af7"
+    },
+    {
+      "bytes": 3127,
+      "corpus_offset": 245632,
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "90fe14553ba5ed1f14274894dbeb9da2b7bb4fa98cfd67cbb0e651b164555edb"
+    },
+    {
+      "bytes": 3545,
+      "corpus_offset": 248759,
+      "path": "docs/HOMEBREW_MIGRATION.md",
+      "sha256": "06d8332b0a4d7bdfaa21c4edfb72093375c844c3df426a38162dfd4a820f11e1"
+    },
+    {
+      "bytes": 8138,
+      "corpus_offset": 252304,
+      "path": "docs/INSTALL.md",
+      "sha256": "5363b9fca25a959acba327ca38c2fe703d5c7b1289912ede1296ece72f5625a5"
+    },
+    {
+      "bytes": 7553,
+      "corpus_offset": 260442,
+      "path": "docs/LAUNCH_READINESS.md",
+      "sha256": "467d04d5c7c537d6eceb96edf7e8793c5d2257d4c556b8f5ee7fd2c9fbdb1d8f"
+    },
+    {
+      "bytes": 3062,
+      "corpus_offset": 267995,
+      "path": "docs/NPM_BOOTSTRAP.md",
+      "sha256": "60cb40908217b6fe808b070b06975b89d974975141625d2b5b4c934eb28551dd"
+    },
+    {
+      "bytes": 4006,
+      "corpus_offset": 271057,
+      "path": "docs/NPM_RUNTIME_SUPPORT.md",
+      "sha256": "564f38111c8267e46439ed48a7b275c0487d3b3954a84323ed89cab29ab7e7c7"
+    },
+    {
+      "bytes": 6310,
+      "corpus_offset": 275063,
+      "path": "docs/PAPER_REVIEW.md",
+      "sha256": "68a1acac0dd102d9504e1903cede1900020e8c874393b89742722163b9b01bd5"
+    },
+    {
+      "bytes": 15378,
+      "corpus_offset": 281373,
+      "path": "docs/PAPER_WALKTHROUGH.md",
+      "sha256": "06827ebca0357e632e52c6885ed3e2a0d69879c44a4636129d06f9a1e70f6ee1"
+    },
+    {
+      "bytes": 14611,
+      "corpus_offset": 296751,
+      "path": "docs/REDACTION_WALKTHROUGH.md",
+      "sha256": "d0dfad99140f085d6672b31dcd04106175dd054b466cce9be5b1f61f9a6053ee"
+    },
+    {
+      "bytes": 4496,
+      "corpus_offset": 311362,
+      "path": "docs/RELEASE_CHECKLIST.md",
+      "sha256": "db3d352af8a554fdfe8251836ab5cb71495146832b51a016c52eb19fa3005ab2"
+    },
+    {
+      "bytes": 7404,
+      "corpus_offset": 315858,
+      "path": "docs/REVERSE_ENGINEERING.md",
+      "sha256": "0c84b84913ba6d01b62eadce88ae6da586f813ba6671272f213bc7ed2946891b"
+    },
+    {
+      "bytes": 1225,
+      "corpus_offset": 323262,
+      "path": "docs/ROADMAP.md",
+      "sha256": "9fc2a72b95b2494e5813b225574fadc0202f8f823c2e7a88d156c10fd36c4037"
+    },
+    {
+      "bytes": 5459,
+      "corpus_offset": 324487,
+      "path": "docs/concepts.md",
+      "sha256": "ebeb0d5088d5a63def9d5c42751866b7034289e37b73dbd069cef2dde933d71f"
+    },
+    {
+      "bytes": 4694,
+      "corpus_offset": 329946,
+      "path": "docs/faq.md",
+      "sha256": "02edb0283811f16498dc0e3226ace103ee005778950ec9eec3713f808c344f4a"
+    },
+    {
+      "bytes": 2611,
+      "corpus_offset": 334640,
+      "path": "docs/telemetry.md",
+      "sha256": "fbb3039e4b862df78ac06593a73d43690ad4cf5906acf574e9f16b4e5f7a8f30"
+    },
+    {
+      "bytes": 5545,
+      "corpus_offset": 337251,
+      "path": "docs/troubleshooting.md",
+      "sha256": "bcfa71c49708f25cdfcb3310fcadcfc2e23d99834c2318244f76ee5d529c0ee4"
+    },
+    {
+      "bytes": 2294,
+      "corpus_offset": 342796,
+      "path": "docs/uninstall.md",
+      "sha256": "2bc163537ff4d17c004cc8a7072d27f3f8675d726a8e0081bc459b8e7b77137d"
+    },
+    {
+      "bytes": 2983,
+      "corpus_offset": 345090,
+      "path": "docs/validation/2026-10-21/concurrency-review.md",
+      "sha256": "3451d789682c37b5e2e82f50d5a68030d2dc133169239b95254b537af1f40fe2"
+    },
+    {
+      "bytes": 3824,
+      "corpus_offset": 348073,
+      "path": "docs/validation/2026-10-21/final-checks.md",
+      "sha256": "df433ba28db816a9dbcb1767486ea30609bb7141a353321b7910edf8e6ae51b6"
+    },
+    {
+      "bytes": 2898,
+      "corpus_offset": 351897,
+      "path": "docs/validation/2026-10-21/install-followup/HISTORICAL_RELEASE_REVIEW.md",
+      "sha256": "6f6a195cee04cf44980f93c4a62a9994c3d48a983a97e49aedffcec05802e32e"
+    },
+    {
+      "bytes": 3876,
+      "corpus_offset": 354795,
+      "path": "docs/validation/2026-10-21/install-followup/README.md",
+      "sha256": "9e13435257c46848d2419be23312cd6ed4474f348971d47d1a38cb0e61652814"
+    },
+    {
+      "bytes": 9620,
+      "corpus_offset": 358671,
+      "path": "docs/validation/2026-10-21/source-followup/PRIOR_WORK_REVIEW.md",
+      "sha256": "3717d3b4dc5d0e46e11116b5316f39446733df13f5fc7bd644ffd072cd7ba5cc"
+    },
+    {
+      "bytes": 3315,
+      "corpus_offset": 368291,
+      "path": "docs/validation/2026-10-21/source-followup/README.md",
+      "sha256": "797eb509f450c670a0abb0b09cec4d4338afd5ea1142b9cf9ff55e53fb6195ad"
+    },
+    {
+      "bytes": 3004,
+      "corpus_offset": 371606,
+      "path": "docs/validation/2026-10-21/source-followup/REA_REVIEW.md",
+      "sha256": "0142abac1039e90d0722633e2353ccd57d22196f740f6e00136f9555c0b0d649"
+    },
+    {
+      "bytes": 4483,
+      "corpus_offset": 374610,
+      "path": "docs/validation/2026-10-21/source-followup/WEB_REVIEW.md",
+      "sha256": "d1688f1fed65e02f38aac1b18372f69e82042ca2c284d8c2b926d99839bfd72e"
+    },
+    {
+      "bytes": 3120,
+      "corpus_offset": 379093,
+      "path": "docs/windows.md",
+      "sha256": "4556993ef93f4c9a7fb9d97fc5f95ac20260bae824703102bc30b191d805999b"
+    },
+    {
+      "bytes": 1441,
+      "corpus_offset": 382213,
+      "path": "examples/README.md",
+      "sha256": "ec9f255bfb7d9f7c58b6151fe734db2b9df44be412616e597df85b30ed7b9fc0"
+    },
+    {
+      "bytes": 19520,
+      "corpus_offset": 383654,
+      "path": "internal/access/access.go",
+      "sha256": "c38e73015686668c42e1ec1033f13b6b1d1c3b945e07b298ed8b3fe434e1fa9f"
+    },
+    {
+      "bytes": 6439,
+      "corpus_offset": 403174,
+      "path": "internal/access/access_test.go",
+      "sha256": "89a148547c3cfbf3dc3cbeab2a4004f586bbea65cad20310a58c67d90f1b043a"
+    },
+    {
+      "bytes": 13070,
+      "corpus_offset": 409613,
+      "path": "internal/audit/audit.go",
+      "sha256": "523f74b1cace3f90321b337714f6ed074582485a7eb5fec5e5dd4d1faa831a91"
+    },
+    {
+      "bytes": 10419,
+      "corpus_offset": 422683,
+      "path": "internal/audit/audit_test.go",
+      "sha256": "8fab9d128434ef0345e29c4f0b687a91e05669460eb66b86cf06207d45655d54"
+    },
+    {
+      "bytes": 407,
+      "corpus_offset": 433102,
+      "path": "internal/audit/lock_unix.go",
+      "sha256": "a0cab8b9551b8269fd06e3e6346bfb3464bd02bcc8f5e445a152be47bb932180"
+    },
+    {
+      "bytes": 324,
+      "corpus_offset": 433509,
+      "path": "internal/audit/lock_windows.go",
+      "sha256": "07e082b72f959f65f7ef52485f531bc18206411834d7c52c890acf27ef6f9ff7"
+    },
+    {
+      "bytes": 1106,
+      "corpus_offset": 433833,
+      "path": "internal/buildinfo/buildinfo.go",
+      "sha256": "fc363925c109f7f3b3fc5d7cbe0d33d97b2737eb54f84effa825fcef9aa0c19a"
+    },
+    {
+      "bytes": 4912,
+      "corpus_offset": 434939,
+      "path": "internal/capsule/capsule.go",
+      "sha256": "fa07c2814ea7728300cb7308d7aa89467bcfd20c571b8203dc31c1c41f4581b9"
+    },
+    {
+      "bytes": 1587,
+      "corpus_offset": 439851,
+      "path": "internal/capsule/capsule_test.go",
+      "sha256": "463b55b644b545a35bcc970945917e2fc720d342a14b47c67dbba54c01200c83"
+    },
+    {
+      "bytes": 596,
+      "corpus_offset": 441438,
+      "path": "internal/daemon/peer_darwin.go",
+      "sha256": "85991b31f57989a257f8427aa3c07708eaeb372e6f4f980f6be641b86064b986"
+    },
+    {
+      "bytes": 592,
+      "corpus_offset": 442034,
+      "path": "internal/daemon/peer_linux.go",
+      "sha256": "7b2c34b9f2094e575d84ad4c8726456425feb8be4a4d711e896c14c462e8f193"
+    },
+    {
+      "bytes": 182,
+      "corpus_offset": 442626,
+      "path": "internal/daemon/peer_other.go",
+      "sha256": "9bf5ee020892344a0a46d18ff0cde486d8e8f1bf8f3ad43af94624db2118464a"
+    },
+    {
+      "bytes": 4990,
+      "corpus_offset": 442808,
+      "path": "internal/daemon/server_unix.go",
+      "sha256": "8df0dd03d005dc0ae9ccf38df3b25a4e37a52da4766e0169407073b65081c322"
+    },
+    {
+      "bytes": 2087,
+      "corpus_offset": 447798,
+      "path": "internal/daemon/server_unix_test.go",
+      "sha256": "4edccd3e53210921db32b8b4779bfc7b99382cee734a7c274bd2b0215c699150"
+    },
+    {
+      "bytes": 243,
+      "corpus_offset": 449885,
+      "path": "internal/daemon/server_windows.go",
+      "sha256": "e0d58d70514913d0ee9d5f261ebe6dfb54750e9a545632893bb73d60adc5c8db"
+    },
+    {
+      "bytes": 3911,
+      "corpus_offset": 450128,
+      "path": "internal/daemon/service.go",
+      "sha256": "841dbcec386091230776fce0a21f1587808600748b0be36bb6f648f7e65262a7"
+    },
+    {
+      "bytes": 95,
+      "corpus_offset": 454039,
+      "path": "internal/daemon/uid_unix.go",
+      "sha256": "b64c255546fd28b56d6a7d943d6754bc8be5eee25eb0f1d3f4529d9cb9f1c144"
+    },
+    {
+      "bytes": 71,
+      "corpus_offset": 454134,
+      "path": "internal/daemon/uid_windows.go",
+      "sha256": "406fea12253cdd6878b5fb4b8b97d3f6e190b9519c0580698d8969121a0370e7"
+    },
+    {
+      "bytes": 17746,
+      "corpus_offset": 454205,
+      "path": "internal/envset/manager.go",
+      "sha256": "d13671f5a1575b0f70bce0ae114983ac12f5764d21906bf320bf7a5ff22f732b"
+    },
+    {
+      "bytes": 9622,
+      "corpus_offset": 471951,
+      "path": "internal/envset/manager_test.go",
+      "sha256": "0fe0536050bfe325bf588fe6b066adf2d2cf2d8f4330799a19e12411a19a3fd8"
+    },
+    {
+      "bytes": 1332,
+      "corpus_offset": 481573,
+      "path": "internal/envset/store.go",
+      "sha256": "51f76448c192b2d180ada45ae967012dbb090506c98685d036ddc91998bb5db1"
+    },
+    {
+      "bytes": 2548,
+      "corpus_offset": 482905,
+      "path": "internal/envset/store_darwin.go",
+      "sha256": "464c4aae9ebec09cfb13f9363d10521fbede1da0b3d8b55302a8239185a9d1e9"
+    },
+    {
+      "bytes": 2234,
+      "corpus_offset": 485453,
+      "path": "internal/envset/store_darwin_test.go",
+      "sha256": "1ccd01f9ba7d91fa95bce447e813c1e4d42e6729e9976591fa2e4be4cebcc6de"
+    },
+    {
+      "bytes": 1583,
+      "corpus_offset": 487687,
+      "path": "internal/envset/store_linux.go",
+      "sha256": "dd94b24100329ae47412b544fd5e20a9b0819b57bb93407edd167b7ce0fcd9cb"
+    },
+    {
+      "bytes": 211,
+      "corpus_offset": 489270,
+      "path": "internal/envset/store_other.go",
+      "sha256": "1eabb7e98696e64d874c1c59a9a1b66812c3f4042cea63e6b0549b150679dccc"
+    },
+    {
+      "bytes": 2294,
+      "corpus_offset": 489481,
+      "path": "internal/envset/store_windows.go",
+      "sha256": "2b9e23546685f58b530c927a3392a969a7af4bfb9d238ac12006eda23d5a3bda"
+    },
+    {
+      "bytes": 3410,
+      "corpus_offset": 491775,
+      "path": "internal/envset/vault_store.go",
+      "sha256": "eb214e4808b5946c0dbe709d818613fae069307845072875ea0c44f30badd44f"
+    },
+    {
+      "bytes": 1305,
+      "corpus_offset": 495185,
+      "path": "internal/envset/vault_store_test.go",
+      "sha256": "3fe79df73947e2d7accc1c2bd13586fe2657723fa954572e287566e89eef2134"
+    },
+    {
+      "bytes": 11983,
+      "corpus_offset": 496490,
+      "path": "internal/execution/execution.go",
+      "sha256": "3f187c3a4d31c813e62fde96c5353ddd176cfff4c4e42e5beb2e057664e39e60"
+    },
+    {
+      "bytes": 4310,
+      "corpus_offset": 508473,
+      "path": "internal/execution/files.go",
+      "sha256": "866d536fe3da7780130b68c9220e68dd4cc8d6658b8445202415fd4165b26778"
+    },
+    {
+      "bytes": 2092,
+      "corpus_offset": 512783,
+      "path": "internal/execution/files_test.go",
+      "sha256": "29ff06725a51196155f088921a6ff0d8e6cc9d52ac0715be5acad02e9c392832"
+    },
+    {
+      "bytes": 4799,
+      "corpus_offset": 514875,
+      "path": "internal/execution/github_masks_test.go",
+      "sha256": "5d362ed15d3e8301d7028fabce0593c27f3c23b17835e38e5a036d77bee731bc"
+    },
+    {
+      "bytes": 214,
+      "corpus_offset": 519674,
+      "path": "internal/execution/proc_other.go",
+      "sha256": "70650ff26d2c85d861cc35ae8aecf45021ad0ba97e985924ce6d1438f9cfca24"
+    },
+    {
+      "bytes": 566,
+      "corpus_offset": 519888,
+      "path": "internal/execution/proc_unix.go",
+      "sha256": "3e56c238665113eb94e22a2a439a4b29ef1cbe4647867494addfbb1adf3731f4"
+    },
+    {
+      "bytes": 4236,
+      "corpus_offset": 520454,
+      "path": "internal/execution/recovery_test.go",
+      "sha256": "df151b24fa5920115f90e79683426fb42597bcc7a630a2f505abcad104a617c6"
+    },
+    {
+      "bytes": 1819,
+      "corpus_offset": 524690,
+      "path": "internal/execution/resolve_seccomp_test.go",
+      "sha256": "9fdb4d1f7cfc6e29c871802fbe6c4b3e95df203d45d6736ee52fbae94b98ed5d"
+    },
+    {
+      "bytes": 3476,
+      "corpus_offset": 526509,
+      "path": "internal/execution/v2_test.go",
+      "sha256": "9b2e3f68fe300c2d1e329ebfa2d436bb5b56021659839a666747f7e281434afd"
+    },
+    {
+      "bytes": 8524,
+      "corpus_offset": 529985,
+      "path": "internal/ghprotect/protect.go",
+      "sha256": "7fcd59163aaa35215f5cd5a638d4085bc702e2f9ea022f1562d7e45b8176d9bc"
+    },
+    {
+      "bytes": 3669,
+      "corpus_offset": 538509,
+      "path": "internal/ghprotect/protect_test.go",
+      "sha256": "e81884d381a0c149d28c0385bf015ec0fd40e6d3c75e99763f04048976844035"
+    },
+    {
+      "bytes": 10150,
+      "corpus_offset": 542178,
+      "path": "internal/githooks/hooks.go",
+      "sha256": "8bd839098dae44a23b073b774518d2ccc1824fdcf81343e6773c4a2f4fa59217"
+    },
+    {
+      "bytes": 7896,
+      "corpus_offset": 552328,
+      "path": "internal/githooks/hooks_test.go",
+      "sha256": "427c2d1506da5a44ab7bb00575ea40cb6633b8fa848cf71939a33e4802855b47"
+    },
+    {
+      "bytes": 12713,
+      "corpus_offset": 560224,
+      "path": "internal/localapi/server.go",
+      "sha256": "3f42dc5f5520aac9eb40b0bb73b794fa2fefd89fdd5c790c3688aa00c538d63d"
+    },
+    {
+      "bytes": 9647,
+      "corpus_offset": 572937,
+      "path": "internal/localapi/server_test.go",
+      "sha256": "6da55fc94f27ec3badee47a9c42dcb99da54bdd94efaa1f4ce7e3946a3e102d3"
+    },
+    {
+      "bytes": 406,
+      "corpus_offset": 582584,
+      "path": "internal/localapi/umask_nix.go",
+      "sha256": "50a2e8390de84af0a91cc4acf108cefd5d7c8ca60a1d6f4e093ea154f0915202"
+    },
+    {
+      "bytes": 276,
+      "corpus_offset": 582990,
+      "path": "internal/localapi/umask_windows.go",
+      "sha256": "1fc7034f79e43ac5eb04174a994f6d170c61ea7c2546ca2b7a0e48c26208ae26"
+    },
+    {
+      "bytes": 10860,
+      "corpus_offset": 583266,
+      "path": "internal/migration/migration.go",
+      "sha256": "dc0224329ef53d1daed8a04d2efcf372b5653e59bb8616616c54b4d40412b8fb"
+    },
+    {
+      "bytes": 4273,
+      "corpus_offset": 594126,
+      "path": "internal/migration/migration_test.go",
+      "sha256": "b3c91cbb26a61d82d28208132433ba200eab44e640bc08131a25777c54720fd5"
+    },
+    {
+      "bytes": 5395,
+      "corpus_offset": 598399,
+      "path": "internal/pending/pending.go",
+      "sha256": "95f5a5f699b1fd8565fcb6c30989648419e5d46d0293c0bf42971e0c9b44a983"
+    },
+    {
+      "bytes": 3187,
+      "corpus_offset": 603794,
+      "path": "internal/pending/pending_test.go",
+      "sha256": "2186f2fba4f0af8d456ccd8fb95830dd7bc1d7107c0ffa59c3456860e60c9633"
+    },
+    {
+      "bytes": 1125,
+      "corpus_offset": 606981,
+      "path": "internal/policy/isshell_test.go",
+      "sha256": "dbebbf5328cc3a7024c27814dca4920aa94fa2fe549c0ac526b0c2edcaca2a5d"
+    },
+    {
+      "bytes": 5382,
+      "corpus_offset": 608106,
+      "path": "internal/policy/lint.go",
+      "sha256": "28253c73d277086d75f4edd797a924998d84fb32ca20613916b4da48b5110a12"
+    },
+    {
+      "bytes": 4930,
+      "corpus_offset": 613488,
+      "path": "internal/policy/lint_test.go",
+      "sha256": "ef596ab986e6a10a8cf338bedc64f2125388b76f7eeee2070418f0f6c1f8e297"
+    },
+    {
+      "bytes": 3102,
+      "corpus_offset": 618418,
+      "path": "internal/policy/migrate.go",
+      "sha256": "a1864febe7a3514f9b954b9cb5ad854247b988ce5fc6645df2f517167bec60d4"
+    },
+    {
+      "bytes": 1494,
+      "corpus_offset": 621520,
+      "path": "internal/policy/migrate_test.go",
+      "sha256": "1946b7dd6549b29a3c4a906ef6bd3630957adba06599b8e7394e3aedcb29b63b"
+    },
+    {
+      "bytes": 12878,
+      "corpus_offset": 623014,
+      "path": "internal/policy/policy.go",
+      "sha256": "0a6905faf3ea045832bf542670b069ff07637f12f7058b22da9222df51057ab2"
+    },
+    {
+      "bytes": 8640,
+      "corpus_offset": 635892,
+      "path": "internal/policy/policy_test.go",
+      "sha256": "288a9b719baf7b5194faa02fc21ab63233b9255e616d3bc2f92e279526685452"
+    },
+    {
+      "bytes": 8113,
+      "corpus_offset": 644532,
+      "path": "internal/project/registry.go",
+      "sha256": "2561d200bca9cccb750207bda72c085258c676475353dbd2275bc567da36c302"
+    },
+    {
+      "bytes": 2255,
+      "corpus_offset": 652645,
+      "path": "internal/project/registry_test.go",
+      "sha256": "390a21284444d91d70965f897a7ad486f657088b835a21e4bbcffe792eee60d0"
+    },
+    {
+      "bytes": 4889,
+      "corpus_offset": 654900,
+      "path": "internal/provider/exec_test.go",
+      "sha256": "f1cb35d2301a9ac13883609ca93baf887e525f2d0da804e4959220c894dd6970"
+    },
+    {
+      "bytes": 13946,
+      "corpus_offset": 659789,
+      "path": "internal/provider/provider.go",
+      "sha256": "3fe40f405f9d7cef94676c33913d2c89d8fe9153e82005dcc8cd0934c4490c3e"
+    },
+    {
+      "bytes": 9167,
+      "corpus_offset": 673735,
+      "path": "internal/provider/provider_test.go",
+      "sha256": "7e39aa6d49ded4cacc218c368b6e047a5a6c453626cc39e5e16de61f48519ed2"
+    },
+    {
+      "bytes": 7419,
+      "corpus_offset": 682902,
+      "path": "internal/redact/encodings.go",
+      "sha256": "bb007c856ec7aa96a5b5d9fa0a0b4fe0ea60917779e5f5586b16b5e2ea4e2015"
+    },
+    {
+      "bytes": 1942,
+      "corpus_offset": 690321,
+      "path": "internal/redact/encodings_test.go",
+      "sha256": "c2707a966a3772115b6332c8a5e7600da9bbd35e6da4d1ac1cc464e261c042be"
+    },
+    {
+      "bytes": 5101,
+      "corpus_offset": 692263,
+      "path": "internal/redact/encodings_v2_test.go",
+      "sha256": "a2eb610c59ae8b2f3985c501a6564661cf207f00c793a9115d104cc7d1273222"
+    },
+    {
+      "bytes": 3788,
+      "corpus_offset": 697364,
+      "path": "internal/redact/entropy.go",
+      "sha256": "b4e3830d3da03f594e674aed411afa08cbdc4948cd504836fc5a0de5876858b3"
+    },
+    {
+      "bytes": 1692,
+      "corpus_offset": 701152,
+      "path": "internal/redact/entropy_test.go",
+      "sha256": "4f9fb7f8b1a68336c9c2ed4110de2cc84ae3c6157291bbf2d6660f0c929d08d4"
+    },
+    {
+      "bytes": 1872,
+      "corpus_offset": 702844,
+      "path": "internal/redact/entropy_v2_test.go",
+      "sha256": "dfa5f30c7af108a0c1a134cbafa186e7b5f74698d4c940c630db69a02dc55bc7"
+    },
+    {
+      "bytes": 5213,
+      "corpus_offset": 704716,
+      "path": "internal/redact/fuzz_test.go",
+      "sha256": "5fbabf37f65f4561934ae3da0d0fb1223b8c7591a6d14ae12bca8d9e648384b2"
+    },
+    {
+      "bytes": 10974,
+      "corpus_offset": 709929,
+      "path": "internal/redact/redact.go",
+      "sha256": "8d8f4dbf09431c0c27c7221ff95b1aa8631ca2ae46661e484e1dc983d965969f"
+    },
+    {
+      "bytes": 3247,
+      "corpus_offset": 720903,
+      "path": "internal/redact/redact_addsecret_timing_test.go",
+      "sha256": "ab285edb3b149af29a3895a472d8abff19f7c0362bd8f68cf1e3e2a861811055"
+    },
+    {
+      "bytes": 16291,
+      "corpus_offset": 724150,
+      "path": "internal/redact/redact_audit_test.go",
+      "sha256": "956871266d44bff4054f4e81c218c4c1739951a37ddbc24a73e9cdd95a2df49b"
+    },
+    {
+      "bytes": 3259,
+      "corpus_offset": 740441,
+      "path": "internal/redact/redact_bench_test.go",
+      "sha256": "ca84911db1f2700ca5ecc6f71c3fab373ddbfa9be1594e21143dabef64a1eed0"
+    },
+    {
+      "bytes": 4672,
+      "corpus_offset": 743700,
+      "path": "internal/redact/redact_edge_test.go",
+      "sha256": "28afeeb9e588b4b9d18675747af00157861119be40926994696e0224795ffcf9"
+    },
+    {
+      "bytes": 3384,
+      "corpus_offset": 748372,
+      "path": "internal/redact/redact_test.go",
+      "sha256": "ad758fa25c04c7cb8172b510d1998618e3edf025a562077549fac6cd3d6658b1"
+    },
+    {
+      "bytes": 7325,
+      "corpus_offset": 751756,
+      "path": "internal/redact/redact_v2_test.go",
+      "sha256": "1430d25528b0cd01ace34dac630084d12c08a6a00921898c8619bb62ff3fa92a"
+    },
+    {
+      "bytes": 7104,
+      "corpus_offset": 759081,
+      "path": "internal/redact/shapes_test.go",
+      "sha256": "05bc3245fe0bc7580d6b3c0f92cd2b055ca382e7d8613c4dc49f502f7395c2b9"
+    },
+    {
+      "bytes": 2234,
+      "corpus_offset": 766185,
+      "path": "internal/remote/gdrive.go",
+      "sha256": "712eb9cacc3e0334356ccd725de9b733f8e028e1818e48d245292a4ebde5fa1c"
+    },
+    {
+      "bytes": 484,
+      "corpus_offset": 768419,
+      "path": "internal/remote/remote.go",
+      "sha256": "282cac2883b15cc405e0809a679f80d63ae73154fe0adef32be4e7dae851c4a6"
+    },
+    {
+      "bytes": 1011,
+      "corpus_offset": 768903,
+      "path": "internal/runner/net_internal_test.go",
+      "sha256": "e54e5cf923d7b153fef84dd3d09c45a3ac5e48b32ce424ec5e0d23ebac7bb656"
+    },
+    {
+      "bytes": 1006,
+      "corpus_offset": 769914,
+      "path": "internal/runner/net_linux.go",
+      "sha256": "6b52fe778f94015bd13915cbcc14c1aa9a2e218a4e0cf07a5a9e4e9814e1a373"
+    },
+    {
+      "bytes": 265,
+      "corpus_offset": 770920,
+      "path": "internal/runner/net_other.go",
+      "sha256": "7bfdc924cc685174775c1307c56fb203d346f9a980e24e41460bee1a69dce3f9"
+    },
+    {
+      "bytes": 2483,
+      "corpus_offset": 771185,
+      "path": "internal/runner/net_test.go",
+      "sha256": "3aaca9818627152360d2fb8ac18147705647271a43c9fb3a797022ee8a638a14"
+    },
+    {
+      "bytes": 8650,
+      "corpus_offset": 773668,
+      "path": "internal/runner/phase0_internal_test.go",
+      "sha256": "fb3fa87fa6a970f5f335f7eaae6269e5f812b20e6f6792222d56e84b35b5015b"
+    },
+    {
+      "bytes": 435,
+      "corpus_offset": 782318,
+      "path": "internal/runner/procattr_linux.go",
+      "sha256": "afa314d897aa223db49d238d159c35684ab733d09db28c720e8535f034160bd9"
+    },
+    {
+      "bytes": 315,
+      "corpus_offset": 782753,
+      "path": "internal/runner/procattr_other.go",
+      "sha256": "6beb087a990a5318030213a6f6cb012a85661885e300bb7ed57c4728eff6c61b"
+    },
+    {
+      "bytes": 1094,
+      "corpus_offset": 783068,
+      "path": "internal/runner/procattr_unix.go",
+      "sha256": "bc916ce8fe598da482ac9c08e530c0c8bcd5b9697607bfcd942086d66dfd2274"
+    },
+    {
+      "bytes": 224,
+      "corpus_offset": 784162,
+      "path": "internal/runner/procattr_unix_notlinux.go",
+      "sha256": "fe878f1aa78c20e2d6395a976851a17659e196c4c93e39f52a607369fdc689d4"
+    },
+    {
+      "bytes": 6959,
+      "corpus_offset": 784386,
+      "path": "internal/runner/procctl_test.go",
+      "sha256": "2fddbf7e2f77c0fd5c743e3424b09d1f448ad8aa5a7aa9bb0ea7ecb493d65428"
+    },
+    {
+      "bytes": 32617,
+      "corpus_offset": 791345,
+      "path": "internal/runner/runner.go",
+      "sha256": "c86d7c7016fd2f6c56756420bebffe83dff5e25825573c51b91b3c5905dd5e41"
+    },
+    {
+      "bytes": 25857,
+      "corpus_offset": 823962,
+      "path": "internal/runner/runner_test.go",
+      "sha256": "f27e7c297f32784df835f051a12ffcf404126006585f0d94daddd61a5ba8ca8c"
+    },
+    {
+      "bytes": 2395,
+      "corpus_offset": 849819,
+      "path": "internal/runner/seccomp_linux.go",
+      "sha256": "69902ed0eecb779cde10b7d61e6504bb9850f061e33bebda93a6d48fe5b877e6"
+    },
+    {
+      "bytes": 392,
+      "corpus_offset": 852214,
+      "path": "internal/runner/seccomp_other.go",
+      "sha256": "86ced22093b64af2716e9fadb59cfdf243c2ce40a08e09ccf84bfd5d6112980a"
+    },
+    {
+      "bytes": 818,
+      "corpus_offset": 852606,
+      "path": "internal/runner/testdata/netprobe/main.go",
+      "sha256": "ef6a85c51f85c51a86c308f3b0a5c2e2d84611b82fe1a72930ba1b1176ba7dd8"
+    },
+    {
+      "bytes": 2309,
+      "corpus_offset": 853424,
+      "path": "internal/runner/testdata/procfix/main.go",
+      "sha256": "45b80f57df5456922c9c636aba384ee67700c7681080c83aff0be3db76a09b0b"
+    },
+    {
+      "bytes": 5947,
+      "corpus_offset": 855733,
+      "path": "internal/scrub/matcher.go",
+      "sha256": "56baa29cc26f16241283a64ca4faa1d62e5e7bea4ce4a33dac7f80dc4cf301c6"
+    },
+    {
+      "bytes": 7520,
+      "corpus_offset": 861680,
+      "path": "internal/scrub/scrub_test.go",
+      "sha256": "0c51ce45d0b4860202ca920a7fa9b25606b3c82411911f90eeabac0acd6b44d7"
+    },
+    {
+      "bytes": 8008,
+      "corpus_offset": 869200,
+      "path": "internal/scrub/stores.go",
+      "sha256": "e55ff39c588eef7c902e1de7cb298aaca626d88ff6d124087e57626dab8cf6ef"
+    },
+    {
+      "bytes": 1333,
+      "corpus_offset": 877208,
+      "path": "internal/sealedexec/seal_linux.go",
+      "sha256": "e005b8b5b113662931e88ff16a142170a3db73cd39480eedf90c73c806ccbf2e"
+    },
+    {
+      "bytes": 344,
+      "corpus_offset": 878541,
+      "path": "internal/sealedexec/seal_other.go",
+      "sha256": "4e0d0245afd86ccbc4e1382a1237c645620ec09625f9886bc230a0a976cb6389"
+    },
+    {
+      "bytes": 7406,
+      "corpus_offset": 878885,
+      "path": "internal/sealedexec/sealedexec.go",
+      "sha256": "25143edbee19fb1348e6ec7e23791bfc01372cbd2ab4bdcb6defbfcba12f5a73"
+    },
+    {
+      "bytes": 8097,
+      "corpus_offset": 886291,
+      "path": "internal/sealedexec/sealedexec_test.go",
+      "sha256": "076f95f796f62bc0eaf6c8362f0af455263c13f263ead224df6540321e1ee940"
+    },
+    {
+      "bytes": 3664,
+      "corpus_offset": 894388,
+      "path": "internal/sealedexec/seccomp_linux.go",
+      "sha256": "f79a2c10a7b8c0487970987994dc358a3b3e9812980ba49d18096c9ff2e725cb"
+    },
+    {
+      "bytes": 166,
+      "corpus_offset": 898052,
+      "path": "internal/sealedexec/seccomp_other.go",
+      "sha256": "fa0f0699458652ef7516ae5fe5a78282033fc0ee15fb03728a002e53d5106300"
+    },
+    {
+      "bytes": 7401,
+      "corpus_offset": 898218,
+      "path": "internal/secrets/store.go",
+      "sha256": "1f020dc5d074ac37b0640d934f03f007c3aa8db2e4f3f0a094fb6325b354b66e"
+    },
+    {
+      "bytes": 3462,
+      "corpus_offset": 905619,
+      "path": "internal/secrets/store_test.go",
+      "sha256": "8e70814e9ab045956d0c52c9f05a50e31ebcd59932b4b2cd3f833062665a2c44"
+    },
+    {
+      "bytes": 4341,
+      "corpus_offset": 909081,
+      "path": "internal/shellguard/history.go",
+      "sha256": "8e55de045aded767b15da6cddffa2dd614e63cd3896b1c26b1916b740067c5ef"
+    },
+    {
+      "bytes": 8254,
+      "corpus_offset": 913422,
+      "path": "internal/shellguard/shellguard_test.go",
+      "sha256": "c9c08b0ab672396415763006bf40e9fb15ddb313ef6e2f567526f601d6ddf230"
+    },
+    {
+      "bytes": 7883,
+      "corpus_offset": 921676,
+      "path": "internal/shellguard/snippets.go",
+      "sha256": "a0739ef52c5f4feb6c1b3200889c8ca48dc1e7919c28cd2be3efbbf7c724f90e"
+    },
+    {
+      "bytes": 47220,
+      "corpus_offset": 929559,
+      "path": "internal/tui/dashboard.go",
+      "sha256": "ebf82e02744adec05ebc6b3a109ad68d5b9a977509009867dcc2a0bb657b6844"
+    },
+    {
+      "bytes": 6921,
+      "corpus_offset": 976779,
+      "path": "internal/tui/dashboard_test.go",
+      "sha256": "eb380540e85c108ab0fb168c7ad048a2c50282db73d60fba67a02a36f17bc451"
+    },
+    {
+      "bytes": 8984,
+      "corpus_offset": 983700,
+      "path": "internal/tui/home.go",
+      "sha256": "3f70804697ba071dfc22daf9f66ceb863a3ee0ba677a646075c40b48e67a87fa"
+    },
+    {
+      "bytes": 934,
+      "corpus_offset": 992684,
+      "path": "internal/tui/home_test.go",
+      "sha256": "45c0198fd5bd22483d2503a7fcb48ae31aa6fc730ea8f82a6d344dd237f4bfee"
+    },
+    {
+      "bytes": 673,
+      "corpus_offset": 993618,
+      "path": "internal/tui/no_color_test.go",
+      "sha256": "0ce623ba60a732a7e9fdbf2a4c388028fc3b1e2c7d4b41d5134081d5c20a6c2f"
+    },
+    {
+      "bytes": 692,
+      "corpus_offset": 994291,
+      "path": "internal/vault/initlock.go",
+      "sha256": "ae98bd66162247c3589698192f24d91e87917e879fe88cb68cdf059b243fa531"
+    },
+    {
+      "bytes": 163,
+      "corpus_offset": 994983,
+      "path": "internal/vault/initlock_unix.go",
+      "sha256": "7d4a07b30b3183955afbee7164c2d382373e5ea0df72082dfa7cdfb7ea2c93de"
+    },
+    {
+      "bytes": 246,
+      "corpus_offset": 995146,
+      "path": "internal/vault/initlock_windows.go",
+      "sha256": "c64a40bbc9f4a914baafc625792c744f8a9fa7d2715c1ae25de64b395f119bf5"
+    },
+    {
+      "bytes": 18172,
+      "corpus_offset": 995392,
+      "path": "internal/vault/store.go",
+      "sha256": "64bd026a89a0685959b50d8eb22c73c25f43f1e4c7c6948f2a7296c4321deaf9"
+    },
+    {
+      "bytes": 9319,
+      "corpus_offset": 1013564,
+      "path": "internal/vault/store_test.go",
+      "sha256": "a1ec9f36530f0da02b9ef925bedaede06544d46eb37befa8433565af878db3b2"
+    },
+    {
+      "bytes": 9094,
+      "corpus_offset": 1022883,
+      "path": "mcp/access_test.go",
+      "sha256": "6ba1c0aa0206bfff059f610464c9a0c26b32b5f9d29e0a00696b10c3ca456948"
+    },
+    {
+      "bytes": 7129,
+      "corpus_offset": 1031977,
+      "path": "mcp/key_material_guard_test.go",
+      "sha256": "4d04df5dce970b126ffe220425420efc54b1ce08967d5ce9c1a5e07798052340"
+    },
+    {
+      "bytes": 9153,
+      "corpus_offset": 1039106,
+      "path": "mcp/mcp_test.go",
+      "sha256": "34903b77a52299be0d4cb9494ffae85ed63e8574c7cb7748bd016d1fe6561370"
+    },
+    {
+      "bytes": 6734,
+      "corpus_offset": 1048259,
+      "path": "mcp/propose_test.go",
+      "sha256": "4faa4c0209dee4329258acdb9ff7019681f1083a0672428e0f0b8b4779e4c8c1"
+    },
+    {
+      "bytes": 37558,
+      "corpus_offset": 1054993,
+      "path": "mcp/server.go",
+      "sha256": "092437fe1baea9092890c35361efef7a1d099e4dae3d2d5ec8779a0541e31e90"
+    },
+    {
+      "bytes": 9861,
+      "corpus_offset": 1092551,
+      "path": "mcp/server_internal_test.go",
+      "sha256": "729f9470fc319251a7311f70ab90a6fb3068830989e09b991167925920ad7e96"
+    },
+    {
+      "bytes": 1760,
+      "corpus_offset": 1102412,
+      "path": "npm/README.md",
+      "sha256": "766b4af1198ef81c04359fc773422a108ba2a58c94387ad161dc57d20d63b760"
+    },
+    {
+      "bytes": 3514,
+      "corpus_offset": 1104172,
+      "path": "tests/audit_test.go",
+      "sha256": "5c586830fa11859e6253c7fd456fbef87007d9616f0f9396dc90ac4d16d5c2b3"
+    },
+    {
+      "bytes": 5174,
+      "corpus_offset": 1107686,
+      "path": "tests/cli_test.go",
+      "sha256": "8a64021ccc4610a8d0f1df053b19a28cccc1942f1e16fd9fc0b93c2b794fac0c"
+    },
+    {
+      "bytes": 2659,
+      "corpus_offset": 1112860,
+      "path": "tests/doctor_test.go",
+      "sha256": "cd38529788f0b393e64cace4c0898ca39824f0ce8fd553819657b5066fb39a73"
+    },
+    {
+      "bytes": 1005,
+      "corpus_offset": 1115519,
+      "path": "tests/encoding_exfil_test.go",
+      "sha256": "8143d3e2541897755f0226b6cd08c70c06e71125d92773bdc9d8a4c43bbb1d6f"
+    },
+    {
+      "bytes": 1008,
+      "corpus_offset": 1116524,
+      "path": "tests/examples_test.go",
+      "sha256": "a20cda5aae99bd2edb458cdc6cc4169988929ba66e6900987a9d8fe57a1735f2"
+    },
+    {
+      "bytes": 6761,
+      "corpus_offset": 1117532,
+      "path": "tests/exfiltration_test.go",
+      "sha256": "9886350134b8d9c294f79654cb62a58d4711e3a090f2b1e21f0828f2dd7f314e"
+    },
+    {
+      "bytes": 2758,
+      "corpus_offset": 1124293,
+      "path": "tests/init_smart_test.go",
+      "sha256": "bae6e06acd641a56bec3a5f6dbdd0fde399366997d7617cae2fe88cae6d24934"
+    },
+    {
+      "bytes": 6952,
+      "corpus_offset": 1127051,
+      "path": "tests/init_test.go",
+      "sha256": "212b46db135ba50cf92881b9a46c04e0f19ed74f560dcb63c3dda094d5af0ec8"
+    },
+    {
+      "bytes": 2263,
+      "corpus_offset": 1134003,
+      "path": "tests/lint_test.go",
+      "sha256": "9c178fee86711e745d073b7500b6446f269131b3a5f6eaa964d8df792fecb234"
+    },
+    {
+      "bytes": 2772,
+      "corpus_offset": 1136266,
+      "path": "tests/review_test.go",
+      "sha256": "c39e7ace2cc52c2e6872655c3d0dd42180b3b2a5ace1dcb95156092cc26b16cf"
+    },
+    {
+      "bytes": 2446,
+      "corpus_offset": 1139038,
+      "path": "tests/seccomp_test.go",
+      "sha256": "187af0dd4c38485b808b6185b80f700a53eef184711c466cde8370b6fdf334da"
+    },
+    {
+      "bytes": 592,
+      "corpus_offset": 1141484,
+      "path": "tests/testdata/ptraceprobe/main.go",
+      "sha256": "19322b95beb0e8750feca240763e1250014ae1f249d164633b20eb46c530d678"
+    }
+  ],
+  "read_errors": [],
+  "source_bytes": 1142076,
+  "total_bytes": 1209966,
+  "walk_order": "Go filepath.WalkDir lexical depth-first"
+}

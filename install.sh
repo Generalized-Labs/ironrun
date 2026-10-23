@@ -53,7 +53,7 @@ COSIGN_SHA256_LINUX_X86_64="caaad125acef1cb81d58dcdc454a1e429d09a750d1e9e2b3ed1a
 COSIGN_SHA256_LINUX_ARM64="bd0f9763bca54de88699c3656ade2f39c9a1c7a2916ff35601caf23a79be0629"
 
 # Expected keyless Sigstore identity: the ironrun release workflow signing
-# from a tag (see .github/workflows/release.yml).
+# from the requested tag (completed after version validation below).
 SIGSTORE_IDENTITY_REGEXP="^https://github\\.com/[Gg]eneralized-[Ll]abs/ironrun/\\.github/workflows/release\\.yml@refs/tags/"
 SIGSTORE_OIDC_ISSUER="https://token.actions.githubusercontent.com"
 
@@ -100,7 +100,7 @@ fetch() {
 check_version() {
   # Refuse anything that is not a plain release tag (it ends up in URLs).
   # End-anchored: a trailing `*` in a case pattern would admit `v1.2.3;evil`.
-  if ! printf '%s' "$1" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+  if ! printf '%s' "$1" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[-0-9A-Za-z.]+)?$'; then
     die "refusing suspicious version string: $1"
   fi
 }
@@ -233,6 +233,12 @@ if [ -z "$VERSION" ]; then
   info "latest release: $VERSION"
 fi
 check_version "$VERSION"
+
+# VERSION contains only the characters admitted above. Escape its dots for
+# RE2 and anchor the complete identity: a genuine signature from another
+# release must not authenticate a substituted archive for this version.
+VERSION_PATTERN="$(printf '%s' "$VERSION" | sed 's/\./\\./g')"
+SIGSTORE_IDENTITY_REGEXP="${SIGSTORE_IDENTITY_REGEXP}${VERSION_PATTERN}$"
 
 TARBALL="${BINARY}_${PLATFORM_KEY}.tar.gz"
 BASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"

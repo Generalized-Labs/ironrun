@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/go/bin/go",
+    "build",
+    "-o",
+    "/workspace/ironrun-product-research/fresh-pilot/eval",
+    "./paper/eval"
+  ],
+  "binary_sha256": "c2e95a3c610a675995f4699fe5cb6c8bc2ae105460e1e76ccdc39190c28bc50b",
+  "cpu_stat_after": "usage_usec 192715095\nuser_usec 153242552\nsystem_usec 39472542\nnice_usec 0\nnr_periods 29020\nnr_throttled 557\nthrottled_usec 48286743\nnr_bursts 0\nburst_usec 0",
+  "cpu_stat_before": "usage_usec 192211033\nuser_usec 152881544\nsystem_usec 39329489\nnice_usec 0\nnr_periods 29017\nnr_throttled 557\nthrottled_usec 48286743\nnr_bursts 0\nburst_usec 0",
+  "cwd": "/workspace/ironrun-product-review",
+  "end_utc": "2026-10-22T13:47:44.665092+00:00",
+  "exit_code": 0,
+  "load_average_after": [
+    0.03271484375,
+    0.162109375,
+    0.10009765625
+  ],
+  "load_average_before": [
+    0.03271484375,
+    0.162109375,
+    0.10009765625
+  ],
+  "phase": "build",
+  "start_utc": "2026-10-22T13:47:44.345722+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "wall_ns": 319299516
+}

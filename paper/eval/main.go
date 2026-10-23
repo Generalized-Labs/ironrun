@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -294,9 +295,31 @@ func runSealed(dir, value, payload string) (*runner.Result, error) {
 	}
 	var stdout, stderr bytes.Buffer
 	cmd := &policy.Command{ID: "eval", Argv: []string{"cat", f}, AllowNetwork: true}
-	return runner.Run(context.Background(), cmd, runner.Options{
+	res, err := runner.Run(context.Background(), cmd, runner.Options{
 		Stdout: &stdout, Stderr: &stderr, Secrets: map[string]string{"API_KEY": value},
 	})
+	if err := validateRun(res, err, true); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// A failed or empty probe is not evidence of successful redaction. Sentinels
+// confirm that the complete fixture passed through the child output path.
+func validateRun(res *runner.Result, runErr error, requireSentinels bool) error {
+	if runErr != nil {
+		return fmt.Errorf("execution failed: %w", runErr)
+	}
+	if res == nil {
+		return fmt.Errorf("execution returned no result")
+	}
+	if res.ExitCode != 0 {
+		return fmt.Errorf("child exited with status %d", res.ExitCode)
+	}
+	if requireSentinels && (!strings.HasPrefix(res.Stdout, "starting job\n") || !strings.HasSuffix(res.Stdout, "\ndone\n")) {
+		return fmt.Errorf("child output is missing execution sentinels")
+	}
+	return nil
 }
 
 func leakExperiment() error {
@@ -402,23 +425,44 @@ func perfExperiment() error {
 	}
 
 	// End-to-end overhead: spawning `true` directly vs. through runner.Run.
-	bin, _ := exec.LookPath("true")
+	bin, err := exec.LookPath("true")
+	if err != nil {
+		return fmt.Errorf("find overhead probe: %w", err)
+	}
 	const reps = 200
 	var direct, sealed, isolated []time.Duration
+	var isolationUnavailable error
 	sec := map[string]string{"API_KEY": "TEST-SECRET-0123456789abcdef0123"}
 	for i := 0; i < reps; i++ {
 		t := time.Now()
-		exec.Command(bin).Run()
+		if err := exec.Command(bin).Run(); err != nil {
+			return fmt.Errorf("direct probe: %w", err)
+		}
 		direct = append(direct, time.Since(t))
 		t = time.Now()
-		runner.Run(context.Background(), &policy.Command{ID: "t", Argv: []string{bin}, AllowNetwork: true}, runner.Options{Stdout: discard{}, Stderr: discard{}, Secrets: sec})
-		sealed = append(sealed, time.Since(t))
-		t = time.Now()
-		if _, err := runner.Run(context.Background(), &policy.Command{ID: "t", Argv: []string{bin}, NoNetwork: true}, runner.Options{Stdout: discard{}, Stderr: discard{}, Secrets: sec}); err == nil {
-			isolated = append(isolated, time.Since(t))
+		res, err := runner.Run(context.Background(), &policy.Command{ID: "t", Argv: []string{bin}, AllowNetwork: true}, runner.Options{Stdout: discard{}, Stderr: discard{}, Secrets: sec})
+		if err := validateRun(res, err, false); err != nil {
+			return fmt.Errorf("sealed probe: %w", err)
 		}
+		sealed = append(sealed, time.Since(t))
+		if isolationUnavailable != nil {
+			continue
+		}
+		t = time.Now()
+		res, err = runner.Run(context.Background(), &policy.Command{ID: "t", Argv: []string{bin}, NoNetwork: true}, runner.Options{Stdout: discard{}, Stderr: discard{}, Secrets: sec})
+		if errors.Is(err, runner.ErrNoNetworkUnsupported) {
+			isolationUnavailable = err
+			continue
+		}
+		if err := validateRun(res, err, false); err != nil {
+			return fmt.Errorf("isolated probe: %w", err)
+		}
+		isolated = append(isolated, time.Since(t))
 	}
-	fmt.Printf("%% spawn median: direct %v, runner %v, runner+no_network %v (n=%d)\n", median(direct), median(sealed), medianOrNA(isolated), reps)
+	fmt.Printf("%% spawn median: direct %v (n=%d), runner %v (n=%d), runner+no_network %v (n=%d)\n", median(direct), len(direct), median(sealed), len(sealed), medianOrNA(isolated), len(isolated))
+	if isolationUnavailable != nil {
+		fmt.Fprintf(os.Stderr, "isolation unavailable: %v\n", isolationUnavailable)
+	}
 	return nil
 }
 
@@ -436,10 +480,9 @@ func (discard) Write(p []byte) (int, error) { return len(p), nil }
 func main() {
 	only := flag.String("only", "", "run one experiment: leak | fp | perf")
 	flag.Parse()
-	// The runner writes operator warnings (entropy hits, etc.) to stderr; keep
-	// the table output clean.
-	if null, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0); err == nil {
-		os.Stderr = null
+	if err := validateExperiment(*only); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 	exps := []struct {
 		name string
@@ -453,5 +496,14 @@ func main() {
 			fmt.Fprintln(os.Stdout, "error:", err)
 			os.Exit(1)
 		}
+	}
+}
+
+func validateExperiment(name string) error {
+	switch name {
+	case "", "leak", "fp", "perf":
+		return nil
+	default:
+		return fmt.Errorf("unknown experiment %q: choose leak, fp, or perf", name)
 	}
 }

@@ -71,32 +71,33 @@ type Model struct {
 	access     *access.Manager
 	env        *envset.Manager
 
-	environments   []envset.Set
-	requests       []access.Request
-	leases         []access.Lease
-	trusts         []access.WorkspaceGrant
-	focus          int
-	cursor         [3]int
-	page           page
-	workspaceFocus int
-	entryCursor    int
-	actionCursor   int
-	commandCursor  int
-	proposals      []pending.Proposal
-	mode           mode
-	input          textinput.Model
-	width          int
-	height         int
-	dark           bool
-	message        string
-	isError        bool
-	pendingKey     string
-	pendingImport  []envset.DotenvEntry
-	importSelected map[int]bool
-	temporaryEnv   bool
-	showHelp       bool
-	dotenvDetected bool
-	snapshot       string
+	environments     []envset.Set
+	requests         []access.Request
+	leases           []access.Lease
+	trusts           []access.WorkspaceGrant
+	focus            int
+	cursor           [3]int
+	page             page
+	workspaceFocus   int
+	entryCursor      int
+	actionCursor     int
+	commandCursor    int
+	proposals        []pending.Proposal
+	reviewedProposal pending.Proposal
+	mode             mode
+	input            textinput.Model
+	width            int
+	height           int
+	dark             bool
+	message          string
+	isError          bool
+	pendingKey       string
+	pendingImport    []envset.DotenvEntry
+	importSelected   map[int]bool
+	temporaryEnv     bool
+	showHelp         bool
+	dotenvDetected   bool
+	snapshot         string
 }
 
 type refreshMsg struct{}
@@ -418,9 +419,9 @@ func (m *Model) updateConfirmation(msg tea.KeyPressMsg) (tea.Model, tea.Cmd) {
 		var err error
 		completedMode := m.mode
 		if completedMode == modeApproveCommand {
-			proposal := m.selectedProposal()
+			proposal := m.reviewedProposal
 			m.mode = modeNormal
-			command := exec.Command(os.Args[0], "--policy", m.policyPath, "approve", proposal.ID, "--yes")
+			command := exec.Command(os.Args[0], "--policy", m.policyPath, "approve", proposal.ID, "--yes", "--expected-digest", pending.ReviewDigest(proposal))
 			command.Dir = m.root
 			return m, tea.ExecProcess(command, func(err error) tea.Msg {
 				return actionFinishedMsg{message: "Approved command " + proposal.ID, err: err}
@@ -788,6 +789,7 @@ func (m *Model) beginPageAction() tea.Cmd {
 			return tea.ExecProcess(command, func(err error) tea.Msg { return runFinishedMsg{err: err} })
 		} else if len(m.proposals) > 0 {
 			proposal := m.selectedProposal()
+			m.reviewedProposal = proposal
 			m.mode = modeApproveCommand
 			m.message = "Approve exact argv for " + proposal.ID + " and save it to policy?"
 		}
@@ -880,6 +882,24 @@ func (m *Model) reload() error {
 		return err
 	}
 	m.proposals = append(m.proposals[:0], pendingStore.Proposals...)
+	if m.mode == modeApproveCommand {
+		found := false
+		for i, proposal := range m.proposals {
+			if proposal.ID != m.reviewedProposal.ID {
+				continue
+			}
+			if pending.ReviewDigest(proposal) == pending.ReviewDigest(m.reviewedProposal) {
+				m.commandCursor = len(m.policy.Commands) + i
+				found = true
+			}
+			break
+		}
+		if !found {
+			m.mode = modeNormal
+			m.message, m.isError = "Proposal changed since review; review it again before approving", true
+		}
+	}
+
 	if !hadPendingProposals && len(m.proposals) > 0 {
 		m.page = pageRun
 		m.commandCursor = len(m.policy.Commands)

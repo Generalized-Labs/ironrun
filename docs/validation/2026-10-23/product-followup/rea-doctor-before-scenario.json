@@ -1,0 +1,33 @@
+{
+  "executable": "/workspace/ironrun-product-tools/ironrun-onboarding-review",
+  "arguments": [
+    "doctor"
+  ],
+  "working_directory": "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9",
+  "environment": {
+    "PATH": "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9/empty-path",
+    "IRONRUN_HOME": "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9/ironrun-home",
+    "XDG_STATE_HOME": "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9/state",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9/cache"
+  },
+  "filesystem_observation_paths": [
+    "/workspace/ironrun-product-research/onboarding-probes/v2-missing-environment-8jjmq7f9"
+  ],
+  "timeout_ms": 5000,
+  "idle_timeout_ms": 5000,
+  "settle_ms": 100,
+  "limits": {
+    "output_bytes": 30000,
+    "files": 50,
+    "file_bytes": 100000,
+    "processes": 20,
+    "filesystem_depth": 6
+  },
+  "normalization": {
+    "paths": true,
+    "pids": true,
+    "ports": true,
+    "time_bucket_ms": 10,
+    "patterns": []
+  }
+}

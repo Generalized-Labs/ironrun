@@ -1,0 +1,5 @@
+% perf: secrets & patterns & MB/s (4 MiB, 32 KiB writes)
+1 & 18 & 5 \\
+10 & 180 & 3 \\
+50 & 900 & 1 \\
+% spawn median: direct 2.807486ms (n=200), runner 10.529424ms (n=200), runner+no_network 12.56173ms (n=200)

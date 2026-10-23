@@ -1,0 +1,130 @@
+{
+  "scope": "all included files except this inventory itself",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7649,
+      "sha256": "86d0d0e51b2029dbb91929b0f9899b83768e48a19c9ceb516e055f989f0a82a8"
+    },
+    {
+      "path": "bundle-build-latexmk.log",
+      "bytes": 24901,
+      "sha256": "fff27209f0388ff3f9286d0217ac696c8d9bf394566f583cf534febbcba72dcb"
+    },
+    {
+      "path": "bundle-pdflatex-pass1.log",
+      "bytes": 35975,
+      "sha256": "69f77620cbe5c12d6eb54dd703817d3583d89a1ff1d8c234d57298752e111f75"
+    },
+    {
+      "path": "bundle-pdflatex-pass2.log",
+      "bytes": 23378,
+      "sha256": "7341c0ff0ebaa0382cd25b5c150ac1ca8a9e32de495f698030ce648c836e5ac4"
+    },
+    {
+      "path": "bundle-pdflatex-pass3.log",
+      "bytes": 23378,
+      "sha256": "7341c0ff0ebaa0382cd25b5c150ac1ca8a9e32de495f698030ce648c836e5ac4"
+    },
+    {
+      "path": "bundle-pdflatex.result.json",
+      "bytes": 1041,
+      "sha256": "f48caaed03a2d72d6cf175bf9263ff7790f2477c6d63ad7ae8de611714ed56c9"
+    },
+    {
+      "path": "doctor-green-race.log",
+      "bytes": 118,
+      "sha256": "2c4ded04a2a37a46d0608dec119c82d226fa0fbbb2efa5d0d8b6353193662988"
+    },
+    {
+      "path": "doctor-padding-green-race.log",
+      "bytes": 118,
+      "sha256": "b9dd5655263700d32a1a06409874733160b54f5992246251fbf97f53bd1718fc"
+    },
+    {
+      "path": "doctor-padding-red.log",
+      "bytes": 1906,
+      "sha256": "a7a3bfe489c6e9a8740dc3b9f3c5c5668e19eee5d00ee0c4c7041a5f95dc0212"
+    },
+    {
+      "path": "doctor-red.log",
+      "bytes": 12536,
+      "sha256": "4c7459817d065188742dc5a4f599de90312b3923948024892b2baa6d00a95dcb"
+    },
+    {
+      "path": "final-race.log",
+      "bytes": 1805,
+      "sha256": "d4c9414a73ee3262edc1ea7a78fda254f3cd4659a718eac3aa88b64162f7a260"
+    },
+    {
+      "path": "final-vet.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "fixture-policy.yml",
+      "bytes": 157,
+      "sha256": "1ed7711039d6e27d7ee3035a0bf5ff7efae06d0f9a3f9db483158556c14496d2"
+    },
+    {
+      "path": "paper-build.log",
+      "bytes": 24637,
+      "sha256": "e9b10ddc238c8b913f9716811f72d02fc8ec66597b8762e64742dbc04f9a00e6"
+    },
+    {
+      "path": "paper-source.tar.gz",
+      "bytes": 39888,
+      "sha256": "f8ea044591a02b35223b76a203988c7c67ddefb10a5414f540683f3cc42b54d4"
+    },
+    {
+      "path": "rea-cleanup-failure.json",
+      "bytes": 17847,
+      "sha256": "6374d3a71751be2a88a8a8d7f6ecee88ed064fb530dc6700729a161efcb777df"
+    },
+    {
+      "path": "rea-cleanup-failure.stderr",
+      "bytes": 670,
+      "sha256": "08a3b72f22c3da2acdcea15fd147f44e01b9ea2927ed376e17f1e60f5751fa50"
+    },
+    {
+      "path": "rea-doctor-before-scenario.json",
+      "bytes": 1184,
+      "sha256": "9e7958e070ed99cedb5a876bec32fd2d62240bba7fb95f5017625e78024ab8c0"
+    },
+    {
+      "path": "rea-doctor-before.json",
+      "bytes": 15200,
+      "sha256": "77440f99b8e9f52dbb95b7efa6be547eba35e99507dc389e4f1ace5d194f4ccd"
+    },
+    {
+      "path": "rea-doctor-before.stderr",
+      "bytes": 524,
+      "sha256": "da013b4575ea5c1abe7b6b9e71777c01af0bd4a4ce1dbe5eebbe47a2f2448762"
+    },
+    {
+      "path": "rea-doctor-final-scenario.json",
+      "bytes": 1179,
+      "sha256": "550f32b3bb690875c9811751f07a55a936b7cb02f0cd2481a5eebc1cb9727714"
+    },
+    {
+      "path": "rea-doctor-final.json",
+      "bytes": 16013,
+      "sha256": "1e21ead56addbd60a0d899f66a264ffde9fabe7110f78a7eb073c45bd9d95ab0"
+    },
+    {
+      "path": "rea-doctor-final.stderr",
+      "bytes": 666,
+      "sha256": "45a2dec630681d38c82e19de6759644c921fcbaa0bb862873b3493b50eb67aea"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 8063,
+      "sha256": "b7c465e4324a507211193f65650338b3e4de7ae9d04601477f83383086cf7509"
+    },
+    {
+      "path": "tex-packages.json",
+      "bytes": 1967,
+      "sha256": "e64bb8d0fcb8f00d540934690e08a0c92fc131c9b1d0c79d0812b89551636756"
+    }
+  ]
+}

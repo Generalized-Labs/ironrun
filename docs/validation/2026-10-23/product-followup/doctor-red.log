@@ -1,0 +1,248 @@
+--- FAIL: TestDoctor_LocalEnvironmentBlockers (1.21s)
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/missing_metadata (1.14s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "environment metadata is missing":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env init dev":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/no_active_set (0.01s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "no active environment":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env use dev":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/missing_selected_set (0.01s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "environment \"staging\" is missing":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env use dev":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/expired_set (0.02s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "environment \"session\" has expired":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env use dev":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/identity_mismatch (0.01s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "project identity changed":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "recorded checkout path and Git origin":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+    --- FAIL: TestDoctor_LocalEnvironmentBlockers/missing_entries (0.01s)
+        doctor_test.go:186: doctor accepted unusable local environment:
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "command \"test\": entry \"API_TOKEN\" is not configured in \"dev\"":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env set dev API_TOKEN":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "command \"test\": entry \"DATABASE_URL\" is not configured in \"dev\"":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+        doctor_test.go:190: missing diagnostic "ironrun env set dev DATABASE_URL":
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ✓ provider passthrough (no external CLI required)
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+            
+            All checks passed.
+--- FAIL: TestDoctor_LocalMetadataChecksDoNotOpenVault (0.01s)
+    doctor_test.go:230: missing metadata-only diagnostic "selected environment \"dev\"":
+        ironrun doctor
+        
+          ✓ ironrun.yml valid (v2, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+    doctor_test.go:230: missing metadata-only diagnostic "command \"test\": required entry names are configured":
+        ironrun doctor
+        
+          ✓ ironrun.yml valid (v2, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+    doctor_test.go:230: missing metadata-only diagnostic "Secret values and vault access were not checked":
+        ironrun doctor
+        
+          ✓ ironrun.yml valid (v2, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+--- FAIL: TestDoctor_V1ActiveEnvironmentMapsAliasesToEntryNames (0.02s)
+    doctor_test.go:264: v1 alias was not checked by its stored entry name: exit=0
+        ironrun doctor
+        
+          ✓ ironrun.yml valid (v1, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+--- FAIL: TestDoctor_LocalEnvironmentUsesExplicitPolicyDirectory (0.01s)
+    doctor_test.go:276: doctor did not inspect explicit policy directory: <nil>
+        ironrun doctor
+        
+          ✓ /workspace/ironrun-product-tools/go-tmp/TestDoctor_LocalEnvironmentUsesExplicitPolicyDirectory2314032876/001/ironrun.yml valid (v2, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+--- FAIL: TestDoctor_V2WithoutEntryBindingsNeedsNoEnvironment (0.01s)
+    doctor_test.go:289: health-only v2 policy should not require a vault: exit=0
+        ironrun doctor
+        
+          ✓ ironrun.yml valid (v2, 1 command(s))
+          ✓ provider passthrough (no external CLI required)
+          ✓ redaction self-test passed
+          ✓ command "health": "/workspace/ironrun-product-tools/go-tmp/go-build2181360158/b001/tests.test" resolves
+        
+        All checks passed.
+FAIL
+FAIL	github.com/generalized-labs/ironrun/tests	3.211s
+FAIL

@@ -1,5 +1,13 @@
 # Roadmap
 
+## Current product priority
+
+Serve developers and small teams by shortening setup and clarifying approvals.
+The first approved slice is read-only local-environment validation in
+`ironrun doctor`. Next candidates are truthful per-client setup summaries and
+accurate approval deadlines, followed by observed host-flow tests. See the
+[product review](PRODUCT_REVIEW.md) for evidence, scope, and proposed measurements.
+
 ## v1.0 local GA
 
 - Global Projects and Inbox workspace.

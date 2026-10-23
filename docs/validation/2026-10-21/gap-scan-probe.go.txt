@@ -1,0 +1,25 @@
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"github.com/generalized-labs/ironrun/internal/redact"
+	"io"
+	"time"
+)
+
+func main() {
+	for _, n := range []int{8000, 16000, 32000, 64000} {
+		input := bytes.Repeat([]byte{'\n'}, n)
+		w := redact.New(io.Discard, []string{"\npassword"}, 0)
+		t := time.Now()
+		_, err := w.Write(input)
+		if err != nil {
+			panic(err)
+		}
+		if err = w.Flush(); err != nil {
+			panic(err)
+		}
+		fmt.Printf("N=%d elapsed=%s\n", n, time.Since(t))
+	}
+}

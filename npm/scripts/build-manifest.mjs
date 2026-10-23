@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import { artifactNames, validateReleaseManifest } from "../lib/manifest.js";
 
 const version = process.argv[2]?.replace(/^v/, "");
 const dist = resolve(process.argv[3] ?? "dist");
@@ -11,20 +12,13 @@ const packagePath = new URL("../package.json", import.meta.url);
 const manifestPath = new URL("../manifest.json", import.meta.url);
 const pkg = JSON.parse(await readFile(packagePath, "utf8"));
 pkg.version = version;
-await writeFile(packagePath, JSON.stringify(pkg, null, 2) + "\n");
 
 const checksums = new Map((await readFile(join(dist, "checksums.txt"), "utf8")).trim().split("\n").map((line) => {
   const [hash, filename] = line.trim().split(/\s+/, 2);
   return [filename, hash];
 }));
-const names = {
-  "darwin-x64": "ironrun_Darwin_x86_64.tar.gz",
-  "darwin-arm64": "ironrun_Darwin_arm64.tar.gz",
-  "linux-x64": "ironrun_Linux_x86_64.tar.gz",
-  "linux-arm64": "ironrun_Linux_arm64.tar.gz"
-};
 const artifacts = {};
-for (const [key, filename] of Object.entries(names)) {
+for (const [key, filename] of Object.entries(artifactNames)) {
   const archive = join(dist, filename);
   const expected = checksums.get(filename);
   if (!expected) throw new Error(`checksums.txt is missing ${filename}`);
@@ -47,4 +41,7 @@ for (const [key, filename] of Object.entries(names)) {
     await rm(directory, { recursive: true, force: true });
   }
 }
-await writeFile(manifestPath, JSON.stringify({ version, artifacts }, null, 2) + "\n");
+const manifest = { version, artifacts };
+validateReleaseManifest(pkg, manifest);
+await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+await writeFile(packagePath, JSON.stringify(pkg, null, 2) + "\n");
