@@ -159,7 +159,7 @@ func registerCodex() mcpRegistrationResult {
 	}
 	trimmed := bytes.TrimSpace(listOut)
 	if len(trimmed) == 0 || trimmed[0] != '[' || json.Unmarshal(trimmed, &servers) != nil {
-		result.err = fmt.Errorf("Codex returned an unrecognized server list; configuration was not changed")
+		result.err = fmt.Errorf("unrecognized Codex server list; configuration was not changed")
 		return result
 	}
 	seen := make(map[string]bool, len(servers))
@@ -167,7 +167,7 @@ func registerCodex() mcpRegistrationResult {
 		validTransport := server.Transport.Type == "stdio" && server.Transport.Command != "" ||
 			server.Transport.Type == "streamable_http" && server.Transport.URL != ""
 		if strings.TrimSpace(server.Name) == "" || seen[server.Name] || server.Enabled == nil || !validTransport {
-			result.err = fmt.Errorf("Codex returned an unrecognized server record; configuration was not changed")
+			result.err = fmt.Errorf("unrecognized Codex server record; configuration was not changed")
 			return result
 		}
 		seen[server.Name] = true

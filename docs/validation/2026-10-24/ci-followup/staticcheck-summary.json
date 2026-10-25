@@ -1,0 +1,24 @@
+{
+  "go_version": "go version go1.26.10 linux/amd64",
+  "staticcheck_version": "staticcheck 2026.2.2 (0.8.2)",
+  "binary": "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+  "binary_sha256": "afcc5b32d6d58afa86cfde53b3ef890ea4724676ff90eba4451d2f7a79f26517",
+  "checked_source_sha256": "8483a14be0d24e65b712df06a7e512e962b2345a5d8f8b143e341116ab921069",
+  "exit_code": 0,
+  "scope": "staticcheck ./... on current working tree; no full Go test suite run",
+  "commands": "staticcheck-commands.json",
+  "dependency_provenance": "Pinned v0.8.2 via Go module proxy and checksum database; build info and installation stderr retained.",
+  "preceding_attempt": "initial-cache-failure: staticcheck could not create its default cache in read-only /home/agent/.cache; retained separately, then rerun with XDG_CACHE_HOME in writable evidence directory.",
+  "environment_overrides": {
+    "PATH": "/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/ironrun-product-tools/gopath",
+    "GOMODCACHE": "/workspace/ironrun-product-tools/go-modules",
+    "GOCACHE": "/workspace/ironrun-product-tools/go-cache",
+    "GOTMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "TMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "GOBIN": "/workspace/ironrun-product-tools/lint-bin",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261024/ci-followup/cache",
+    "GOFLAGS": "-buildvcs=false",
+    "GOTOOLCHAIN": "local"
+  }
+}

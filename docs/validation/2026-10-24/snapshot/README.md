@@ -9,5 +9,8 @@ their observed hashes; their presence is not implied in this compact archive.
 `verify_outputs.py` needs the original full outputs to repeat those checks.
 
 `artifact-manifest.json` hashes files actually retained here. The original
-build inputs include an earlier README than the final documentation corrections;
-the Go runtime inputs are unchanged. No tagged or signed release was produced.
+build inputs include an earlier README than the final documentation corrections.
+After these builds, CI required rewording two setup errors to begin in lowercase;
+the snapshots precede that message-only change. See `../ci-followup/` for the
+exact patch, final source identity, and verification. No tagged or signed release
+was produced.

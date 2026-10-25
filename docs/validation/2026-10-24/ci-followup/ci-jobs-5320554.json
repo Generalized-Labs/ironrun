@@ -1,0 +1,845 @@
+{
+  "total_count": 8,
+  "jobs": [
+    {
+      "id": 121292997145,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBCGQ",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997145",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997145",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:14:16Z",
+      "name": "Security — stdout redaction",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:41Z"
+        },
+        {
+          "name": "Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:41Z",
+          "completed_at": "2026-10-25T21:13:41Z"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:41Z",
+          "completed_at": "2026-10-25T21:13:55Z"
+        },
+        {
+          "name": "Build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:55Z",
+          "completed_at": "2026-10-25T21:14:12Z"
+        },
+        {
+          "name": "Write test policy",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:14:12Z",
+          "completed_at": "2026-10-25T21:14:12Z"
+        },
+        {
+          "name": "Run redaction test",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:14:12Z",
+          "completed_at": "2026-10-25T21:14:12Z"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:14:12Z",
+          "completed_at": "2026-10-25T21:14:12Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:14:12Z",
+          "completed_at": "2026-10-25T21:14:12Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:14:13Z",
+          "completed_at": "2026-10-25T21:14:13Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997145",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002420,
+      "runner_name": "GitHub Actions 1000002420",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997323,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBCyw",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997323",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997323",
+      "status": "completed",
+      "conclusion": "failure",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:14:37Z",
+      "name": "Lint",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:39Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:53Z"
+        },
+        {
+          "name": "Release verification regression tests",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:53Z",
+          "completed_at": "2026-10-25T21:13:57Z"
+        },
+        {
+          "name": "gofmt",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:57Z",
+          "completed_at": "2026-10-25T21:13:57Z"
+        },
+        {
+          "name": "go vet",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:13:57Z",
+          "completed_at": "2026-10-25T21:14:16Z"
+        },
+        {
+          "name": "go staticcheck",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 7,
+          "started_at": "2026-10-25T21:14:16Z",
+          "completed_at": "2026-10-25T21:14:34Z"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13,
+          "started_at": "2026-10-25T21:14:34Z",
+          "completed_at": "2026-10-25T21:14:34Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:14:34Z",
+          "completed_at": "2026-10-25T21:14:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:14:34Z",
+          "completed_at": "2026-10-25T21:14:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997323",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002422,
+      "runner_name": "GitHub Actions 1000002422",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997335,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBC1w",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997335",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997335",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:14:02Z",
+      "name": "Security — govulncheck",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:39Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:41Z"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:41Z",
+          "completed_at": "2026-10-25T21:13:54Z"
+        },
+        {
+          "name": "govulncheck",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:54Z",
+          "completed_at": "2026-10-25T21:13:58Z"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:13:58Z",
+          "completed_at": "2026-10-25T21:13:58Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8,
+          "started_at": "2026-10-25T21:13:58Z",
+          "completed_at": "2026-10-25T21:13:58Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9,
+          "started_at": "2026-10-25T21:13:58Z",
+          "completed_at": "2026-10-25T21:13:58Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997335",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002421,
+      "runner_name": "GitHub Actions 1000002421",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997339,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBC2w",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997339",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997339",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:13:48Z",
+      "name": "npm launcher (Node 24)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:39Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:41Z"
+        },
+        {
+          "name": "Test verified launcher",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:41Z",
+          "completed_at": "2026-10-25T21:13:43Z"
+        },
+        {
+          "name": "Test proxy download transport",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:43Z",
+          "completed_at": "2026-10-25T21:13:44Z"
+        },
+        {
+          "name": "Verify publish contents",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:13:44Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        },
+        {
+          "name": "Install packed tarball",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:13:45Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:13:45Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:13:45Z",
+          "completed_at": "2026-10-25T21:13:46Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:13:46Z",
+          "completed_at": "2026-10-25T21:13:46Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997339",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002423,
+      "runner_name": "GitHub Actions 1000002423",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997382,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBDBg",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997382",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997382",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:38Z",
+      "completed_at": "2026-10-25T21:16:46Z",
+      "name": "Test (ubuntu-latest)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:54Z"
+        },
+        {
+          "name": "Build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:54Z",
+          "completed_at": "2026-10-25T21:14:11Z"
+        },
+        {
+          "name": "Test (race detector)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:14:11Z",
+          "completed_at": "2026-10-25T21:16:41Z"
+        },
+        {
+          "name": "Upload coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:16:41Z",
+          "completed_at": "2026-10-25T21:16:43Z"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:16:43Z",
+          "completed_at": "2026-10-25T21:16:43Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:16:43Z",
+          "completed_at": "2026-10-25T21:16:43Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:16:43Z",
+          "completed_at": "2026-10-25T21:16:43Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997382",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002425,
+      "runner_name": "GitHub Actions 1000002425",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997394,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBDEg",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997394",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997394",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:13:52Z",
+      "name": "npm launcher (Node 20)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:39Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        },
+        {
+          "name": "Test verified launcher",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:45Z",
+          "completed_at": "2026-10-25T21:13:47Z"
+        },
+        {
+          "name": "Test proxy download transport",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:47Z",
+          "completed_at": "2026-10-25T21:13:48Z"
+        },
+        {
+          "name": "Verify publish contents",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:13:48Z",
+          "completed_at": "2026-10-25T21:13:48Z"
+        },
+        {
+          "name": "Install packed tarball",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:13:48Z",
+          "completed_at": "2026-10-25T21:13:49Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:13:49Z",
+          "completed_at": "2026-10-25T21:13:49Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:13:49Z",
+          "completed_at": "2026-10-25T21:13:49Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:13:49Z",
+          "completed_at": "2026-10-25T21:13:49Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997394",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002424,
+      "runner_name": "GitHub Actions 1000002424",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997395,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBDEw",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997395",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997395",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:38Z",
+      "completed_at": "2026-10-25T21:14:58Z",
+      "name": "Test (macos-latest)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:41Z",
+          "completed_at": "2026-10-25T21:13:43Z"
+        },
+        {
+          "name": "Enable unprivileged network namespaces (ubuntu 24.04+ AppArmor restriction breaks CLONE_NEWNET)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:43Z",
+          "completed_at": "2026-10-25T21:13:43Z"
+        },
+        {
+          "name": "Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:43Z",
+          "completed_at": "2026-10-25T21:14:20Z"
+        },
+        {
+          "name": "Build",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:14:20Z",
+          "completed_at": "2026-10-25T21:14:24Z"
+        },
+        {
+          "name": "Test (race detector)",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:14:24Z",
+          "completed_at": "2026-10-25T21:14:52Z"
+        },
+        {
+          "name": "Upload coverage",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-10-25T21:14:52Z",
+          "completed_at": "2026-10-25T21:14:52Z"
+        },
+        {
+          "name": "Post Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:14:52Z",
+          "completed_at": "2026-10-25T21:14:53Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:14:53Z",
+          "completed_at": "2026-10-25T21:14:53Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:14:53Z",
+          "completed_at": "2026-10-25T21:14:55Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997395",
+      "labels": [
+        "macos-latest"
+      ],
+      "runner_id": 1000002429,
+      "runner_name": "GitHub Actions 1000002429",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    },
+    {
+      "id": 121292997459,
+      "run_id": 40234480450,
+      "workflow_name": "CI",
+      "head_branch": "launch/readiness-arxiv-review",
+      "run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/runs/40234480450",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOS6EVeM8AAAAcPaBDUw",
+      "head_sha": "5320554323194d4c481a17eb2e8cb75f1a226914",
+      "url": "https://api.github.com/repos/Generalized-Labs/ironrun/actions/jobs/121292997459",
+      "html_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/40234480450/job/121292997459",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-25T21:13:35Z",
+      "started_at": "2026-10-25T21:13:37Z",
+      "completed_at": "2026-10-25T21:13:46Z",
+      "name": "npm launcher (Node 22)",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-25T21:13:38Z",
+          "completed_at": "2026-10-25T21:13:39Z"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-25T21:13:39Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:40Z"
+        },
+        {
+          "name": "Test verified launcher",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-25T21:13:40Z",
+          "completed_at": "2026-10-25T21:13:42Z"
+        },
+        {
+          "name": "Test proxy download transport",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-25T21:13:42Z",
+          "completed_at": "2026-10-25T21:13:43Z"
+        },
+        {
+          "name": "Verify publish contents",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-25T21:13:43Z",
+          "completed_at": "2026-10-25T21:13:44Z"
+        },
+        {
+          "name": "Install packed tarball",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7,
+          "started_at": "2026-10-25T21:13:44Z",
+          "completed_at": "2026-10-25T21:13:44Z"
+        },
+        {
+          "name": "Post Run actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-25T21:13:44Z",
+          "completed_at": "2026-10-25T21:13:44Z"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 14,
+          "started_at": "2026-10-25T21:13:44Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 15,
+          "started_at": "2026-10-25T21:13:45Z",
+          "completed_at": "2026-10-25T21:13:45Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/Generalized-Labs/ironrun/check-runs/121292997459",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000002426,
+      "runner_name": "GitHub Actions 1000002426",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}

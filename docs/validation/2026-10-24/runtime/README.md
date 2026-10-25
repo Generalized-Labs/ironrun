@@ -4,7 +4,9 @@ These records cover the setup-preservation and workspace-request-message repairs
 in the working tree based on `bccf7547280804c8cef915a3510b099c99e38cfd`.
 The base commit does **not** contain these repairs. `source-manifest.json` hashes
 202 selected source/configuration files, including the new registration helper
-and its tests. The final PR commit should be used together with these hashes.
+and its tests. These bytes were delivered in `5320554`. A later two-message
+wording correction for staticcheck is identified separately in `../ci-followup/`;
+the original tested source hashes and raw logs here remain unchanged.
 
 All recorded commands used synthetic fixtures and no project credentials. The
 full Go run used Go 1.26.10 on Linux amd64, with `GITHUB_ACTIONS=false` and

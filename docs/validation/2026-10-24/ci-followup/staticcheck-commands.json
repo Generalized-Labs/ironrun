@@ -1,0 +1,76 @@
+[
+  {
+    "argv": [
+      "/workspace/ironrun-product-tools/go/bin/go",
+      "version"
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "started_at_utc": "2026-10-25T21:17:41.824557+00:00",
+    "elapsed_seconds": 0.003389055000297958,
+    "exit_code": 0,
+    "stdout": "go-version.stdout.txt",
+    "stderr": "go-version.stderr.txt",
+    "overrides": {}
+  },
+  {
+    "argv": [
+      "/workspace/ironrun-product-tools/go/bin/go",
+      "install",
+      "honnef.co/go/tools/cmd/staticcheck@v0.8.2"
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "started_at_utc": "2026-10-25T21:17:41.828348+00:00",
+    "elapsed_seconds": 0.6462048999983381,
+    "exit_code": 0,
+    "stdout": "staticcheck-install.stdout.txt",
+    "stderr": "staticcheck-install.stderr.txt",
+    "overrides": {
+      "GOPROXY": "https://proxy.golang.org",
+      "GOSUMDB": "sum.golang.org"
+    }
+  },
+  {
+    "argv": [
+      "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+      "-version"
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "started_at_utc": "2026-10-25T21:17:42.474893+00:00",
+    "elapsed_seconds": 0.009800523001104011,
+    "exit_code": 0,
+    "stdout": "staticcheck-version.stdout.txt",
+    "stderr": "staticcheck-version.stderr.txt",
+    "overrides": {}
+  },
+  {
+    "argv": [
+      "/workspace/ironrun-product-tools/go/bin/go",
+      "version",
+      "-m",
+      "/workspace/ironrun-product-tools/lint-bin/staticcheck"
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "started_at_utc": "2026-10-25T21:17:42.485005+00:00",
+    "elapsed_seconds": 0.0029454069990606513,
+    "exit_code": 0,
+    "stdout": "staticcheck-build-info.stdout.txt",
+    "stderr": "staticcheck-build-info.stderr.txt",
+    "overrides": {}
+  },
+  {
+    "argv": [
+      "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+      "./..."
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "started_at_utc": "2026-10-25T21:17:42.488107+00:00",
+    "elapsed_seconds": 13.102061556999615,
+    "exit_code": 0,
+    "stdout": "staticcheck-final.stdout.txt",
+    "stderr": "staticcheck-final.stderr.txt",
+    "overrides": {
+      "GOPROXY": "off",
+      "GOSUMDB": "off"
+    }
+  }
+]

@@ -1,0 +1,166 @@
+{
+  "algorithm": "sha256",
+  "scope": "Selected retained files; excludes this manifest itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1427,
+      "sha256": "00f54a26c9916eb86dfb979e3d8f04c7e84b0482c0039fd31300a8b9e48638a8"
+    },
+    {
+      "path": "ci-jobs-5320554.json",
+      "bytes": 30034,
+      "sha256": "9ff2153f968cae374c516deb889b3d64d6241dc401bb21e489b928e52bfee08d"
+    },
+    {
+      "path": "go-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "go-version.stdout.txt",
+      "bytes": 33,
+      "sha256": "4e0b213cba780f63b02f3ab9001ee61e4101d254e0af1a8205574c19dad0f93b"
+    },
+    {
+      "path": "initial-cache-failure/go-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial-cache-failure/go-version.stdout.txt",
+      "bytes": 33,
+      "sha256": "4e0b213cba780f63b02f3ab9001ee61e4101d254e0af1a8205574c19dad0f93b"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-build-info.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-build-info.stdout.txt",
+      "bytes": 855,
+      "sha256": "e3e65ee2cd6b44f9cf6a588be58b3bc8d2f864104bb395f8cda407367fb7b825"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-commands.json",
+      "bytes": 2193,
+      "sha256": "23aeb99589ad71bb975a8f14ae68bd9df1f5e91e78bc2a468baf0bccef1577c7"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-final.stderr.txt",
+      "bytes": 148,
+      "sha256": "8f4fba4f17beaa9fb2606b01913e8ac3a229e2c931a83cc84a32b6526df698ec"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-final.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-install.stderr.txt",
+      "bytes": 353,
+      "sha256": "185f2b0e40b2ab9f744427fe04b11b1bd572de883b834711e8094db6ed65a8fc"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "initial-cache-failure/staticcheck-version.stdout.txt",
+      "bytes": 29,
+      "sha256": "129e8482ea7967a9991755f5236f4613081e8b49c8ac47acd416013ae6a4a658"
+    },
+    {
+      "path": "lint-failure-5320554.log",
+      "bytes": 20900,
+      "sha256": "b1383ceb3a27e77fbfe1ca309148c7875db60c3f3ee5bdc992a57c1718a5efcd"
+    },
+    {
+      "path": "run_staticcheck.py",
+      "bytes": 3375,
+      "sha256": "c5d5ebde96d010d6beb98440ecc8fbed475d346592f45fe4afb309ecdf204c8b"
+    },
+    {
+      "path": "setup-race.log",
+      "bytes": 114,
+      "sha256": "2993dca07c3708550cf6f7d5f518092391cc34d583c7cde71b3483a08a098113"
+    },
+    {
+      "path": "setup-race.result.json",
+      "bytes": 337,
+      "sha256": "a62035a1e015860ecb422f71a77f00882eebba05b8ce3cc1f870c3b53f0a9dbd"
+    },
+    {
+      "path": "source-followup.json",
+      "bytes": 1102,
+      "sha256": "63053ec5a9fc34ea1e747d58fbd757cf473a9de3da73e1ca6209d5c28e57b214"
+    },
+    {
+      "path": "staticcheck-README.md",
+      "bytes": 1316,
+      "sha256": "f7a55cb17c1b37923232d43e8517db5826dfbbba27176f4983541815297cd2cd"
+    },
+    {
+      "path": "staticcheck-build-info.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-build-info.stdout.txt",
+      "bytes": 855,
+      "sha256": "e3e65ee2cd6b44f9cf6a588be58b3bc8d2f864104bb395f8cda407367fb7b825"
+    },
+    {
+      "path": "staticcheck-commands.json",
+      "bytes": 2192,
+      "sha256": "6d9fe25c7e6c7366bc8c14bcd9d4c36f91500c7e53503137edc08d4cb2347ee7"
+    },
+    {
+      "path": "staticcheck-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-final.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-install.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-install.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-summary.json",
+      "bytes": 1482,
+      "sha256": "6334bc033443f912aac3963f262bad6e5207e7af63cc12755659de325b8147bd"
+    },
+    {
+      "path": "staticcheck-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck-version.stdout.txt",
+      "bytes": 29,
+      "sha256": "129e8482ea7967a9991755f5236f4613081e8b49c8ac47acd416013ae6a4a658"
+    },
+    {
+      "path": "wording.patch.txt",
+      "bytes": 1241,
+      "sha256": "b7126cc248bae2c65041f7914fc4121c9ea4d7012c0fc0e8c87361002caca73b"
+    }
+  ]
+}

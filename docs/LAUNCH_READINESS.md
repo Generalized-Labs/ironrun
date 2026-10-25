@@ -50,7 +50,7 @@ before preview publication. Stable-release product gates remain open separately.
 | Check | Result and scope |
 | --- | --- |
 | Go 1.26.10 full race suite | All packages pass on Linux amd64; namespace tests ran outside the filesystem sandbox with synthetic values |
-| Vet and staticcheck | Current local vet passes; staticcheck passed in CI at `bccf754` before this setup follow-up; inspect the PR for the new head |
+| Vet and staticcheck | Vet passes; pinned staticcheck 0.8.2 passes locally after two error-message wording corrections required by CI; inspect the PR for new-head remote results |
 | Govulncheck 1.9.0 | Zero reachable vulnerabilities; one advisory remains in a required module outside imported/called code |
 | Focused concurrency tests | Vault initialization, immutable concurrent proposals, stale approval digests, and dashboard refresh behavior pass under the race detector |
 | Actual MCP race probe | Both conflicting proposals accepted in 23/30 pre-fix pairs, 0/30 after repair; illustrative executions, not a statistical security bound |
@@ -93,8 +93,9 @@ The [October 24 evidence](validation/2026-10-24/README.md) records the new setup
 and deadline regressions, full race/vet and release tests, REA captures, two
 four-platform snapshots with SBOMs, final manuscript checks, and citation
 resolutions. Source hashes bind dirty tested files rather than relying on the
-embedded base commit. Snapshot archives include their recorded README bytes,
-which precede the final documentation-only corrections.
+embedded base commit. Snapshot archives include their recorded inputs, which
+precede the final documentation corrections and two setup-error wording edits;
+the CI follow-up records that small source difference explicitly.
 
 ## Review scope
 

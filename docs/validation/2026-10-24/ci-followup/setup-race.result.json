@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./cmd/ironrun",
+    "./tests",
+    "-run",
+    "TestMCPRegistration|TestInit_"
+  ],
+  "exit_code": 0,
+  "scope": "Focused setup regressions after only two error-message wording changes; permission checks may skip root, with prior UID1000 REA preserved separately."
+}

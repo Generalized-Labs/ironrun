@@ -13,9 +13,12 @@ builds from both working sources and an extracted three-file arXiv bundle.
 | [citations](citations/RESOLUTIONS.md) | All 82 cited references reviewed in context, original findings preserved, final manuscript corrections hashed; excerpt/metadata review, not external experiment replication |
 | [overlap](overlap/README.md) | Reproducible 22/23-byte residual overlap example; disproves a universal eleven-byte bound without changing matcher policy |
 | [paper](paper/README.md) | Final 14-page PDF/source identities, 1,815-character synchronized ASCII abstract, three-pass pdflatex-only bundle check and visual review |
+| [ci-followup](ci-followup/README.md) | CI identified two capitalized error-message openings; wording-only patch, focused race regressions, pinned staticcheck, exact updated source identity |
 
 Base HEAD `bccf754` precedes these uncommitted repairs. Per-file manifests identify
 the tested runtime and final manuscript; an embedded base commit alone does not.
+The principal evidence was delivered in `5320554`; the later staticcheck wording
+fix has its own source/status record rather than rewriting earlier measurements.
 The earlier leakage and performance measurements retain their own pinned
 sources and frozen inputs under the October 21–22 archives. No new performance
 benchmark or human usability result is claimed here.

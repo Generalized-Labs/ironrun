@@ -1,11 +1,11 @@
 {
   "algorithm": "sha256",
-  "scope": "All files retained in this subdirectory except this manifest itself.",
+  "scope": "Selected retained files; excludes this manifest itself.",
   "files": [
     {
       "path": "README.md",
-      "bytes": 819,
-      "sha256": "5a8a417ca52ee6aa8f2ebe04b3248335c14001454aa2dfa01df84781e4c3e40e"
+      "bytes": 996,
+      "sha256": "5aaadd50efa50f71da8a13e6e93cfcd4b36fa22dd69630d07b360cd400725efa"
     },
     {
       "path": "REPORT.md",
