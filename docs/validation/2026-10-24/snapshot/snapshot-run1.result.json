@@ -1,0 +1,23 @@
+{
+  "name": "snapshot-run1",
+  "command": [
+    "/workspace/ironrun-product-tools/release-bin/goreleaser",
+    "release",
+    "--config",
+    "/workspace/ironrun-product-research/launch-20261024/snapshot/config-run1.yml",
+    "--snapshot",
+    "--clean",
+    "--skip=before,sign,publish",
+    "--parallelism=2",
+    "--timeout=20m"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "start_utc": "2026-10-24T06:35:41.796569+00:00",
+  "end_utc": "2026-10-24T06:47:16.299931+00:00",
+  "wall_ns": 694503547096,
+  "exit_code": 0,
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_bytes": 2740,
+  "stderr_sha256": "033630998e1c34f3a268559937c8f63b9652be5cf60855e461382f16ae18f92c"
+}

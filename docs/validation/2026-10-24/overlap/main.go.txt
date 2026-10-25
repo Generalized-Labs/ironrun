@@ -1,0 +1,11 @@
+package main
+import("bytes";"encoding/json";"os")
+func main(){
+ values:=[]string{"prefix-X","Xabcdefghijklmnopqrstuv"}
+ pats:=[]string{};for _,s:=range values{pats=append(pats,s);pats=append(pats,Encodings(s,8)...)}
+ input:=[]byte("prefix-Xabcdefghijklmnopqrstuv")
+ var batch,stream bytes.Buffer
+ b:=New(&batch,pats,0);b.Write(input);b.Flush()
+ s:=New(&stream,pats,0);for _,c:=range input{s.Write([]byte{c})};s.Flush()
+ json.NewEncoder(os.Stdout).Encode(map[string]any{"values":values,"second_value_bytes":len(values[1]),"output":batch.String(),"second_value_contiguous_residual_bytes":22,"chunked_equal":batch.String()==stream.String()})
+}

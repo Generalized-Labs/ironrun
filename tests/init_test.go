@@ -216,6 +216,7 @@ func TestInit_MergesExistingMcpJson(t *testing.T) {
     "other": { "command": "other-server", "args": ["serve"] }
   }
 }
+
 `
 	if err := os.WriteFile(filepath.Join(dir, ".mcp.json"), []byte(existing), 0644); err != nil {
 		t.Fatal(err)
@@ -243,5 +244,93 @@ func TestInit_MergesExistingMcpJson(t *testing.T) {
 	}
 	if _, ok := servers["ironrun"]; !ok {
 		t.Errorf("ironrun was not added to existing .mcp.json\ncontent:\n%s", data)
+	}
+}
+
+func TestInit_RegistrationSummaryMatchesObservedResults(t *testing.T) {
+	for _, tc := range []struct {
+		name       string
+		list       string
+		listFails  bool
+		addFails   bool
+		wantAdd    bool
+		wantStatus string
+	}{
+		{"inspection failure", "", true, false, false, "Codex: needs attention"},
+		{"invalid list", `null`, false, false, false, "Codex: needs attention"},
+		{"null list entry", `[null]`, false, false, false, "Codex: needs attention"},
+		{"empty list entry", `[{}]`, false, false, false, "Codex: needs attention"},
+		{"missing record fields", `[{"name":"other"}]`, false, false, false, "Codex: needs attention"},
+		{"add failure", `[]`, false, true, true, "Codex: needs attention"},
+		{"substring is not registration", `[{"name":"other-ironrun-helper","enabled":true,"transport":{"type":"stdio","command":"other-server","args":["serve"]}}]`, false, false, true, "Codex: configuration written"},
+		{"custom registration", `[{"name":"ironrun","enabled":true,"transport":{"type":"stdio","command":"custom-server","args":["serve"]}}]`, false, false, false, "Codex: needs inspection"},
+		{"disabled registration", `[{"name":"ironrun","enabled":false,"transport":{"type":"stdio","command":"ironrun","args":["mcp"]}}]`, false, false, false, "Codex: needs inspection"},
+		{"recognized registration", `[{"name":"ironrun","enabled":true,"transport":{"type":"stdio","command":"ironrun","args":["mcp"]}}]`, false, false, false, "Codex: configuration recognized"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			binDir := filepath.Join(dir, "fake-bin")
+			if err := os.Mkdir(binDir, 0700); err != nil {
+				t.Fatal(err)
+			}
+			logPath := filepath.Join(dir, "codex-add.log")
+			body := "#!/bin/sh\ncase \"$1 $2\" in\n'mcp list')\n"
+			if tc.listFails {
+				body += "exit 1\n"
+			} else {
+				body += "printf '%s\\n' '" + tc.list + "'\n"
+			}
+			body += ";;\n'mcp add') printf 'added\\n' > '" + logPath + "'\n"
+			if tc.addFails {
+				body += "exit 1\n"
+			}
+			body += ";;\nesac\n"
+			if err := os.WriteFile(filepath.Join(binDir, "codex"), []byte(body), 0700); err != nil {
+				t.Fatal(err)
+			}
+			home := filepath.Join(dir, "fake-home")
+			if err := os.Mkdir(home, 0700); err != nil {
+				t.Fatal(err)
+			}
+			cmd := exec.Command(buildBinary(t), "setup", "--yes")
+			cmd.Dir = dir
+			cmd.Env = append(os.Environ(), "HOME="+home, "IRONRUN_HOME="+filepath.Join(home, "ironrun"), "PATH="+binDir)
+			out, err := cmd.CombinedOutput()
+			if err != nil {
+				t.Fatalf("optional registration failure should preserve core setup success: %v\n%s", err, out)
+			}
+			_, statErr := os.Stat(logPath)
+			if added := statErr == nil; added != tc.wantAdd {
+				t.Errorf("Codex registration mutation: got added=%v want %v\n%s", added, tc.wantAdd, out)
+			}
+			if !strings.Contains(string(out), tc.wantStatus) {
+				t.Errorf("missing accurate status %q:\n%s", tc.wantStatus, out)
+			}
+			if strings.Contains(string(out), "via MCP automatically") || strings.Contains(string(out), "registered above") {
+				t.Errorf("setup claimed an unverified host connection:\n%s", out)
+			}
+		})
+	}
+}
+
+func TestInit_MissingCodexIsNotReportedRegistered(t *testing.T) {
+	dir := t.TempDir()
+	emptyPath := filepath.Join(dir, "empty-path")
+	if err := os.Mkdir(emptyPath, 0700); err != nil {
+		t.Fatal(err)
+	}
+	home := filepath.Join(dir, "fake-home")
+	if err := os.Mkdir(home, 0700); err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.Command(buildBinary(t), "setup", "--yes")
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "HOME="+home, "IRONRUN_HOME="+filepath.Join(home, "ironrun"), "PATH="+emptyPath)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("core setup failed: %v\n%s", err, out)
+	}
+	if !strings.Contains(string(out), "Codex: CLI unavailable") || strings.Contains(string(out), "registered above") || strings.Contains(string(out), "via MCP automatically") {
+		t.Fatalf("unavailable Codex summary is misleading:\n%s", out)
 	}
 }

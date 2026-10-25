@@ -83,7 +83,7 @@ An encrypted capsule can carry ciphertext through chat, bound to the project,
 session, request, alias, expiry, and one-time use. Its keys and plaintext must
 remain outside the agent-visible interface.
 
-Authorization has four modes:
+Authorization and continuation work as follows:
 
 - Strict commands specify approved argv and required secrets. Proposals can add
   commands only after human approval.
@@ -106,7 +106,7 @@ Strict-mode deployments must protect those inputs through the host boundary.
 
 The vault keeps a random root key in the OS credential manager. Each environment
 write uses a fresh data key; AES-256-GCM encrypts the scope data and wraps that
-key. Authenticated additional data binds ciphertext to its version, purpose,
+key. Additional authenticated data (AAD) binds ciphertext to its version, purpose,
 project, and scope, so moving ciphertext between contexts fails verification.
 An HMAC covers the manifest. Temp-write, fsync, rename, and directory fsync aim to
 make updates durable without partially written state.
@@ -142,6 +142,9 @@ Linux network isolation uses user/network namespaces; macOS uses an absolute
 refuses execution. Linux sealed execution also applies syscall restrictions and
 core-dump controls. A failed setup must prevent the protected command from
 starting rather than silently remove a requested control.
+The Linux syscall filter and core-dump seal are not implemented on macOS.
+Network isolation also leaves writable files and local IPC outside its boundary;
+those channels need host-level controls.
 
 Timeout, cancellation, and normal completion trigger process-group cleanup.
 Descendants that detach with `setsid` can escape the original group. The current
@@ -149,18 +152,20 @@ mechanism therefore does not establish complete descendant-tree containment.
 macOS runtime support also needs actual platform tests; successful cross-builds
 do not exercise Seatbelt behavior.
 
-Audit records include command metadata, secret names/kinds, scrubbed argv,
+When auditing is enabled and appends succeed, records include command metadata, secret names/kinds, scrubbed argv,
 redaction counts, exit status, and sandbox outcome. Each record hashes the previous
-record's hash. Verification detects broken links, edits, and reordering. Without
-an independently anchored latest head, deleting the tail leaves a shorter valid
-chain. Likewise, a manifest MAC cannot distinguish current state from a valid
-older vault copy. Accountability has an integrity boundary as well as a format.
+record's hash. Opening the logger verifies existing links; a long-lived server
+does not replay the chain before each run. Later append/sync failures warn and
+do not fail the command. The chain detects inconsistent edits when hashes are
+not recomputed, but a file owner can rewrite and rehash it or truncate its tail.
+A vault manifest MAC authenticates data under its key but cannot distinguish
+current state from a valid older copy. Stronger history guarantees require an
+independently protected anchor and monotonic state.
 
 ## Implementation and distribution
 
-The implementation is Go, built as a static binary for Linux/macOS on amd64/arm64.
-The manuscript's code-size counts describe its reported implementation snapshot;
-new fixes and tests change those counts. Windows is unsupported.
+The implementation is Go, with release binaries built using `CGO_ENABLED=0` for
+Linux/macOS on amd64/arm64. Windows is unsupported.
 
 Release checksums and Sigstore bundles address distribution integrity. The
 installer and GitHub Action verify both; the npm launcher verifies archive and
@@ -176,7 +181,7 @@ the original finding-to-commit records are unavailable. Four case studies link
 current regression tests to source commit `a4ab72e`; they establish current
 behavior and do not claim every test failed on v0.5.0.
 
-Four lessons carry beyond the tally: humans must approve the artifact actually
+Four lessons follow: humans must approve the artifact actually
 enforced; every agent-reachable surface matters, including human-oriented CLIs;
 encodings have alignment and formatting structure; and a security test can pass
 vacuously when its probe fails before reaching the behavior being tested.
@@ -217,12 +222,14 @@ events; the five other formats cause zero. The appended synthetic DSN log lines
 dominate this result. Counts of replacements do not measure changed bytes or
 deployment precision; a changing checkout also changes the experiment.
 
-RQ3 replaces the old overhead claim with shared-host Linux diagnostics: direct,
+RQ3 uses shared-host Linux runner diagnostics: direct,
 runner, and network-isolated spawn medians are 1.043, 2.561, and 3.342 ms, with
 200 samples per mode. Differences of medians are not paired overhead estimates.
 Scanning reports 34, 21, and 9 MB/s for 1, 10, and 50 values, choosing the fastest
 of five repetitions and excluding matcher construction. No p95/p99 or delivery
-latency is measured. A failed sandbox attempt is retained separately from the
+latency is measured. Session authorization, provider lookups, audit writes, and
+the production seccomp filter are excluded from these runner timings.
+A failed sandbox attempt is retained separately from the
 successful run outside that filesystem sandbox, with runtime isolation enabled.
 
 RQ4 is exercised by 3,000 deterministically randomized batch-versus-stream cases,
@@ -232,8 +239,9 @@ do not supply missing historical v0.5.0 run records or prove all possible inputs
 ## Discussion, related work, and conclusion
 
 Proxy substitution is stronger where applicable: a child that never receives the
-real credential cannot print it. Ironrun addresses broader command workflows,
-including database, signing, SSH, and file credentials. CI masking, secret-manager
+real credential cannot print it. Protocol-aware brokers can support database and
+SSH connections as well as HTTP. Local signing, direct file consumers, and
+unsupported connectors can still need values inside the process. CI masking, secret-manager
 wrappers, agent hooks, and policy/isolation systems supply related pieces.
 Differentiation should rest on the combined boundary and tested supported forms,
 not a claim that output masking is new or absent from 1Password.
@@ -252,8 +260,8 @@ credential confidentiality.
 
 ## Preparing this version for arXiv
 
-The current PDF is 13 pages. [ARXIV.md](../paper/ARXIV.md) supplies the synchronized
-1,812-character ASCII metadata abstract and source-bundle checklist. The revised
+The current PDF is 14 pages. [ARXIV.md](../paper/ARXIV.md) supplies the synchronized
+1,815-character ASCII metadata abstract and source-bundle checklist. The revised
 build handles the bibliography on a fresh checkout, and a source-bundle build was
 checked during this review.
 

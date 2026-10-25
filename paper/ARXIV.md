@@ -1,8 +1,8 @@
 # Submitting the paper to arXiv
 
 Prepare the source bundle with `make -C paper arxiv`. The archive contains
-`ironrun.tex`, `ironrun.bbl`, and `references.bib`; all figures are TikZ, and
-`\pdfoutput=1` selects pdflatex. Uploading or submitting to arXiv is a separate
+`ironrun.tex`, `ironrun.bbl`, and `references.bib`; all figures are TikZ. Select
+PDFLaTeX in the arXiv processor form. Uploading or submitting to arXiv is a separate
 maintainer action. First-time submitters to cs.CR may need endorsement; follow
 the instructions shown by arXiv.
 
@@ -12,18 +12,18 @@ the instructions shown by arXiv.
 | Authors | Mihir Gupta, Stephen Keehn |
 | Primary category | cs.CR (Cryptography and Security) |
 | Proposed cross-lists | cs.SE, cs.AI; subject to arXiv moderation |
-| Comments | 13 pages, 5 figures, 3 tables. Code and evaluation harness: https://github.com/Generalized-Labs/ironrun |
+| Comments | 14 pages, 5 figures, 3 tables. Code and evaluation harness: https://github.com/Generalized-Labs/ironrun |
 | Proposed license | CC BY 4.0; confirm all authors agree before submission |
 
 The ASCII metadata abstract below matches the revised manuscript after expanding
-formatting commands. It contains **1812 characters**, excluding its trailing
+formatting commands. It contains **1815 characters**, excluding its trailing
 newline. [arXiv's preparation instructions](https://info.arxiv.org/help/prep.html)
 require ASCII input and reject abstracts exceeding 1,920 characters. Preserve
 this limit when editing the manuscript and metadata together.
 
 ## Abstract
 
-LLM coding agents run shell commands, and their output becomes model context. A credential printed by a debugging command can therefore reach the model provider and local transcripts. We present ironrun, an open-source runtime that injects secret values into child processes as environment variables or temporary files and filters known values and supported encodings before output reaches the agent. It combines value-blind Model Context Protocol interfaces, session-bound human authorization, a streaming redactor with whitespace-tolerant, fragment, and alignment-aware matching, and fail-closed OS containment with a hash-chained audit log. We state a chunking-invariance property for fixed patterns, bounded matching spans, successful writes, and a final flush, and present current regression case studies for approval integrity, agent-reachable surfaces, encoding structure, and non-vacuous containment tests. In a paired reproduction using the same checked harness on v0.5.0 and the reviewed runtime, 52 of 126 transformation/credential cases permit at least 50% case-insensitive contiguous recovery on the baseline, versus 28 on the reviewed runtime. For ordinary-tool transformations the counts are 21 of 72 versus 3 of 72; the three remaining cases involve a 12-byte password below fragment protection. A fresh current-only run reproduces these current counts. Shared-host Linux diagnostics additionally expose structured-value over-redaction and measure throughput and median spawn costs; they do not establish deployment leak rates, tail latency, or usability. Known-value redaction reduces accidental disclosure, but thresholds, partial disclosure, and unregistered transformations limit coverage. Authorization, protected executable code and inputs, and isolation must bound deliberate exfiltration.
+LLM coding agents run shell commands, and their output becomes model context. A credential printed by a debugging command can therefore reach the model provider and local transcripts. We present ironrun, an open-source runtime that injects secret values into child processes as environment variables or temporary files and filters known values and supported encodings before output reaches the agent. It combines value-blind Model Context Protocol interfaces, session-bound human authorization, a streaming redactor with whitespace-tolerant, fragment, and alignment-aware matching, and platform-specific OS controls with a hash-chained audit log. We state a chunking-invariance property for fixed patterns, bounded matching spans, successful writes, and a final flush, and present current regression case studies for approval integrity, agent-reachable surfaces, encoding structure, and non-vacuous containment tests. In a paired reproduction using the same checked harness on v0.5.0 and the reviewed runtime, 52 of 126 transformation/credential cases permit at least 50% case-insensitive contiguous recovery on the baseline, versus 28 on the reviewed runtime. For ordinary-tool transformations the counts are 21 of 72 versus 3 of 72; the three remaining cases involve a 12-byte password below fragment protection. A fresh current-only run reproduces these current counts. Shared-host Linux diagnostics additionally expose structured-value over-redaction and measure throughput and median spawn costs; they do not establish deployment leak rates, tail latency, or usability. Known-value redaction reduces accidental disclosure, but thresholds, partial disclosure, and unregistered transformations limit coverage. Authorization, protected executable code and inputs, and isolation must bound deliberate exfiltration.
 
 ## Evidence scope
 
@@ -60,7 +60,7 @@ that each test failed on v0.5.0.
 ## Before uploading
 
 1. Rebuild the exact final manuscript with `make -C paper` after any edits.
-   The October 23 review build has 13 pages, 5 figures, and 3 tables; it has no
+   The October 24 review build has 14 pages, 5 figures, and 3 tables; it has no
    undefined references/citations or overflowing boxes. Keep these counts in sync.
 2. Confirm `paper/ironrun.pdf` was built from the exact submitted sources and
    visually inspect all pages, including tables and page breaks.

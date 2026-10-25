@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/ironrun-setup-fixed",
+    "setup",
+    "--yes"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/malformed-and-codex-failure",
+  "program_exit_code": 0,
+  "stdout": "Initializing ironrun in malformed-and-codex-failure...\n\n  \u2022 ironrun.yml already exists \u2014 skipping\n  \u2022 Registered project in the global Ironrun workspace\n  \u2022 Created CLAUDE.md\n  \u2022 Created AGENTS.md\n  \u2022 Created .cursorrules\n\nSetup files prepared. Client configuration (host connections not checked):\n  \u2022 Claude Code: needs attention (.mcp.json)\n    could not parse client configuration: unexpected end of JSON input\n    Next: Inspect .mcp.json and rerun ironrun setup after resolving the configuration issue.\n  \u2022 Codex: needs attention (~/.codex/config.toml)\n    could not add Codex registration: exit status 23\n    Next: Run codex mcp add ironrun -- ironrun mcp after resolving the Codex error.\n  \u2022 Cursor: needs attention (~/.cursor/mcp.json)\n    could not parse client configuration: unexpected end of JSON input\n    Next: Inspect ~/.cursor/mcp.json and rerun ironrun setup after resolving the configuration issue.\n\nNext steps:\n\n  1. Run ironrun to open Projects and the agent inbox\n  2. Press Enter on this project, then choose Add secret or Import .env\n  3. Check your setup: ironrun doctor\n  4. Test: ironrun run <command-id>\n\nOpen or restart your selected agent, then verify Ironrun in its MCP tools before running commands.\n",
+  "stderr": "",
+  "binary_sha256": "2d75777c7f9bd44c0b8e42be50384d3d54cc5d05d66c792c0044c4ec0b8e4df7",
+  "synthetic_only": true,
+  "uid": 1000,
+  "configuration_modes_after_setup": {
+    ".mcp.json": "0o600",
+    "home/.cursor/mcp.json": "0o600"
+  }
+}

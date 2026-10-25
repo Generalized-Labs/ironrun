@@ -1,0 +1,63 @@
+{
+  "binary_sha256": "2d75777c7f9bd44c0b8e42be50384d3d54cc5d05d66c792c0044c4ec0b8e4df7",
+  "uid": 1000,
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Trusted workspace request req_5b1097325c31df68f91f7caa is pending for environment \"default\". A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant req_5b1097325c31df68f91f7caa`. Review deadline: 2026-10-24T23:40:05Z. Requested access duration if approved: 2h0m0s."
+        }
+      ]
+    }
+  },
+  "persisted_request": {
+    "id": "req_5b1097325c31df68f91f7caa",
+    "kind": "workspace",
+    "status": "pending",
+    "session_id": "a017da7a46a82c2c",
+    "environment": "default",
+    "first_argv": [
+      "/usr/bin/true"
+    ],
+    "reason": "synthetic expiry review",
+    "requested_ttl": 7200000000000,
+    "created_at": "2026-10-24T23:25:05.385627264Z",
+    "expires_at": "2026-10-24T23:40:05.385627264Z"
+  },
+  "pending_ttl_seconds": 900.0,
+  "requested_grant_ttl_seconds": 7200.0,
+  "transcript": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+          "tools": {
+            "listChanged": true
+          }
+        },
+        "serverInfo": {
+          "name": "ironrun",
+          "version": "dev"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Trusted workspace request req_5b1097325c31df68f91f7caa is pending for environment \"default\". A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant req_5b1097325c31df68f91f7caa`. Review deadline: 2026-10-24T23:40:05Z. Requested access duration if approved: 2h0m0s."
+          }
+        ]
+      }
+    }
+  ],
+  "synthetic_only": true
+}

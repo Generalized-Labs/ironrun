@@ -1,0 +1,48 @@
+[
+  {
+    "argv": [
+      "/opt/codex/bin/codex",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "codex-cli 0.159.2\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/codex/bin/codex",
+      "mcp",
+      "list",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "[]\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/codex/bin/codex",
+      "mcp",
+      "add",
+      "ironrun",
+      "--",
+      "/workspace/ironrun-product-tools/ironrun-doctor-fixed",
+      "mcp"
+    ],
+    "exit_code": 0,
+    "stdout": "Added global MCP server 'ironrun'.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/opt/codex/bin/codex",
+      "mcp",
+      "get",
+      "ironrun",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"name\": \"ironrun\",\n  \"enabled\": true,\n  \"disabled_reason\": null,\n  \"transport\": {\n    \"type\": \"stdio\",\n    \"command\": \"/workspace/ironrun-product-tools/ironrun-doctor-fixed\",\n    \"args\": [\n      \"mcp\"\n    ],\n    \"env\": null,\n    \"env_vars\": [],\n    \"cwd\": null\n  },\n  \"enabled_tools\": null,\n  \"disabled_tools\": null,\n  \"startup_timeout_sec\": null,\n  \"tool_timeout_sec\": null\n}\n",
+    "stderr": ""
+  }
+]

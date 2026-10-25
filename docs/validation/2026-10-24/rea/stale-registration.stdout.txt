@@ -1,0 +1,25 @@
+Initializing ironrun in stale-registration...
+
+  • ironrun.yml already exists — skipping
+  • Registered project in the global Ironrun workspace
+  • Created CLAUDE.md
+  • Created AGENTS.md
+  • Created .cursorrules
+
+Setup files prepared. Client configuration (host connections not checked):
+  • Claude Code: needs inspection (.mcp.json)
+    Next: Inspect the existing ironrun entry in .mcp.json; it was preserved without changes.
+  • Codex: needs attention (~/.codex/config.toml)
+    Codex returned an unrecognized server list; configuration was not changed
+    Next: Inspect configured servers with codex mcp list --json before changing the ironrun registration.
+  • Cursor: needs inspection (~/.cursor/mcp.json)
+    Next: Inspect the existing ironrun entry in ~/.cursor/mcp.json; it was preserved without changes.
+
+Next steps:
+
+  1. Run ironrun to open Projects and the agent inbox
+  2. Press Enter on this project, then choose Add secret or Import .env
+  3. Check your setup: ironrun doctor
+  4. Test: ironrun run <command-id>
+
+Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.

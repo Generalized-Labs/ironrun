@@ -1,0 +1,17 @@
+{
+  "go": {
+    "executable": "/workspace/ironrun-product-tools/go/bin/go",
+    "sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5",
+    "version": "go version go1.26.10 linux/amd64"
+  },
+  "node": {
+    "version": "v24.19.0"
+  },
+  "go_flags": {
+    "GOFLAGS": "-buildvcs=false",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local"
+  },
+  "scope": "Diagnostic/test tool identity; not proof of a signed release toolchain. Proxy and CA variables were inherited, not dumped."
+}

@@ -1,0 +1,6 @@
+{"rea_progress":{"phase":"prepare","completed":0,"total":null,"message":"elapsed_ms=0 frames=0 samples=0 interactions=0","sequence":1}}
+{"rea_progress":{"phase":"running","completed":0,"total":null,"message":"elapsed_ms=429 frames=0 samples=0 interactions=0","sequence":2}}
+{"rea_progress":{"phase":"running","completed":1,"total":null,"message":"elapsed_ms=530 frames=0 samples=1 interactions=0","sequence":3}}
+{"rea_progress":{"phase":"running","completed":1,"total":null,"message":"elapsed_ms=631 frames=0 samples=1 interactions=0","sequence":4}}
+{"rea_progress":{"phase":"running","completed":3,"total":null,"message":"elapsed_ms=753 frames=0 samples=3 interactions=0","sequence":5}}
+{"rea_progress":{"phase":"cleanup","completed":4,"total":null,"message":"elapsed_ms=905 frames=1 samples=3 interactions=0 disposition=exited owned_process_group=cleaned terminal_renderer=cleaned temporary_root=cleaned","terminal":true,"sequence":6}}

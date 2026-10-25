@@ -435,7 +435,7 @@ func makeRequestWorkspaceHandler(f *policy.File, policyPath, sessionID string) f
 		if err != nil {
 			return mcplib.NewToolResultError("could not create trusted workspace request"), nil
 		}
-		return mcplib.NewToolResultText(fmt.Sprintf("Trusted workspace request %s is pending for environment %q. A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant %s`. The request expires in %s.", request.ID, environment, request.ID, access.DefaultWorkspaceTTL)), nil
+		return mcplib.NewToolResultText(fmt.Sprintf("Trusted workspace request %s is pending for environment %q. A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant %s`. Review deadline: %s. Requested access duration if approved: %s.", request.ID, environment, request.ID, request.ExpiresAt.UTC().Format(time.RFC3339), request.RequestedTTL)), nil
 	}
 }
 

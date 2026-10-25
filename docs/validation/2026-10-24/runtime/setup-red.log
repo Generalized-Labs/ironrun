@@ -1,0 +1,414 @@
+  • Wrote .mcp.json (Claude Code project MCP)
+  • Wrote .mcp.json (Claude Code project MCP)
+  • Merged ironrun into ~/.cursor/mcp.json
+  • Merged ironrun into ~/.cursor/mcp.json
+--- FAIL: TestMCPRegistrationPreservesInvalidConfiguration (0.02s)
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/claude/null (0.00s)
+        mcp_registration_test.go:29: registration panicked on existing configuration: assignment to entry in nil map
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/claude/{"otherSetting":true,"mcpServers":null} (0.00s)
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+        mcp_registration_test.go:32: existing configuration changed: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  },\n  \"otherSetting\": true\n}\n", <nil>
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/claude/{"otherSetting":true,"mcpServers":[]} (0.00s)
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+        mcp_registration_test.go:32: existing configuration changed: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  },\n  \"otherSetting\": true\n}\n", <nil>
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/cursor/null (0.00s)
+        mcp_registration_test.go:29: registration panicked on existing configuration: assignment to entry in nil map
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/cursor/{"otherSetting":true,"mcpServers":null} (0.00s)
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+        mcp_registration_test.go:32: existing configuration changed: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  },\n  \"otherSetting\": true\n}\n", <nil>
+    --- FAIL: TestMCPRegistrationPreservesInvalidConfiguration/cursor/{"otherSetting":true,"mcpServers":[]} (0.00s)
+        mcp_registration_test.go:30: registration accepted invalid existing configuration
+        mcp_registration_test.go:32: existing configuration changed: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  },\n  \"otherSetting\": true\n}\n", <nil>
+  • Wrote .mcp.json (Claude Code project MCP)
+  • Merged ironrun into ~/.cursor/mcp.json
+--- FAIL: TestMCPRegistrationPreservesUnreadableWritableConfiguration (0.00s)
+    --- FAIL: TestMCPRegistrationPreservesUnreadableWritableConfiguration/claude (0.00s)
+        mcp_registration_test.go:52: registration ignored an existing configuration read failure
+        mcp_registration_test.go:55: unreadable existing configuration was overwritten: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  }\n}\n", <nil>
+    --- FAIL: TestMCPRegistrationPreservesUnreadableWritableConfiguration/cursor (0.00s)
+        mcp_registration_test.go:52: registration ignored an existing configuration read failure
+        mcp_registration_test.go:55: unreadable existing configuration was overwritten: "{\n  \"mcpServers\": {\n    \"ironrun\": {\n      \"args\": [\n        \"mcp\"\n      ],\n      \"command\": \"ironrun\"\n    }\n  }\n}\n", <nil>
+FAIL
+FAIL	github.com/generalized-labs/ironrun/cmd/ironrun	0.028s
+--- FAIL: TestInit_RegistrationSummaryMatchesObservedResults (1.28s)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/inspection_failure (1.20s)
+        init_test.go:283: Codex registration mutation: got added=true want false
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:284: missing accurate status "Codex: needs attention":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/invalid_list (0.02s)
+        init_test.go:283: Codex registration mutation: got added=true want false
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:284: missing accurate status "Codex: needs attention":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Registered ironrun with Codex (~/.codex/config.toml)
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/substring_is_not_registration (0.01s)
+        init_test.go:283: Codex registration mutation: got added=false want true
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:284: missing accurate status "Codex: configuration written":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/custom_registration (0.02s)
+        init_test.go:284: missing accurate status "Codex: needs inspection":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/disabled_registration (0.02s)
+        init_test.go:284: missing accurate status "Codex: needs inspection":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/recognized_registration (0.01s)
+        init_test.go:284: missing accurate status "Codex: configuration recognized":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+        init_test.go:285: setup claimed an unverified host connection:
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Wrote .mcp.json (Claude Code project MCP)
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+              • Codex: ironrun already registered — skipping
+              • Merged ironrun into ~/.cursor/mcp.json
+            
+            Done! Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Then start your AI agent — it will use run_sealed() via MCP automatically.
+              • Claude Code: uses .mcp.json (per-project, already set up)
+              • Codex:       uses ~/.codex/config.toml (global, registered above)
+              • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+--- FAIL: TestInit_MissingCodexIsNotReportedRegistered (0.01s)
+    init_test.go:301: unavailable Codex summary is misleading:
+        Initializing ironrun in 001...
+        
+          • Created ironrun.yml
+          • Registered project in the global Ironrun workspace
+          • Wrote .mcp.json (Claude Code project MCP)
+          • Created CLAUDE.md
+          • Created AGENTS.md
+          • Created .cursorrules
+          • Codex: not found in PATH — to add ironrun manually, run:
+              codex mcp add ironrun -- ironrun mcp
+          • Merged ironrun into ~/.cursor/mcp.json
+        
+        Done! Next steps:
+        
+          1. Run ironrun to open Projects and the agent inbox
+          2. Press Enter on this project, then choose Add secret or Import .env
+          3. Check your setup: ironrun doctor
+          4. Test: ironrun run <command-id>
+        
+        Then start your AI agent — it will use run_sealed() via MCP automatically.
+          • Claude Code: uses .mcp.json (per-project, already set up)
+          • Codex:       uses ~/.codex/config.toml (global, registered above)
+          • Cursor:      uses ~/.cursor/mcp.json (global, merged above)
+FAIL
+FAIL	github.com/generalized-labs/ironrun/tests	2.334s
+FAIL

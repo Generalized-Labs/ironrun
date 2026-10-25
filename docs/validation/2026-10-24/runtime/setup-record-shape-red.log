@@ -1,0 +1,139 @@
+--- FAIL: TestInit_RegistrationSummaryMatchesObservedResults (1.18s)
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/null_list_entry (0.01s)
+        init_test.go:304: Codex registration mutation: got added=true want false
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+        init_test.go:307: missing accurate status "Codex: needs attention":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/empty_list_entry (0.01s)
+        init_test.go:304: Codex registration mutation: got added=true want false
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+        init_test.go:307: missing accurate status "Codex: needs attention":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+    --- FAIL: TestInit_RegistrationSummaryMatchesObservedResults/missing_record_fields (0.02s)
+        init_test.go:304: Codex registration mutation: got added=true want false
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+        init_test.go:307: missing accurate status "Codex: needs attention":
+            Initializing ironrun in 001...
+            
+              • Created ironrun.yml
+              • Registered project in the global Ironrun workspace
+              • Created CLAUDE.md
+              • Created AGENTS.md
+              • Created .cursorrules
+            
+            Setup files prepared. Client configuration (host connections not checked):
+              • Claude Code: configuration written (.mcp.json)
+              • Codex: configuration written (~/.codex/config.toml)
+              • Cursor: configuration written (~/.cursor/mcp.json)
+            
+            Next steps:
+            
+              1. Run ironrun to open Projects and the agent inbox
+              2. Press Enter on this project, then choose Add secret or Import .env
+              3. Check your setup: ironrun doctor
+              4. Test: ironrun run <command-id>
+            
+            Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.
+FAIL
+FAIL	github.com/generalized-labs/ironrun/tests	2.162s
+FAIL

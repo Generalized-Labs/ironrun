@@ -1,0 +1,41 @@
+{
+  "exit_code": 0,
+  "stdout": "Initializing ironrun in write-only-config...\n\n  \u2022 ironrun.yml already exists \u2014 skipping\n  \u2022 Registered project in the global Ironrun workspace\n  \u2022 Wrote .mcp.json (Claude Code project MCP)\n  \u2022 Created CLAUDE.md\n  \u2022 Created AGENTS.md\n  \u2022 Created .cursorrules\n  \u2022 Codex: not found in PATH \u2014 to add ironrun manually, run:\n      codex mcp add ironrun -- ironrun mcp\n  \u2022 Merged ironrun into ~/.cursor/mcp.json\n\nDone! Next steps:\n\n  1. Run ironrun to open Projects and the agent inbox\n  2. Press Enter on this project, then choose Add secret or Import .env\n  3. Check your setup: ironrun doctor\n  4. Test: ironrun run <command-id>\n\nThen start your AI agent \u2014 it will use run_sealed() via MCP automatically.\n  \u2022 Claude Code: uses .mcp.json (per-project, already set up)\n  \u2022 Codex:       uses ~/.codex/config.toml (global, registered above)\n  \u2022 Cursor:      uses ~/.cursor/mcp.json (global, merged above)\n",
+  "stderr": "",
+  "files": {
+    ".mcp.json": {
+      "mode_at_setup": "0o200",
+      "before_sha256": "b3619d131db08bf8530df111bb1eebac670497736ece767147b712f7c07a6782",
+      "after_sha256": "d6ad0839684b2da4016cdfb41ff5cd176254a4306b137963fa8cb9d606500cea",
+      "after": {
+        "mcpServers": {
+          "ironrun": {
+            "args": [
+              "mcp"
+            ],
+            "command": "ironrun"
+          }
+        }
+      },
+      "preserved": false
+    },
+    "home/.cursor/mcp.json": {
+      "mode_at_setup": "0o200",
+      "before_sha256": "b3619d131db08bf8530df111bb1eebac670497736ece767147b712f7c07a6782",
+      "after_sha256": "d6ad0839684b2da4016cdfb41ff5cd176254a4306b137963fa8cb9d606500cea",
+      "after": {
+        "mcpServers": {
+          "ironrun": {
+            "args": [
+              "mcp"
+            ],
+            "command": "ironrun"
+          }
+        }
+      },
+      "preserved": false
+    }
+  },
+  "synthetic_only": true,
+  "notes": "Permission was restored to0600 only by the probe after setup, so synthetic output could be inspected."
+}

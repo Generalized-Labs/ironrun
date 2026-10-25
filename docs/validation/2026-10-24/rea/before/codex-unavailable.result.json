@@ -1,0 +1,48 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/ironrun-doctor-fixed",
+    "setup",
+    "--yes"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-flow-audit2/codex-unavailable",
+  "exit_code": 0,
+  "stdout": "Initializing ironrun in codex-unavailable...\n\n  \u2022 ironrun.yml already exists \u2014 skipping\n  \u2022 Registered project in the global Ironrun workspace\n  \u2022 Wrote .mcp.json (Claude Code project MCP)\n  \u2022 Created CLAUDE.md\n  \u2022 Created AGENTS.md\n  \u2022 Created .cursorrules\n  \u2022 Codex: not found in PATH \u2014 to add ironrun manually, run:\n      codex mcp add ironrun -- ironrun mcp\n  \u2022 Merged ironrun into ~/.cursor/mcp.json\n\nDone! Next steps:\n\n  1. Run ironrun to open Projects and the agent inbox\n  2. Press Enter on this project, then choose Add secret or Import .env\n  3. Check your setup: ironrun doctor\n  4. Test: ironrun run <command-id>\n\nThen start your AI agent \u2014 it will use run_sealed() via MCP automatically.\n  \u2022 Claude Code: uses .mcp.json (per-project, already set up)\n  \u2022 Codex:       uses ~/.codex/config.toml (global, registered above)\n  \u2022 Cursor:      uses ~/.cursor/mcp.json (global, merged above)\n",
+  "stderr": "",
+  "before": {
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "after": {
+    ".cursorrules": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    ".mcp.json": {
+      "bytes": 115,
+      "sha256": "d6ad0839684b2da4016cdfb41ff5cd176254a4306b137963fa8cb9d606500cea"
+    },
+    "AGENTS.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "CLAUDE.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "home/.cursor/mcp.json": {
+      "bytes": 115,
+      "sha256": "d6ad0839684b2da4016cdfb41ff5cd176254a4306b137963fa8cb9d606500cea"
+    },
+    "home/ironrun/projects.json": {
+      "bytes": 364,
+      "sha256": "0e27a54c4fa622ba31fd6014e13f14f8dff838f1f3a34a18d452689295678670"
+    },
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "synthetic_only": true
+}

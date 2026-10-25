@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -28,9 +25,9 @@ func initCmd() *cobra.Command {
 		Short:   "Initialize ironrun in the current project",
 		Long: `Creates ironrun.yml, .mcp.json, and agent instructions
 (CLAUDE.md, AGENTS.md, .cursorrules) in the current directory.
-Also registers ironrun with Codex (~/.codex/config.toml) and Cursor (~/.cursor/mcp.json).
-This sets up sealed command execution so AI agents use ironrun for all commands
-that need credentials.`,
+Attempts MCP configuration for Codex (~/.codex/config.toml) and Cursor
+(~/.cursor/mcp.json), preserving existing custom entries. Reports configuration
+results; enable and verify Ironrun in your selected agent before use.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cwd, err := os.Getwd()
 			if err != nil {
@@ -51,7 +48,7 @@ that need credentials.`,
 				fmt.Println("  • ironrun.yml — reviewed commands and secret names")
 				fmt.Println("  • .mcp.json — project MCP registration")
 				fmt.Println("  • CLAUDE.md, AGENTS.md, .cursorrules — agent safety instructions")
-				fmt.Println("  • ~/.codex/config.toml and ~/.cursor/mcp.json — merged when clients exist")
+				fmt.Println("  • ~/.codex/config.toml and ~/.cursor/mcp.json — safe MCP configuration updates")
 				ok, confirmErr := confirm("Continue with these setup changes? [y/N] ")
 				if confirmErr != nil {
 					return confirmErr
@@ -89,9 +86,7 @@ that need credentials.`,
 			//    project-scoped MCP servers from .mcp.json at the project root —
 			//    NOT from .claude/mcp.json — so this is the file that actually
 			//    registers run_sealed with Claude Code.
-			if err := registerClaudeMCP(cwd); err != nil {
-				fmt.Printf("  ⚠  Could not update .mcp.json: %v\n", err)
-			}
+			registrations := []mcpRegistrationResult{claudeMCPRegistration(cwd)}
 
 			// 3. Write agent-instruction files so the "use run_sealed" guardrail
 			//    fires across agents: CLAUDE.md (Claude Code), AGENTS.md (Codex,
@@ -102,12 +97,10 @@ that need credentials.`,
 			}
 
 			// 4. Register ironrun with Codex (~/.codex/config.toml)
-			registerCodex()
+			registrations = append(registrations, registerCodex())
 
 			// 5. Register ironrun with Cursor (~/.cursor/mcp.json)
-			if err := registerCursor(); err != nil {
-				fmt.Printf("  ⚠  Could not update ~/.cursor/mcp.json: %v\n", err)
-			}
+			registrations = append(registrations, cursorMCPRegistration())
 			if interactive && !installDaemon {
 				path, _, previewErr := daemon.UnitPreview()
 				if previewErr == nil {
@@ -127,17 +120,19 @@ that need credentials.`,
 			}
 
 			fmt.Println()
-			fmt.Println("Done! Next steps:")
+			fmt.Println("Setup files prepared. Client configuration (host connections not checked):")
+			for _, registration := range registrations {
+				printMCPRegistration(registration)
+			}
+			fmt.Println()
+			fmt.Println("Next steps:")
 			fmt.Println()
 			fmt.Println("  1. Run ironrun to open Projects and the agent inbox")
 			fmt.Println("  2. Press Enter on this project, then choose Add secret or Import .env")
 			fmt.Println("  3. Check your setup: ironrun doctor")
 			fmt.Println("  4. Test: ironrun run <command-id>")
 			fmt.Println()
-			fmt.Println("Then start your AI agent — it will use run_sealed() via MCP automatically.")
-			fmt.Println("  • Claude Code: uses .mcp.json (per-project, already set up)")
-			fmt.Println("  • Codex:       uses ~/.codex/config.toml (global, registered above)")
-			fmt.Println("  • Cursor:      uses ~/.cursor/mcp.json (global, merged above)")
+			fmt.Println("Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.")
 
 			if interactive && !yes {
 				fmt.Println()
@@ -240,133 +235,6 @@ func writeAgentInstructions(cwd, name, instructions string) {
 		return
 	}
 	fmt.Printf("  • Created %s\n", name)
-}
-
-// registerClaudeMCP merges ironrun into ./.mcp.json — the project-root file
-// Claude Code reads for project-scoped MCP servers — preserving any existing
-// entries. (.claude/mcp.json is NOT read by Claude Code.)
-func registerClaudeMCP(cwd string) error {
-	mcpPath := filepath.Join(cwd, ".mcp.json")
-
-	config := map[string]any{"mcpServers": map[string]any{}}
-	if existing, err := os.ReadFile(mcpPath); err == nil {
-		if err := json.Unmarshal(existing, &config); err != nil {
-			return fmt.Errorf("could not parse .mcp.json: %w", err)
-		}
-	}
-
-	servers, ok := config["mcpServers"].(map[string]any)
-	if !ok {
-		servers = map[string]any{}
-		config["mcpServers"] = servers
-	}
-
-	if _, exists := servers["ironrun"]; exists {
-		fmt.Println("  • Claude Code: ironrun already in .mcp.json — skipping")
-		return nil
-	}
-
-	servers["ironrun"] = map[string]any{
-		"command": "ironrun",
-		"args":    []string{"mcp"},
-	}
-
-	data, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		return err
-	}
-	if err := os.WriteFile(mcpPath, append(data, '\n'), 0600); err != nil {
-		return err
-	}
-	fmt.Println("  • Wrote .mcp.json (Claude Code project MCP)")
-	return nil
-}
-
-// registerCodex adds ironrun to the Codex MCP config if the codex binary is available.
-// It checks whether ironrun is already registered before adding it.
-func registerCodex() {
-	codexBin, err := exec.LookPath("codex")
-	if err != nil {
-		fmt.Println("  • Codex: not found in PATH — to add ironrun manually, run:")
-		fmt.Println("      codex mcp add ironrun -- ironrun mcp")
-		return
-	}
-
-	// Check if ironrun is already registered
-	listOut, err := exec.Command(codexBin, "mcp", "list").Output()
-	if err == nil && bytes.Contains(listOut, []byte("ironrun")) {
-		fmt.Println("  • Codex: ironrun already registered — skipping")
-		return
-	}
-
-	// Register ironrun — codex mcp add uses `-- <command> [args...]` syntax for stdio servers
-	addCmd := exec.Command(codexBin, "mcp", "add", "ironrun", "--", "ironrun", "mcp")
-	if out, err := addCmd.CombinedOutput(); err != nil {
-		fmt.Println("  ⚠  Codex: failed to register ironrun")
-		fmt.Printf("     Error: %v\n%s\n", err, out)
-		fmt.Println("     To add manually: codex mcp add ironrun -- ironrun mcp")
-	} else {
-		fmt.Println("  • Registered ironrun with Codex (~/.codex/config.toml)")
-	}
-}
-
-// registerCursor merges ironrun into ~/.cursor/mcp.json, preserving existing entries.
-func registerCursor() error {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return fmt.Errorf("could not determine home directory: %w", err)
-	}
-
-	cursorDir := filepath.Join(home, ".cursor")
-	cursorMCP := filepath.Join(cursorDir, "mcp.json")
-
-	// Read existing config or start fresh
-	config := map[string]any{
-		"mcpServers": map[string]any{},
-	}
-
-	existing, err := os.ReadFile(cursorMCP)
-	if err == nil {
-		if err := json.Unmarshal(existing, &config); err != nil {
-			return fmt.Errorf("could not parse ~/.cursor/mcp.json: %w", err)
-		}
-	}
-
-	// Get or create the mcpServers map
-	servers, ok := config["mcpServers"].(map[string]any)
-	if !ok {
-		servers = map[string]any{}
-		config["mcpServers"] = servers
-	}
-
-	// Check if ironrun is already present
-	if _, exists := servers["ironrun"]; exists {
-		fmt.Println("  • Cursor: ironrun already in ~/.cursor/mcp.json — skipping")
-		return nil
-	}
-
-	// Add ironrun entry
-	servers["ironrun"] = map[string]any{
-		"command": "ironrun",
-		"args":    []string{"mcp"},
-	}
-
-	// Write back
-	if err := os.MkdirAll(cursorDir, 0700); err != nil {
-		return fmt.Errorf("could not create ~/.cursor directory: %w", err)
-	}
-
-	data, err := json.MarshalIndent(config, "", "  ")
-	if err != nil {
-		return fmt.Errorf("could not marshal cursor config: %w", err)
-	}
-
-	if err := os.WriteFile(cursorMCP, append(data, '\n'), 0600); err != nil {
-		return fmt.Errorf("could not write ~/.cursor/mcp.json: %w", err)
-	}
-
-	fmt.Println("  • Merged ironrun into ~/.cursor/mcp.json")
-	return nil
 }
 
 // generatePolicy renders a local-vault-first policy from detected commands.

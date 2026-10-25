@@ -30,12 +30,32 @@ one with a repair command, versus zero before, with no observed filesystem
 changes. [Verification records](validation/2026-10-23/product-followup/README.md)
 retain the source hashes, red/green logs, captures, and limits.
 
-## Next candidates, pending a separate implementation design
+## Setup and approval-message repairs, October 24
+
+The next bounded correctness slice is now implemented: setup preserves unreadable
+or malformed client configuration and existing custom registrations, reports each
+client's actual configuration state, and asks users to verify the connection in
+their host. Codex inspection failure no longer implies that registration is absent.
+The workspace request reports its stored review deadline separately from the
+requested access duration. Optional client issues still leave core setup successful;
+no authorization or grant timing semantics changed.
+
+Red/green regressions, the full race suite, and five synthetic REA captures support
+these repairs. [October 24 evidence](validation/2026-10-24/README.md) records their
+scope. Real host connections, native-store interaction, and human completion times
+remain unmeasured.
+
+## Next product validation
+
+The maintainer selected a preview launch after readiness checks and coverage of
+all three hosts: Codex, Claude Code, and Cursor. The [pilot protocol](LAUNCH_PILOT.md)
+requires separate host setup/approval/continuation observations and preserves
+the stricter stable-release gates.
 
 | Priority | Evidence and proposed result | Verification needed |
 | --- | --- | --- |
-| Truthful setup summary | `init.go` warns on MCP registration errors but ends with unconditional registration claims; report each client's actual status and a recovery step | Synthetic malformed/stale client configuration; clean host sessions on supported clients |
-| Clear approval deadlines | `request_workspace_access` prints the two-hour grant duration as the pending-request expiry, although pending requests expire after 15 minutes | Check displayed deadline against the persisted request; distinguish review deadline from access duration |
+| Setup recovery | Preservation and per-client reporting are repaired and tested synthetically | Clean host sessions on supported clients, including existing custom configuration |
+| Clear approval deadlines | The message now uses persisted expiry and requested grant duration; request reuse is covered | Confirm human understanding of the distinction in the host workflow |
 | Approval waiting feedback | The implicit run path waits for persisted approval; whether users can find the Inbox and understand the wait remains unobserved | Actual Claude Code, Codex, and Cursor sessions; denial, expiry, revocation, and continuation |
 
 Do not turn these observations into an approval-system rewrite without host

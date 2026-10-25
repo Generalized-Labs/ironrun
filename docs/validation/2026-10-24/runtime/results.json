@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-24",
+  "status_provenance": "Exit statuses were observed by the supervising agent in command-tool completion results; raw logs do not embed exit markers. This packaging step inspected retained log content and copied its bytes without rerunning the suites. Focused filters are not reconstructed from incomplete records.",
+  "results": [
+    {
+      "log": "final-race.log",
+      "observed_exit_code": 0,
+      "command": "go test -race -count=1 ./...",
+      "working_directory_relative_to_repo": ".",
+      "scope": "all Go packages pass; synthetic Linux amd64 run outside additional filesystem sandbox"
+    },
+    {
+      "log": "final-vet.log",
+      "observed_exit_code": 0,
+      "command": "go vet ./...",
+      "working_directory_relative_to_repo": ".",
+      "scope": "empty stdout/stderr"
+    },
+    {
+      "log": "release-regressions.log",
+      "observed_exit_code": 0,
+      "command": "python3 -m unittest discover -s tests -p release_test.py -v",
+      "working_directory_relative_to_repo": ".",
+      "scope": "11 tests pass; fixture verifier, not real release signature verification"
+    },
+    {
+      "log": "npm-node24.log",
+      "observed_exit_code": 0,
+      "command": "node --test test/*.test.js",
+      "working_directory_relative_to_repo": "npm",
+      "scope": "19 pass, 0 fail, 0 skipped; Node 24.19.0"
+    },
+    {
+      "log": "setup-red.log",
+      "observed_exit_code": 1,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "expected failure against pre-repair setup behavior"
+    },
+    {
+      "log": "setup-record-shape-red.log",
+      "observed_exit_code": 1,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "expected failure before malformed Codex record correction"
+    },
+    {
+      "log": "setup-json-transport-red.log",
+      "observed_exit_code": 1,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "expected failure before mixed remote/local entry correction"
+    },
+    {
+      "log": "setup-green-race.log",
+      "observed_exit_code": 0,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "focused setup command and integration packages pass under race detector"
+    },
+    {
+      "log": "workspace-deadline-red.log",
+      "observed_exit_code": 1,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "expected failure before correcting review-deadline message"
+    },
+    {
+      "log": "workspace-deadline-green-race.log",
+      "observed_exit_code": 0,
+      "command": null,
+      "working_directory_relative_to_repo": ".",
+      "scope": "focused MCP/access packages pass under race detector"
+    }
+  ]
+}

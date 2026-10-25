@@ -1,17 +1,26 @@
 # Open-source launch readiness
 
-Updated October 23, 2026 (America/New_York). Repository baseline: `8e3c354`;
+Updated October 24, 2026 (America/New_York). Repository baseline: `8e3c354`;
 review and repairs: [PR #16](https://github.com/Generalized-Labs/ironrun/pull/16).
 
 **Automated local checks pass. The changes are ready for pull-request review;
 release and arXiv submission still have the evidence gates listed below.** Tests
 and bounded source review do not establish perfect correctness or certify security.
 
+The selected rollout is a **preview launch after readiness checks**, covering
+Codex, Claude Code, and Cursor. Complete real setup, approval, and continuation
+checks on each host, plus applicable signed-artifact and installation gates,
+before preview publication. Stable-release product gates remain open separately.
+
 ## Repairs completed
 
 - Make `doctor` check local environment metadata for project identity, selection,
   expiry, and required entry names. Print recovery steps, preserve legacy
   checks, and explicitly distinguish metadata configuration from vault access.
+- Preserve unreadable, malformed, and custom MCP client configuration during
+  setup. Report each client's observed state without claiming a host connection.
+- Display the stored workspace-request review deadline separately from the
+  requested access duration, including reused requests; preserve grant semantics.
 - Resolve explicit relative executables from the effective child directory.
 - Preserve errors from final stdout/stderr redaction flushes while flushing both
   streams and completing temporary-secret cleanup.
@@ -41,27 +50,30 @@ and bounded source review do not establish perfect correctness or certify securi
 | Check | Result and scope |
 | --- | --- |
 | Go 1.26.10 full race suite | All packages pass on Linux amd64; namespace tests ran outside the filesystem sandbox with synthetic values |
-| Vet and staticcheck | Pass |
+| Vet and staticcheck | Current local vet passes; staticcheck passed in CI at `bccf754` before this setup follow-up; inspect the PR for the new head |
 | Govulncheck 1.9.0 | Zero reachable vulnerabilities; one advisory remains in a required module outside imported/called code |
 | Focused concurrency tests | Vault initialization, immutable concurrent proposals, stale approval digests, and dashboard refresh behavior pass under the race detector |
 | Actual MCP race probe | Both conflicting proposals accepted in 23/30 pre-fix pairs, 0/30 after repair; illustrative executions, not a statistical security bound |
 | Offline release tests | 11 pass; synthetic downloads/verifier test control flow, not Sigstore cryptography |
-| npm launcher | 19 tests pass on Node 20/22/24 locally and in GitHub CI at `803aa42`, including startup termination and real read-only cache permissions; packed installation also passes |
+| npm launcher | 19 tests pass locally on Node 24 for this follow-up; prior local/CI Node 20/22/24 and packed-installation evidence remains pinned separately |
 | npm proxy transport | Real TLS/CONNECT/redirect fixture passes 9 tests on Node 22/24; Node 20 passes 2 tests confirming unsupported environment-proxy opt-in fails safely |
 | Historical public release | Real cosign verification passes for 6 v0.5.0 blobs; all 9 signed checksum entries match; wrong-tag and tampered-blob controls fail as expected |
 | Redactor fuzz smoke | 22,581 executions pass; checks chunked/batch equivalence and existing fixed-pattern leakage invariants |
-| Four-platform snapshot | Linux/macOS amd64/arm64 archives build, archive checksums and cask mappings verify, Linux amd64 binary runs |
+| Four-platform snapshot | Two builds produce four matching binary pairs, archives, checksums and SPDX SBOMs; archive contents match but tar timestamps differ; Linux amd64 help/version smoke passes |
 | GoReleaser configuration | Version 2.18.2 check passes; cask generation covers all four platforms |
 | Leakage comparison | Same harness and Go 1.26.10 reproduce 52/126 baseline versus 28/126 current threshold cases; accidental subset 21/72 versus 3/72 |
-| Paper and arXiv bundle | Revised 13-page PDF and extracted source bundle compile with matching text; ASCII abstract is 1,812 characters |
+| Setup and deadline replay | Four noninteractive UID 1000 setup cases preserve config; one actual synthetic MCP request reports stored deadline and requested grant duration; REA limits retained |
+| Citation follow-up | All 82 cited references have contextual review rows; three comparison themes corrected; this is not full-article review or external experiment replication |
+| Paper and arXiv bundle | Revised 14-page PDF and three-pass extracted source build have matching text; ASCII abstract is 1,815 characters |
 | Fresh current-only paper diagnostics | Current leakage counts reproduce; frozen 1,209,966-byte corpus and raw outputs retained; shared-host performance medians and scanning measurements replace unsupported old timing claims |
 
 Raw results and source hashes are in [validation/2026-10-21](validation/2026-10-21/).
 Earlier Go 1.26.9 experiments remain in the prior evidence and commit history.
-Local snapshots skipped signing, SBOM generation, before hooks, and publication.
+The October 24 snapshots include SBOMs and skip signing, before hooks, and publication.
+Earlier snapshots skipped SBOM generation; their records remain historical.
 Cross-compilation does not prove execution on every target architecture.
 
-Head `803aa42` passed every GitHub CI, dogfood, and fuzz job, including Go
+Head `bccf754` passed every GitHub CI, dogfood, and fuzz job, including Go
 1.26.10 on Linux/macOS and the npm proxy fixture. Consult the PR's checks for
 the current head after later paper/documentation edits. Installation source hashes, local results,
 and historical-release evidence are in
@@ -77,6 +89,12 @@ the approved doctor scope and the next setup/approval candidates.
 The [October 23 verification records](validation/2026-10-23/product-followup/README.md)
 retain doctor red/green regressions, the final uncached race suite and vet,
 REA before/after captures, and the revised paper/source-bundle checks.
+The [October 24 evidence](validation/2026-10-24/README.md) records the new setup
+and deadline regressions, full race/vet and release tests, REA captures, two
+four-platform snapshots with SBOMs, final manuscript checks, and citation
+resolutions. Source hashes bind dirty tested files rather than relying on the
+embedded base commit. Snapshot archives include their recorded README bytes,
+which precede the final documentation-only corrections.
 
 ## Review scope
 
@@ -90,6 +108,8 @@ bounded review; it does not prove the absence of defects elsewhere.
 REA and Graphify were actually used; [REVERSE_ENGINEERING.md](REVERSE_ENGINEERING.md)
 records their provenance, outputs, and limits. The [full paper walkthrough](PAPER_WALKTHROUGH.md)
 and [algorithm walkthrough](REDACTION_WALKTHROUGH.md) explain the design and proof.
+The proposed [developer pilot](LAUNCH_PILOT.md) turns the remaining setup and
+approval questions into observable tasks; it contains no invented user results.
 
 ## Gates before release or submission
 

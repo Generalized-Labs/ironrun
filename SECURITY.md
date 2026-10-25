@@ -28,8 +28,10 @@ Ironrun provides:
 - value-blind project, request, policy, daemon, and audit interfaces; and
 - owner-only local state and authenticated same-user daemon access.
 
-Secret values are intentionally not revealable, copyable, printable, or
-exportable through the CLI, TUI, MCP server, local API, daemon, or audit log.
+Agent-facing interfaces do not solicit plaintext secret values or expose reveal
+APIs. Trusted local input is a separate channel. The explicit operator flag
+`--emit-github-masks` prints escaped values in CI mask-registration commands;
+route those only to the intended CI parser, never an agent transcript.
 
 ## Threat boundary
 
@@ -63,10 +65,11 @@ on a property Ironrun does not provide:
 
 - **Redaction matches known values.** Literal, encoded (base64 at every
   alignment, hex, URL, JSON), whitespace-interleaved, and partial forms of
-  injected values are redacted. A process that applies an arbitrary
-  transformation (reversal, compression, encryption) before printing defeats it.
-  Partial prints of values shorter than 24 bytes are not covered, and when two
-  distinct values overlap in output the leftmost match wins.
+  injected values are supported under the matching policy. A process can evade
+  matching through a transformation whose result contains no registered match.
+  Partial raw prints of values shorter than 24 bytes are not generally covered.
+  Overlap and tier priority can leave most of a later value visible; chunking
+  invariance does not imply complete disclosure prevention.
 - **Agent-writable state.** Approval state (`ironrun.yml`, `.ironrun/`) lives in
   the project. An agent with unrestricted file-edit or shell tools can change it;
   pair Ironrun with the agent host's own permission rules or sandbox.
@@ -76,9 +79,18 @@ on a property Ironrun does not provide:
 - **Process lifetime.** Cleanup kills the original process group. Descendants
   that detach with `setsid` can escape that group and retain injected values.
   Use external process containment when whole-tree termination is required.
-- **Rollback and truncation.** The vault manifest MAC and the audit hash chain
-  detect modification, not replacement with an older valid copy or deletion of
-  the newest audit records.
+- **Platform and side channels.** The syscall filter and core-dump seal are
+  Linux-only; macOS uses network-only Seatbelt protection. Network isolation
+  does not isolate writable files or all local IPC. Use host-level controls for
+  those channels.
+- **Audit availability and rewriting.** Auditing can be disabled by policy.
+  Opening the logger verifies the existing chain; a long-lived server does not
+  replay it before every run. Later append/sync errors warn without failing the
+  command. The unkeyed chain detects inconsistent edits but a file owner can
+  rewrite and rehash it, or truncate its tail.
+- **Vault rollback.** The vault manifest MAC authenticates data under its key
+  but does not prevent replacement with an older valid copy. Stronger history
+  guarantees need independently protected monotonic state.
 - **CI events.** Fork detection covers `pull_request`, `pull_request_review`,
   `pull_request_review_comment`, and `workflow_run` payloads; `issue_comment`
   workflows that check out pull-request code must gate themselves.

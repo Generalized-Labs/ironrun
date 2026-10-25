@@ -1,0 +1,469 @@
+# Metadata for Required and Optional Fields - arXiv info
+URL: https://info.arxiv.org/help/prep.html
+Author: Authors: required
+
+Metadata for Required and Optional Fields - arXiv info
+
+# Title and Abstract Fields
+
+This help document explains the format of Metadata fields for arXiv submissions — it explains how to fill out the various fields on the web submission form. The possible information fields are:
+
+- Title: required
+- Authors: required
+- Abstract: required
+- Comments: optional, but recommended
+- Report-no: required (when supplied by author's institution)
+- Category: depends on archive
+- Journal-ref: reserved for publication info
+- DOI: reserved publication DOI
+
+Please read our FAQ page " Submissions in languages other than English and multiple language submissions" if your submission is in a language other than English or includes a version in a language other than English.
+
+## Bad character(s)
+
+Our metadata fields only accept ASCII input. Unicode characters should be converted to its $\TeX$ equivalent (either through MathJax entry or for proper names use the appropriate accents).
+
+A common problem experienced during submission, Bad character(s) in field..., is reporting UTF characters being entered into a field that expects ASCII character entry. This is usually caused by the UTF characters being copied from your pdf viewer and then pasted as such during this step, rather than being entered as ASCII text. The most common culprits are the curved quotation marks (for example “ and ” instead of keyboard entry), long-hyphens (— or –), and fi/ff copied as a single character. If you can't figure it out, type it out.
+
+### Title: required
+
+- Do not use all uppercase letters.
+- Do not use unicode characters.
+- Some MathJax.
+- Expand out $\TeX$ macros that are mystifying, e.g. "Nonlinear Sigma Models" instead of "\nlsm".
+- Check your spelling.
+- Certain $\TeX$ accent commands may be used in this field.
+- References to other articles in other archives should be given in the standard `arXiv:arch-ive/YYMMNNN` or `arXiv:YYMM.NNNN(N)` format so that our Web interface can turn the reference into a link to the article's abstract.
+
+### Authors: required
+
+Policy Notes:
+
+- It is a violation of our policies to misrepresent your identity or organizational affiliation. Claimed affiliation should be current in the conventional sense: e.g., physical presence, funding, e-mail address, etc. Misrepresentation of identity or affiliation, for any reason, is possible grounds for immediate and permanent suspension.
+- It is the responsibility of the submitter to ensure that all authors consent to the article being submitted.
+- It is the responsibility of the submitter to ensure that any author's information is correct prior to submission.
+- Anonymous submissions are not accepted. Complete, and accurate author information is required.
+
+- For named collaborations, it is acceptable to only use the collaboration name within the metadata, however a complete list of all authors and their affiliations must be contained in the full printed text.
+- Generative AI language tools should not be listed as an author; instead authors should refer to moderation related policy.
+
+Usage:
+
+- In order to automate indexing and searching, it is required that authors be listed in a standard format across arXiv. It is not required for author names to be in order of contribution, as this is occasionally field and target journal dependent. Names must be given in the order: Firstname Lastname or Firstname Middlename Lastname (where Lastname is your family name). Do not include honorifics, such as "Dr.", "Professor", etc.
+- Include the names of all authors instead of truncating the list with " et al.". This is necessary to support search and indexing. Multiple author names should be separated with a comma,
+
+```
+        E. L. Grossman, T. Zhou, E. Ben-Naim
+
+```
+
+or with the word "and",
+
+```
+        Michael Dine, Yosef Nir and Yuri Shirman
+
+```
+- First names and middle names may be abbreviated with just an initial. Initials should be followed by a period and then a space. Do not use all uppercase letters for names.
+- Do not enter a name that contains a comma or the word `and'. If you must include `Jr.' or similar suffix to a name then they must not be separated from the main name by a comma, enter simply `Bill Gates Jr` or `Fred Bloggs IV`. Names such as `John von Neumann` are entered exactly as illustrated. Do not include degree-granted suffixes such as "MD", "PhD", "MSc", "BSc", etc.
+- Affiliations must be placed within parentheses. Do not enter full mailing address, as these are not needed in our metadata. If desired, at most, include a city and country (no zip codes, postal codes, or street addresses). If you have several authors from the same institution, you can use a footnote style for the affiliations. Here is an example (be sure to do it in the form presented here, including all parentheses, and using numbers and not letters):
+
+```
+Authors: Author One (1), Author Two (1 and 2), Author Three (2)
+       ((1) Institution One, (2) Institution Two)
+
+```
+- If the authors constitute a named collaboration, the collaboration name should be used in addition to all authors. Preferred formats are:
+
+```
+Authors: ABCD Collaboration: Author One, Author Two, Author Three
+
+```
+
+which is taken to mean that the article was written by the ABCD Collaboration which is comprised of Author One, Author Two and Author Three.
+
+```
+Authors: Author One, Author Two, for the ABCD Collaboration
+
+```
+
+which is taken to mean that the article was written by Author One and Author Two, on behalf of the ABCD Collaboration.
+
+```
+Authors: Author One, Author Two (the ABCD Collaboration)
+
+```
+
+which is taken to mean that the article was written by Author One and Author Two, who are members of the ABCD Collaboration. This format has the disadvantage that the collaboration name will not be linked to a search.
+- Roles — such as `editor`, or `appendix author` — may not be indicated within the Authors field, rather roles should be indicated within the Comments field. Their names should be included in the Authors list. Such as:
+
+```
+Authors: Author One, Author Two, Author Three
+Comments: Appendix by Author Two
+
+```
+- Certain $\TeX$ accent commands may be used in this field.
+
+### Abstract: required
+
+Abstracts are automatically processed into the mailings, so it is important to adhere to the formatting rules. Carriage returns will be stripped unless they are followed by leading white spaces. So if you want a new paragraph or a table of contents, be sure to indent the lines after the carriage return. When the abstract is formatted for email announcement, it will be wrapped to 80 characters.
+
+- Do not include the word "Abstract".
+- Some $\TeX$ commands are supported via MathJax.
+- As with the title, expand out opaque $\TeX$ macros. Including $\TeX$ formatting commands such as `~ \, (backslash comma) and \ (backslash space)` makes it difficult for people to read. Please omit these TeX-isms. Also omit font commands such as `\em` or `\it`, as these will not be processed into the display. Additionally, $\TeX$ formatting commands for names will not be processed, and unicode character entry is not supported.
+- Do not start lines with whitespace (spaces, tabs, etc.) unless you are trying to prevent our automatic line wrapping. You might choose to use leading whitespace if for example your abstract is a table of contents. Avoid unnecessary blank lines.
+- Keep it short — abstracts longer than 1920 characters will not be accepted; abridge your abstract if necessary.
+- References to other articles in other archives should be given in the standard `arXiv:arch-ive/YYMMNNN` or `arXiv:YYMM.NNNN(N)` format so that our Web interface can turn the reference into a link to the article's abstract.
+- Certain $\TeX$ accent commands may be used in this field.
+
+### Comments:
+
+- Indicate number of pages and number of figures. If desired, include $\TeX$ commands are supported via MathJax.
+- Anonymous FTP and World Wide Web locations should be given in the standard Uniform Resource Locator (URL) format. We automatically convert these into an active link reading "this ftp URL" and an http URL into a link reading "this http URL" (try for a grammatically sensible substitution). The location of related files or information should be given here. Also, you should add a space to separate any periods or text following a URL from the URL itself, so that it is not interpreted as part of the URL. For example, the comment
+
+```
+for associated mpeg file, see http://myhost.domain/file.mpg
+
+```
+
+when accessed via the archive WWW interface views as: "for associated mpeg file, see this http URL".
+- References to other articles in other archives should be given in the standard `arXiv:arch-ive/YYMMNNN` or `arXiv:YYMM.NNNN(N)` format so that our Web interface can turn the reference into a link to the article's abstract.
+- This is the proper field for "to be published in" or "submitted to" information, including inclusion in conference proceedings. Please note that such entries will be frozen into this version, and are not editable after announcement.
+- This is the proper field for author roles, such as "Appendix by" or "Editor" information.
+- If this is a replacement, indicate the nature of the replacement and the severity of the changes so readers will know why it was replaced. You may wish to still include your original comments (e.g. number of pages), because the comments field is not cumulative.
+- Do not put copyright statements in the comments, put them on the front page of the article. Even there, do not put any copyright or license statement that contradicts the license you grant arXiv on submission! For more information see our descriptions of available licenses.
+- Certain $\TeX$ accent commands may be used in this field.
+
+### Report-no: required only when supplied by author's institution
+
+- Enter your institution's locally assigned publication number.
+- Do not put any other information in this field.
+- Example: `Report-no: EFI-94-11`.
+
+### Category:
+
+Each arXiv article has a primary category and may also have one or more cross-lists to other categories. The categories control what mailings an article is announced in, and also provide a way to limit searches to subsets of arXiv.
+
+Please carefully review the descriptions of categories to find the best fit.
+
+### Journal-ref:
+
+- This field is only for a full bibliographic reference if the article has already appeared in a journal or a proceedings.
+- Indicate the volume number, year, and page number (or page range).
+- If your submission has not appeared yet, but you would still like to indicate where it will be published, use the Comments: field. Please note that the Comments field can only be updated by submitting a replacement.
+- If there are multiple full bibliographic references associated with the paper, for example the original and an erratum, then separate them with a semicolon and a space, e.g. `J.Hasty Results 1 (2008) 1-9; Erratum: J.Hasty Results 2 (2008) 1-2`
+- In most cases, submissions are not yet published, and so `Journal-ref` information is not available. A facility is provided for you to add a journal reference to your previously submitted article at a later date.
+- Do not put URLs into this field, as they will not be converted into links.
+
+### DOI:
+
+- This field is only for a DOI (Digital Object Identifier) that resolves (links) to another version of the article, such as a journal article. Do not add the arXiv assigned DOI to this field.
+- If there are multiple DOIs associated with an article, separate them with a space.
+- Do not include any other information in this field. In most cases, submissions are not yet published, and so `DOI` information will be added by the author at a later date. A facility is provided for adding a Journal-ref and DOI to an already public arXiv-ID.
+- Articles submitted to arXiv are automatically assigned DOIs that correspond to their arXiv ID, and the associated article metadata is submitted to DataCite at no cost to the authors. Read more about understanding arXiv assigned DOIs.
+- DOIs have the form `10.48550/arXiv.2202.01037`
+
+### MSC-class:
+
+- For submissions to the math archive, this field is used to indicate the mathematical classification code according to the Mathematics Subject Classification. Here is an example
+
+```
+MSC-class: 14J60 (Primary) 14F05, 14J26 (Secondary)
+
+```
+
+Put the "Primary" and "Secondary" keywords in parentheses. If there is only a Primary classification, the "Primary" keyword is optional. Separate multiple classification keys with commas.
+
+### ACM-class:
+
+- For submissions to the cs archive, this field is used to indicate the classification code according to the ACM Computing Classification System (or see this overview). Here is an example
+
+```
+ACM-class: F.2.2; I.2.7
+
+```
+
+(Separate multiple classifications by a semicolon and a space.)
+
+### Are you an author of this paper?
+
+- Although arXiv encourages authors to submit their own articles, some articles may be submitted by third parties (co-workers, administrative assistants, overlay journals, etc.). Prior authorization is required for such submissions. If you are not the author of this work you must contact arXiv administrators for permission. Submissions without prior authorization will be removed.
+- The submitter of an article is automatically registered as an owner of the article, someone who has authorization to make changes to the article, such as replacing it or adding a cross-reference. Other people can become owners if they supply the paper password, or request ownership. See our authority records help page for more information.
+- When someone is registered as an owner of an article, they have a chance to specify if they are also an author — to get all of their rights and privileges, authors of arXiv articles should take ownership of their articles and designate themselves as an author.
+- Select yes if you are a listed author of the article you are submitting and no otherwise.
+
+### Note on La$\TeX$ accent commands:
+
+Two methods are supported for entering accented characters into arXiv.
+
+1. If your browser supports Unicode and you have the appropriate input method enabled on your computer, you can type them directly, and they will be converted into their $\TeX$ syntax.
+2. You can enter accented characters using a subset of $\TeX$ syntax. arXiv's subset of $\TeX$ supports many of the ways accented characters can be written in $\TeX$, however, it only accepts characters from ISO Latin 1 (which is a subset of Unicode that can be represented as a single byte in UTF-8).
+
+Here are the La$\TeX$ accents commands that can be used in the Title and Authors fields.
+
+| Ä \"A | ä \"a | Á \'A | á \'a | Ȧ \.A | ȧ \.a | Ā \=A |
+| --- | --- | --- | --- | --- | --- | --- |
+| ā \=a | Â \^A | â \^a | À \`A | à \`a | Ą \k{A} | ą \k{a} |
+| Å \r{A} | å \r{a} | Ă \u{A} | ă \u{a} | Ǎ \v{A} | ǎ \v{a} | Ã \~A |
+| ã \~a | Ć \'C | ć \'c | Ċ \.C | ċ \.c | Ĉ \^C | ĉ \^c |
+| Ç \c{C} | ç \c{c} | Č \v{C} | č \v{c} | Ď \v{D} | ď \v{d} | Ë \"E |
+| ë \"e | É \'E | é \'e | Ė \.E | ė \.e | Ē \=E | ē \=e |
+| Ê \^E | ê \^e | È \`E | è \`e | Ȩ \c{E} | ȩ \c{e} | Ę \k{E} |
+| ę \k{e} | Ĕ \u{E} | ĕ \u{e} | Ě \v{E} | ě \v{e} | Ġ \.G | ġ \.g |
+| Ĝ \^G | ĝ \^g | Ģ \c{G} | ģ \c{g} | Ğ \u{G} | ğ \u{g} | Ǧ \v{G} |
+| ǧ \v{g} | Ĥ \^H | ĥ \^h | Ȟ \v{H} | ȟ \v{h} | Ï \"I | ï \"i |
+| Í \'I | í \'i | İ \.I | Ī \=I | ī \=i | Î \^I | î \^i |
+| Ì \`I | ì \`i | Į \k{I} | į \k{i} | Ĭ \u{I} | ĭ \u{i} | Ǐ \v{I} |
+| ǐ \v{i} | Ĩ \~I | ĩ \~i | Ĵ \^J | ĵ \^j | Ķ \c{K} | ķ \c{k} |
+| Ǩ \v{K} | ǩ \v{k} | Ĺ \'L | ĺ \'l | Ļ \c{L} | ļ \c{l} | Ľ \v{L} |
+| ľ \v{l} | Ń \'N | ń \'n | Ņ \c{N} | ņ \c{n} | Ň \v{N} | ň \v{n} |
+| Ñ \~N | ñ \~n | Ö \"O | ö \"o | Ó \'O | ó \'o | Ȯ \.O |
+| ȯ \.o | Ō \=O | ō \=o | Ô \^O | ô \^o | Ò \`O | ò \`o |
+| Ő \H{O} | ő \H{o} | Ǫ \k{O} | ǫ \k{o} | Ŏ \u{O} | ŏ \u{o} | Ǒ \v{O} |
+| ǒ \v{o} | Õ \~O | õ \~o | Ŕ \'R | ŕ \'r | Ŗ \c{R} | ŗ \c{r} |
+| Ř \v{R} | ř \v{r} | Ś \'S | ś \'s | Ŝ \^S | ŝ \^s | Ş \c{S} |
+| ş \c{s} | Š \v{S} | š \v{s} | Ţ \c{T} | ţ \c{t} | Ť \v{T} | ť \v{t} |
+| Ü \"U | ü \"u | Ú \'U | ú \'u | Ū \=U | ū \=u | Û \^U |
+| û \^u | Ù \`U | ù \`u | Ű \H{U} | ű \H{u} | Ų \k{U} | ų \k{u} |
+| Ů \r{U} | ů \r{u} | Ŭ \u{U} | ŭ \u{u} | Ǔ \v{U} | ǔ \v{u} | Ũ \~U |
+| ũ \~u | Ŵ \^W | ŵ \^w | Ÿ \"Y | ÿ \"y | Ý \'Y | ý \'y |
+| Ȳ \=Y | ȳ \=y | Ŷ \^Y | ŷ \^y | Ź \'Z | ź \'z | Ż \.Z |
+| ż \.z | Ž \v{Z} | ž \v{z} | å {\aa} | Å {\AA} | æ {\ae} | Æ {\AE} |
+| Ð {\DH} | ð {\dh} | đ {\dj} | Đ {\DJ} | ð {\eth} | Ð {\ETH} | ı {\i} |
+| ł {\l} | Ł {\L} | ŋ {\ng} | Ŋ {\NG} | Ø {\O} | ø {\o} | œ {\oe} |
+| Œ {\OE} | ß {\ss} | þ {\th} | Þ {\TH} | | | |
+
+## Examples
+
+The following are examples of how correctly completed metadata might appear in plain text email announcements:
+
+### Example 1
+
+```
+Title: Recent Seminal Results in the Theory of Everything
+  That I Have Been Working on Recently
+Authors: H.Z. Jarvey (Eastern Fundamental Institute)
+Comments: 12 pages, 3 Postscript figures, uses rotate.sty
+Report-no: EFI-94-11
+Journal-ref: Obsc. Unr. Jour. 51 (1994) 87-95
+
+This paper explains everything about everything, thereby making
+redundant all other papers in the field.  Applications to text
+compression should be obvious.
+
+```
+
+### Example 2
+
+```
+Title: An interesting new theorem in algebraic geometry
+Authors: Jane B. Jones, John F. Jones, and Steven Q. Smith
+Comments: AMS-LaTeX v1.2, 24 pages with 3 figures
+Report-no: University of Northern Nowhere preprint UNN-MATH-96-04
+Subj-class: Algebraic Geometry
+MSC-class: 14J30 (Primary); 32H10 (Secondary)
+
+We extend the results of our previous papers in order to prove some
+well-known conjectures in differentio-algebraic geometric functional
+analysis.
+
+```
+
+# Submit TeX/LaTeX - arXiv info
+URL: https://info.arxiv.org/help/submit_tex.html
+
+Submit TeX/LaTeX - arXiv info
+
+# TeX Submissions
+
+- (La)TeX processing changes in Submission System 1.5
+- Comparison between the Legacy Submission System and the current one
+- Supported TeX processors
+- Submissions are automatically processed
+- Considerations for LaTeX submissions
+- Considerations for PDFLaTeX submissions
+- We don't have your style files or macros
+- Do not submit in double-spaced "referee" mode
+- Prepare the references carefully
+- Include `.bib` or `bbl` files if you use BibTeX/Biber
+- Potential problems with biblatex `.bbl` files
+- Include `.ind` files if you used `makeindex`
+- Include `.gls` or `.nls` files if you have a glossary or nomenclature section
+- Usage of `xr`, `subfiles`, and external documents
+- Avoid mistakes in the text
+- Problems with special TeX characters in hyperlinks (URLs) -- in particular JHEP3.cls
+- Hidden files will be deleted upon announcement
+
+### (La)TeX processing changes in Submission System 1.5
+
+In April of 2025 we rolled out changes to how arXiv process (La)TeX submissions. We retired the long-used "AutoTeX" (Submission 1.0) system that we have used for decades in favor of a simpler, more straightforward process of converting (La)TeX submissions to PDFs in Submission 1.5.
+
+For details concerning the TeX Live system in use, and notes concerning the current TeX Live version, please consult TeX Live at arXiv.
+
+### Comparison between the Legacy Submission System and the current one
+
+For detailed documentation of the Legacy Submission System and its differences to the current one, please see Legacy Submission System.
+
+## Supported TeX processors
+
+During the submission process, you will be asked which of the processor you want to use for your submission. Selecting the correct processor is generally an easy task, because we will offer you the hopefully correct one automatically during submission. If you want to decide by yourself, see TeX Live - Supported TeX processors.
+
+### Submissions are automatically processed
+
+Your submission will be processed automatically according to the processor selected during the submission step.
+
+This is a complex task, and the processing does not always lead to the desired or expected results. It is important for you, the author/submitter, to carefully check and verify the resulting PDF. You will be required to view the PDF during the submission process before you will be able to complete your submission.
+
+Some aspects of the conversion can be controlled by uploading a 00README file, see the page for further details.
+
+You can submit a collection of TeX input/include files, e.g. separate chapters, foreword, appendix, etc, and custom macros (see below) packaged in a (possibly compressed) `.tar` or `.zip` file. Main files (or "Toplevel files") can be in the root or in a subdirectory, but note that compilation is always done from the root of your submission directory, even if the main file is in a subdirectory. This is important when you use `\include` or `\input` or any other command that includes data from external files.
+
+That said, it is important that you do not include extraneous files (including unused figure files), leftover files, backup files, anything that does not belong to the paper you are submitting or is not needed for processing. Do not include journal templates, referee letters, or man pages. Tidy your submission before you pack it up.
+
+You must submit any figures that go along with your paper. We recommend that you use appropriate TeX commands to include the figures inline with your paper (see below).
+
+Note: arXiv recommends against using the `\today` macro in the standard `\date` field. Because pdf are occasionally rebuilt this date will change and may cause confusion, as outlined in our FAQ page for this topic. To avoid this issue, do not use it unless you are comfortable with the displayed date changing periodically. 
+
+### Considerations for (La)TeX submissions
+
+If you have a file named foo.tex, then do not include any associated auxiliary file or intermediate or resulting output file, e.g. foo.ps (or foo.aux, foo.log, foo.toc, foo.lot, foo.lof, foo.dvi, foo.pdf) in your submission. These will be automatically removed to allow the creation of an output file from your TeX file. Index (`.ind`) and processed bibtex (`.bbl`) files are an exception, see below.
+
+#### Figure inclusion in LaTeX submissions
+
+Depending on the selected processor (see above), only certain types of images can be included without conversion:
+
+- for plain TeX, and for "LaTeX in DVI mode", only (encapsulated) PostScript (.ps or .eps) are supported;
+- for "LaTeX in PDF mode", you may embed your `.pdf, .png, .jpg` figures using the same mechanisms.
+
+Please note that arXiv does not perform "on the fly" figure file conversion during tex processing (i.e. "`-eps-converted-to.pdf`" files being present in your source directory). You must perform such conversion yourself before uploading, updating any effected inclusion command. This process ensures that you have examined the results of any figure conversion to ensure that the figures still contain scientifically correct information and that arXiv is not responsible for the scientific accuracy of your figures.
+
+The most flexible and robust figure inclusion is provided by the `graphics` and `graphicx` packages and the `\includegraphics` command defined therein. We highly recommend you use them for your figure inclusion. arXiv does not support the `psfig` package any longer. You may not include your own `psfig.sty`, as this will cause your source to fail. The functionality it required was deprecated prior to TeXLive 2016 and this is not something we can control. Older submissions that have already been announced with the `psfig` package will still work. Please update your source to a more modern inclusion command.
+
+Note that some software will permit you to include a mix of PostScript and PDFLaTeX-compatible figures and will perform the conversions to the appropriate format for you on the fly. arXiv does not permit such software to run during the TeX processing. Why? It is possible for conversion issues to arise that can alter the scientific meaning or interpretation of your figure. Rather than invite such possibilities, we require that you use a unified figure format.
+
+#### Avoid embedding JavaScript in your PDF files
+
+Do not include embedded JavaScript such as animated gifs, movies, or HTML in your PDF. Submissions with embedded JavaScript are automatically rejected due to the potential security risks posed to arXiv systems.
+
+- Submit all movies and animated GIFs as separate (non-JavaScript) ancillary files.
+- Remove or disable JavaScript when building your PDF or generate PDFs using standard tools such as Adobe Distiller.
+
+#### Figure inclusion in plain TeX
+
+For plain TeX submissions, use the plain tex interface to the graphics package (`graphicx.tex`) or a macro package like `epsf` or `epsfig`.
+
+`pdftex` is supported and can support `jpg`, `png` etc.
+
+### Considerations for PDFLaTeX submissions
+
+arXiv fully supports and automatically recognizes PDFLaTeX. 
+
+- Should you need conditional branching in your source, use the ifpdf package. Do not re-invent the wheel. ifpdf provides a robust and well tested mechanism to distinguish between pdflatex in pdf mode and other modes or engines.
+- You should not use `\pdfoutput` to change the output format.
+- Some packages may require a particular back-end driver, in the form of a package option, e.g. `\usepackage[pdftex]{...}`. However, the graphics and hyperref packages determine the proper driver automatically; you do not have to make this explicit choice and should not do so to avoid conflicts.
+- Figures can be included in JPEG, PNG, or PDF format with the standard graphics package. For security reasons arXiv does not allow for automated format conversion, so your figures must be in the proper format already.
+- Unlike native LaTeX, the default output format for PDFLaTeX is PDF, with no intermediate DVI or PostScript. Thus, these formats are not available for download for PDFLaTeX submissions.
+
+### We do not have your style files or macros
+
+We don't provide any further packages besides what is provided by the TeX Live system. That means in particular that some publisher styles will not be available. Please check the list of TeX Live packages provided by arXiv at the current time is here.
+
+### Do not submit in double-spaced "referee" mode
+
+Avoid inadvertently submitting your paper in double-spaced referee mode, since it wastes paper on a global scale. Readers prefer to have a compact single-spaced version, as it would appear in a printed journal.
+
+### Prepare the references carefully
+
+We strongly encourage you to include arXiv's `YYMM.NNNNN` identifiers in your reference list for both published and unpublished papers. Note also that many publishers allow e-print identifiers to appear in the references of papers submitted.
+
+If you use standard identifiers of the form 1510.00322, arXiv:1510.00322, 0901.0512, arXiv:0901.0512, hep-ph/9409201 or arXiv:hep-ph/9409201, they can be easily harvested by automatic software. For example,
+
+> `\bedim{upsilon}
+> C.T.H. Davies {\em et al.}, Phys. Rev {\bf D} 50 (1994) 6963, hep-lat/9406017.`
+
+Do not include extraneous font commands, spaces, tildes, braces, or line-breaks within the e-print identifier: this will cause your references to be missed by automated extraction software. See also notes about references to and in arXiv documents and collection of references at INSPIRE. Use of e-print identifiers is a significant aid to the INSPIRE database. It also facilitates automatic network hyperlinks of references from within papers.
+
+If you are submitting a group of `.tex` files, automated reference extraction by INSPIRE and others will be more accurate and faster if your references are all in one file. This file should have the `\begin{thebibliography}` or similar command within it, and should be called `foo.bbl` to correspond to a given `foo.tex` source file.
+
+Note for submitters who use Overleaf: Please refer to their help documentation regarding how to prepare your document for submission to arXiv.
+
+### Include `.bib` or `.bbl` files if you use BibTeX/Biber
+
+arXiv now provides support for bib file processing using various processors like `biblatex` (with auto-selection of the correct backend) and `bibtex`.
+
+It is also possible to upload a pre-generated `.bbl` file for your paper. In this case, the name of the `.bbl` file must match the name of the main `.tex` file for the system to process the references correctly.
+
+Our system will use the `.bbl` file if it is present, and otherwise will automatically detect the usage of bibliography and select the bib-compiler accordingly. In case the `.bbl` file is not uploaded, and at least one necessary `.bib` file is missing, the submission system will block you from proceeding with your submission.
+
+We detect `biblatex` usage and will run the program selected as backend in the `biblatex` configuration (that is, one of `biber`, `bibtex`, `bibtex8`), and otherwise use `bibtex`.
+
+In the non-`biblatex` case, we use `bibtex`. If you need to use another bib-processor (like e.g., `bibtex8` or `upbibtex`), you must pre-compile the bibliography, upload the `.bbl` and preserve the `.bbl`.
+
+Note for submitters who use Overleaf: Please refer to their help documentation regarding how to prepare your document for submission to arXiv. 
+
+#### The `.bbl` file and paper submission were produced by different programs
+
+Biblatex can run on a dedicated Biber backend or BibTeX; however, when submitting a biblatex `.bbl` file, your paper and `.bbl` file must be created by the same program. E.g.:
+
+- If you use biblatex with Biber as a backend to produce your document, then your document will expect a `.bbl` produced by Biber.
+- If you use biblatex with BibTeX as a backend to produce your document, then your document will expect a `.bbl` produced by BibTeX.
+
+Do not mix and match papers produced by Biber with a .bbl produced by BibTeX or vice versa. This will only result in errors and frustration. Learn more about biblatex, BibTeX and Biber.
+
+#### The `.bbl` file version is not compatible with biblatex or Biber on arXiv
+
+When uploading the .bbl file for biblatex, it must be compatible with the version of biblatex or Biber on the arXiv at the present time. If your .bbl for biblatex is not compatible, then your submission will have errors. During submission, you should see a warning about incompatible bbl versions. View arXiv's current version of TeXLive.
+
+To be more specific: arXiv offers currently TeX Live 2023 and 2025 (the default). TeX Live 2025 includes biblatex 3.20, Biber 2.20, and uses bbl format 3.3. TeX Live 2023 included biblatex 3.19, Biber 2.19, and uses bbl format 3.2.
+
+For TeX Live 2023, we have taken steps that both bbl formats, 3.2 (TeX Live 2023) and 3.3 (TeX Live 2025), are supported by arXiv. For TeX Live 2025, only bbl format 3.3 is supported.
+
+### Include `.ind` files if you use `makeindex`
+
+We do not run `makeindex` in the auto-TeXing procedure. If you use it, include in your submission the `.ind` file that `makeindex` produces on your own machine; otherwise your index will not appear.
+
+It is difficult to automatically perform `makeindex` processing to the authors' expectations because of the multiple optional arguments and optional style selections. Therefore, arXiv asks authors to provide their pre-processed `.ind` file(s) along with their (La)TeX source file(s).
+
+Note for submitters who use Overleaf: Please refer to their help documentation regarding how to prepare your document for submission to arXiv.
+
+### Include your `.gls` or `.nls` if you use any glossary or nomenclature packages
+
+Similar to index files, we do not process `.glo` or `.nlo` into the resultant `.gls` or `.nls` files. You must provide these files if you have any special nomenclature in your document.
+
+Note for submitters who use Overleaf: Please refer to their help documentation regarding how to prepare your document for submission to arXiv.
+
+### Usage of `xr`, `subfiles`, and external documents
+
+In general, usage of the `xr` (and the deprecated `xr-hyper`, which is subsumed by `xr`) is problematic and we advise against the usage of it on arXiv. `xr` provides a way to link to external documents, but renaming of files, file locations etc will be different on the arXiv servers, and thus links to external documents will not work.
+
+In particular, if a submission consists of two separately compiled PDFs, and one contains `xr` based links to the other, these links will not function in the final document. We concatenate the single PDFs, and thus the external file will be lost.
+
+In such a case, there is an option to reformat the two documents into main and subfile(s) and use the `subfiles` package. Using `xr` and `subfiles` with multiple documents can work when the setup is correctly done:
+
+- Assume that the main file is called `my-submission`
+- The main document loads `xr` and `subfiles`, and declares `\externaldocument[M-]{my-submission}[]` -- the empty optional argument at the end ensures that hyperref creates internal links.
+- The sub-document uses `subfiles` document class, loads `xr`, and also declares the same `\externaldocument...` as above
+- The prefix `M-` is arbitrary and can be chosen, please see the documentation of `xr`
+
+This should resolve all links within any of the subfiles or links across files as internal document links.
+
+### Avoid mistakes in the text
+
+Common mistakes can be avoided by following some simple guidelines. If your submission does not TeX properly, you will receive the log from our TeX processing at the Process step. The information contained in this complete log should be sufficient to identify the problem, so examine it carefully; check the end of the log for TeX errors. Be sure to note any programmatically changed filenames during file upload.
+
+### Problems with special TeX characters in hyperlinks (URLs) -- in particular JHEP3.cls
+
+If hyperlinks for URLs containing '#' appear as '\#' in arXiv generated PDF, the macro package being used to generate these hyperlinks does not properly escape special characters in pdf strings. Either refer to the CTAN website for detailed information about the current hyperTeX or define the URLs with the following workaround: instead of e.g.:
+
+> `\href{http://example.com/some-page.html\#destination}{destination}`
+
+> `\href{http://example.com/some-page.html\string#destination}{destination}`
+
+If you use macros like:
+
+> `\newcommand{\link}[2]{\href{http://example.com/some-page.html\##1}{#2}`
+
+> `\bgroup\catcode`\#=12\gdef\hash{#}\egroup \newcommand{\link}[2]{\href{http://example.com/some-page.html\hash #1}{#2}`
+
+### Hidden files will be deleted upon announcement
+
+Please do not use hidden files or directories in your source package. These hidden files (i.e. files or directories beginning with a period character, such as `.cache/`) will be deleted upon announcement, but may work at the Process or Preview submission stages. The rationale being that such files may be cruft from version control systems, etc. and should not be a part of an archival version of your source. This means that any packages that allow for or rely upon these structures (e.g. `minted.sty`) may function on your machine, but will fail once announced.

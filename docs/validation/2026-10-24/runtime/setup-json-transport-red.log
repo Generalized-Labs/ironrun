@@ -1,0 +1,6 @@
+--- FAIL: TestMCPRegistrationPreservesExistingEntriesAndValues (0.00s)
+    --- FAIL: TestMCPRegistrationPreservesExistingEntriesAndValues/remote_transport (0.00s)
+        mcp_registration_test.go:28: unexpected registration status: {client:test client state:configuration recognized location:fixture config next: err:<nil>}
+FAIL
+FAIL	github.com/generalized-labs/ironrun/cmd/ironrun	0.012s
+FAIL

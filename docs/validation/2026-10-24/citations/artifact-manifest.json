@@ -1,0 +1,51 @@
+{
+  "algorithm": "sha256",
+  "scope": "All files retained in this subdirectory except this manifest itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1535,
+      "sha256": "9034ac686d1bb89fe5dd9d688ee0ca0ed4bdcb6d2b14990be0d2123740b499a7"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 6627,
+      "sha256": "14719d671f2aabd856e7fa0658c428007c7619c92e7c3b6b20901011b180b7b2"
+    },
+    {
+      "path": "RESOLUTIONS.md",
+      "bytes": 3300,
+      "sha256": "0acc466b1fa09bd44d37bdde38d1949992d492174202849b8cb200c9a3b01980"
+    },
+    {
+      "path": "citation-matrix.csv",
+      "bytes": 28507,
+      "sha256": "71b7d60360c1634c7e2b23ccd598e24fcad16ea9e8e621468bc11e63975b803c"
+    },
+    {
+      "path": "citation-matrix.json",
+      "bytes": 201814,
+      "sha256": "714d1dac7e3ef4140f5d00cd39aec20a1619823452e5016505e54040ddd7ea75"
+    },
+    {
+      "path": "critical-scope-evidence.json",
+      "bytes": 2290,
+      "sha256": "66b6427fd983a0923073faf4b9e94ac2d611e92af4de6a8efbb2167a5afcb5bb"
+    },
+    {
+      "path": "metadata-crosscheck.json",
+      "bytes": 4536,
+      "sha256": "bd2e0c22033cab9e2ef9928bec5bb4aea0c36cd48896f9be89a35dc792496ec2"
+    },
+    {
+      "path": "raw-evidence-inventory.json",
+      "bytes": 6469,
+      "sha256": "3c0a0e94d2f966364f8314971710cfd8eb43f436a1444c195ff52523744bb7b4"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 1719,
+      "sha256": "62c92ec69cdbaacd9cb2d00ececc18aceba7be699740582bd667d874e72e6576"
+    }
+  ]
+}

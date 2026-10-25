@@ -1,6 +1,7 @@
 package mcp_test
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -231,6 +232,86 @@ func TestMCPWorkspaceAccessRequestIsValueBlindAndDeduplicated(t *testing.T) {
 	}
 	if _, err := manager.AuthorizeWorkspace(request.SessionID, request.Environment); !errors.Is(err, access.ErrUnauthorized) {
 		t.Fatalf("revoked workspace grant still authorizes: %v", err)
+	}
+}
+
+func TestMCPWorkspaceRequestReportsStoredDeadlineAndAccessDuration(t *testing.T) {
+	policyFile := writePolicyInDir(t, leasePolicy)
+	p := startMCP(t, policyFile)
+	p.initialize(t)
+	arguments := map[string]interface{}{
+		"reason": "run the local development checks",
+		"argv":   []string{"go", "test", "./..."},
+	}
+	response := p.callTool(t, 3, "request_workspace_access", arguments)
+	text, isErr := extractToolText(t, response)
+	if isErr {
+		t.Fatalf("workspace request failed: %s", text)
+	}
+	manager, err := access.Open(filepath.Dir(policyFile))
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := waitForPendingRequest(t, manager, "", access.RequestWorkspace)
+	assertTiming := func(text string, request access.Request) {
+		t.Helper()
+		deadline := "Review deadline: " + request.ExpiresAt.UTC().Format(time.RFC3339)
+		duration := "Requested access duration if approved: " + request.RequestedTTL.String()
+		if !strings.Contains(text, deadline) || !strings.Contains(text, duration) {
+			t.Errorf("response must distinguish the stored review deadline %q from access duration %q:\n%s", deadline, duration, text)
+		}
+	}
+	assertTiming(text, request)
+
+	// Stage an older, still-pending request. Reusing it must report its
+	// remaining review window and stored grant duration, not fresh defaults.
+	data, err := os.ReadFile(manager.Path())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var state map[string]json.RawMessage
+	if err := json.Unmarshal(data, &state); err != nil {
+		t.Fatal(err)
+	}
+	var requests []access.Request
+	if err := json.Unmarshal(state["requests"], &requests); err != nil {
+		t.Fatal(err)
+	}
+	if len(requests) != 1 || requests[0].ID != request.ID {
+		t.Fatalf("unexpected pending requests: %#v", requests)
+	}
+	request.ExpiresAt = time.Now().UTC().Add(2 * time.Minute).Truncate(time.Second)
+	request.CreatedAt = request.ExpiresAt.Add(-access.DefaultRequestTTL)
+	request.RequestedTTL = 45 * time.Minute
+	requests[0] = request
+	state["requests"], err = json.Marshal(requests)
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, err = json.Marshal(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(manager.Path(), data, 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	response = p.callTool(t, 4, "request_workspace_access", arguments)
+	text, isErr = extractToolText(t, response)
+	if isErr || !strings.Contains(text, request.ID) {
+		t.Fatalf("pending request was not reused: isError=%v text=%s", isErr, text)
+	}
+	assertTiming(text, request)
+	reused, err := manager.Request(request.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reused.ExpiresAt.Equal(request.ExpiresAt) || reused.RequestedTTL != request.RequestedTTL {
+		t.Fatalf("request reuse changed its timing: before=%+v after=%+v", request, reused)
+	}
+	all, err := manager.Requests()
+	if err != nil || len(all) != 1 {
+		t.Fatalf("request reuse created another request: requests=%#v err=%v", all, err)
 	}
 }
 

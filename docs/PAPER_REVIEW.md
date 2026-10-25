@@ -1,13 +1,13 @@
 # Paper review and evidence status
 
-Updated October 23, 2026. The revised manuscript separates retained paired
+Updated October 24, 2026. The revised manuscript separates retained paired
 leakage evidence from fresh current-only diagnostics and current regression
 case studies. It removes unsupported historical self-audit/severity/fix totals,
 old before/after timing comparisons, and blanket sub-millisecond overhead claims.
-The revised 13-page PDF and freshly extracted three-file source bundle compile.
+The revised 14-page PDF and freshly extracted three-file source bundle compile.
 Their extracted text matches, with no undefined citations/references, font
 substitutions, or overflowing boxes in the final logs.
-All 13 final pages were visually inspected, including diagrams, tables, and
+All 14 final pages were visually inspected, including diagrams, tables, and
 the chunking property's page break.
 
 Read [REPRODUCING.md](../paper/REPRODUCING.md) for exact source identities,
@@ -26,6 +26,10 @@ figures; the revised manuscript and pinned raw evidence control those claims.
 | Pseudocode | Matching stops at the safe lookahead boundary, as the implementation does |
 | Latency | Hold-back bounds retained bytes, not wall-clock delay for quiet interactive output |
 | Coverage | Tier priority, overlaps, thresholds, and unsupported transformations limit recognition |
+| Overlap counterexample | A reproducible two-pattern example leaves 22 of 23 bytes of the later value; no general eleven-byte overlap bound is claimed |
+| Agent interface | No secret-reveal API; arbitrary string fields are not a content confidentiality proof, and CI mask-registration output is a separate operator channel |
+| Platform controls | Linux supplies the core seal and seccomp filter; macOS network controls do not provide those protections; files and local IPC need host controls |
+| Audit chain | Optional by policy, verified at logger open, best-effort appends; an unkeyed chain does not prevent rewriting/re-hashing or truncation |
 | Process lifetime | Cleanup covers the original process group; detached descendants can escape |
 | Strict command approval | Fixed argv does not make attacker-writable executables, dependencies, or inputs safe |
 | Distribution | Installer/Action verify Sigstore bundles; npm verifies hashes against its bundled manifest |
@@ -89,6 +93,9 @@ fixed direct/runner/isolated ordering; differences between the reported medians
 are not measured paired per-command increments. No p95/p99, interactive delivery
 delay, provider lookup or long-value scaling claim follows. A fresh successful
 run does not reconstruct the old M3/macOS performance records.
+The spawn microbenchmark also excludes session authorization, audit writes, and
+the production seccomp filter; its runner path includes the default Linux
+core-dump seal. It is not an end-to-end product timing measurement.
 
 The FP result is now reproducible for its frozen input, but 1,000 deliberately
 similar generated log lines dominate the structured-value collision. A matching
@@ -128,17 +135,39 @@ validated by a Linux run, and skips are not successful containment samples.
 
 ## arXiv preparation
 
-- The revised TeX and ASCII metadata abstract match: **1,812 characters**, within
+- The revised TeX and ASCII metadata abstract match: **1,815 characters**, within
   the official 1,920-character limit. Historical audit counts and blanket
   overhead claims are absent from the abstract.
-- The review build has 13 pages, 5 figures, and 3 tables. The upright monospace
+- The review build has 14 pages, 5 figures, and 3 tables. The upright monospace
   selection fixes the earlier italic-font fallback. Rebuild and inspect again
   after any publication edits.
 - `make arxiv` generates the bibliography on a fresh checkout even when the
   tracked PDF is current. The extracted bundle sources match the built sources;
   compilation uses the shipped bibliography without a BibTeX step.
+- The three-pass extracted-bundle check disables shell escape. Its expected
+  `epstopdf` notice records that choice; underfull box notices are retained and
+  assessed visually. Neither check reports overflowing boxes, missing glyphs,
+  font substitution, or unresolved references/citations.
 - [ARXIV.md](../paper/ARXIV.md) retains proposed authors, categories, license and
   submission checks. No submission has been made by this review.
+
+## Final source and citation follow-up, October 24
+
+The [new evidence archive](validation/2026-10-24/README.md) binds the final
+manuscript, PDF, source bundle, source-level review, and overlap counterexample
+to exact hashes. All 82 cited references have a contextual review row: 78 have
+retained primary URL excerpts, three use additional official/publisher/Crossref
+metadata, and one uses an Apple manual mirror. This is not a claim that every
+full article was read or every external experiment replicated.
+
+That pass corrected Secretless Broker's database/SSH scope, LangWatch's trace
+filtering timing, and discussion of current Claude filesystem deny controls.
+It pins the cited Progent version, adds the Parasites DOI, and removes an
+unsupported native-macOS check claim from the Apple manual reference. The
+original citation matrix retains findings against its reviewed source;
+`citations/RESOLUTIONS.md` records corrections against the final manuscript.
+An independent source review found no material issue in the corrected passages;
+this does not validate the whole system or establish novelty priority.
 
 Pin the final publication source, retain the exact measured runtime separately
 if later changes modify it, and preserve source/archive/PDF hashes, raw outputs,

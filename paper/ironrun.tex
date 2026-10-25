@@ -1,5 +1,4 @@
 % arXiv: compile with pdflatex (all figures are TikZ; no external images)
-\pdfoutput=1
 \documentclass[10pt,twocolumn]{article}
 
 % ---------------------------------------------------------------------------
@@ -78,7 +77,7 @@ that injects secret values into child processes as environment variables or
 temporary files and filters known values and supported encodings before output
 reaches the agent. It combines value-blind Model Context Protocol interfaces,
 session-bound human authorization, a streaming redactor with whitespace-tolerant,
-fragment, and alignment-aware matching, and fail-closed OS containment with a
+fragment, and alignment-aware matching, and platform-specific OS controls with a
 hash-chained audit log. We state a chunking-invariance property for fixed
 patterns, bounded matching spans, successful writes, and a final flush, and
 present current regression case studies for approval integrity, agent-reachable
@@ -128,13 +127,14 @@ traces~\citep{panfilov2026reasoning}.
 Existing tools each cover part of the problem. Secret managers' \code{run}
 wrappers inject values into a child's environment~\citep{onepassword_oprun,doppler_cli,infisical_run};
 1Password's also conceals values in the child's output, but none of them
-mediates \emph{which} commands an agent may run with which secrets. Agent-host
-deny rules that hide \code{.env} files do not stop commands that read the file
-indirectly~\citep{claudecode_permissions,munis2025knostic,eve2026env}. Credential
-brokers control \emph{who may authenticate}~\citep{onepassword2026unified,bitwarden2026agentaccess},
-not \emph{what a command prints after authenticating}. Proxy-substitution
-designs never give the process the real value at all, but apply only to HTTP(S)
-traffic through a TLS-terminating proxy~\citep{claudecode_sandboxing,infisical_agentproxy,flyio_tokenizer}.
+mediates \emph{which} commands an agent may run with which secrets. Per-tool
+file restrictions alone can leave indirect read paths~\citep{munis2025knostic,eve2026env};
+host-enforced filesystem controls can protect those paths as well~\citep{claudecode_permissions,claudecode_sandboxing}.
+Credential brokers control authentication~\citep{onepassword2026unified,bitwarden2026agentaccess};
+filtering subsequent command output requires an output boundary. Proxy-substitution
+designs keep real values out of client processes. HTTP-specific proxies operate
+on traffic routed through their supported HTTP(S) paths~\citep{claudecode_sandboxing,infisical_agentproxy,flyio_tokenizer};
+protocol-aware brokers also support database and SSH connectors~\citep{cyberark_secretless}.
 CI runners have long masked known secrets and their encodings in job
 logs~\citep{githubrunner2019encoders,github2026secureuse}, and agent-side tools
 also inject secrets and scrub tool output by literal
@@ -226,20 +226,22 @@ receives everything in context and is outside the operator's control.
 
 \paragraph{Goals.}
 \begin{itemize}
-\item[\textbf{G1}] \textbf{Value-blindness.} No \sys{} interface reachable by the
-  agent---MCP tools, CLI, local API, daemon, audit log---returns a secret value or
-  key material.
-\item[\textbf{G2}] \textbf{Output confidentiality.} When an authorized child
-  prints a secret it was given, in literal form or a common encoding, the agent
-  receives a placeholder instead.
-\item[\textbf{G3}] \textbf{Least authority.} The agent obtains secret-bearing
-  execution only for commands and environments a human approved, bound to one
-  agent session and an expiry; revocation takes effect on the next call.
-\item[\textbf{G4}] \textbf{Containment.} By default a secret-bearing command
-  has no network, cannot trace other processes, cannot dump core, and cannot
-  outlive its time budget.
-\item[\textbf{G5}] \textbf{Accountability.} Every run leaves a tamper-evident
-  record of what ran with which secret \emph{names}.
+\item[\textbf{G1}] \textbf{Value-blind interfaces.} Agent tools expose no
+  plaintext secret-value or vault-key fields. Trusted local input and explicit
+  CI mask emission use separate operator channels (\cref{sec:interfaces}).
+\item[\textbf{G2}] \textbf{Output filtering.} The output boundary replaces
+  recognized literal and derived matches under the defined matching policy;
+  thresholds, overlaps, and transformations limit confidentiality.
+\item[\textbf{G3}] \textbf{Least authority.} Saved commands restrict argv and
+  secret selection. Optional leases and trusted-workspace grants bind authority
+  to a session, environment, and expiry; revocation is checked on the next call.
+\item[\textbf{G4}] \textbf{Containment.} Requested network isolation and
+  process-group time limits apply on supported platforms. Linux additionally
+  provides syscall filtering and a core-dump limit; macOS does not implement
+  those Linux-specific controls.
+\item[\textbf{G5}] \textbf{Accountability.} With auditing enabled, successful
+  appends retain command metadata and secret \emph{names} in a hash chain.
+  Availability and integrity limits are explicit in \cref{sec:auditlog}.
 \end{itemize}
 
 \paragraph{Non-goals.} \sys{} does not attempt to stop an authorized process
@@ -262,10 +264,10 @@ state under a separate user. We return to this in \cref{sec:discussion}.
 \section{Design}
 \label{sec:design}
 
-\Cref{fig:arch} shows the architecture. All entry points---CLI, MCP server, TUI,
-and a local Unix-socket API---converge on a single execution core, so that
-authorization, resolution, containment, redaction, and audit cannot diverge
-between surfaces.
+\Cref{fig:arch} shows the architecture. CLI, MCP, TUI, and local Unix-socket API
+paths share an execution core for secret resolution, containment, redaction,
+and audit. Authorization remains each caller's responsibility; sharing the
+execution core does not by itself establish equivalent authorization checks.
 
 \begin{figure*}[t]
 \centering
@@ -279,7 +281,7 @@ between surfaces.
   sflow/.style={->, thick, draw=secret},
 ]
 % ironrun core (stages stacked; y chosen so side arrows are horizontal)
-\node[stage] (authz)   at (7.6, 2.4) {Authorize\\[-1pt]\footnotesize policy $\cdot$ lease $\cdot$ grant};
+\node[stage] (authz)   at (7.6, 2.4) {Caller authorization\\[-1pt]\footnotesize policy $\cdot$ lease $\cdot$ grant};
 \node[stage] (resolve) at (7.6, 1.3) {Resolve secrets};
 \node[stage] (contain) at (7.6, 0.2) {Inject \& contain\\[-1pt]\footnotesize netns/Seatbelt $\cdot$ seccomp $\cdot$ pgid};
 \node[stage, fill=accent!12] (redact) at (7.6, -0.9) {Streaming redactor};
@@ -287,14 +289,14 @@ between surfaces.
 \begin{scope}[on background layer]
 \node[draw=accent, thick, rounded corners=4pt, fill=accent!4, inner sep=7pt, fit=(authz)(audit)] (core) {};
 \end{scope}
-\node[font=\small\bfseries, text=accent, anchor=north] (corelabel) at ([yshift=-3pt]core.south) {\sys{} execution core};
+\node[font=\small\bfseries, text=accent, anchor=north] (corelabel) at ([yshift=-3pt]core.south) {\sys{} guarded run path};
 \foreach \u/\v in {authz/resolve, resolve/contain, redact/audit} \draw[flow] (\u) -- (\v);
 
 % agent side: one tall box so both arrows to the core are horizontal
 \node[box, minimum width=3.0cm, minimum height=4.0cm] (agent) at (0,0.75) {\textbf{Agent host}\\[2pt]Claude Code\\Codex\\Cursor\\\ldots};
 \node[box, fill=soft, minimum width=3.0cm] (prov) at (0,4.0) {\textbf{Model provider}\\context, logs};
 \node[box, minimum width=3.0cm] (tx) at (0,-2.55) {Local transcript\\\code{~/.claude/projects/}};
-\draw[<->, thick, draw=ink] (agent) -- node[lab, right] {redacted context only} (prov);
+\draw[<->, thick, draw=ink] (agent) -- node[lab, right] {model context} (prov);
 \draw[flow] (agent) -- (tx);
 \draw[flow] (agent.east |- authz.west) -- node[lab, above] {\code{run_sealed}\\(argv or command id)} (authz.west);
 \draw[flow] (redact.west) -- node[lab, below] {exit code +\\\red{} output} (agent.east |- redact.west);
@@ -312,21 +314,23 @@ between surfaces.
 \begin{scope}[on background layer]
 \node[draw=secret, dashed, rounded corners=6pt, inner sep=9pt, fit=(core)(corelabel)(vault)(child)] (tb) {};
 \end{scope}
-\node[font=\footnotesize\itshape, text=secret, anchor=south east] at ([xshift=-4pt,yshift=3pt]tb.south east) {secret values exist only inside this boundary};
+\node[font=\footnotesize\itshape, text=secret, anchor=south east] at ([xshift=-4pt,yshift=3pt]tb.south east) {managed value injection and output filtering};
 \end{tikzpicture}
-\caption{\sys{} architecture. Values (orange) move from the vault into the child
-and from the child's pipes into the redactor; they never cross to the agent.
-The agent invokes one tool, receives an exit code and redacted output, and
-cannot approve its own requests.}
+\caption{The MCP run path. Orange arrows show value delivery to the child and
+its output pipes. Caller authorization precedes shared execution. The tool
+returns an exit code and output filtered under the stated matching policy;
+MCP approval requires an operator action.}
 \label{fig:arch}
 \end{figure*}
 
 % ---------------------------------------------------------------------------
 \subsection{Value-blind interfaces}
+\label{sec:interfaces}
 
 The agent-facing MCP server exposes twelve tools (\cref{tab:tools}). Their
-schemas are designed so that no field can carry a secret value in either
-direction. \code{request_secret}, for example, accepts only a declared alias and
+schemas solicit aliases and metadata, not plaintext secret values.
+String fields can still contain arbitrary text; the schema is not a content
+confidentiality proof. \code{request_secret}, for example, accepts a declared alias and
 a reason; the human fulfils it through masked local input. If a workflow
 requires pasting through chat, the operator instead produces an \emph{encrypted
 capsule} (\code{ir1.}\ldots): AES-256-GCM ciphertext under a per-project capsule
@@ -334,11 +338,16 @@ key, bound by its authenticated data to the project and by its payload to the
 requesting MCP session, request, alias, and a $\leq$10-minute expiry, and usable
 once. The plaintext never enters the transcript.
 
+The explicit operator flag \code{--emit-github-masks} is a separate CI channel:
+it prints mask-registration commands containing escaped values for the CI
+parser. It must not be routed to an agent transcript or treated as a value-blind
+CLI response.
+
 \begin{table}[t]
 \centering\small
 \begin{tabularx}{\columnwidth}{@{}lX@{}}
 \toprule
-Tool & Returns (never a value) \\
+Tool & Returns (no secret-value fields) \\
 \midrule
 \code{list_commands} & IDs and argv of approved commands \\
 \code{run_sealed} & exit code, duration, redacted stdout/stderr \\
@@ -353,23 +362,22 @@ Tool & Returns (never a value) \\
 \code{validate_policy} & provider and command count \\
 \bottomrule
 \end{tabularx}
-\caption{The agent-facing MCP surface. A guard test fails the build if any tool
-result carries vault key material, and removed tools (e.g.\ an earlier
-\code{share_environment}) are registered as banned.}
+\caption{The agent-facing MCP surface. A registry guard rejects removed
+key-export tools. A native-store-dependent fixture probe checks sampled handler
+results for vault key material; it may skip on headless hosts.}
 \label{tab:tools}
 \end{table}
 
 % ---------------------------------------------------------------------------
-\subsection{Authorization tiers}
+\subsection{Authorization mechanisms}
 \label{sec:authz}
 
-\sys{} offers four ways for an agent to obtain secret-bearing execution, ordered
-from strictest to most convenient:
+\sys{} combines four authorization mechanisms:
 
 \begin{enumerate}
 \item \textbf{Strict commands.} The policy file lists exact argv vectors and the
   secrets each receives. The agent calls \code{run_sealed} with a command ID; no
-  shell is interposed, so injected values cannot be re-expanded, and argv[0] may
+  shell expansion is performed by the wrapper, and argv[0] may
   not be a shell. The policy is re-read on every call.
 \item \textbf{Leases.} With \code{require_agent_leases}, a strict command also
   needs an unexpired, unrevoked lease bound to the MCP session, environment, and
@@ -391,9 +399,7 @@ server instance it was issued to.
 deduplicated, value-blind request and waits on persisted state, re-validating
 authorization every 100\,ms until the request's deadline
 (\cref{fig:seq}). When the operator approves in the TUI, the original call
-resumes. This removes the round-trip in which an agent asks the human to
-``approve and tell me when done''---a round-trip that, in practice, encourages
-humans to paste secrets into chat.
+resumes without a separate approve-and-report exchange in chat.
 
 \begin{figure}[t]
 \centering
@@ -492,8 +498,8 @@ the Basic-auth scenario---the \emph{alignment cores} of base64 at byte offsets
   which covers terminal line wrapping, \code{\r\n} injection, UTF-16LE
   null interleaving, and one-character-per-line output. The consumed span is
   capped at the global span $m$ defined below.
-\item \textbf{Fragment}: for patterns with 24 to 65{,}536 non-whitespace bytes,
-  every 12-byte window of the pattern's whitespace-free projection is indexed.
+\item \textbf{Fragment}: for patterns with 24 to 65{,}536 non-gap bytes,
+  every 12-byte window of the pattern's gap-free projection is indexed.
   Twelve output bytes that match a window, in order and with any gap bytes
   between them, are extended forward over the rest of the pattern and redacted.
   This catches truncated and partial prints (one line of a PEM key) and
@@ -604,8 +610,9 @@ runner has registered shifted base64 forms since
 \subsection{Containment}
 \label{sec:contain}
 
-Redaction protects the output channel; the following layers bound side effects,
-and all of them fail closed:
+The following controls reduce selected side effects. Requested network isolation
+and the Linux child shim refuse execution when their setup fails; their scope
+does not include filesystem or general interprocess isolation.
 
 \begin{itemize}
 \item \textbf{Network.} Secret-bearing commands get no network unless the
@@ -619,7 +626,7 @@ and all of them fail closed:
 \item \textbf{Syscalls.} On Linux the child is started through a re-exec shim
   that sets \code{NO_NEW_PRIVS}, installs a seccomp-BPF filter~\citep{linux_seccomp} that checks the
   architecture, rejects the x32 ABI, and returns \code{EPERM} for
-  \code{ptrace}, \code{process_vm_readv}/\code{writev}, \code{kcmp},
+  \code{ptrace}, \code{process_vm_readv}, \code{process_vm_writev}, \code{kcmp},
   \code{perf_event_open}, \code{bpf}, and \code{userfaultfd}, then sets
   \code{RLIMIT_CORE=0} and execs the target in place.
 \item \textbf{Lifetime.} The child runs in its own process group; on timeout,
@@ -637,21 +644,26 @@ and all of them fail closed:
   triggered by fork pull requests (and \code{pull_request_target}, the ``pwn
   request'' pattern~\citep{lobacevski2021pwn,koishybayev2022ci}, without an
   explicit operator flag) are refused before any secret is resolved.
-\item \textbf{Operator-only switches.} Every control that weakens protection
-  (seccomp, core-dump seal, entropy scan, \code{pull_request_target}) is a
-  command-line flag, never an environment variable, because the environment is
-  reachable by the agent.
+\item \textbf{Operator-only switches.} Explicit overrides for seccomp, the
+  core-dump seal, entropy scan, and \code{pull_request_target} use command-line
+  flags rather than environment-variable switches. An unrestricted agent shell
+  can still invoke such flags; host restrictions must protect their use.
 \end{itemize}
 
 \subsection{Audit}
-Each run appends a JSONL record---command, argv with all registered patterns
-scrubbed, secret names and kinds, redaction count, exit status, sandbox
-outcome---whose hash covers the previous record's hash, in the style of
-Schneier and Kelsey~\citep{schneier1999audit}. \code{ironrun audit
-verify} replays the chain, and a broken chain makes subsequent runs refuse
-rather than continue unaudited. The chain is tamper-evident for edits and
-reordering; without an external anchor or a Merkle structure~\citep{crosby2009tamper}
-it cannot detect truncation of the tail (\cref{sec:discussion}).
+\label{sec:auditlog}
+When auditing is enabled and the child starts, the runner attempts to append a
+JSONL record: command, argv scrubbed for registered literal and encoded values,
+secret names and kinds, redaction count, exit status, and sandbox outcome.
+Each record hashes the previous record's hash. Opening the logger verifies the
+existing chain and refuses detected corruption; a long-lived server does not
+replay it before every run. Later append or sync errors warn without failing the
+command, and policy can disable auditing.
+\code{ironrun audit verify} detects inconsistent edits or ordering when hashes
+have not been recomputed. This unkeyed chain does not provide the authenticated
+or forward-secure history of secure logging constructions~\citep{schneier1999audit}.
+Without a protected external anchor~\citep{crosby2009tamper}, an attacker can
+rewrite and rehash the whole file or truncate its tail (\cref{sec:discussion}).
 
 % ===========================================================================
 \section{Implementation}
@@ -671,12 +683,10 @@ OpenSSF Scorecard, \code{govulncheck}, and scheduled fuzzing.
 \section{Regression Case Studies}
 \label{sec:audit}
 
-We examine current executable regression checks at source commit
+We examine executable regression checks at source commit
 \code{a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d}.
-The cases below specify concrete properties of the current implementation;
-they are not a defect census, severity assessment, or demonstration that every
-check failed on v0.5.0. Earlier aggregate self-audit counts and fix totals lack
-the original finding-to-commit records and are not used as evidence here.
+These cases specify properties of that snapshot, rather than historical defect
+counts or severity assessments.
 \code{paper/REPRODUCING.md} identifies the tests and commands.
 
 \paragraph{Lesson 1: human review depends on the enforced artifact.}
@@ -817,8 +827,10 @@ match. Being unregistered is not sufficient: a transformation can still produce
 a registered pattern (for example, reversal of a palindrome).
 \end{observation}
 Redaction is therefore a defense against A1, not against an A2 that can choose
-the program. Against A2, \sys{} relies on the strict tier with host-enforced protection of executable code and inputs, on network isolation (the transformed secret cannot leave
-except through output), and on the warn-only entropy scan, which flagged
+the program. Against A2, \sys{} relies on strict commands with host-enforced
+protection of executable code and inputs. Network isolation reduces network
+egress but does not isolate writable files or local IPC; those channels require
+additional host controls. The warn-only entropy scan flagged
 21 of the 28 threshold leaks, with warnings on 6 of the 98 cases below
 that threshold. The latter need not be false alarms: partial or component
 recovery can remain security-relevant below 50\%. The gzip/base64 case is
@@ -865,7 +877,9 @@ spawn times of 1.043\,ms for direct \code{true}, 2.561\,ms through
 \code{runner.Run} with one synthetic secret, and 3.342\,ms through the runner
 with Linux network isolation. The harness runs these modes in fixed order
 within each repetition; differences between their medians are not a paired
-per-command overhead estimate. No provider lookup is included. The run records
+per-command overhead estimate. These runner microbenchmarks exclude provider
+lookups, audit writes, session authorization, and the production seccomp filter.
+The run records
 medians only, so it cannot establish p95/p99 latency or time to first visible
 output. A preceding attempt inside an additional filesystem sandbox failed at
 the first isolated spawn with a read-only-filesystem error; its failure is
@@ -879,7 +893,6 @@ repetitions scanning approximately 4\,MiB of repeated neutral log text in
 and writer construction. The generated values share padded prefixes, and the
 payload contains no matches. This diagnostic does not characterize long values,
 match-heavy output, small writes, memory costs, or interactive delivery delay.
-It replaces unsupported historical timing claims; it does not reconstruct them.
 
 \begin{figure}[t]
 \centering
@@ -904,21 +917,21 @@ patterns, fragments, gaps, and noise. It compares a single write with chunks of
 streaming/batch agreement and fragment coverage for its fixed pattern set.
 These are executable regression specifications for \cref{prop:chunk}; they do
 not reconstruct the original historical run or constitute exhaustive testing.
-The fresh \code{paper/eval} runs above do not execute these redactor tests;
-the separate commands and platform-dependent checks are identified in the
-reproduction guide.
+The fresh \code{paper/eval} runs do not execute these tests. The reproduction
+guide lists their commands and platform-dependent checks.
 
 % ===========================================================================
 \section{Discussion and Limitations}
 \label{sec:discussion}
 
-\paragraph{Substitution is stronger than redaction.} In proxy-substitution
-designs the child holds only a placeholder and a proxy inserts the real value
-into outbound HTTP(S) requests~\citep{claudecode_sandboxing,infisical_agentproxy,onecli2026,cyberark_secretless},
-so no output transformation can reveal it. Where that applies, it should be
-preferred. It does not apply to the many tools that use credentials outside
-HTTP---database wire protocols, SSH, signing keys, file-based service-account
-credentials---which is the space \sys{} targets; the two compose.
+\paragraph{Substitution avoids value exposure.} A child that receives only a
+placeholder cannot print a credential it never held. HTTP-specific proxies
+substitute values on supported outbound HTTP(S) paths~\citep{claudecode_sandboxing,infisical_agentproxy,onecli2026};
+protocol-aware brokers also support database and SSH connections~\citep{cyberark_secretless}.
+Where a broker supports the workflow, keeping values out of the child is
+preferable. Local signing, direct file consumers, and unsupported connectors
+can still require credentials in the process; output filtering addresses that
+remaining boundary and can compose with brokers.
 
 \paragraph{Redaction is a safety net, not a sandbox.} \Cref{obs:arbitrary} is
 fundamental. \sys{}'s strongest configuration---strict commands, leases, and no
@@ -941,10 +954,12 @@ meantime.
 and the legacy file store keeps its key beside its ciphertext. Both are
 consistent with the A3 exclusion but matter for A2 with an unrestricted shell.
 
-\paragraph{Audit truncation and vault rollback.} The hash chain and the vault
-manifest MAC detect modification but not replacement by an older valid state.
-Anchoring the latest chain head and vault revision in the OS credential manager
-would give monotonicity against everything short of A3.
+\paragraph{Audit rewriting and vault rollback.} The unkeyed audit chain can be
+rewritten and rehashed by an attacker who controls the whole file. The vault
+manifest MAC authenticates modifications under its key but does not prevent
+replay of an older valid state. Detecting replacement, truncation, or rollback
+requires an independently protected anchor and monotonic revision state;
+same-user credential storage alone does not establish that trust boundary.
 
 \paragraph{Partial and structured secrets.} A short secret ($<$24\,B) printed
 partially---say its first seven characters---is not fragment-indexed, and a
@@ -952,8 +967,10 @@ structured secret's boilerplate windows cause over-redaction (\cref{tab:fp}).
 Both trace to treating every 12-byte window alike; weighting windows by
 estimated entropy, or decomposing URLs into their userinfo component, are
 natural refinements. Separately, when two distinct registered values overlap in
-the output, the leftmost match wins and up to eleven bytes of the second can
-survive; we have only reproduced this with hand-built values.
+the output, tier priority and earlier consumption can prevent recognition of
+the later value. The surviving suffix depends on value length and registered
+forms; there is no general eleven-byte bound. Synthetic overlapping values
+reproduce this behavior, including cases where most of a later value survives.
 
 \paragraph{Platform.} macOS's \code{sandbox-exec} is deprecated though
 functional; Windows is unsupported. Provider-side retention of anything that
@@ -970,8 +987,9 @@ establish that an agent's behavior can be steered by data it reads, and adaptive
 attacks defeat most model-level defenses~\citep{nasr2025attacker}. Willison's
 ``lethal trifecta''~\citep{willison2025trifecta} and Meta's ``rule of
 two''~\citep{meta2025ruleoftwo} frame exfiltration as the conjunction of private
-data, untrusted input, and an outbound channel. \sys{} removes the first from
-the agent's view and, with network isolation, the third from the child.
+data, untrusted input, and an outbound channel. \sys{} reduces direct value
+exposure at the tool boundary and can restrict network egress. It does not
+remove filesystem or local IPC channels from the child.
 
 \paragraph{System-level defenses.} CaMeL~\citep{debenedetti2025camel},
 design patterns for injection-resistant agents~\citep{beurerkellner2025design},
@@ -1012,9 +1030,9 @@ and automatically derived forms---base64 at all three alignments, URI, JSON, XML
 and shell escapes---in job logs~\citep{githubrunner2019encoders}, while noting
 that masking relies on exact matches and is not guaranteed~\citep{github2026secureuse}.
 \sys{} adopts this idea for an interactive, streaming setting and adds
-whitespace-tolerant and fragment matching; we also found that its own
-integration with GitHub's line-oriented mask command could leak multi-line
-values; the current mask regression in \cref{sec:audit} checks this surface.
+whitespace-tolerant and fragment matching. Its GitHub mask regression checks
+that multi-line values are escaped before emission to the line-oriented mask
+protocol (\cref{sec:audit}).
 
 \paragraph{Industry tools.} Run wrappers inject
 secrets~\citep{onepassword_oprun,doppler_cli,infisical_run}, and \code{op run}
@@ -1023,7 +1041,8 @@ credentials~\citep{onepassword2026unified,bitwarden2026agentaccess}; Doppler's
 MCP server deliberately exposes values to agents~\citep{doppler_mcp} and
 Infisical's can mask values in its own responses~\citep{infisical_mcp}.
 Proxy substitution keeps values out of processes for
-HTTP(S)~\citep{claudecode_sandboxing,infisical_agentproxy,onecli2026,flyio_tokenizer,cyberark_secretless}.
+HTTP(S)~\citep{claudecode_sandboxing,infisical_agentproxy,onecli2026,flyio_tokenizer};
+Secretless Broker also supports database and SSH connectors~\citep{cyberark_secretless}.
 The nearest tools include fnox's MCP server, with tool/secret allowlists and
 \code{exec} that accepts agent-chosen argv, injects secrets, and masks literal
 values~\citep{fnox_mcp}. Prismor's Cloak substitutes placeholders before
@@ -1032,9 +1051,9 @@ command policy and human approval~\citep{prismor2026,prismor_decisions,prismor_a
 These documented controls overlap with \sys{}; we do not establish their
 historical availability or equivalent enforcement semantics.
 Pattern-based scanners and gateways inspect
-tool traffic~\citep{ggshield_aihook,truefoundry_secrets,mcpguard2026,redactmcp2026},
-and other tools scrub traces or histories after the
-fact~\citep{langwatch_redaction,agentsweep2026}. Agent hosts now expose hooks
+tool traffic~\citep{ggshield_aihook,truefoundry_secrets,mcpguard2026,redactmcp2026}.
+LangWatch filters traces before storage or upload~\citep{langwatch_redaction},
+and other tools scrub existing agent histories~\citep{agentsweep2026}. Agent hosts now expose hooks
 that can rewrite tool output~\citep{claudecode_hooks} and ship their own
 sandboxes~\citep{claudecode_sandboxing,anthropic_srt}. \sys{} focuses on
 combining encoding-, alignment-, whitespace-, and fragment-aware known-value
@@ -1044,8 +1063,9 @@ programs, and in evaluating that redaction adversarially.
 \paragraph{Isolation and integrity primitives.} Heavier isolation via
 user-space kernels or microVMs~\citep{young2019gvisor,agache2020firecracker} and
 unprivileged sandboxes~\citep{bubblewrap} would strengthen containment at a
-cost; \sys{} uses namespaces, seccomp, and Seatbelt to stay a single
-dependency-free binary. Release signing follows Sigstore~\citep{newman2022sigstore}.
+cost. \sys{} ships as one Go binary, using Linux namespaces/seccomp or macOS
+Seatbelt; native secure-storage and platform sandbox tools remain host
+dependencies. Release signing follows Sigstore~\citep{newman2022sigstore}.
 
 % ===========================================================================
 \section{Conclusion}
@@ -1055,9 +1075,10 @@ Coding agents need to use credentials far more often than they need to know
 them. \sys{} filters known secret values and supported encodings from intercepted
 child-process output. Its protection is limited by matching thresholds,
 transformations, and the host-enforced execution boundary. A streaming known-value redactor with a provable chunking
-property, session-bound human authorization with in-place continuation, and
-fail-closed containment together reduce the measured accidental-disclosure
-paths. Regression case studies expose approval serialization, reachable
+property and session-bound human authorization with in-place continuation
+describe separate parts of the boundary. The paired experiment measures
+redaction coverage; platform controls provide additional, scoped restrictions.
+Regression case studies expose approval serialization, reachable
 interfaces, encoding structure, and non-vacuous test assertions as concrete
 review targets. Paired leakage reproduction and fresh shared-host diagnostics
 make some limits measurable; component-level precision/recall, tail and delivery

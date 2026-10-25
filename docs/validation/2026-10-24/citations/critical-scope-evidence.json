@@ -1,0 +1,40 @@
+[
+  {
+    "key": "cyberark_secretless",
+    "url": "https://github.com/cyberark/secretless-broker",
+    "raw_file": "product/fetch-3.json",
+    "quote": "Secretless Broker is a connection broker which relieves client applications of the need to directly handle secrets to target services such as databases, web services, SSH connections, or any other TCP-based service.",
+    "supported_services": [
+      "MySQL (Socket and TCP)",
+      "PostgreSQL (Socket and TCP)",
+      "SSH / SSH-Agent (Beta)",
+      "HTTP with Basic auth, CyberArk Secrets Manager or Conjur OSS, and AWS authorization strategies (Beta)"
+    ]
+  },
+  {
+    "key": "langwatch_redaction",
+    "url": "https://langwatch.ai/docs/coding-agents/secrets-redaction",
+    "raw_file": "product/fetch-2.json",
+    "quote": "Credentials that appear in prompts or tool output are replaced with a typed marker at ingestion, before storage. On by default for every project.",
+    "additional_fact": "The page separately documents local scrubbing by langwatch report before upload; last modified October 12, 2026."
+  },
+  {
+    "key": "claudecode_sandboxing",
+    "url": "https://code.claude.com/docs/en/sandboxing",
+    "raw_file": "product/followup-0.json",
+    "quote": "You can also deny write or read access using `sandbox.filesystem.denyWrite` and `sandbox.filesystem.denyRead`, and re-allow specific paths within a denied region using `sandbox.filesystem.allowRead`.",
+    "additional_fact": "The example says denyRead ~/.env keeps that file blocked inside a wider allow. Coverage depends on sandbox configuration and execution channel."
+  },
+  {
+    "key": "chen2026skillsleak",
+    "url": "https://arxiv.org/html/2604.03070v2",
+    "raw_file": "critical-fetch.json",
+    "fact": "The retained paper reports 1,007 debug-output issues among 1,371 vulnerability issues (73.5%) in 17,022 skills. The percentage is not a rate over every skill or deployment."
+  },
+  {
+    "key": "panfilov2026reasoning",
+    "url": "https://arxiv.org/abs/2608.09867",
+    "raw_file": "critical-fetch.json",
+    "fact": "The retained abstract reports decoding 315,320 reasoning blocks and recovering 367 PII artifacts and 182 credentials. This supports hidden-trace disclosure as a channel, not universal reappearance of any context value."
+  }
+]

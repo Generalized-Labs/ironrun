@@ -1,0 +1,1 @@
+/workspace/ironrun-product-research/launch-20261024/snapshot/dist-run2/ironrun_darwin_arm64_v8.0/ironrun: Mach-O 64-bit arm64 executable, flags:<|DYLDLINK|PIE>

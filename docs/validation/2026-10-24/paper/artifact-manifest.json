@@ -1,0 +1,116 @@
+{
+  "algorithm": "sha256",
+  "scope": "All files retained in this subdirectory except this manifest itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2071,
+      "sha256": "44d4b4d1ac0bb120fd21f3a43c6f6442dd83f34e6999d3670b636ecd1ef00939"
+    },
+    {
+      "path": "arxiv-official-help.txt",
+      "bytes": 35503,
+      "sha256": "4a24285722b82cfb36fc3d8dad1a0c78b3c4659c6ef493ddeb5f868ef748ce04"
+    },
+    {
+      "path": "bundle-final.log",
+      "bytes": 71944,
+      "sha256": "8670a1eb6523f909587587d7bec24f2a54e6e8f2ad65a2310b2488dcbb18b13d"
+    },
+    {
+      "path": "bundle-pdf-text.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "bundle-pdf-text.stdout.txt",
+      "bytes": 65922,
+      "sha256": "07953c2a64e578b1e84300bb46eb4a837eddbab3d77076cb8df64c0d212b97ce"
+    },
+    {
+      "path": "make-arxiv.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "make-arxiv.stdout.txt",
+      "bytes": 50015,
+      "sha256": "4fb22e76df3b6fc00aa26e1344e397e34d42f8978781f6542729a75e9052125c"
+    },
+    {
+      "path": "paper-source.tar.gz",
+      "bytes": 40430,
+      "sha256": "cec610f6279990dc3719b7f1c5b319981fc2d54247516a4d4a7ddc6c9f89233a"
+    },
+    {
+      "path": "pdfinfo.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdfinfo.stdout.txt",
+      "bytes": 651,
+      "sha256": "a83db01da431c85d95981b0d07a2abb3b04c94b7abf7bbacd287aad0686bc07e"
+    },
+    {
+      "path": "pdflatex-pass1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass1.stdout.txt",
+      "bytes": 36997,
+      "sha256": "c228366d5038455d8cfd8b81f064bfd1e853f1e47f032a58e91d626f1672f973"
+    },
+    {
+      "path": "pdflatex-pass2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass2.stdout.txt",
+      "bytes": 24024,
+      "sha256": "f704959b3ad1f39d7b68acbc2a3ddaece1d3060b8036e9beff655d8d4df2002e"
+    },
+    {
+      "path": "pdflatex-pass3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass3.stdout.txt",
+      "bytes": 24024,
+      "sha256": "f704959b3ad1f39d7b68acbc2a3ddaece1d3060b8036e9beff655d8d4df2002e"
+    },
+    {
+      "path": "review-final.log",
+      "bytes": 71909,
+      "sha256": "43d1e07c8b876a5a9a7675570820bb8a0553bdfd7d6820dbb637f1724f50bdf3"
+    },
+    {
+      "path": "review-pdf-text.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review-pdf-text.stdout.txt",
+      "bytes": 65922,
+      "sha256": "07953c2a64e578b1e84300bb46eb4a837eddbab3d77076cb8df64c0d212b97ce"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 8292,
+      "sha256": "5b64e873cc409ef84e9e6a1b17ba33a1e9684c8a2977db0fa633debadda810fe"
+    },
+    {
+      "path": "validate_paper.py",
+      "bytes": 4482,
+      "sha256": "939d60a7c053e89767891e82a9afb3a9f7484ae36e90f6632d570fc6d0d9d6b2"
+    },
+    {
+      "path": "visual-review.json",
+      "bytes": 3401,
+      "sha256": "16e581530bd66ca78f7e5d37e9da81664d2b62f3ebeaca30cfd4aa18bfbfa45a"
+    }
+  ]
+}

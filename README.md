@@ -10,9 +10,9 @@
 
 ironrun is a local-first encrypted environment workspace. It gives humans one terminal UI for projects, environments, `.env` imports, and agent access. Trust an agent session once for a project’s `dev` environment, then it can work normally while ironrun injects values only into child processes and strips them back out of output before the agent sees them.
 
-Your tests still get a live `DATABASE_URL`. The agent gets back `exit_code: 0` and `tests passed` — and never the connection string.
+Your tests still get a live `DATABASE_URL`. The agent gets back the exit code and filtered output. Known values and supported encodings are replaced subject to the matching limits below.
 
-The design, threat model, a security self-audit, and a leak evaluation are written up in the paper [*Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them*](paper/ironrun.pdf). Read the [full paper walkthrough](docs/PAPER_WALKTHROUGH.md), [redaction algorithm and proof walkthrough](docs/REDACTION_WALKTHROUGH.md), [reproduction instructions](paper/REPRODUCING.md), and [launch readiness review](docs/LAUNCH_READINESS.md) for verified results and remaining checks.
+The design, threat model, regression case studies, and leakage evaluation are written up in the paper [*Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them*](paper/ironrun.pdf). Read the [full paper walkthrough](docs/PAPER_WALKTHROUGH.md), [redaction algorithm and proof walkthrough](docs/REDACTION_WALKTHROUGH.md), [reproduction instructions](paper/REPRODUCING.md), and [launch readiness review](docs/LAUNCH_READINESS.md) for verified results and remaining checks.
 
 ---
 
@@ -47,15 +47,15 @@ When Claude Code runs a command that uses a secret — a `curl` with an Authoriz
 ~/.claude/projects/<hash>/YYYYMMDD_HHMMSS_*.jsonl
 ```
 
-These JSONL files are Claude Code's conversation history. They contain every tool call, every shell command, every piece of output — including the secret values that appeared in those outputs. They persist between sessions and across project restarts.
+These JSONL files store Claude Code conversation history, including tool calls and captured command output. Credentials printed into that output can persist between sessions and across project restarts.
 
 One developer found this by accident:
 
 > *"It will just grep the logs and try to find a working secret from other projects/past sessions"*
 
-The logs are readable by any process with access to your home directory. If you've ever run a command through Claude Code that touched a secret, assume that value is in those logs.
+Processes with permission to read those files can inspect the history. If command output contained a credential, review the affected transcripts and rotate the credential as needed.
 
-ironrun redacts secret values from command output before it reaches the agent — so the values never enter the conversation, and never end up in the JSONL logs.
+ironrun filters intercepted command output before it reaches the agent. This reduces disclosure of known values and supported encodings into conversations and logs; partial values, overlaps, and unsupported transformations can still escape. See [SECURITY.md](SECURITY.md) for the threat model and limits.
 
 ---
 
@@ -89,9 +89,9 @@ ironrun redacts secret values from command output before it reaches the agent �
 └─────────────────────────────────────────────────────────────┘
 ```
 
-By default, an agent can use arbitrary argv only during a temporary session you explicitly trust. Strict policy commands remain available for CI, production, and sensitive projects. Ironrun never has a tool that returns a secret’s value.
+By default, an agent can use arbitrary argv only during a temporary session you explicitly trust. Strict policy commands remain available for CI, production, and sensitive projects. Ironrun exposes no secret-reveal API; command output is filtered under its documented matching rules.
 
-> Measured on an Apple M3 Pro: ironrun adds well under a millisecond to spawn a sealed command, plus about 6 ms on macOS when network isolation (`sandbox-exec`) is on. Provider lookups add their own latency (a 1Password CLI call is far slower than an env file). The streaming redactor processes 14–36 MB/s depending on how many secrets are loaded, far above terminal output rates. See [`paper/`](paper/) for the methodology.
+> Fresh shared-host Linux diagnostics measured median direct/runner/network-isolated spawn times of 1.043/2.561/3.342 ms and scanning throughput of 34/21/9 MB/s for 1/10/50 synthetic values. The spawn microbenchmark excludes provider lookup, authorization, audit writes, and the production seccomp filter; scanning excludes encoding generation and writer construction. These are diagnostic measurements, not end-to-end latency guarantees. See [the reproduction guide](paper/REPRODUCING.md) for source identities, inputs, and limits.
 
 ---
 
@@ -477,8 +477,8 @@ instructions in the project:
 
 The agent first calls `request_workspace_access` for normal development (or
 uses a strict `run_sealed` command with `command_id`). The human approves the
-specific project and environment locally; the agent receives only status and
-redacted output, never a secret value.
+specific project and environment locally; the agent receives status and
+output filtered under the documented matching rules.
 
 ---
 
@@ -535,14 +535,14 @@ commands:
 
 - **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It is fail-closed: if the filter cannot be installed, the run is refused rather than silently unprotected. Control it per command with `seccomp: false`, or policy-wide with `seccomp_default: false`. There is deliberately no environment kill-switch (an agent-reachable `IRONRUN_SECCOMP=off` would let a compromised agent disarm the filter).
 - **Encoded-secret redaction** — base64 (at every byte alignment, so `Authorization: Basic` headers are covered), hex, URL- and JSON-escaped forms of a secret are redacted alongside the literal value, as are partial prints and line-oriented dumps (`xxd`, `od -c`) of longer secrets. A warn-only entropy scan flags high-entropy tokens that slip through.
-- **Audit log** — every run appends a hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
+- **Audit log** — when enabled, the runner attempts to append a hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Opening the logger verifies the existing chain; later append failures warn without failing the command. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
 
 ```bash
 ironrun lint      # security review of the policy (shell argv, missing ttl, secrets + open egress, …)
-ironrun audit verify   # detect edited or reordered audit records (deleting the newest records is not detectable)
+ironrun audit verify   # detects inconsistent links; a file owner can rewrite/re-hash or truncate the log
 ```
 
-`argv` is a literal list, not a shell line. `["npm", "test"]` runs `npm test` directly — there's no shell in between, so an injected value can never be re-expanded or piped somewhere unexpected.
+`argv` is a literal list, not a shell line. `["npm", "test"]` runs `npm test` directly — the wrapper performs no implicit shell expansion. The target program still controls how it uses injected values.
 
 ---
 
@@ -616,8 +616,9 @@ The agent running `printenv DATABASE_URL` sees nothing — the var isn't in the 
 
 ## The MCP tools the agent gets
 
-When ironrun runs as an MCP server (`ironrun mcp`), it exposes value-blind tools
-that never return a secret value:
+When ironrun runs as an MCP server (`ironrun mcp`), it exposes tools for execution
+and safe metadata, with no secret-reveal API. Returned command output is filtered;
+the matching limits in [SECURITY.md](SECURITY.md) still apply.
 
 **`list_commands`** — what can I run? Returns command names and their argv, nothing else.
 
@@ -716,7 +717,7 @@ Those tools resolve your secrets and inject them as environment variables — wh
 
 Doppler does ship an MCP server, but it [gives agents direct read access to secret values](https://docs.doppler.com/docs/mcp) — the opposite goal. ironrun's MCP server lets agents *run commands*, never *read secrets*.
 
-Other tools in this space: [fnox](https://github.com/jdx/fnox) offers an MCP `exec` tool that injects secrets and redacts their literal values; Claude Code's sandbox can [mask credentials](https://code.claude.com/docs/en/sandboxing) by giving the process a placeholder and substituting the real value in outbound HTTP(S) requests — stronger than redaction where it applies, but limited to HTTP. ironrun targets the remaining cases (database clients, SSH, signing keys, file-based credentials) and adds session-bound approval and OS isolation around every run.
+Other tools in this space: [fnox](https://github.com/jdx/fnox) offers an MCP `exec` tool that injects secrets and redacts their literal values; Claude Code's sandbox can [mask credentials](https://code.claude.com/docs/en/sandboxing) by giving the process a placeholder and substituting the real value in outbound HTTP(S) requests — stronger than redaction where it applies, but limited to HTTP. Protocol-aware brokers such as [Secretless Broker](https://github.com/cyberark/secretless-broker) also support database and SSH connections. Ironrun addresses workflows that still need values inside a process, including local signing, direct file consumers, and unsupported connectors, with output filtering, authorization, and platform-specific OS controls.
 
 ---
 
