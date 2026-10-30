@@ -1,0 +1,12 @@
+ironrun doctor
+
+  ✓ ironrun.yml valid (v2, 1 command(s))
+  ○ Run environment repair commands from "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project"
+  ✓ project identity matches environment metadata
+  ✓ selected environment "dev" (unexpired)
+  ✓ command "strict-loopback": required entry names are configured
+  ○ Secret values and vault access were not checked
+  ✓ redaction self-test passed
+  ✓ command "strict-loopback": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/secret-tool" resolves
+
+All checks passed.

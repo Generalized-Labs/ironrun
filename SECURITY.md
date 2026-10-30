@@ -47,9 +47,11 @@ exposes value-blind RPC schemas. The foreground native TUI writes masked input
 directly to the encrypted vault; secret values are never sent to the daemon.
 
 Trusted workspace sessions are deliberately broad: a human grants one MCP
-session arbitrary argv against the selected project environment. They reduce
-day-to-day approval friction but do not prevent a deliberately malicious trusted
-process from transforming and printing a secret, and because the session can run
+session arbitrary argv with normal network access against the selected project
+environment. Saved policy commands retain their own network settings. Workspace
+grants reduce day-to-day approval friction but do not prevent a deliberately
+malicious trusted process from sending a credential over the network or
+transforming and printing it, and because the session can run
 `ironrun` itself, a grant should be treated as authority over the whole project.
 Pause or revoke a session from the TUI or `ironrun trust` as soon as it is no
 longer needed.

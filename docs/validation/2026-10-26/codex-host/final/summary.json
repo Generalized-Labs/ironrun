@@ -1,0 +1,49 @@
+{
+  "mode": "mcp",
+  "codex_exit": 0,
+  "model_requests": 2,
+  "driver_sha256": "1438a2937b74d1daafc0bdb83814563c77d1ed1e6faf2ccd60b841c5c4b306b8",
+  "driver_unchanged": true,
+  "codex_version_stdout": "codex-cli 0.159.2",
+  "codex_sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+  "authenticated_request": false,
+  "host_config_sha256": "23dd945d0b434c11e9bf4794b0f8adcf25565ce3a541f80690f9093d4b3b823b",
+  "limits": "Scripted local model fixture, not a real model or human usability test.",
+  "approval": {
+    "request": {
+      "id": "req_74d67277c4902ad60024ff72",
+      "kind": "workspace",
+      "status": "pending",
+      "session_id": "650f1594ce4b915d",
+      "environment": "dev",
+      "first_argv": [
+        "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/secret-tool",
+        "http",
+        "http://127.0.0.1:43283/probe"
+      ],
+      "reason": "agent requested trusted workspace access",
+      "requested_ttl": 7200000000000,
+      "created_at": "2026-10-27T11:41:58.20206273Z",
+      "expires_at": "2026-10-27T11:56:58.20206273Z"
+    },
+    "grant_exit": 0,
+    "error": null,
+    "no_loopback_before_approval": true,
+    "pending_observed_monotonic_ns": 20193843817892,
+    "grant_started_monotonic_ns": 20193943911022,
+    "grant_finished_monotonic_ns": 20193959824129
+  },
+  "loopback_requests": 1,
+  "child_received_synthetic_value": true,
+  "synthetic_value_in_model_input": false,
+  "synthetic_value_in_codex_stdout": false,
+  "redacted_loopback_in_model_input": true,
+  "loopback_observed_monotonic_ns": [
+    20194051724531
+  ],
+  "ironrun_sha256": "1e1d215de96a6db8f0ca0b68544d5272118d322300059be3e225e4767cd76126",
+  "probe_sha256": "0238ae4b86bbf1881909e80b53505afdb42c364c1cedd681afec44941fbcab38",
+  "fixture_error": null,
+  "passed": true,
+  "source_stable_since_build": true
+}

@@ -1,0 +1,137 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2916,
+      "sha256": "1a073903f4de6dc8fa5c7a206a9dc8c627a784865916812a9ac2f8055370184f"
+    },
+    {
+      "path": "author-change.patch",
+      "bytes": 580,
+      "sha256": "a8ce1d8e04289de88be397a27c999e006f70a0fa56cbc95270dcec13f9a0dc44"
+    },
+    {
+      "path": "author-provenance.json",
+      "bytes": 1041,
+      "sha256": "3d350e0bf960bf58a2dd42b2bc0555650aa7d8f7c7e1ee38beef41ab0e1f0940"
+    },
+    {
+      "path": "bundle-final.log",
+      "bytes": 71652,
+      "sha256": "90c54b9794c33c1e9d9f782c5d5d0d7d380d90f747f2ae1498b35358c6f9a518"
+    },
+    {
+      "path": "bundle-pdf-text.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "bundle-pdf-text.stdout.txt",
+      "bytes": 69208,
+      "sha256": "8d78f2ee9086e522376093a8f63daa9af039a1ad4c6731ec30012ea2609a5033"
+    },
+    {
+      "path": "earlier-method-revision/paper-source.tar.gz",
+      "bytes": 41652,
+      "sha256": "cdc43595b78121f882e258e191f238323ddc9d59f900128e02e03a4ea69f1e0e"
+    },
+    {
+      "path": "earlier-method-revision/summary.json",
+      "bytes": 8300,
+      "sha256": "5d670893c1bbe48553075af35af24d0008e1a2c84eba9623592337c9fabd53f6"
+    },
+    {
+      "path": "earlier-method-revision/visual-review.json",
+      "bytes": 6183,
+      "sha256": "38d7ce5690e21eb6aa0ed50df82ae4e0c65784dd276c71d806aad3efd8788e80"
+    },
+    {
+      "path": "make-arxiv.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "make-arxiv.stdout.txt",
+      "bytes": 49826,
+      "sha256": "50ba30f602b9b2d3b5b7d4dfa2217b08fee81598e5c559ffe53cc3b9c17c4255"
+    },
+    {
+      "path": "paper-source.tar.gz",
+      "bytes": 41639,
+      "sha256": "7518d96a28a20a7736275dddce98157c733fda807dc12e46799d46a9430a481f"
+    },
+    {
+      "path": "pdfinfo.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdfinfo.stdout.txt",
+      "bytes": 651,
+      "sha256": "e5dffbae630299afafbabc38f1cc7e7604e6b35433618180ebb3ee036d815af3"
+    },
+    {
+      "path": "pdflatex-pass1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass1.stdout.txt",
+      "bytes": 37113,
+      "sha256": "66eba6360c490579f97db70ff2d82735785af67929f9d8b4f7ad3018c7287afe"
+    },
+    {
+      "path": "pdflatex-pass2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass2.stdout.txt",
+      "bytes": 23956,
+      "sha256": "8873dc3da20bb4b082430d9523b9d7d72e4be82b72fe4765309e58a0f3038e67"
+    },
+    {
+      "path": "pdflatex-pass3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "pdflatex-pass3.stdout.txt",
+      "bytes": 23874,
+      "sha256": "509165d4ff45425c9a4c7938a2482a444cbc1805f3bab84c6e4974faf10fb248"
+    },
+    {
+      "path": "review-final.log",
+      "bytes": 71617,
+      "sha256": "ef7bf5faec28a79457f0db53bc0f1b7074b491536ccf76c4dbe95c5df490ea4a"
+    },
+    {
+      "path": "review-pdf-text.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review-pdf-text.stdout.txt",
+      "bytes": 69208,
+      "sha256": "8d78f2ee9086e522376093a8f63daa9af039a1ad4c6731ec30012ea2609a5033"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 8090,
+      "sha256": "cd2eedfe781cb8170459fcab7799b475d17f6cd867dd5a73e1598049422e42b7"
+    },
+    {
+      "path": "validate_paper.py",
+      "bytes": 4502,
+      "sha256": "753845a44465f4444891bf04ef44d5b15677a5213a8ce535abb97bda0d476db9"
+    },
+    {
+      "path": "visual-review.json",
+      "bytes": 5979,
+      "sha256": "4e07fdbe18fb2e797bddbb22feff4315f511e2db83f1832baa91ef86bcb05d22"
+    }
+  ],
+  "excluded": [
+    "artifact-manifest.json"
+  ]
+}

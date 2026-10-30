@@ -9,10 +9,10 @@ the instructions shown by arXiv.
 | Field | Value |
 | --- | --- |
 | Title | Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them |
-| Authors | Mihir Gupta, Stephen Keehn |
+| Authors | Stephen Keehn, Mihir Gupta; names and order confirmed by the maintainer; affiliations omitted |
 | Primary category | cs.CR (Cryptography and Security) |
 | Proposed cross-lists | cs.SE, cs.AI; subject to arXiv moderation |
-| Comments | 14 pages, 5 figures, 3 tables. Code and evaluation harness: https://github.com/Generalized-Labs/ironrun |
+| Comments | 14 pages, 5 figures, 4 tables. Code and evaluation harness: https://github.com/Generalized-Labs/ironrun |
 | Proposed license | CC BY 4.0; confirm all authors agree before submission |
 
 The ASCII metadata abstract below matches the revised manuscript after expanding
@@ -60,21 +60,29 @@ that each test failed on v0.5.0.
 ## Before uploading
 
 1. Rebuild the exact final manuscript with `make -C paper` after any edits.
-   The October 24 review build has 14 pages, 5 figures, and 3 tables; it has no
+   The latest retained review build has 14 pages, 5 figures, and 4 tables; it has no
    undefined references/citations or overflowing boxes. Keep these counts in sync.
 2. Confirm `paper/ironrun.pdf` was built from the exact submitted sources and
    visually inspect all pages, including tables and page breaks.
 3. Run `make -C paper arxiv`, then unpack the bundle in a fresh directory and
    compile it with pdflatex using the included `.bbl`. Check that no local file,
    external figure, generated bibliography, or shell-escape step is missing.
-4. Verify the title, author spelling/order, affiliations, license, abstract,
+4. Verify the title, license, abstract,
    categories, and code URL with the authors. Validate metadata in the live
    arXiv form; a local build cannot establish account or moderation eligibility.
+   The maintainer confirmed the author order Stephen Keehn, Mihir Gupta;
+   affiliations are omitted because none have been confirmed.
 5. Pin the final publication source, retain the exact measured runtime source
    separately if later edits change it, and verify the archived raw results and
    corpus decompress/hash correctly. Retain final checks, source archive, PDF,
    runtime/harness hashes and experiment records together. No submission has
-   been made by this review.
+   been made by this review. Agreement by all authors to the proposed CC BY 4.0
+   license remains a publication gate.
+
+The [latest paper validation archive](../docs/validation/2026-10-26/paper/README.md)
+binds the deeper method/proof revision to exact TeX, PDF, and source-bundle hashes.
+Its raw build and visual-review timestamps are retained as recorded; the archive
+directory name is a session label, not a new experiment date.
 
 The [redaction walkthrough](../docs/REDACTION_WALKTHROUGH.md) explains the proof
 and its assumptions. The [paper review](../docs/PAPER_REVIEW.md) records current

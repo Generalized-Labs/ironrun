@@ -1,0 +1,964 @@
+{
+  "recorded_at_utc": "2026-10-30T03:12:50.281191+00:00",
+  "status": "unpublished snapshot verification passed",
+  "base_head": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+  "source_identity": "Run1 start: source-manifest-before.json; run2 start/end: source-manifest-after-run1.json and source-manifest-after-run2.json. Base HEAD alone excludes dirty fixes.",
+  "source_stable_across_builds": false,
+  "source_boundary_checks": [
+    {
+      "run": 1,
+      "selected_inputs_unchanged_at_boundaries": false,
+      "scope": "Run1 source changed after compilation/archive generation during SBOM phase; run2 uses the final copy and is stable at recorded boundaries."
+    },
+    {
+      "run": 2,
+      "selected_inputs_unchanged_at_boundaries": true,
+      "scope": "Run2 inputs match the after-run1 and after-run2 manifests."
+    }
+  ],
+  "source_changes_between_runs": [
+    {
+      "path": ".goreleaser.yml",
+      "run1_start_sha256": "a2a19329fba334f167c3c8c404c4c1dfaee7699c7f8f209d88a60faba80153b7",
+      "run2_start_sha256": "edd5602f650aea3717880489085f6ae7eed46280f2f29c6c88962f093ab7e626"
+    },
+    {
+      "path": "README.md",
+      "run1_start_sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+      "run2_start_sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+    },
+    {
+      "path": "cmd/ironrun/init.go",
+      "run1_start_sha256": "1663af9c2dd5678bc085e6f281b58786f167711551b69e6dd638561c9280faa3",
+      "run2_start_sha256": "4bbcdbf3e6acb1939dc7ad484db37c8ec54ede39cb937e82caaf56d8541fd7da"
+    },
+    {
+      "path": "cmd/ironrun/main.go",
+      "run1_start_sha256": "7ceba67c8b423c8704e84dc01400be2d96144c9ab6260676567f5c11c2801418",
+      "run2_start_sha256": "5bf69f51fcfd115749ba440b070abe1dbc07a6303f989fd418bfa29118e8e8c5"
+    },
+    {
+      "path": "mcp/server.go",
+      "run1_start_sha256": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+      "run2_start_sha256": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2"
+    }
+  ],
+  "metadata": [
+    {
+      "run": 1,
+      "project_name": "ironrun",
+      "tag": "v0.5.0",
+      "previous_tag": "v0.4.0",
+      "version": "0.5.1-next",
+      "commit": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+      "date": "2026-10-27T11:34:26.444172222Z",
+      "runtime": {
+        "goos": "linux",
+        "goarch": "amd64"
+      }
+    },
+    {
+      "run": 2,
+      "project_name": "ironrun",
+      "tag": "v0.5.0",
+      "previous_tag": "v0.4.0",
+      "version": "0.5.1-next",
+      "commit": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+      "date": "2026-10-27T11:43:21.370784095Z",
+      "runtime": {
+        "goos": "linux",
+        "goarch": "amd64"
+      }
+    }
+  ],
+  "checksums": [
+    {
+      "run": 1,
+      "path": "install.sh",
+      "sha256": "81a7e26fbeb86c11c6ce6fc53c308a8b692a2c5c6979caebf99f14638040d633",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_arm64.tar.gz",
+      "sha256": "34a674bffe38a715a0ff16aa3ac344f4ca3635c8683a1fba1e522714637df25d",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "sha256": "3dd17da721bc26586a30a64b701e20803a7b998fbe8c2abcf84291b795212e4e",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_x86_64.tar.gz",
+      "sha256": "f1c087c3e486eea8ba4f9450cbee947574eba3edb8734412b8db7aad0012810b",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "sha256": "39c3021cc682ba06fae65575a4065d70633214b3190918c8c24113e98dea6d09",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_arm64.tar.gz",
+      "sha256": "7cea49212b858f7a3dab3a354d93621d103a470e88f164aaf607667299125c9d",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "sha256": "ba89a69c0c236272a7027782a273c1277d7d3c51a28e5789d46f23ddfe42d01f",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_x86_64.tar.gz",
+      "sha256": "fe6085d009ee85c1f6d6f7d3bbbaa81a9f2b8760f3f4c23ba1273043c9e97df7",
+      "verified": true
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "sha256": "eabda3c02cca05c0062e19bff28fba5b6acf0b9ad107b587d62c20d13095a99d",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "install.sh",
+      "sha256": "81a7e26fbeb86c11c6ce6fc53c308a8b692a2c5c6979caebf99f14638040d633",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_arm64.tar.gz",
+      "sha256": "e640dd399cb20cbd3359da2525b34923aaa582318e1381dca93097cabc018f19",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "sha256": "b9d09e5a8b432ccdf3f3568fb86592d1c53b77eb201907ad5c44ba5f2d188ff7",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_x86_64.tar.gz",
+      "sha256": "04381e5faad863d79b570f0a72086dfee16a611a6b225e83f1f0c4f82d465ba7",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "sha256": "bddb1c4bd7572632555d27e0ed241fdd85ea51f92e53343fa68fdceb76d5b600",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_arm64.tar.gz",
+      "sha256": "34c6c30e7f7b7a87ddfe0396adc371c7c4e364dc8d2138abf6f3ad479a26a09b",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "sha256": "011709c5f273ec1e6b4b2cba2a99af025b23d64d0ec67a765faffe3255e9974a",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_x86_64.tar.gz",
+      "sha256": "b2042d4543cdd31755314e17311a8b47752dd62e0341bc194ed28c9125a64326",
+      "verified": true
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "sha256": "c1a9f79c9193fe6e5ba0d06674ffe93277075e46797309ffedadc7d83c7bfc9d",
+      "verified": true
+    }
+  ],
+  "binary_pairs": [
+    {
+      "target": "ironrun_darwin_arm64_v8.0/ironrun",
+      "run1_bytes": 20974146,
+      "run2_bytes": 20974146,
+      "run1_sha256": "c2f98be30c5f4f3b3e72ad5f065d4e62a348073355d5b458a1b26dfa14594cf1",
+      "run2_sha256": "72ac301f3e837014958a1c47092cdc25a44bc923a6ff242ca67946f386df3378",
+      "byte_identical": false,
+      "reproducibility_comparison_valid": false,
+      "reason": "The selected source/configuration changed between runs."
+    },
+    {
+      "target": "ironrun_darwin_amd64_v1/ironrun",
+      "run1_bytes": 22397360,
+      "run2_bytes": 22397360,
+      "run1_sha256": "f5dcc9b9e5015dc391a08d1d902c5ce96b267a93712bc4a6a06f7f792bbece36",
+      "run2_sha256": "f6f81481a60b3e98813a0f7d48dc65d4d76deaf0921661df4a1116fe677f36e8",
+      "byte_identical": false,
+      "reproducibility_comparison_valid": false,
+      "reason": "The selected source/configuration changed between runs."
+    },
+    {
+      "target": "ironrun_linux_arm64_v8.0/ironrun",
+      "run1_bytes": 20316322,
+      "run2_bytes": 20316322,
+      "run1_sha256": "e23e6127599acd120cb8444f0c0439de646d15be3910ff1fae79c79076660241",
+      "run2_sha256": "876290ee2e9aa43986ae539fa7c38278f50b61ac32ac6069a9196cb70a41b378",
+      "byte_identical": false,
+      "reproducibility_comparison_valid": false,
+      "reason": "The selected source/configuration changed between runs."
+    },
+    {
+      "target": "ironrun_linux_amd64_v1/ironrun",
+      "run1_bytes": 21794978,
+      "run2_bytes": 21794978,
+      "run1_sha256": "93210d9f332a3b6dcdae7e7f7209ed6de0ee4a7a25ca51c9ed6499173804c2c5",
+      "run2_sha256": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054",
+      "byte_identical": false,
+      "reproducibility_comparison_valid": false,
+      "reason": "The selected source/configuration changed between runs."
+    }
+  ],
+  "generated_casks": [
+    {
+      "run": 1,
+      "sha256": "0c93ed323a183ae30f6dee647d515a359804aaaaced0cb1637eb60508883ed38",
+      "archive_checksums_match": true,
+      "version": "0.5.1-next",
+      "url_tag": "v0.5.0",
+      "scope": "Snapshot renders the existing tag into URLs. This diagnostic cask must not be installed or published. A real tagged release must regenerate and verify its version and URLs."
+    },
+    {
+      "run": 2,
+      "sha256": "bacafdbc9662f34a1ef78cd38dae3e0b32d9304f6d26569f9a79d6775d7aa434",
+      "archive_checksums_match": true,
+      "version": "0.5.1-next",
+      "url_tag": "v0.5.0",
+      "scope": "Snapshot renders the existing tag into URLs. This diagnostic cask must not be installed or published. A real tagged release must regenerate and verify its version and URLs."
+    }
+  ],
+  "binary_build_metadata": [
+    {
+      "run": 1,
+      "target": "ironrun_darwin_arm64_v8.0/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "darwin",
+      "goarch": "arm64",
+      "cgo_enabled": false,
+      "record": "binary-run1-darwin-arm64-go-version-m.txt",
+      "record_sha256": "b9bd737a1a9c39e76a7ff1d1771abfeaa8fdbb76aeb44980ee5457c647788cef",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 1,
+      "target": "ironrun_darwin_amd64_v1/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "darwin",
+      "goarch": "amd64",
+      "cgo_enabled": false,
+      "record": "binary-run1-darwin-amd64-go-version-m.txt",
+      "record_sha256": "6f5a18ceb578b67665e741aff816b9b629602be4f34d162bf2dfc9d4839d8b78",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 1,
+      "target": "ironrun_linux_arm64_v8.0/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "linux",
+      "goarch": "arm64",
+      "cgo_enabled": false,
+      "record": "binary-run1-linux-arm64-go-version-m.txt",
+      "record_sha256": "a09ea69aa25f9541e1425980fd76bb298b138c1ad0e6481a125c7d890cdfa1d4",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 1,
+      "target": "ironrun_linux_amd64_v1/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "linux",
+      "goarch": "amd64",
+      "cgo_enabled": false,
+      "record": "binary-run1-linux-amd64-go-version-m.txt",
+      "record_sha256": "bb81256bc17b0bf91785000824a193de9f228a46a1793e94f0a79a779fb66d4f",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 2,
+      "target": "ironrun_darwin_arm64_v8.0/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "darwin",
+      "goarch": "arm64",
+      "cgo_enabled": false,
+      "record": "binary-run2-darwin-arm64-go-version-m.txt",
+      "record_sha256": "2e9cdd26f461a367c7a45755b9ed96ead5ed2cd9ebd44891e7a6049ba2ab75f7",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 2,
+      "target": "ironrun_darwin_amd64_v1/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "darwin",
+      "goarch": "amd64",
+      "cgo_enabled": false,
+      "record": "binary-run2-darwin-amd64-go-version-m.txt",
+      "record_sha256": "6816f7003ca1f7cf6f92dd148e3cccc8791766c55fa808492ad7691aea818877",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 2,
+      "target": "ironrun_linux_arm64_v8.0/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "linux",
+      "goarch": "arm64",
+      "cgo_enabled": false,
+      "record": "binary-run2-linux-arm64-go-version-m.txt",
+      "record_sha256": "ca6d0ef4f2a4ec17969c45952d3147b8d05e32e5873c179e7d11404db0b7766b",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    },
+    {
+      "run": 2,
+      "target": "ironrun_linux_amd64_v1/ironrun",
+      "go_version": "go1.26.10",
+      "goos": "linux",
+      "goarch": "amd64",
+      "cgo_enabled": false,
+      "record": "binary-run2-linux-amd64-go-version-m.txt",
+      "record_sha256": "beb28997d1771d1a6376868cdb7c30973a7a1b54ac82aabbb6d57aa9e57dc403",
+      "scope": "Build metadata inspection only; does not execute cross-compiled binaries."
+    }
+  ],
+  "final_config_check": {
+    "command": [
+      "/workspace/ironrun-product-tools/release-bin/goreleaser",
+      "check"
+    ],
+    "cwd": "/workspace/ironrun-product-review",
+    "start_utc": "2026-10-30T03:12:20.951970+00:00",
+    "end_utc": "2026-10-30T03:12:20.979943+00:00",
+    "wall_ns": 27973454,
+    "exit_code": 0,
+    "config_sha256": "edd5602f650aea3717880489085f6ae7eed46280f2f29c6c88962f093ab7e626",
+    "scope": "Final-copy configuration validation only, no build/publication/signing."
+  },
+  "archives": [
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_arm64.tar.gz",
+      "sha256": "34a674bffe38a715a0ff16aa3ac344f4ca3635c8683a1fba1e522714637df25d",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34916,
+          "sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+          "mode": 384,
+          "mtime": 1793068036,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 20974146,
+          "sha256": "c2f98be30c5f4f3b3e72ad5f065d4e62a348073355d5b458a1b26dfa14594cf1",
+          "mode": 493,
+          "mtime": 1793100872,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_x86_64.tar.gz",
+      "sha256": "f1c087c3e486eea8ba4f9450cbee947574eba3edb8734412b8db7aad0012810b",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34916,
+          "sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+          "mode": 384,
+          "mtime": 1793068036,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 22397360,
+          "sha256": "f5dcc9b9e5015dc391a08d1d902c5ce96b267a93712bc4a6a06f7f792bbece36",
+          "mode": 493,
+          "mtime": 1793100872,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_arm64.tar.gz",
+      "sha256": "7cea49212b858f7a3dab3a354d93621d103a470e88f164aaf607667299125c9d",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34916,
+          "sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+          "mode": 384,
+          "mtime": 1793068036,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 20316322,
+          "sha256": "e23e6127599acd120cb8444f0c0439de646d15be3910ff1fae79c79076660241",
+          "mode": 493,
+          "mtime": 1793100870,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_x86_64.tar.gz",
+      "sha256": "fe6085d009ee85c1f6d6f7d3bbbaa81a9f2b8760f3f4c23ba1273043c9e97df7",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34916,
+          "sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+          "mode": 384,
+          "mtime": 1793068036,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 21794978,
+          "sha256": "93210d9f332a3b6dcdae7e7f7209ed6de0ee4a7a25ca51c9ed6499173804c2c5",
+          "mode": 493,
+          "mtime": 1793100870,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_arm64.tar.gz",
+      "sha256": "e640dd399cb20cbd3359da2525b34923aaa582318e1381dca93097cabc018f19",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34934,
+          "sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63",
+          "mode": 384,
+          "mtime": 1793101250,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 20974146,
+          "sha256": "72ac301f3e837014958a1c47092cdc25a44bc923a6ff242ca67946f386df3378",
+          "mode": 493,
+          "mtime": 1793101407,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_x86_64.tar.gz",
+      "sha256": "04381e5faad863d79b570f0a72086dfee16a611a6b225e83f1f0c4f82d465ba7",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34934,
+          "sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63",
+          "mode": 384,
+          "mtime": 1793101250,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 22397360,
+          "sha256": "f6f81481a60b3e98813a0f7d48dc65d4d76deaf0921661df4a1116fe677f36e8",
+          "mode": 493,
+          "mtime": 1793101407,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_arm64.tar.gz",
+      "sha256": "34c6c30e7f7b7a87ddfe0396adc371c7c4e364dc8d2138abf6f3ad479a26a09b",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34934,
+          "sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63",
+          "mode": 384,
+          "mtime": 1793101250,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 20316322,
+          "sha256": "876290ee2e9aa43986ae539fa7c38278f50b61ac32ac6069a9196cb70a41b378",
+          "mode": 493,
+          "mtime": 1793101404,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_x86_64.tar.gz",
+      "sha256": "b2042d4543cdd31755314e17311a8b47752dd62e0341bc194ed28c9125a64326",
+      "members": [
+        {
+          "path": "LICENSE",
+          "bytes": 1073,
+          "sha256": "751e88c30f8f596c094539ee9f0f127af481f77e0b084999b6e4401dc5e99e74",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "README.md",
+          "bytes": 34934,
+          "sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63",
+          "mode": 384,
+          "mtime": 1793101250,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun.example.yml",
+          "bytes": 889,
+          "sha256": "d876c8cdab60f67a0d21e4423aa67d0cdc788b6591e04dbda7c3335fb57407ee",
+          "mode": 384,
+          "mtime": 1792676167,
+          "content_matches_built_binary_or_snapshot_input": true
+        },
+        {
+          "path": "ironrun",
+          "bytes": 21794978,
+          "sha256": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054",
+          "mode": 493,
+          "mtime": 1793101404,
+          "content_matches_built_binary_or_snapshot_input": true
+        }
+      ]
+    }
+  ],
+  "archive_pairs": [
+    {
+      "path": "ironrun_Darwin_arm64.tar.gz",
+      "byte_identical": false,
+      "member_differences": [
+        {
+          "path": "README.md",
+          "changes": {
+            "sha256": {
+              "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+              "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+            },
+            "bytes": {
+              "run1": 34916,
+              "run2": 34934
+            },
+            "mtime": {
+              "run1": 1793068036,
+              "run2": 1793101250
+            }
+          }
+        },
+        {
+          "path": "ironrun",
+          "changes": {
+            "sha256": {
+              "run1": "c2f98be30c5f4f3b3e72ad5f065d4e62a348073355d5b458a1b26dfa14594cf1",
+              "run2": "72ac301f3e837014958a1c47092cdc25a44bc923a6ff242ca67946f386df3378"
+            },
+            "mtime": {
+              "run1": 1793100872,
+              "run2": 1793101407
+            }
+          }
+        }
+      ],
+      "member_contents_identical": false
+    },
+    {
+      "path": "ironrun_Darwin_x86_64.tar.gz",
+      "byte_identical": false,
+      "member_differences": [
+        {
+          "path": "README.md",
+          "changes": {
+            "sha256": {
+              "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+              "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+            },
+            "bytes": {
+              "run1": 34916,
+              "run2": 34934
+            },
+            "mtime": {
+              "run1": 1793068036,
+              "run2": 1793101250
+            }
+          }
+        },
+        {
+          "path": "ironrun",
+          "changes": {
+            "sha256": {
+              "run1": "f5dcc9b9e5015dc391a08d1d902c5ce96b267a93712bc4a6a06f7f792bbece36",
+              "run2": "f6f81481a60b3e98813a0f7d48dc65d4d76deaf0921661df4a1116fe677f36e8"
+            },
+            "mtime": {
+              "run1": 1793100872,
+              "run2": 1793101407
+            }
+          }
+        }
+      ],
+      "member_contents_identical": false
+    },
+    {
+      "path": "ironrun_Linux_arm64.tar.gz",
+      "byte_identical": false,
+      "member_differences": [
+        {
+          "path": "README.md",
+          "changes": {
+            "sha256": {
+              "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+              "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+            },
+            "bytes": {
+              "run1": 34916,
+              "run2": 34934
+            },
+            "mtime": {
+              "run1": 1793068036,
+              "run2": 1793101250
+            }
+          }
+        },
+        {
+          "path": "ironrun",
+          "changes": {
+            "sha256": {
+              "run1": "e23e6127599acd120cb8444f0c0439de646d15be3910ff1fae79c79076660241",
+              "run2": "876290ee2e9aa43986ae539fa7c38278f50b61ac32ac6069a9196cb70a41b378"
+            },
+            "mtime": {
+              "run1": 1793100870,
+              "run2": 1793101404
+            }
+          }
+        }
+      ],
+      "member_contents_identical": false
+    },
+    {
+      "path": "ironrun_Linux_x86_64.tar.gz",
+      "byte_identical": false,
+      "member_differences": [
+        {
+          "path": "README.md",
+          "changes": {
+            "sha256": {
+              "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+              "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+            },
+            "bytes": {
+              "run1": 34916,
+              "run2": 34934
+            },
+            "mtime": {
+              "run1": 1793068036,
+              "run2": 1793101250
+            }
+          }
+        },
+        {
+          "path": "ironrun",
+          "changes": {
+            "sha256": {
+              "run1": "93210d9f332a3b6dcdae7e7f7209ed6de0ee4a7a25ca51c9ed6499173804c2c5",
+              "run2": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054"
+            },
+            "mtime": {
+              "run1": 1793100870,
+              "run2": 1793101404
+            }
+          }
+        }
+      ],
+      "member_contents_identical": false
+    }
+  ],
+  "sboms": [
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "sha256": "3dd17da721bc26586a30a64b701e20803a7b998fbe8c2abcf84291b795212e4e",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "c2f98be30c5f4f3b3e72ad5f065d4e62a348073355d5b458a1b26dfa14594cf1",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "sha256": "39c3021cc682ba06fae65575a4065d70633214b3190918c8c24113e98dea6d09",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "f5dcc9b9e5015dc391a08d1d902c5ce96b267a93712bc4a6a06f7f792bbece36",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "sha256": "eabda3c02cca05c0062e19bff28fba5b6acf0b9ad107b587d62c20d13095a99d",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "93210d9f332a3b6dcdae7e7f7209ed6de0ee4a7a25ca51c9ed6499173804c2c5",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 1,
+      "path": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "sha256": "ba89a69c0c236272a7027782a273c1277d7d3c51a28e5789d46f23ddfe42d01f",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "e23e6127599acd120cb8444f0c0439de646d15be3910ff1fae79c79076660241",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "sha256": "b9d09e5a8b432ccdf3f3568fb86592d1c53b77eb201907ad5c44ba5f2d188ff7",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "72ac301f3e837014958a1c47092cdc25a44bc923a6ff242ca67946f386df3378",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "sha256": "bddb1c4bd7572632555d27e0ed241fdd85ea51f92e53343fa68fdceb76d5b600",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "f6f81481a60b3e98813a0f7d48dc65d4d76deaf0921661df4a1116fe677f36e8",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "sha256": "c1a9f79c9193fe6e5ba0d06674ffe93277075e46797309ffedadc7d83c7bfc9d",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    },
+    {
+      "run": 2,
+      "path": "ironrun_Linux_arm64.tar.gz.sbom.json",
+      "sha256": "011709c5f273ec1e6b4b2cba2a99af025b23d64d0ec67a765faffe3255e9974a",
+      "spdx_version": "SPDX-2.3",
+      "packages": 54,
+      "binary_sha256": "876290ee2e9aa43986ae539fa7c38278f50b61ac32ac6069a9196cb70a41b378",
+      "binary_identity_verified": true,
+      "scope": "JSON parse/version/package-presence and binary SHA256 verification; not full SPDX schema validation or vulnerability analysis"
+    }
+  ],
+  "native_smokes": [
+    {
+      "name": "version",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+        "version"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e794f4403dffa51bf168346d51a9fbd14ea49767034f3f9cc513d9935b94f237",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+    },
+    {
+      "name": "help",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ac59603b20c9b7b14de8203243adacc9152158aa896487c2c4cc6d0de5bf282f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+    },
+    {
+      "name": "doctor-help",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+        "doctor",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "27bc8768ac259c4f335a09682558e75fadc489484531773750e7ae548cf6e38f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+    },
+    {
+      "name": "setup-help",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+        "setup",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "ffc80cba2b2d92846646706fae5a375873f620a908dacb1d3da30fa1c16c9974",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+    }
+  ],
+  "selected_input_changes_after_build": [
+    ".goreleaser.yml",
+    "README.md",
+    "cmd/ironrun/init.go",
+    "cmd/ironrun/main.go",
+    "mcp/server.go"
+  ],
+  "tool_binary_hashes": {
+    "goreleaser": "d9fc6cdfaa7e8d44b072ade96e0d63b74857848d8890e4a52f8d69bcf5e49b7b",
+    "syft": "64c9631c3560336c55c549df0de08cd577d02399c9de807ac390960a4ed5c351"
+  },
+  "limits": [
+    "Diagnostic snapshot version is derived from existing local tags and is not a chosen release version.",
+    "GoReleaser before hooks, signing, publication, announcements and snapshot validation are skipped; goreleaser check separately passed.",
+    "Only Linux amd64 binaries were executed; Linux arm64 and both macOS targets were cross-compiled only.",
+    "These runs use different source/configuration and are not a binary reproducibility experiment. Run1 compiler reads were not individually traced; phase observations and archived inputs bound its provenance.",
+    "Run1 contains the pre-copy README and binaries; run2 contains the final copy. Archive hashes and member differences are retained.",
+    "Generated diagnostic casks have snapshot version 0.5.1-next but URLs for the existing v0.5.0 tag; they are not publishable or installable release recipes.",
+    "SBOMs were parsed and checked for SPDX/package presence; full schema validation and a new vulnerability analysis were not run.",
+    "Tool hashes match earlier published-checksum provenance; checksum-file signatures were not independently verified.",
+    "No tags, releases, npm packages, Homebrew tap writes, signatures, or public artifacts were created.",
+    "Build information embeds base HEAD; use exact dirty-source hashes to identify the new runtime."
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "phase": "build",
+  "argv": [
+    "go",
+    "build",
+    "-trimpath",
+    "-o",
+    "/workspace/ironrun-product-tools/ironrun-demo-copy-fixed",
+    "./cmd/ironrun"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "exit_code": 0,
+  "started_at_utc": "2026-10-30T03:25:41.798215+00:00",
+  "ended_at_utc": "2026-10-30T03:26:29.457224+00:00",
+  "elapsed_seconds": 47.65901791599754,
+  "source_unchanged": true,
+  "source_identity": "source-before.json",
+  "phase_environment_override": {},
+  "execution_scope": "Synthetic credential-free verification",
+  "log": "build.log",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

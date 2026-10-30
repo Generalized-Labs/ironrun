@@ -1,0 +1,6 @@
+{
+  "scope": "Original full requests retained locally; compact observations omit built-in instructions and unrelated prompt messages.",
+  "raw_request_file": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/model-requests.json",
+  "sha256": "6980303d57bd6873bfa16e49a22f7441ae03435f6d976fb1a0d3844b6106da77",
+  "bytes": 123459
+}

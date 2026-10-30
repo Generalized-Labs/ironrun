@@ -1,0 +1,468 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex)
+entering extended mode
+(./ironrun.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/libertine.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifxetex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty))
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifluatex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/keyval.tex))))
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/fontaxes/fontaxes.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/LinLibertine_I.tex)
+) (/workspace/ironrun-product-tools/texmf/tex/latex/newtx/newtxmath.sty
+`newtxmath' v1.754, 2024/09/22 Math macros based originally on txfonts (msharpe
+) (/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/centernot.sty)
+(/workspace/ironrun-product-tools/texmf/tex/generic/kastrup/binhex.tex)
+amsthm NOT loaded
+) (/workspace/ironrun-product-tools/texmf/tex/latex/inconsolata/inconsolata.sty
+`inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe))
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/threeparttable/threeparttable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithms/algorithm.sty
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty))
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithmicx/algpseudocode.st
+y
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithmicx/algorithmicx.sty
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/pgf.revision.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered
+.code.tex)) (/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.de
+f)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.
+tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonomet
+ric.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerari
+thmetics.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformation
+s.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarypositioning.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryfit.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarybackgrounds.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarycalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryshapes.geometric.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshape
+s.geometric.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathreplacing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.cod
+e.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathreplacing.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgfplots/pgfplots.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.revision.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgfplotssysgeneric.code
+.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgfplotslibrary.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldp
+gfsupp_loader.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex
+)
+Package pgfplots: loading complementary utilities for your pgf version...
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldp
+gfsupp_pgfutil-common-lists.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructure.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructureext.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsarray
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsmatri
+x.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshare
+d.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.code.te
+x
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.data.co
+de.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.verb.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgflibrarypgfplots.sur
+fshading.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgflibrarypgfplots.surf
+shading.pgfsys-pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolormap.code.
+tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolor.code.tex
+))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsstackedplots.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsplothandlers.code.t
+ex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplothandler.cod
+e.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplotimage.code.
+tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.scaling.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscoordprocessing.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.errorbars.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.markers.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsticks.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.paths.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathmorphing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathmorphing.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/tikzlibrarypgfplots.co
+ntourlua.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryplotmarks.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplotmarks.co
+de.tex))) (/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+(/usr/share/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/xurl/xurl.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/cleveref/cleveref.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/T1LinuxLibertineT-T
+LF.fd) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
+ (./ironrun.aux)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/omlnxlmi.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxexa.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/lmsntxsy.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/lmxntxexx.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+
+Package epstopdf Warning: Shell escape feature is not enabled.
+
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+Package pgfplots notification 'compat/show suggested version=true': you might b
+enefit from \pgfplotsset{compat=1.18} (current compat level: 1.17).
+
+(./ironrun.out) (./ironrun.out)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/OT1LinuxLibertineT-
+TLF.fd) (/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxmia.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxsym.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxsyc.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/inconsolata/t1zi4.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/T1LinuxBiolinumT-TL
+F.fd)
+
+[1{/workspace/ironrun-product-tools/texmf-var/fonts/map/pdftex/updmap/pdftex.ma
+p}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_nh77jq
+.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_76g
+pa5.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/inconsolata/i4-
+t1-0.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn
+_25tcsq.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/l
+btn_7grukw.enc}]
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/TS1LinuxLibertineT-
+TLF.fd)
+Underfull \hbox (badness 1831) in paragraph at lines 194--201
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) em-bed-ded pass-word; (2) \T1/zi4/m/n/10 c
+url -v -u deploy:$TOKEN
+
+
+[2{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_naooyc
+.enc}]
+
+[3]
+
+[4{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_oexx6f
+.enc}]
+
+[5{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_ncsllp
+.enc}]
+Underfull \hbox (badness 1629) in paragraph at lines 638--646
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) un-less the pol-icy opts out. On Linux \T1
+/LinuxBiolinumT-TLF/m/n/10 (+20) iron-run \T1/LinuxLibertineT-TLF/m/n/10 (+20) 
+en-
+
+Underfull \hbox (badness 4441) in paragraph at lines 638--646
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) ters fresh user and net-work names-paces [
+[], []]
+
+Underfull \hbox (badness 2042) in paragraph at lines 646--652
+\T1/zi4/m/n/10 process_vm_writev\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/
+m/n/10 kcmp\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/m/n/10 perf_event_ope
+n\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/m/n/10 bpf\T1/LinuxLibertineT-T
+LF/m/n/10 (+20) , and
+
+Underfull \hbox (badness 5475) in paragraph at lines 663--667
+[]\T1/LinuxLibertineT-TLF/b/n/10 (+20) CI. \T1/LinuxLibertineT-TLF/m/n/10 (+20)
+ In GitHub Ac-tions, Git-Lab CI, Cir-cleCI, and
+
+Underfull \hbox (badness 2644) in paragraph at lines 663--667
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) Jenk-ins, runs trig-gered by fork pull re-
+quests (and
+
+Underfull \hbox (badness 6316) in paragraph at lines 667--671
+[]\T1/LinuxLibertineT-TLF/b/n/10 (+20) Operator-only switches. \T1/LinuxLiberti
+neT-TLF/m/n/10 (+20) Ex-plicit over-rides for
+
+Underfull \hbox (badness 5711) in paragraph at lines 667--671
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) sec-comp, the core-dump seal, en-tropy sca
+n, and
+
+
+[6]
+Underfull \hbox (badness 1629) in paragraph at lines 744--751
+\T1/LinuxLibertineT-TLF/b/n/10 (+20) tempted.[] \T1/LinuxLibertineT-TLF/m/n/10 
+(+20) The []net-work re-gres-sion[] re-quires a dis-tinct
+
+Underfull \hbox (badness 4634) in paragraph at lines 756--770
+\T1/zi4/m/n/10 a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d\T1/LinuxLibertineT-TLF/
+m/n/10 (+20) , Go 1.26.10,
+
+Underfull \hbox (badness 2698) in paragraph at lines 787--787
+\T1/LinuxLibertineT-TLF/m/n/9 (+20) listed re-viewed run-time, us-ing the same
+
+
+[7]
+
+[8]
+Underfull \hbox (badness 10000) in paragraph at lines 1000--1007
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) State in-tegrity against A2.[] \T1/Linu
+xLibertineT-TLF/m/n/10 (+20) Au-tho-riza-tion state
+
+Underfull \hbox (badness 1789) in paragraph at lines 1020--1030
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) printed partially---say its first seven ch
+aracters---is not
+
+
+[9]
+
+Underfull \hbox (badness 10000) in paragraph at lines 1144--1152
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) Availability.[] \T1/LinuxLibertineT-TLF
+/m/n/10 (+20) The eval-u-a-tion har-ness (\T1/zi4/m/n/10 go run
+
+Underfull \hbox (badness 2245) in paragraph at lines 1144--1152
+\T1/zi4/m/n/10 ./paper/eval\T1/LinuxLibertineT-TLF/m/n/10 (+20) ) runs leak-age
+, false-positive, and per-for-
+
+Underfull \hbox (badness 4454) in paragraph at lines 1144--1152
+\T1/zi4/m/n/10 paper/REPRODUCING.md \T1/LinuxLibertineT-TLF/m/n/10 (+20) gives 
+com-mands, source/artifact
+
+Underfull \hbox (badness 1337) in paragraph at lines 1144--1152
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) base-line. Paired leak-age re-sults and ho
+st records are
+
+Underfull \hbox (badness 10000) in paragraph at lines 1144--1152
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) and both per-for-mance at-tempts are re-ta
+ined un-der
+
+Underfull \hbox (badness 1960) in paragraph at lines 1153--1157
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) Disclosure.[] \T1/LinuxLibertineT-TLF/m
+/n/10 (+20) Code re-view, ex-per-i-ment ex-e-cu-tion, and
+(./ironrun.bbl
+[10]
+Underfull \hbox (badness 10000) in paragraph at lines 42--47
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Anthropic.  Hooks ref-er-ence (Post-Too-
+lUse
+
+
+[11]
+Underfull \hbox (badness 2626) in paragraph at lines 269--276
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Kai Gre-shake, Sa-har Ab-delnabi, Shaile
+sh Mishra,
+
+
+Underfull \hbox (badness 1377) in paragraph at lines 371--377
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Linux man-pages project.  user_namespace
+s(7) ---
+
+[12]
+Underfull \hbox (badness 1107) in paragraph at lines 424--429
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) in AI cod-ing agent his-to-ries.  GitHub r
+epos-i-tory
+
+Underfull \hbox (badness 3657) in paragraph at lines 433--440
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Milad Nasr, Nicholas Car-lini, Chawin Si
+tawarin,
+
+
+Underfull \hbox (badness 4518) in paragraph at lines 513--518
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Mohammadreza Rashidi.  The balka-niza-ti
+on of
+
+[13]
+)
+[14] (./ironrun.aux) )
+(see the transcript file for additional information)</workspace/ironrun-product
+-tools/texmf/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></workspace/ir
+onrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI.pfb></worksp
+ace/ironrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI5.pfb><
+/workspace/ironrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI
+7.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public/libertine/LinB
+iolinumT.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public/liberti
+ne/LinBiolinumTB.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public
+/libertine/LinLibertineT.pfb></workspace/ironrun-product-tools/texmf/fonts/type
+1/public/libertine/LinLibertineTB.pfb></workspace/ironrun-product-tools/texmf/f
+onts/type1/public/libertine/LinLibertineTI.pfb></workspace/ironrun-product-tool
+s/texmf/fonts/type1/public/newtx/NewTXMI.pfb></workspace/ironrun-product-tools/
+texmf/fonts/type1/public/newtx/txexs.pfb></workspace/ironrun-product-tools/texm
+f/fonts/type1/public/newtx/txmiaX.pfb></workspace/ironrun-product-tools/texmf/f
+onts/type1/public/newtx/txsym.pfb></workspace/ironrun-product-tools/texmf/fonts
+/type1/public/newtx/txsys.pfb>
+Output written on ironrun.pdf (14 pages, 539704 bytes).
+Transcript written on ironrun.log.

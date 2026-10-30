@@ -1,0 +1,16 @@
+{
+  "name": "goreleaser-check",
+  "command": [
+    "/workspace/ironrun-product-tools/release-bin/goreleaser",
+    "check"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "start_utc": "2026-10-27T11:34:26.385791+00:00",
+  "end_utc": "2026-10-27T11:34:26.417602+00:00",
+  "wall_ns": 31812634,
+  "exit_code": 0,
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_bytes": 144,
+  "stderr_sha256": "35fee5e99442219dd6ec91aebeed51a63711992518e130e4ee1aa6d62a968c2e"
+}

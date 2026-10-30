@@ -1,0 +1,25 @@
+{
+  "phase": "release",
+  "argv": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "release_test.py",
+    "-v"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "exit_code": 0,
+  "started_at_utc": "2026-10-30T03:11:02.796110+00:00",
+  "ended_at_utc": "2026-10-30T03:11:16.552286+00:00",
+  "elapsed_seconds": 13.756182133001857,
+  "source_unchanged": true,
+  "source_identity": "source-before.json",
+  "phase_environment_override": {},
+  "execution_scope": "Synthetic credential-free verification",
+  "log": "release.log",
+  "log_sha256": "4472a60ed1fe5b88e101fbef307a30bf7e8e2d215d87db3e7861cc8846d9f041"
+}

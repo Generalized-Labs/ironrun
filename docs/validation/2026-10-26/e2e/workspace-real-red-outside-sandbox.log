@@ -1,0 +1,20 @@
+=== RUN   TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv
+    server_internal_test.go:149: approved normal-network workspace reached execution with network isolation enabled
+--- FAIL: TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv (0.01s)
+=== RUN   TestMCPTrustedWorkspaceLoopbackAndRevocation
+PROBE_STARTED
+credential=[REDACTED]
+DIAL_BLOCKED
+    workspace_network_linux_test.go:105: approved normal-network workspace did not execute and redact loopback: isError=false text=exit_code: 1
+        duration_ms: 7
+        
+        --- stdout ---
+        PROBE_STARTED
+        credential=[REDACTED]
+        DIAL_BLOCKED
+        
+        --- stderr ---
+--- FAIL: TestMCPTrustedWorkspaceLoopbackAndRevocation (0.52s)
+FAIL
+FAIL	github.com/generalized-labs/ironrun/mcp	1.599s
+FAIL

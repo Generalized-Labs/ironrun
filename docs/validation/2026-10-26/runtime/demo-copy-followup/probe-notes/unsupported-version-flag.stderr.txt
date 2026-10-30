@@ -1,0 +1,4 @@
+Error: unknown flag: --version
+
+That flag doesn't exist. See what this command accepts:
+  ironrun --help   (or: ironrun <command> --help)

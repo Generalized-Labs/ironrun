@@ -1,0 +1,18 @@
+--- before/ironrun.tex
++++ after/ironrun.tex
+@@ -55,13 +55,12 @@
+ 
+ \hypersetup{
+   pdftitle={Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them},
+-  pdfauthor={Mihir Gupta, Stephen Keehn},
++  pdfauthor={Stephen Keehn, Mihir Gupta},
+ }
+ 
+ \title{\Large\bfseries Sealed Execution: Letting LLM Coding Agents\\Use Credentials Without Seeing Them}
+ \author{%
+-  Mihir Gupta \qquad Stephen Keehn\\[2pt]
+-  \normalsize Generalized Labs\\
++  Stephen Keehn \qquad Mihir Gupta\\[2pt]
+   \normalsize\url{https://github.com/Generalized-Labs/ironrun}}
+ \date{}
+ 

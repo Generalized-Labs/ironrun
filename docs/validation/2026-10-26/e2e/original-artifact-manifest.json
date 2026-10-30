@@ -1,0 +1,96 @@
+{
+  "scope": "Top-level evidence files only; excludes state/cache directories and itself.",
+  "algorithm": "sha256",
+  "files": [
+    {
+      "path": "READINESS_AUDIT.md",
+      "bytes": 8525,
+      "sha256": "c308bc39d31f9859c5090e054d81718155d0bf5e452f27d5aaf29f2ddcb237eb"
+    },
+    {
+      "path": "final-summary.json",
+      "bytes": 7874,
+      "sha256": "0392e5d6a5f8705c73b39691dbc14fedd0ca295d7181d3bfba6e148b072f9814"
+    },
+    {
+      "path": "network-contract-red.log",
+      "bytes": 302,
+      "sha256": "4d3031569f7bd15caf169fd1c505733aceca89719a729e78d020c94d1b3baec7"
+    },
+    {
+      "path": "network-contract-red.result.json",
+      "bytes": 757,
+      "sha256": "776af514291c3a726369d11e7d09669976ddeca10acf4384504974911c9360f8"
+    },
+    {
+      "path": "overlay.json",
+      "bytes": 188,
+      "sha256": "9739fbbfd50318bf766fdc97ffdef8e7ce08d36e4785ee0458555b9bc76bebe8"
+    },
+    {
+      "path": "server_internal_overlay_test.go",
+      "bytes": 9991,
+      "sha256": "4c3f00208a5345eecf82dd4af26841ceccc959f5c6dff5454b101627c950c9d2"
+    },
+    {
+      "path": "workspace-catalog-final-green-race.log",
+      "bytes": 960,
+      "sha256": "caf66641c8611991dcdc221e11fa3d54359e93ef9d013bc8b26bef7e3799eb97"
+    },
+    {
+      "path": "workspace-catalog-final-green-race.result.json",
+      "bytes": 1186,
+      "sha256": "51d2265c6b5e6c7fc55e3ef013375ccb8ce510f65b025f99bb3badeca5252fe7"
+    },
+    {
+      "path": "workspace-cli-green-race.log",
+      "bytes": 960,
+      "sha256": "287b7fa93a438938938e6015b3b10264a2aa2971d26c51abe66e4805b284fdf7"
+    },
+    {
+      "path": "workspace-cli-green-race.result.json",
+      "bytes": 1156,
+      "sha256": "a8c7671d70272c2163ad7df870c66dea5f5e36edb43c5b4dc13ff966378768e0"
+    },
+    {
+      "path": "workspace-cli-red.log",
+      "bytes": 783,
+      "sha256": "a353ba5916b457913eb1ca45551607ea98d5c4afd0d78fdd5841f7fa7ce98533"
+    },
+    {
+      "path": "workspace-cli-red.result.json",
+      "bytes": 415,
+      "sha256": "bc6c6e00f261a0345dee9541b9330872e9c53753a0ac25826b556fb707c31efe"
+    },
+    {
+      "path": "workspace-final-green-race.log",
+      "bytes": 960,
+      "sha256": "54d2393c51759e4b752918c706f3be00d6e1397c48915629bc740a805f132d39"
+    },
+    {
+      "path": "workspace-final-green-race.result.json",
+      "bytes": 1149,
+      "sha256": "0114a9fa4d4e6fd6d1d6d64d5badc57e8862b38d9377894802cbc6091b5d32e3"
+    },
+    {
+      "path": "workspace-real-red-outside-sandbox.log",
+      "bytes": 783,
+      "sha256": "9e7c6c804b9ad2b9d1abd6fa8bfdd0bc7b3a772f3748c2a75e4db2bc9c28a426"
+    },
+    {
+      "path": "workspace-real-red-outside-sandbox.result.json",
+      "bytes": 413,
+      "sha256": "d5eb1c793c6bbe280e36db380d458f24eed9177383d4dde8c0d50b9386ced841"
+    },
+    {
+      "path": "workspace-real-red.log",
+      "bytes": 715,
+      "sha256": "eca742e8967b2389f86a0f0845587af1db643d27cff5df02d89c66b25ca0233d"
+    },
+    {
+      "path": "workspace-real-red.result.json",
+      "bytes": 410,
+      "sha256": "aa5d2abff3049d3f91e2137ccf3004b0393b2dfe2d6ddc5e4c29211bb99fe729"
+    }
+  ]
+}

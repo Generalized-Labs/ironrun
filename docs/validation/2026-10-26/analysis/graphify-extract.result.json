@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/graphify-env/bin/graphify",
+    "extract",
+    "/workspace/ironrun-product-research/launch-20261026/analysis/current-source",
+    "--code-only",
+    "--no-dedup",
+    "--no-cluster",
+    "--out",
+    "/workspace/ironrun-product-research/launch-20261026/analysis/graphify"
+  ],
+  "environment_constants": {
+    "PATH": "/workspace/ironrun-product-tools/graphify-env/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/workspace/ironrun-product-research/launch-20261026/analysis/isolated-home",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261026/analysis/cache",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "started_at_utc": "2026-10-30T03:17:08.843576+00:00",
+  "ended_at_utc": "2026-10-30T03:17:10.851251+00:00",
+  "elapsed_seconds": 2.0076809899983346,
+  "exit_code": 0,
+  "execution_scope": "Credential-free local code-only AST extraction; semantic LLM extraction, LLM dedup and clustering disabled."
+}

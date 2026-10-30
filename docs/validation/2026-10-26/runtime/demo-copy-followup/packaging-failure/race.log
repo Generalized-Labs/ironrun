@@ -1,0 +1,42 @@
+# github.com/generalized-labs/ironrun/docs/validation/2026-10-26/e2e [github.com/generalized-labs/ironrun/docs/validation/2026-10-26/e2e.test]
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:57:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:58:25: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:59:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:59:55: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:60:2: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:62:2: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:70:17: undefined: makeRunHandler
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:96:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:97:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:99:2: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:99:2: too many errors
+ok  	github.com/generalized-labs/ironrun/cmd/ironrun	2.242s
+FAIL	github.com/generalized-labs/ironrun/docs/validation/2026-10-26/e2e [build failed]
+ok  	github.com/generalized-labs/ironrun/internal/access	1.192s
+ok  	github.com/generalized-labs/ironrun/internal/audit	1.074s
+?   	github.com/generalized-labs/ironrun/internal/buildinfo	[no test files]
+ok  	github.com/generalized-labs/ironrun/internal/capsule	1.061s
+ok  	github.com/generalized-labs/ironrun/internal/daemon	1.105s
+ok  	github.com/generalized-labs/ironrun/internal/envset	1.227s
+ok  	github.com/generalized-labs/ironrun/internal/execution	1.453s
+ok  	github.com/generalized-labs/ironrun/internal/ghprotect	1.095s
+ok  	github.com/generalized-labs/ironrun/internal/githooks	1.321s
+ok  	github.com/generalized-labs/ironrun/internal/localapi	1.431s
+ok  	github.com/generalized-labs/ironrun/internal/migration	1.110s
+ok  	github.com/generalized-labs/ironrun/internal/pending	1.434s
+ok  	github.com/generalized-labs/ironrun/internal/policy	1.095s
+ok  	github.com/generalized-labs/ironrun/internal/project	1.189s
+ok  	github.com/generalized-labs/ironrun/internal/provider	8.002s
+ok  	github.com/generalized-labs/ironrun/internal/redact	61.777s
+?   	github.com/generalized-labs/ironrun/internal/remote	[no test files]
+ok  	github.com/generalized-labs/ironrun/internal/runner	22.267s
+ok  	github.com/generalized-labs/ironrun/internal/scrub	1.069s
+ok  	github.com/generalized-labs/ironrun/internal/sealedexec	7.611s
+ok  	github.com/generalized-labs/ironrun/internal/secrets	1.125s
+ok  	github.com/generalized-labs/ironrun/internal/shellguard	1.095s
+ok  	github.com/generalized-labs/ironrun/internal/tui	2.370s
+ok  	github.com/generalized-labs/ironrun/internal/vault	1.394s
+ok  	github.com/generalized-labs/ironrun/mcp	13.931s
+ok  	github.com/generalized-labs/ironrun/paper/eval	1.070s
+ok  	github.com/generalized-labs/ironrun/tests	15.720s
+FAIL

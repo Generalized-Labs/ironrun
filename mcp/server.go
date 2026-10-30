@@ -106,8 +106,8 @@ func registeredTools(f *policy.File, policyPath, sessionID string, auditLog *aud
 	runTool := mcplib.NewTool("run_sealed",
 		mcplib.WithDescription(
 			"Execute either a policy-authorized command by command_id or argv in a human-trusted workspace session. "+
-				"Secrets are injected below agent visibility and redacted from all output. "+
-				"The agent never sees raw secret values.",
+				"Configured secrets are injected into the child process without being returned as tool inputs. "+
+				"Output filtering masks known secret values and supported encodings; it cannot prevent disclosure through arbitrary transformations, files, or network access.",
 		),
 		mcplib.WithString("command_id", mcplib.Description("Legacy policy command ID (strict mode)")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Exact argv for the current human-trusted workspace session")),
@@ -120,7 +120,7 @@ func registeredTools(f *policy.File, policyPath, sessionID string, auditLog *aud
 	add(workspaceStatusTool, makeWorkspaceStatusHandler(policyPath, sessionID))
 
 	requestWorkspaceTool := mcplib.NewTool("request_workspace_access",
-		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary, revocable, and never includes secret values in MCP."),
+		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary and revocable; this request returns metadata rather than secret-value fields."),
 		mcplib.WithString("reason", mcplib.Required(), mcplib.Description("Brief task reason shown to the human")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Optional first command for human context; it is not executed by this request")),
 	)
@@ -221,6 +221,7 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			}
 			res, runErr := executeWorkspace(ctx, projectRoot(policyPath), environment, argv, execution.Options{
 				Stdout: os.Stderr, Stderr: os.Stderr, Audit: auditLog, SessionID: sessionID,
+				AllowWorkspaceNetwork: true, // The approved workspace grant promises normal network access.
 			})
 			if runErr != nil {
 				return mcplib.NewToolResultError(fmt.Sprintf("workspace execution error: %v", runErr)), nil

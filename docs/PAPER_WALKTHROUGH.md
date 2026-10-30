@@ -12,8 +12,11 @@ its assumptions matter throughout the paper.
 A coding agent learns from the output of commands it runs. A database client can
 print a connection URL containing a password; verbose HTTP output can print an
 Authorization header; configuration expansion can print environment values.
+The host selects what reaches model requests and transcripts, and can truncate,
+summarize, or omit content. The concern is credential-bearing output that is
+included, rather than a claim that every output byte is always retained.
 Once that output enters model context or transcripts, a secret manager cannot
-retract it. Depending on the exposure, the operator may need to rotate it.
+retract it. Depending on the exposure, the operator may need to revoke or rotate it.
 
 Ironrun connects two jobs: resolving the actual values supplied to a child and
 filtering those known values from its output before returning it to the agent.
@@ -71,8 +74,9 @@ information-flow confidentiality or deletion from provider logs.
 ## Design: one execution core and explicit capabilities
 
 CLI, MCP, TUI, and local API entry points are intended to converge on the same
-execution core. This reduces the chance that one surface forgets authorization,
-redaction, cleanup, or audit. [execution](../internal/execution) and
+execution core for resolution, redaction, cleanup, and audit. Authorization is
+each caller's responsibility; sharing that core alone does not establish
+equivalent permission checks. [execution](../internal/execution) and
 [runner](../internal/runner) are useful source directories for tracing that path.
 
 The agent requests an effect—run a test with approved credentials—rather than
@@ -93,8 +97,14 @@ Authorization and continuation work as follows:
   environment, trading control for convenience.
 - A blocked request can wait for human approval and continue in the same call.
 
+That last point describes a remediable missing approval or required value.
+Denial, expiry, cancellation, and non-remediable errors return errors instead of
+executing. The host can cancel a long-running call, so local protocol tests do
+not prove that every host will keep it open long enough to resume.
+
 Session IDs are minted by the server, not chosen by the agent. Approval is
-rechecked, and revocation affects the next call. This is not a claim that revoking
+rechecked, and the next call after revocation requires authorization again; it
+may wait for a new human review. This is not a claim that revoking
 access instantly terminates every already-running child.
 
 Exact argv prevents some shell expansion attacks, but it does not freeze what a
@@ -130,6 +140,19 @@ write boundaries, assuming the same ordered bytes, successful complete output
 writes, and a final flush with no intermediate flushes. It does not prove every
 sensitive transformation is recognized. Overlap priority, minimum pattern and
 fragment lengths, and finite encoding coverage remain material limits.
+
+The proof compares matching decisions, not wall-clock progress or the number of
+`Write` calls. Its invariant says that after corresponding decisions, both
+executions have consumed the same input prefix and emitted the same output.
+At each next decidable position, the same bounded window makes the same fixed
+matcher choice; the final flush sees the same suffix. Candidate ordering and
+fragment indexes must remain fixed during the comparison.
+
+At most `m-1` undecided bytes remain after a successful ordinary scan. That is
+neither peak allocation nor a time bound: a quiet process can leave a short
+prompt buffered until it prints more or exits. Stdout and stderr are separate
+streams, so a value divided between them falls outside either writer's matching
+guarantee. Equal chunked and batch output can contain the same missed disclosure.
 
 [REDACTION_WALKTHROUGH.md](REDACTION_WALKTHROUGH.md) develops the examples,
 equations, proof induction, code correspondence, and tests without compressing
@@ -205,6 +228,20 @@ battery tries reversal, case folding, encodings, gap removal, and related
 reconstruction. A case crosses the threshold when a case-insensitive contiguous
 run of at least 50% of the registered value can be recovered.
 
+The fixtures are generated in Go and printed by a real `cat` child through the
+runner. Labels such as Basic auth, xxd, or Kubernetes describe modeled output
+formats; those applications, a live agent host, and a model are not invoked for
+each row. This measures the injection/pipe/redactor path, not the complete
+provider/authorization/host workflow.
+
+Formally, generate the finite decoder candidate set `D(output)`, lowercase each
+candidate and the synthetic credential, take their longest common contiguous
+substring length, and divide the maximum by the original credential length.
+This observer metric differs from the runtime's byte-exact matching policy.
+It does not represent an optimal arbitrary attacker. The same six values recur
+across transformations, so the 126 cases are related deterministic probes, not
+independent observations sampled from deployments.
+
 The same corrected harness with Go 1.26.10 reproduced **52/126 → 28/126** overall
 and **21/72 → 3/72** for the accidental subset. The pinned baseline and raw logs
 are documented in [REPRODUCING.md](../paper/REPRODUCING.md). This is a deterministic
@@ -235,6 +272,11 @@ successful run outside that filesystem sandbox, with runtime isolation enabled.
 RQ4 is exercised by 3,000 deterministically randomized batch-versus-stream cases,
 plus fuzzing. Current checks are evidence for the present implementation. They
 do not supply missing historical v0.5.0 run records or prove all possible inputs.
+
+The manuscript's provenance table separates the October 21 paired leakage
+comparison, October 22 current-only diagnostics, independent regression checks,
+and unmeasured host usability. New setup/release checks cannot retroactively
+replace the source identity or inputs of those earlier experiments.
 
 ## Discussion, related work, and conclusion
 
@@ -268,7 +310,9 @@ checked during this review.
 Before submission, retain the final source commit, PDF, source archive, experiment
 corpus and logs, and toolchain/host metadata together. The revised manuscript
 uses fresh current-only FP/performance evidence and removes unsupported audit
-totals and old timing comparisons. Account eligibility, authorship agreement, and arXiv moderation remain
-submission matters. The [paper review](PAPER_REVIEW.md) preserves the audit trail
+totals and old timing comparisons. Author order is confirmed as Stephen Keehn,
+Mihir Gupta; unconfirmed affiliations are omitted. All-author consent to the
+proposed CC BY 4.0 license, categories/submission metadata, account eligibility,
+and arXiv moderation remain submission matters. The [paper review](PAPER_REVIEW.md) preserves the audit trail
 and current validation, so a reader can distinguish fresh evidence from claims
 still awaiting records.

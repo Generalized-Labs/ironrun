@@ -1,0 +1,26 @@
+{
+  "recorded_at_utc": "2026-10-30T03:30:52.354212+00:00",
+  "scope": "Only executable-source delta since earlier final-copy runtime/host/snapshot/Graphify source is three guided-demo print string replacements in init.go. README diagram separately changes one overclaim to registered matches. Exact replacement assertions confirm no other bytes differ in either file.",
+  "rows": [
+    {
+      "path": "cmd/ironrun/init.go",
+      "before_sha256": "4bbcdbf3e6acb1939dc7ad484db37c8ec54ede39cb937e82caaf56d8541fd7da",
+      "after_sha256": "ccf08e39b4ceb7cc80aa2657b6d280b999738704caa1ad9bdf8981c2ea2d9d0a",
+      "before_bytes": 12348,
+      "after_bytes": 12391,
+      "prior_identity": "../source-before.json; prior Graphify mirror"
+    },
+    {
+      "path": "README.md",
+      "before_sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63",
+      "after_sha256": "3386d14a3dfe7418327fed0b91dda1942487f1be0f1baf94519620c12bb12f08",
+      "before_bytes": 34934,
+      "after_bytes": 34934,
+      "prior_identity": "../../snapshot/inputs/run2/README.md"
+    }
+  ],
+  "other_go_module_files_unchanged": 181,
+  "earlier_evidence_retained": "Parent runtime records, codex-host, snapshot and analysis retain original source/binary hashes; no host/snapshot/graph recapture claimed.",
+  "packaging_repair": "An archived overlay accidentally named .go was renamed byte-identically to .go.txt by its archive owner before this green rerun. The initial failing broad suite is retained in packaging-failure/. No runtime/test implementation changed.",
+  "diff": "copy-only.diff"
+}

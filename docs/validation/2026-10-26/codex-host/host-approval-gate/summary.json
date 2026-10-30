@@ -1,0 +1,22 @@
+{
+  "mode": "mcp",
+  "codex_exit": 0,
+  "model_requests": 2,
+  "codex_version_stdout": "codex-cli 0.159.2",
+  "codex_sha256": "1748767b230ebfc3d4ab7e4e254920d0c0ad9691fd8c11f190e7d44511a4a92e",
+  "authenticated_request": false,
+  "limits": "Scripted local model fixture, not a real model or human usability test.",
+  "approval": {
+    "request": null,
+    "grant_exit": null,
+    "error": null
+  },
+  "loopback_requests": 0,
+  "child_received_synthetic_value": false,
+  "synthetic_value_in_model_input": false,
+  "synthetic_value_in_codex_stdout": false,
+  "redacted_loopback_in_model_input": false,
+  "ironrun_sha256": "a0b37dbeb1ea9b25808a49351094d1b847b69481d86cd83fb6f7d22c3c8aee6b",
+  "probe_sha256": "0238ae4b86bbf1881909e80b53505afdb42c364c1cedd681afec44941fbcab38",
+  "fixture_error": null
+}

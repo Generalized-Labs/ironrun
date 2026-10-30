@@ -1,0 +1,46 @@
+[
+  {
+    "name": "go",
+    "argv": [
+      "/workspace/ironrun-product-tools/go/bin/go",
+      "version"
+    ],
+    "exit_code": 0,
+    "stdout": "go version go1.26.10 linux/amd64\n",
+    "stderr": "",
+    "sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5"
+  },
+  {
+    "name": "staticcheck",
+    "argv": [
+      "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+      "-version"
+    ],
+    "exit_code": 0,
+    "stdout": "staticcheck 2026.2.2 (0.8.2)\n",
+    "stderr": "",
+    "sha256": "afcc5b32d6d58afa86cfde53b3ef890ea4724676ff90eba4451d2f7a79f26517"
+  },
+  {
+    "name": "node",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "v24.19.0\n",
+    "stderr": "",
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+  },
+  {
+    "name": "python",
+    "argv": [
+      "/usr/bin/python3",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "Python 3.13.5\n",
+    "stderr": "",
+    "sha256": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9"
+  }
+]

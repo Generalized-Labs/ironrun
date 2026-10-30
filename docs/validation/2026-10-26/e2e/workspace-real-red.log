@@ -1,0 +1,9 @@
+=== RUN   TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv
+    server_internal_test.go:149: approved normal-network workspace reached execution with network isolation enabled
+--- FAIL: TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv (0.01s)
+=== RUN   TestMCPTrustedWorkspaceLoopbackAndRevocation
+    workspace_network_linux_test.go:105: approved normal-network workspace did not execute and redact loopback: isError=true text=workspace execution error: runner: exec error: fork/exec /workspace/ironrun-product-tools/go-tmp/ironrun-mcp-test-320671387/ironrun: read-only file system
+--- FAIL: TestMCPTrustedWorkspaceLoopbackAndRevocation (0.67s)
+FAIL
+FAIL	github.com/generalized-labs/ironrun/mcp	2.543s
+FAIL

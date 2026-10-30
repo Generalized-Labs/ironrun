@@ -1,0 +1,115 @@
+{
+  "reviewed_at_utc": "2026-10-27T11:28:36.603771+00:00",
+  "reviewer": "independent paper-depth review subagent",
+  "method": "pdftoppm -scale-to 1550 -png, followed by view_image inspection of every rendered page",
+  "pdf_path": "/workspace/ironrun-product-review/paper/ironrun.pdf",
+  "pdf_bytes": 539550,
+  "pdf_sha256": "2e2173facaaac0d8a2b384b740f5ed2cea1dbefd9f79689715e37c8af0ac3406",
+  "tex_sha256": "d72676d5099027137f5ed9ed0308ccbbc5c1d7ba3f14ff00778789250816d42b",
+  "pages": [
+    {
+      "page": 1,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-01.png",
+      "rendered_sha256": "cdd14643a8d56a625d7ece98d865ce9e18ae8abd850162f3666e667f0a7c148b",
+      "inspected": true,
+      "observation": "Title, author block, abstract and introduction readable; no clipping."
+    },
+    {
+      "page": 2,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-02.png",
+      "rendered_sha256": "589124845d077469eef1e828c4aa87d08371fd0ea5f7e55d18c66044dc5b79de",
+      "inspected": true,
+      "observation": "Background, goals and threat-model text readable; normal column continuation."
+    },
+    {
+      "page": 3,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-03.png",
+      "rendered_sha256": "7bd6014b85803d29fc5e2cfee63c46b749c216eb53d9e3240826e8615830f8c8",
+      "inspected": true,
+      "observation": "Tool table, normal-network workspace paragraph and clarified continuation fit."
+    },
+    {
+      "page": 4,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-04.png",
+      "rendered_sha256": "511324c49143997418710d9a12f126e0990b367a7d89bbb9837f19c319df63c1",
+      "inspected": true,
+      "observation": "Architecture, sequence/revocation and vault diagrams fit; new two-line revocation label does not collide with caption."
+    },
+    {
+      "page": 5,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-05.png",
+      "rendered_sha256": "e0980e1ab653824522a3c694877572fff2bada35aa015c4eb6ca47ac44ae2532",
+      "inspected": true,
+      "observation": "Algorithm, buffer diagram, complete property statement, proof block and alignment equation readable; no clipped math or overlapping text."
+    },
+    {
+      "page": 6,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-06.png",
+      "rendered_sha256": "91d5bdacb5dd99448f811a5ea41c078b970e4e9816f6e033d3e071e72046c454",
+      "inspected": true,
+      "observation": "Containment/audit and regression case-study text readable."
+    },
+    {
+      "page": 7,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-07.png",
+      "rendered_sha256": "d168edd955fdbb3ae04d717bf583234bc0edebcab178643258c78c5721b0dffc",
+      "inspected": true,
+      "observation": "New provenance table and recovery equation fit inside column; method/fixture clarification legible."
+    },
+    {
+      "page": 8,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-08.png",
+      "rendered_sha256": "c50801bdc828a8326d777607b9087173157faa6b97bcec56029ae11c062ac1e3",
+      "inspected": true,
+      "observation": "Leakage table, false-positive table and throughput figure fit; column continuation is clear."
+    },
+    {
+      "page": 9,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-09.png",
+      "rendered_sha256": "b15b3b0a97875310620230eb28b5a595a66dece14638efce3c7ca332b2fdffda",
+      "inspected": true,
+      "observation": "Streaming checks, discussion and related work readable."
+    },
+    {
+      "page": 10,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-10.png",
+      "rendered_sha256": "761fb8d9f35b717c96deab669d2defd7a02aa7bc058bd109df9a17a0910026f3",
+      "inspected": true,
+      "observation": "Related work, conclusion, availability/disclosure and start of references fit."
+    },
+    {
+      "page": 11,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-11.png",
+      "rendered_sha256": "744556a50e9c176113481e72ab72fe15eae4b9df7e0a0f127f17518acfb3ca05",
+      "inspected": true,
+      "observation": "Bibliography entries1\u201322 continuation readable; no margin clipping."
+    },
+    {
+      "page": 12,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-12.png",
+      "rendered_sha256": "a657bcb2ad962bd26e82086b597b6e65db75e891ecf9a89d80e4cb95cfa0a8b9",
+      "inspected": true,
+      "observation": "Bibliography entries23\u201344 readable; long URLs remain inside columns."
+    },
+    {
+      "page": 13,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-13.png",
+      "rendered_sha256": "c6c0730392fad8b195551dc60adffc540cecb93d643fe8ed2e99ef162810e78c",
+      "inspected": true,
+      "observation": "Bibliography entries45\u201367 readable; no overlapping entries."
+    },
+    {
+      "page": 14,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/rendered-final/page-14.png",
+      "rendered_sha256": "ba3076225ff9ffd3dd500ed19f475c4725f15f4f97c11abe25e647b5ef40900c",
+      "inspected": true,
+      "observation": "Bibliography entries68\u201382 readable; final entries complete."
+    }
+  ],
+  "findings": "No material layout or visible content error found in the14-page review. The proof, provenance table, recovery equation, figure labels, column breaks and bibliography were inspected.",
+  "limits": [
+    "This is scaled visual inspection, not a proof that every typographical or semantic error is absent.",
+    "No source edits, PDF build, new experiment, or full test suite was performed by this reviewer.",
+    "Rendered PNGs remain local; their hashes bind the inspected renderings. The parent retains separate source-bundle compilation and extracted-text checks."
+  ]
+}

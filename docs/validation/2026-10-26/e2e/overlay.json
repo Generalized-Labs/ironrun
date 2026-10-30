@@ -1,0 +1,5 @@
+{
+  "Replace": {
+    "/workspace/ironrun-product-review/mcp/server_internal_test.go": "/workspace/ironrun-product-research/launch-20261026/e2e-audit/server_internal_overlay_test.go"
+  }
+}

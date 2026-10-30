@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/opt/codex/bin/codex",
+    "--version"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project",
+  "exit_code": 0,
+  "stdout": "codex-version.stdout.txt",
+  "stderr": "codex-version.stderr.txt"
+}

@@ -1,0 +1,55 @@
+{
+  "recorded_at_utc": "2026-10-30T03:21:46.155571+00:00",
+  "status": "Bounded code graph and local binary observations completed; optional binary-layout provider unavailable.",
+  "source_base_head": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+  "source_input_count": 194,
+  "source_identity": "graph-inputs.json",
+  "source_unchanged": "source-preservation.json",
+  "graphify": {
+    "version": "0.9.93",
+    "source_commit": "b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+    "nodes": 1919,
+    "edges": 5540,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "warnings": [
+      "Four files yielded no symbols; paths retained in graphify-extract.log."
+    ],
+    "selected_subgraph": "authorization-network-subgraph.json",
+    "selected_subgraph_nodes": 49,
+    "selected_subgraph_edges": 57,
+    "diagnostic": "graphify-multigraph-diagnostic.json"
+  },
+  "rea": {
+    "version": "6.7.0",
+    "target_sha256": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054",
+    "target_bytes": 21794978,
+    "go_evidence_id": "ev_04644026a7dbf7a155ae16960033a205e3138601c90fce46873ed940f627c019",
+    "objdump_evidence_id": "ev_705710329d3867dfe1e401870ca79b9ced58acfa818b8444d5d548b9c114f4dd",
+    "observed_format": "elf",
+    "observed_architecture": "amd64",
+    "observed_go_version": "go1.26.10",
+    "observed_build_settings": {
+      "-buildmode": "exe",
+      "-compiler": "gc",
+      "-trimpath": "true",
+      "CGO_ENABLED": "0",
+      "GOARCH": "amd64",
+      "GOOS": "linux",
+      "GOAMD64": "v1"
+    },
+    "optional_elf_layout": "provider_unavailable, retained in rea-elf-layout.json"
+  },
+  "manual_source_review": "README.md and source-excerpts.json; manual bridges are not Graphify-derived edges.",
+  "limitations": [
+    "Graphify is an AST navigation aid, not data-flow analysis or proof that authorization dominates execution. Function-valued aliases and imported package/method calls are not fully connected in this map.",
+    "Four code files yielded no symbols; the map is incomplete.",
+    "Raw graph relation variants can collapse when converted to a simple DiGraph:8 endpoint groups/8 collapsed directed edges reported by the tool.",
+    "Code-only extraction and no-dedup/no-cluster avoid semantic LLM analysis; this is not a literature graph or semantic understanding of every file.",
+    "REA Go build-info observes embedded metadata, not compiler/dependency authenticity or runtime behavior. GNU objdump file headers are command observations, not reconstructed source.",
+    "Optional REA binary-layout provider is unavailable without a caller-supplied pwntools Python; Ghidra/Rizin/Kuna decompiler providers are not configured. No native decompilation/data-flow analysis is claimed.",
+    "Native key stores, actual model judgment and Mac/other-host workflows are outside these static observations; use runtime/host evidence with its own fixture boundaries.",
+    "Full1.7MB graph, mirrors, dependencies and binary are retained locally rather than duplicated in this compact archive.",
+    "Directory label2026-10-26 names the original session; these commands actually ran2026-10-30UTC."
+  ]
+}

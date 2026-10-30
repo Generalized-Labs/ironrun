@@ -1,0 +1,7 @@
+[graphify extract] scanning /workspace/ironrun-product-research/launch-20261026/analysis/current-source
+[graphify extract] found 194 code, 0 docs, 0 papers, 0 images
+[graphify extract] AST extraction on 194 code files...
+  AST extraction: 100/194 uncached files (51%) [3 workers]
+  AST extraction: 194/194 uncached files (100%) [3 workers]
+  warning: 4 code file(s) yielded no symbols (0.01 MB) — a data file, or source this extractor models no symbols for: npm/bin/ironrun.js, npm/scripts/postinstall.mjs, npm/test/build-manifest.test.js, npm/test/launcher.test.js
+[graphify extract] wrote /workspace/ironrun-product-research/launch-20261026/analysis/graphify/graphify-out/graph.json — 1919 nodes, 5540 edges (no clustering)

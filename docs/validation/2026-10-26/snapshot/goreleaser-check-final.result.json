@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/workspace/ironrun-product-tools/release-bin/goreleaser",
+    "check"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "start_utc": "2026-10-30T03:12:20.951970+00:00",
+  "end_utc": "2026-10-30T03:12:20.979943+00:00",
+  "wall_ns": 27973454,
+  "exit_code": 0,
+  "config_sha256": "edd5602f650aea3717880489085f6ae7eed46280f2f29c6c88962f093ab7e626",
+  "scope": "Final-copy configuration validation only, no build/publication/signing."
+}

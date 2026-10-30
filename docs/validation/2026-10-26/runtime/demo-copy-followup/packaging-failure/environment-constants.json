@@ -1,0 +1,15 @@
+{
+  "PATH": "/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin",
+  "GOPATH": "/workspace/ironrun-product-tools/gopath",
+  "GOMODCACHE": "/workspace/ironrun-product-tools/go-modules",
+  "GOCACHE": "/workspace/ironrun-product-tools/go-cache",
+  "GOTMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+  "TMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+  "GOFLAGS": "-buildvcs=false",
+  "GOPROXY": "off",
+  "GOSUMDB": "off",
+  "GOTOOLCHAIN": "local",
+  "GITHUB_ACTIONS": "false",
+  "XDG_STATE_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/state",
+  "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/cache"
+}

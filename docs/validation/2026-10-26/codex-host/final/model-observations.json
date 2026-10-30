@@ -1,0 +1,532 @@
+[
+  {
+    "path": "/v1/responses",
+    "authorization_header_present": false,
+    "observed_monotonic_ns": 20193808119822,
+    "model": "fixture-model",
+    "ironrun_tools": [
+      {
+        "type": "namespace",
+        "name": "mcp__ironrun",
+        "description": "Tools in the mcp__ironrun namespace.",
+        "tools": [
+          {
+            "type": "function",
+            "name": "claim_capsule",
+            "description": "Claim one Ironrun encrypted capsule created for a pending secret request. The argument is ciphertext, never a plaintext secret.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "capsule": {
+                  "type": "string",
+                  "description": "An ir1. encrypted capsule produced by `ironrun capsule create`"
+                }
+              },
+              "required": [
+                "capsule"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "lease_status",
+            "description": "List this MCP session's lease IDs, scopes, commands, expiry, and revocation state. No secret values are returned.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "list_commands",
+            "description": "List all command IDs available in the current policy. Call this first to know what commands you can run via run_sealed.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "list_environments",
+            "description": "List project environment names, active state, expiry, and configured key counts. Secret values are never returned.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "propose_command",
+            "description": "Stage a NEW command for the user to approve when it is not in the policy. This does NOT run anything \u2014 a human must approve it with `ironrun approve <id>` in their terminal before run_sealed can execute it. Use this instead of giving up or running the command in a raw shell.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Exact binary + args, e.g. [\"psql\",\"-c\",\"select 1\"]. No shells (sh/bash).",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "env": {
+                  "type": "object",
+                  "description": "Legacy version-1 env var -> provider ref map",
+                  "properties": {}
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Short kebab-case id for the command, e.g. db-shell"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why you need this command \u2014 shown to the human reviewer."
+                },
+                "secrets": {
+                  "type": "array",
+                  "description": "Optional encrypted environment entry names, e.g. [\"DATABASE_URL\"]",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "argv",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_lease",
+            "description": "Request temporary permission for this MCP session to run specific policy commands. A human must approve it locally.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "command_ids": {
+                  "type": "array",
+                  "description": "Policy command IDs requested for this session",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why this session needs these commands"
+                },
+                "ttl": {
+                  "type": "string",
+                  "description": "Requested lifetime such as 30m or 2h; maximum 24h"
+                }
+              },
+              "required": [
+                "command_ids",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_secret",
+            "description": "Ask the user to configure one policy-declared secret through Ironrun's local masked prompt. Never include a secret value in this call.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "description": "Why the command needs this secret; shown to the user"
+                },
+                "secret_alias": {
+                  "type": "string",
+                  "description": "A secret alias declared in ironrun.yml; this is a name, never a value"
+                }
+              },
+              "required": [
+                "secret_alias",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_workspace_access",
+            "description": "Ask the human to trust this MCP session for the current project's selected environment. Access is temporary and revocable; this request returns metadata rather than secret-value fields.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Optional first command for human context; it is not executed by this request",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Brief task reason shown to the human"
+                }
+              },
+              "required": [
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "revoke_own_lease",
+            "description": "Voluntarily revoke one lease belonging to this MCP session.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "lease_id": {
+                  "type": "string",
+                  "description": "Lease ID returned by lease_status"
+                }
+              },
+              "required": [
+                "lease_id"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "run_sealed",
+            "description": "Execute either a policy-authorized command by command_id or argv in a human-trusted workspace session. Configured secrets are injected into the child process without being returned as tool inputs. Output filtering masks known secret values and supported encodings; it cannot prevent disclosure through arbitrary transformations, files, or network access.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Exact argv for the current human-trusted workspace session",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "command_id": {
+                  "type": "string",
+                  "description": "Legacy policy command ID (strict mode)"
+                }
+              },
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "validate_policy",
+            "description": "Validate the current policy file and return a summary of defined commands.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "workspace_status",
+            "description": "Return value-blind current project, environment, configured entry names, and this agent session's trusted-access status.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          }
+        ]
+      }
+    ],
+    "tool_input_items": [],
+    "instructions_omitted": true,
+    "other_prompt_messages_omitted": true
+  },
+  {
+    "path": "/v1/responses",
+    "authorization_header_present": false,
+    "observed_monotonic_ns": 20194096558508,
+    "model": "fixture-model",
+    "ironrun_tools": [
+      {
+        "type": "namespace",
+        "name": "mcp__ironrun",
+        "description": "Tools in the mcp__ironrun namespace.",
+        "tools": [
+          {
+            "type": "function",
+            "name": "claim_capsule",
+            "description": "Claim one Ironrun encrypted capsule created for a pending secret request. The argument is ciphertext, never a plaintext secret.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "capsule": {
+                  "type": "string",
+                  "description": "An ir1. encrypted capsule produced by `ironrun capsule create`"
+                }
+              },
+              "required": [
+                "capsule"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "lease_status",
+            "description": "List this MCP session's lease IDs, scopes, commands, expiry, and revocation state. No secret values are returned.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "list_commands",
+            "description": "List all command IDs available in the current policy. Call this first to know what commands you can run via run_sealed.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "list_environments",
+            "description": "List project environment names, active state, expiry, and configured key counts. Secret values are never returned.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "propose_command",
+            "description": "Stage a NEW command for the user to approve when it is not in the policy. This does NOT run anything \u2014 a human must approve it with `ironrun approve <id>` in their terminal before run_sealed can execute it. Use this instead of giving up or running the command in a raw shell.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Exact binary + args, e.g. [\"psql\",\"-c\",\"select 1\"]. No shells (sh/bash).",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "env": {
+                  "type": "object",
+                  "description": "Legacy version-1 env var -> provider ref map",
+                  "properties": {}
+                },
+                "id": {
+                  "type": "string",
+                  "description": "Short kebab-case id for the command, e.g. db-shell"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why you need this command \u2014 shown to the human reviewer."
+                },
+                "secrets": {
+                  "type": "array",
+                  "description": "Optional encrypted environment entry names, e.g. [\"DATABASE_URL\"]",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "id",
+                "argv",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_lease",
+            "description": "Request temporary permission for this MCP session to run specific policy commands. A human must approve it locally.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "command_ids": {
+                  "type": "array",
+                  "description": "Policy command IDs requested for this session",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why this session needs these commands"
+                },
+                "ttl": {
+                  "type": "string",
+                  "description": "Requested lifetime such as 30m or 2h; maximum 24h"
+                }
+              },
+              "required": [
+                "command_ids",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_secret",
+            "description": "Ask the user to configure one policy-declared secret through Ironrun's local masked prompt. Never include a secret value in this call.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "description": "Why the command needs this secret; shown to the user"
+                },
+                "secret_alias": {
+                  "type": "string",
+                  "description": "A secret alias declared in ironrun.yml; this is a name, never a value"
+                }
+              },
+              "required": [
+                "secret_alias",
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "request_workspace_access",
+            "description": "Ask the human to trust this MCP session for the current project's selected environment. Access is temporary and revocable; this request returns metadata rather than secret-value fields.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Optional first command for human context; it is not executed by this request",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Brief task reason shown to the human"
+                }
+              },
+              "required": [
+                "reason"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "revoke_own_lease",
+            "description": "Voluntarily revoke one lease belonging to this MCP session.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "lease_id": {
+                  "type": "string",
+                  "description": "Lease ID returned by lease_status"
+                }
+              },
+              "required": [
+                "lease_id"
+              ]
+            }
+          },
+          {
+            "type": "function",
+            "name": "run_sealed",
+            "description": "Execute either a policy-authorized command by command_id or argv in a human-trusted workspace session. Configured secrets are injected into the child process without being returned as tool inputs. Output filtering masks known secret values and supported encodings; it cannot prevent disclosure through arbitrary transformations, files, or network access.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "argv": {
+                  "type": "array",
+                  "description": "Exact argv for the current human-trusted workspace session",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "command_id": {
+                  "type": "string",
+                  "description": "Legacy policy command ID (strict mode)"
+                }
+              },
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "validate_policy",
+            "description": "Validate the current policy file and return a summary of defined commands.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          },
+          {
+            "type": "function",
+            "name": "workspace_status",
+            "description": "Return value-blind current project, environment, configured entry names, and this agent session's trusted-access status.",
+            "strict": false,
+            "parameters": {
+              "type": "object",
+              "properties": {},
+              "required": []
+            }
+          }
+        ]
+      }
+    ],
+    "tool_input_items": [
+      {
+        "type": "function_call",
+        "id": "fc_0",
+        "name": "run_sealed",
+        "namespace": "mcp__ironrun",
+        "arguments": "{\"argv\": [\"/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/secret-tool\", \"http\", \"http://127.0.0.1:43283/probe\"]}",
+        "call_id": "call_fixture_0"
+      },
+      {
+        "type": "function_call_output",
+        "id": "fco_01a17d2a-c929-7613-8f9d-89a3403a0c8a",
+        "call_id": "call_fixture_0",
+        "output": [
+          {
+            "type": "input_text",
+            "text": "Wall time: 0.2496 seconds\nOutput:"
+          },
+          {
+            "type": "input_text",
+            "text": "exit_code: 0\nduration_ms: 9\n\n--- stdout ---\nPROBE_STARTED\ncredential=[REDACTED]\nLOOPBACK_RESPONSE [REDACTED]\nDIAL_OK\n\n--- stderr ---\n"
+          }
+        ]
+      }
+    ],
+    "instructions_omitted": true,
+    "other_prompt_messages_omitted": true
+  }
+]

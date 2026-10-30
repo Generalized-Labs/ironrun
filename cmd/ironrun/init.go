@@ -44,7 +44,7 @@ results; enable and verify Ironrun in your selected agent before use.`,
 			stdout, _ := os.Stdout.Stat()
 			interactive := stdout != nil && stdout.Mode()&os.ModeCharDevice != 0
 			if interactive && !yes {
-				fmt.Println("Setup preview (secret values are never displayed, stored, or transmitted):")
+				fmt.Println("Setup preview (review paths and command metadata before changes):")
 				fmt.Println("  • ironrun.yml — reviewed commands and secret names")
 				fmt.Println("  • .mcp.json — project MCP registration")
 				fmt.Println("  • CLAUDE.md, AGENTS.md, .cursorrules — agent safety instructions")
@@ -213,9 +213,9 @@ func runGuidedDemo(cwd string) {
 	fmt.Println()
 	fmt.Println("Step 3 of 3 — that's the whole model:")
 	fmt.Println("  • Secrets live encrypted at rest; ironrun.yml holds only names.")
-	fmt.Println("  • Values resolve into the child process's environment only —")
-	fmt.Println("    never your shell, never the agent's context, never disk.")
-	fmt.Println("  • Everything the child prints is redacted before anyone sees it.")
+	fmt.Println("  • Values are injected into child environments or private temporary files.")
+	fmt.Println("  • Intercepted stdout and stderr filter known values and supported encodings.")
+	fmt.Println("    Other transformations, files, and network traffic can still disclose values.")
 	fmt.Println()
 	fmt.Println("  Clean up the demo:   ironrun env delete dev DEMO_TOKEN")
 	fmt.Println("  Store a real secret: ironrun env set API_KEY   (masked prompt)")

@@ -1,0 +1,138 @@
+{
+  "recorded_at_utc": "2026-10-30T03:13:03.872980+00:00",
+  "base_head": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+  "source_identity": "source-before.json",
+  "source_files": 182,
+  "server_go_sha256": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2",
+  "source_unchanged_through_all_phases": true,
+  "extended_verification_inputs": "verification-inputs.json",
+  "extended_input_files": 204,
+  "results": [
+    {
+      "phase": "race",
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:10:58.035373+00:00",
+      "ended_at_utc": "2026-10-30T03:11:40.099301+00:00",
+      "elapsed_seconds": 42.06393240599573,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Outside extra filesystem sandbox, real containment still exercised",
+      "log": "race.log",
+      "log_sha256": "9a8727bc0d384c439ce6ef237bd304de978f80117ac99ae047054578d0bb6d74"
+    },
+    {
+      "phase": "vet",
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:11:02.710817+00:00",
+      "ended_at_utc": "2026-10-30T03:11:06.496536+00:00",
+      "elapsed_seconds": 3.785724498993659,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "staticcheck",
+      "argv": [
+        "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:11:02.826855+00:00",
+      "ended_at_utc": "2026-10-30T03:11:25.515503+00:00",
+      "elapsed_seconds": 22.688655018006102,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "staticcheck.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "release",
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "release_test.py",
+        "-v"
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:11:02.796110+00:00",
+      "ended_at_utc": "2026-10-30T03:11:16.552286+00:00",
+      "elapsed_seconds": 13.756182133001857,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "release.log",
+      "log_sha256": "4472a60ed1fe5b88e101fbef307a30bf7e8e2d215d87db3e7861cc8846d9f041"
+    },
+    {
+      "phase": "npm",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--test",
+        "test/build-manifest.test.js",
+        "test/launcher.integration.test.js",
+        "test/launcher.test.js",
+        "test/manifest.test.js"
+      ],
+      "cwd": "/workspace/ironrun-product-review/npm",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:11:02.806741+00:00",
+      "ended_at_utc": "2026-10-30T03:11:11.034962+00:00",
+      "elapsed_seconds": 8.228422247004346,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin"
+      },
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "npm.log",
+      "log_sha256": "dc9b19040cd86e93892b6948a0b97d0b650fe4000968189bc2be3a658c0ce421"
+    }
+  ],
+  "release_tests": 11,
+  "npm_tests": {
+    "node": "24.19.0",
+    "pass": 19,
+    "fail": 0,
+    "skipped": 0
+  },
+  "tool_identities": "tool-identities.json",
+  "limitations": [
+    "Linux amd64 synthetic credential-free checks. Native macOS Keychain, Linux Secret Service, actual external providers and human host workflows are not established by this suite.",
+    "MCP loopback regression replaces the native platform root-key adapter with a disclosed synthetic fixture.",
+    "Nonverbose Go logs do not enumerate individual platform skips; a skipped check is not positive evidence.",
+    "Race suite ran outside the additional agent filesystem sandbox; Ironrun containment remained enabled.",
+    "Installer tests use a fixture verifier, not future release signatures. No release was signed or published.",
+    "Go build VCS metadata was disabled; the dirty source manifest, not base HEAD, binds reviewed code.",
+    "Node20/22 and proxy tests were not repeated locally. CI remains a separate head-specific gate.",
+    "The archive folder uses the original 2026-10-26 session label. Actual rerun UTC timestamps in result records are 2026-10-30.",
+    "Extended input hashes were captured after checks; before/after stability assertions cover Go/module sources."
+  ]
+}

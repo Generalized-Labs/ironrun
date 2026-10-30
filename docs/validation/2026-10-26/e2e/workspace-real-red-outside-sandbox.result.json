@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+    "-v"
+  ],
+  "exit_code": 1,
+  "scope": "Synthetic local loopback/v2 encrypted-vault integration outside additional filesystem sandbox, still with real Ironrun containment; fake native root-key adapter only."
+}

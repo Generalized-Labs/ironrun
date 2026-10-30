@@ -144,7 +144,10 @@ commands:
 	resolveExecutionEnvironment = func(*policy.File, string) (string, error) { return "dev", nil }
 	var gotRoot, gotEnvironment string
 	var gotArgv []string
-	executeWorkspace = func(_ context.Context, root, environment string, argv []string, _ execution.Options) (*runner.Result, error) {
+	executeWorkspace = func(_ context.Context, root, environment string, argv []string, opts execution.Options) (*runner.Result, error) {
+		if !opts.AllowWorkspaceNetwork {
+			t.Error("approved normal-network workspace reached execution with network isolation enabled")
+		}
 		gotRoot, gotEnvironment, gotArgv = root, environment, append([]string(nil), argv...)
 		return &runner.Result{}, nil
 	}

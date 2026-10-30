@@ -1,0 +1,48 @@
+[
+  {
+    "name": "version",
+    "argv": [
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "version"
+    ],
+    "exit_code": 0,
+    "stdout_sha256": "e794f4403dffa51bf168346d51a9fbd14ea49767034f3f9cc513d9935b94f237",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+  },
+  {
+    "name": "help",
+    "argv": [
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "--help"
+    ],
+    "exit_code": 0,
+    "stdout_sha256": "ac59603b20c9b7b14de8203243adacc9152158aa896487c2c4cc6d0de5bf282f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+  },
+  {
+    "name": "doctor-help",
+    "argv": [
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "doctor",
+      "--help"
+    ],
+    "exit_code": 0,
+    "stdout_sha256": "27bc8768ac259c4f335a09682558e75fadc489484531773750e7ae548cf6e38f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+  },
+  {
+    "name": "setup-help",
+    "argv": [
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "setup",
+      "--help"
+    ],
+    "exit_code": 0,
+    "stdout_sha256": "ffc80cba2b2d92846646706fae5a375873f620a908dacb1d3da30fa1c16c9974",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Linux amd64 CLI help/version only; no native store, network, or agent host"
+  }
+]

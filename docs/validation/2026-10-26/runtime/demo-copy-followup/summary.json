@@ -1,0 +1,103 @@
+{
+  "recorded_at_utc": "2026-10-30T03:30:52.357863+00:00",
+  "status": "Final guided-demo copy checks passed after archive packaging repair",
+  "source_identity": "source-before.json",
+  "go_module_inputs": 182,
+  "readme_identity": "README.md field in source-before.json",
+  "go_and_readme_inputs_unchanged_across_phases": true,
+  "server_go_sha256": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2",
+  "init_go_sha256": "ccf08e39b4ceb7cc80aa2657b6d280b999738704caa1ad9bdf8981c2ea2d9d0a",
+  "readme_sha256": "3386d14a3dfe7418327fed0b91dda1942487f1be0f1baf94519620c12bb12f08",
+  "results": [
+    {
+      "phase": "race",
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:27:43.625793+00:00",
+      "ended_at_utc": "2026-10-30T03:28:12.888983+00:00",
+      "elapsed_seconds": 29.26319606600009,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Outside extra filesystem sandbox, real containment still exercised",
+      "log": "race.log",
+      "log_sha256": "068d83f93609017d34cce87b086500d9231057d9142b5541ca8303bbff97380c"
+    },
+    {
+      "phase": "vet",
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:27:48.509958+00:00",
+      "ended_at_utc": "2026-10-30T03:27:49.524289+00:00",
+      "elapsed_seconds": 1.0143358999994234,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "staticcheck",
+      "argv": [
+        "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+        "./..."
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:27:48.505407+00:00",
+      "ended_at_utc": "2026-10-30T03:27:49.593844+00:00",
+      "elapsed_seconds": 1.0884389060011017,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "staticcheck.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "phase": "build",
+      "argv": [
+        "go",
+        "build",
+        "-trimpath",
+        "-o",
+        "/workspace/ironrun-product-tools/ironrun-demo-copy-fixed",
+        "./cmd/ironrun"
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "exit_code": 0,
+      "started_at_utc": "2026-10-30T03:27:48.498111+00:00",
+      "ended_at_utc": "2026-10-30T03:27:49.155179+00:00",
+      "elapsed_seconds": 0.6570732800028054,
+      "source_unchanged": true,
+      "source_identity": "source-before.json",
+      "phase_environment_override": {},
+      "execution_scope": "Synthetic credential-free verification",
+      "log": "build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "compiled_copy_smoke": "compiled-copy-smoke.json",
+  "source_delta": "source-delta.json",
+  "earlier_release_node_checks": "../summary.json; unchanged-release-node-inputs.json",
+  "limitations": [
+    "Synthetic credential-free Linux checks; native key stores, external providers, human host UX and macOS runtime remain outside these results.",
+    "Nonverbose race output does not enumerate platform skips.",
+    "Compiled-string checks plus help/version smoke do not execute the guided demo itself or a native vault.",
+    "Host, snapshot and Graphify captures predate this copy-only init.go change; their original source and binary identities remain intact.",
+    "No tagged release was generated, signed or published."
+  ]
+}

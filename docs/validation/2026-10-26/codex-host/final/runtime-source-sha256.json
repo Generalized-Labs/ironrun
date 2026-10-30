@@ -1,0 +1,5 @@
+{
+  "mcp/server.go": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2",
+  "internal/execution/execution.go": "3f187c3a4d31c813e62fde96c5353ddd176cfff4c4e42e5beb2e057664e39e60",
+  "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+}

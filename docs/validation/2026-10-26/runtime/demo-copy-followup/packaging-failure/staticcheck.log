@@ -1,0 +1,12 @@
+-: # github.com/generalized-labs/ironrun/docs/validation/2026-10-26/e2e [github.com/generalized-labs/ironrun/docs/validation/2026-10-26/e2e.test]
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:57:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:58:25: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:59:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:59:55: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:60:2: undefined: resolveExecutionEnvironment
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:62:2: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:70:17: undefined: makeRunHandler
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:96:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:97:21: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:99:2: undefined: executeCommand
+docs/validation/2026-10-26/e2e/server_internal_overlay_test.go:99:2: too many errors (compile)

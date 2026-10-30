@@ -1,0 +1,20 @@
+{
+  "scope": "Later source comparison, not a new host execution; original capture statuses and source hashes are unchanged.",
+  "captured_source_manifest": "final/runtime-source-build.json",
+  "captured_ironrun_binary_sha256": "1e1d215de96a6db8f0ca0b68544d5272118d322300059be3e225e4767cd76126",
+  "changed_go_module_paths": [
+    "cmd/ironrun/init.go"
+  ],
+  "changed_inputs": {
+    "cmd/ironrun/init.go": {
+      "capture_sha256": "4bbcdbf3e6acb1939dc7ad484db37c8ec54ede39cb937e82caaf56d8541fd7da",
+      "later_sha256": "ccf08e39b4ceb7cc80aa2657b6d280b999738704caa1ad9bdf8981c2ea2d9d0a"
+    }
+  },
+  "mcp_server_sha256_unchanged": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2",
+  "reviewed_change": "Three guided-demo message literals now describe configured child injection, known-value/supported-encoding filtering, and transformation/file/network limits. No runtime branch or execution logic changed.",
+  "exact_three_literal_reconstruction_matches_captured_init_sha256": true,
+  "other_go_module_inputs_unchanged": 181,
+  "later_runtime_checks": "../runtime/demo-copy-followup/source-delta.json",
+  "host_recapture": false
+}

@@ -1,0 +1,34 @@
+model = "fixture-model"
+model_provider = "fixture"
+model_reasoning_effort = "low"
+model_context_window = 32768
+model_auto_compact_token_limit = 30000
+approval_policy = "never"
+sandbox_mode = "read-only"
+[model_providers.fixture]
+name = "Local credential-free scripted fixture"
+base_url = "http://127.0.0.1:40177/v1"
+wire_api = "responses"
+requires_openai_auth = false
+supports_websockets = false
+request_max_retries = 0
+stream_max_retries = 0
+[projects."/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/project"]
+trust_level = "trusted"
+
+[mcp_servers.ironrun]
+command = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/bin/ironrun"
+args = ["mcp", "--policy", "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/project/ironrun.yml"]
+cwd = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/project"
+required = true
+startup_timeout_sec = 20
+tool_timeout_sec = 30
+default_tools_approval_mode = "auto"
+[mcp_servers.ironrun.env]
+HOME = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/home"
+IRONRUN_HOME = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/home/ironrun"
+XDG_CONFIG_HOME = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/home/config"
+XDG_CACHE_HOME = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/home/cache"
+XDG_STATE_HOME = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/home/state"
+PATH = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/bin:/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin"
+IRONRUN_TEST_NATIVE_STORE_DIR = "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/synthetic-native-store"

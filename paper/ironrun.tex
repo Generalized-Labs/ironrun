@@ -55,13 +55,12 @@
 
 \hypersetup{
   pdftitle={Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them},
-  pdfauthor={Mihir Gupta, Stephen Keehn},
+  pdfauthor={Stephen Keehn, Mihir Gupta},
 }
 
 \title{\Large\bfseries Sealed Execution: Letting LLM Coding Agents\\Use Credentials Without Seeing Them}
 \author{%
-  Mihir Gupta \qquad Stephen Keehn\\[2pt]
-  \normalsize Generalized Labs\\
+  Stephen Keehn \qquad Mihir Gupta\\[2pt]
   \normalsize\url{https://github.com/Generalized-Labs/ironrun}}
 \date{}
 
@@ -102,20 +101,21 @@ must bound deliberate exfiltration.
 
 Coding agents such as Claude Code, Codex, and Cursor operate by issuing tool
 calls---most importantly, shell commands---and reading their output. That
-output is appended to the model's context window, transmitted to the model
-provider on every subsequent turn, and typically persisted by the agent host as
-a local transcript (Claude Code, for example, stores JSONL session logs under
-\code{~/.claude/projects/}). Anything a command prints is therefore
-\emph{published}: to the provider, to the transcript store, and to anyone who
-later reads, shares, or screen-records the session.
+output can enter model requests and local transcripts (Claude Code, for example,
+stores JSONL session logs under \code{~/.claude/projects/}). The host controls
+which output is included, truncated, summarized, retained, or sent again on
+later turns. When credential-bearing output is included, its audience can expand
+to a model provider and anyone who later reads or shares the transcript. An
+output boundary must therefore act before that inclusion; later transcript
+cleanup cannot retract requests already sent.
 
 Credentials reach output through utterly ordinary debugging. An agent asked to
 fix a failing integration test may run \code{printenv} to check configuration,
 \code{cat .env} to inspect it, \code{curl -v} to reproduce an HTTP error (which
 echoes the \code{Authorization} header), or simply rerun a test whose failure
-message embeds the database URL. Each of these discloses a secret the human
-never intended to share, and because transcripts cannot be retracted from a
-provider's logs, the only safe response is rotation. Practitioners report this
+message embeds the database URL. Such output can disclose a secret the human
+never intended to share, requiring revocation or rotation when exposure cannot
+be ruled out. Practitioners report this
 happening repeatedly in normal use~\citep{cc_issue64326,cc_issue32523},
 and a study of 17{,}022 agent skills reports debug-output exposure in
 1{,}007 of 1{,}371 vulnerability issues (73.5\%), where agent frameworks feed
@@ -159,7 +159,7 @@ not a universal confidentiality guarantee.
   separates \emph{accidental} disclosure, \emph{prompt-injected} agents acting
   through their tools, and hostile same-user code (\cref{sec:threat}).
 \item The design and implementation of \sys{}, an MIT-licensed local runtime
-  comprising value-blind MCP interfaces, session-bound tiered authorization with
+  comprising value-blind MCP interfaces, session-bound authorization mechanisms with
   in-place continuation, a streaming redactor with a proved chunking-invariance
   property, and layered containment (\cref{sec:design,sec:impl}).
 \item Current regression case studies for approval integrity, agent-reachable
@@ -178,9 +178,10 @@ not a universal confidentiality guarantee.
 \paragraph{Agent tool loops.} An agent host repeatedly sends the conversation
 to a model, receives tool calls, executes them locally, and appends results.
 The Model Context Protocol (MCP)~\citep{mcp2026spec} standardizes how a host
-discovers and invokes local tool servers over stdio. Every byte a tool returns
-becomes model input, is retained for the rest of the session, and is commonly
-written to disk by the host.
+discovers and invokes tool servers, including local servers over stdio. The
+host selects tool-result content for model input and may persist it to disk.
+Neither the protocol nor a later display filter guarantees that previously
+included credential content is absent from model requests or transcripts.
 
 \paragraph{Why output is the hard channel.} Secrets can leave through three
 channels: \emph{inputs} the agent writes (a value typed into a command line),
@@ -188,7 +189,7 @@ channels: \emph{inputs} the agent writes (a value typed into a command line),
 first is solvable by never giving the agent the value; the third is the
 domain of sandboxes. The second is the subtle one: an agent that has never
 seen a credential can still cause it to be printed, merely by running the
-program that uses it. Rotation is the only remedy after the fact.
+program that uses it. Revocation or rotation may be necessary after exposure.
 
 \paragraph{Scenarios.} Three representative accidents motivate the design:
 (1)~a connection failure prints a DSN with an embedded password;
@@ -385,7 +386,8 @@ results for vault key material; it may skip on headless hosts.}
 \item \textbf{Trusted workspace sessions.} For everyday development, the operator
   grants one MCP session arbitrary-argv execution against one project
   environment for a bounded time (default 2\,h). \code{staging} and \code{prod}
-  require separate grants.
+  require separate grants. The grant includes normal network access; saved
+  policy commands retain their individual network settings.
 \item \textbf{Proposals.} An agent may stage a new strict command with
   \code{propose_command}; it is inert until the operator approves it, at which
   point it is merged into the policy.
@@ -395,11 +397,15 @@ Session identifiers are 64-bit values from \code{crypto/rand}, minted per MCP
 server process and never accepted from the agent, so a grant cannot outlive the
 server instance it was issued to.
 
-\paragraph{Continuation.} A blocked call does not fail; it creates (or reuses) a
-deduplicated, value-blind request and waits on persisted state, re-validating
-authorization every 100\,ms until the request's deadline
-(\cref{fig:seq}). When the operator approves in the TUI, the original call
-resumes without a separate approve-and-report exchange in chat.
+\paragraph{Continuation.} A strict-command run can wait for remediable human
+authorization or a missing declared value; a trusted-workspace run waits for
+workspace authorization. The corresponding handler creates (or reuses) a
+deduplicated, value-blind request and waits on persisted state, re-validating authorization every
+100\,ms (\cref{fig:seq}). Approval before the request's deadline lets the same
+call continue without a separate approve-and-report exchange in chat. Denial,
+expiry, call cancellation, and non-remediable errors return a tool error rather
+than executing. Host-side timeouts can cancel the wait; this local continuation
+mechanism alone does not establish compatibility with every host's call lifetime.
 
 \begin{figure}[t]
 \centering
@@ -423,7 +429,7 @@ resumes without a separate approve-and-report exchange in chat.
 \node[hd, fill=accent!12, font=\scriptsize] at (2.1,-4.05) {resolve $\cdot$ run $\cdot$ redact};
 \draw[m] (2.1,-4.8) -- node[above] {exit code, \red{}} (0,-4.8);
 \draw[m, draw=warn] (6.3,-5.35) -- node[above, text=warn] {revoke} (4.2,-5.35);
-\node[note, text=warn, anchor=north] at (5.25,-5.4) {next call fails};
+\node[note, text=warn, anchor=north] at (5.25,-5.4) {next call rechecks\\authorization};
 \end{tikzpicture}
 \caption{Request, approval, and in-place continuation. The waiting call is never
 restarted, and approval happens only on the operator's side.}
@@ -570,20 +576,34 @@ calls emits the same output as \code{Write}$(x)$ followed by \code{Flush}.
 \end{property}
 \end{samepage}
 \begin{proof}[Proof sketch]
-\textsc{Scan} decides position $i$ only if $|B| - i > m - 1$, i.e.\ at least $m$
-bytes starting at $i$ are buffered. Every tier's decision depends on at most $m$ bytes from
-$i$: exact matching reads $|p| < m$ bytes; gap-tolerant matching accepts spans of at most $m$; fragment lookup and extension are explicitly limited to $m$
-bytes. Hence
-$\textsc{Match}(B,i)$ depends only on bytes already present and is identical to
-its value on the complete input. Positions are decided left to right in the same
-order in both executions, and \code{Flush} decides the remaining positions with
-the full suffix present. Induction on decided positions gives equal output.
+Fix the candidate order and fragment index as well as the patterns. During an
+ordinary write, \textsc{Scan} decides position $i$ only if $|B|-i>m-1$, so at
+least $m$ bytes starting there are buffered. Every tier's choice depends on at
+most those bytes: exact matching reads $|p|<m$ bytes, gap-tolerant matching accepts
+spans of at most $m$, and fragment lookup and extension are limited to $m$.
+Thus future input cannot change a decision made in this region.
+
+Compare the two executions by matching decisions, rather than by write calls.
+For this comparison, expand an unmatched prefix into single-byte decisions;
+a matched span is one decision even if it consumes several bytes.
+The induction invariant is that, after the same number of decisions, they have
+consumed the same input prefix and emitted the same output. Initially both
+prefixes are empty. At the next decidable position they see the same bounded
+window, choose the same match or unmatched byte, and consume and emit the same
+bytes; this preserves the invariant. A chunked execution may wait longer for
+that window, but cannot make a different decision. Finally, the single
+\code{Flush} presents the same complete remaining suffix to both executions.
+Applying the same fixed matching rule to that suffix completes the induction.
 \end{proof}
 
-The cost of this guarantee is latency: up to $m-1$ bytes (a few hundred bytes for
-typical tokens) are delayed until the next write or process exit. This bounds buffered bytes, not wall-clock delay: a quiet interactive process
-may leave output buffered until it prints more data or exits. Output order is
-preserved.
+After a successful ordinary scan, at most $m-1$ undecided bytes remain. This is
+a retained-suffix bound, not a bound on peak allocation while appending a large
+write, total pattern-index memory, or elapsed delay. A quiet interactive process
+may leave output buffered until it prints more data or exits. Order is preserved
+within each stream; the two writers do not recognize a value divided between
+stdout and stderr. Midstream pattern changes, intermediate flushes, and failing
+output sinks are outside the property's assumptions. Equal outputs can still
+contain the same unrecognized disclosure.
 
 \subsubsection{Base64 alignment}
 \label{sec:align}
@@ -745,6 +765,30 @@ and the existing \code{paper/eval} harness on a shared Linux amd64 host
 8\,GiB memory limit). These synthetic microbenchmarks do not estimate
 production incidence or developer usability. Artifact identities and
 reproduction commands are in \code{paper/REPRODUCING.md}.
+\Cref{tab:evidence} distinguishes these evidence sources; later product checks
+do not retroactively change the runtime identity of an earlier measurement.
+
+\begin{table}[tp]
+\centering\small
+\begin{tabularx}{\columnwidth}{@{}lX@{}}
+\toprule
+Evidence & Identity and scope \\
+\midrule
+Paired RQ1 & October 21: v0.5.0 at \code{d16e04b} and the hash-listed reviewed
+runtime, using the same checked harness and Go 1.26.10. A deterministic
+corpus comparison, not a deployment leak rate. \\
+Current RQ1--3 & October 22: \code{a4ab72e}, frozen benign input, and shared-host
+Linux diagnostics. No fresh baseline false-positive or timing comparison. \\
+Case studies/RQ4 & Source-linked regression and differential/fuzz checks,
+separate from \code{paper/eval}. Platform skips do not establish enforcement. \\
+Host usability & No human completion-rate or real-host workflow study is
+reported. Local protocol and runner checks do not supply those results. \\
+\bottomrule
+\end{tabularx}
+\caption{Evidence provenance. Full source hashes, raw outputs, input manifests,
+and reproduction commands are retained in the reproduction guide and archives.}
+\label{tab:evidence}
+\end{table}
 
 \paragraph{Method (RQ1).} We generate six synthetic credentials shaped like real
 formats: a Stripe-style key (32\,B), a GitHub PAT (40\,B), an AWS-style secret
@@ -752,16 +796,28 @@ formats: a Stripe-style key (32\,B), a GitHub PAT (40\,B), an AWS-style secret
 and a JWT (113\,B). For each of 21 transformations we write the transformed
 output to a file and have a real child (\code{cat}) print it through
 \code{runner.Run} with the secret injected---the same injection, pipe,
-registration, and redaction path a sealed run uses. We then attack the
-agent-visible output with a decoder battery: identity, gap stripping, case
+registration, and redaction path a sealed run uses. These are Go-generated
+tool-shaped fixtures; the experiment does not invoke the named applications,
+an agent host, or a model. The ordinary-tool/adversarial labels describe fixture
+construction, not observed deployment frequency or attacker intent.
+We then attack the filtered output with a decoder battery: identity, gap stripping, case
 folding, reversal, ROT13, base64 and hex decoding at every alignment (with
 nesting and gunzip), URL and JSON unescaping, and hexdump column reassembly.
-\emph{Recovered} is the longest contiguous run matched after case folding by
-any decoder; a case \emph{leaks} if at least 50\% of the secret matches. This
-measures case-insensitive contiguous disclosure, not necessarily a usable
-credential. A shorter recovered component can still expose the entire password
-inside a structured URL. Rates describe this deterministic corpus, not a
-real-world probability of leakage.
+
+Let $D(o)$ be the finite set of decoder candidates generated from filtered
+output $o$, let $\bar z$ denote lowercasing, and let $\operatorname{lcss}(a,b)$
+be the length of the longest common contiguous substring. The recovery score is
+\[
+  r(o,s)=\max_{y\in D(o)}\frac{\operatorname{lcss}(\bar y,\bar s)}{|s|}.
+\]
+A case crosses the reported threshold when $r(o,s)\geq 0.5$. The runtime's
+matching policy is byte-exact apart from its registered variants and gap rules;
+case folding belongs to this observer metric. The decoder battery is not an
+optimal arbitrary attacker, and a recovered substring is not necessarily a usable
+credential. Conversely, a shorter component can expose an entire password inside
+a longer URL. Six fixed values crossed with 21 transformations give 126 related,
+deterministic cases, not independent deployment samples or a real-world leak
+probability.
 
 \begin{table}[tp]
 \centering\small

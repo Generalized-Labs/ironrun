@@ -1,0 +1,19 @@
+Creates ironrun.yml, .mcp.json, and agent instructions
+(CLAUDE.md, AGENTS.md, .cursorrules) in the current directory.
+Attempts MCP configuration for Codex (~/.codex/config.toml) and Cursor
+(~/.cursor/mcp.json), preserving existing custom entries. Reports configuration
+results; enable and verify Ironrun in your selected agent before use.
+
+Usage:
+  ironrun setup [flags]
+
+Aliases:
+  setup, init
+
+Flags:
+      --daemon   install and start the value-blind user service
+  -h, --help     help for setup
+      --yes      confirm the setup file preview non-interactively
+
+Global Flags:
+  -p, --policy string   Path to policy file (default "ironrun.yml")

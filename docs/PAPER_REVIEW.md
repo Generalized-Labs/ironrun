@@ -1,6 +1,6 @@
 # Paper review and evidence status
 
-Updated October 24, 2026. The revised manuscript separates retained paired
+Updated October 29, 2026. The revised manuscript separates retained paired
 leakage evidence from fresh current-only diagnostics and current regression
 case studies. It removes unsupported historical self-audit/severity/fix totals,
 old before/after timing comparisons, and blanket sub-millisecond overhead claims.
@@ -138,7 +138,7 @@ validated by a Linux run, and skips are not successful containment samples.
 - The revised TeX and ASCII metadata abstract match: **1,815 characters**, within
   the official 1,920-character limit. Historical audit counts and blanket
   overhead claims are absent from the abstract.
-- The review build has 14 pages, 5 figures, and 3 tables. The upright monospace
+- The review build has 14 pages, 5 figures, and 4 tables. The upright monospace
   selection fixes the earlier italic-font fallback. Rebuild and inspect again
   after any publication edits.
 - `make arxiv` generates the bibliography on a fresh checkout even when the
@@ -148,8 +148,10 @@ validated by a Linux run, and skips are not successful containment samples.
   `epstopdf` notice records that choice; underfull box notices are retained and
   assessed visually. Neither check reports overflowing boxes, missing glyphs,
   font substitution, or unresolved references/citations.
-- [ARXIV.md](../paper/ARXIV.md) retains proposed authors, categories, license and
-  submission checks. No submission has been made by this review.
+- [ARXIV.md](../paper/ARXIV.md) records confirmed author order Stephen Keehn,
+  Mihir Gupta, with affiliations omitted. Categories/submission metadata and
+  all-author consent to the proposed CC BY 4.0 license remain to be confirmed.
+  No submission has been made by this review.
 
 ## Final source and citation follow-up, October 24
 
@@ -173,6 +175,53 @@ Pin the final publication source, retain the exact measured runtime separately
 if later changes modify it, and preserve source/archive/PDF hashes, raw outputs,
 failures and frozen inputs together. Successful compilation is not a security
 certification or validation of the whole product.
+
+## Deeper method and proof follow-up
+
+The [latest paper archive](validation/2026-10-26/paper/README.md) retains the
+14-page, five-figure, four-table revision. The directory name is a session label;
+the recorded build/visual-review evidence retains its October 27 UTC provenance.
+The additional table maps paired, current-only, and regression evidence to their
+own sources. No new leakage or performance result is introduced by the prose
+revision, and later product repairs do not silently change a measured source.
+
+The chunking argument now states its buffer invariant and explains decisions
+at unmatched byte positions, including index expansion and a fixed bounded
+matching span. It remains conditional on fixed patterns/indexes, successful
+underlying writes, and a final flush. It does not prove complete detection,
+constant allocated memory, output delivery deadlines, or equivalence between
+separate streams or error paths.
+
+The recovery equation now follows the harness's candidate decoding and
+case-folded longest contiguous substring calculation. The synthetic tool-shaped
+fixtures are printed through `cat` into the runner; they are not executions of
+the depicted tools, coding agents, or models. The newer actual Codex host fixture
+is separate integration evidence with its own scripted-model and substituted
+key-store limitations, not a replacement for those measurements.
+
+The manuscript also distinguishes strict missing-value/lease continuation from
+workspace authorization, explains wait termination, and states the approved
+workspace's normal network access separately from saved-command policies.
+The synchronized 1,815-character ASCII abstract and bibliography are unchanged.
+Three pdflatex-only passes from the freshly extracted bundle succeeded with
+shell escape disabled; extracted PDF text matched. All 14 final pages were
+rendered and independently inspected. Expected disabled-shell-escape and
+underfull-box notices remain in the raw logs; no blocking layout, font, or
+reference finding remained in the reviewed scope.
+
+This does not establish that the paper has no possible typo or semantic error.
+The maintainer confirmed the author order Stephen Keehn, Mihir Gupta;
+affiliations are omitted because none have been confirmed. Consent by all
+authors to the proposed CC BY 4.0 license still needs confirmation before
+submission; no arXiv upload is authorized or performed by this review.
+
+The author-only source change was rebuilt with actual October 30 UTC records
+(October 29 in the user's timezone). Removing the affiliation line reflowed
+later pages, so all 14 new pages were rendered and inspected again. The new
+source/bundle check again passes three pdflatex-only runs with shell escape
+disabled, 14/5/4 counts, and matching extracted PDF text. The archive preserves
+the preceding October 27 method/proof evidence separately and records the exact
+author-only TeX delta; it does not relabel an older PDF's visual review.
 
 The detailed original findings and interim follow-ups remain available in
 [the first review commit](https://github.com/Generalized-Labs/ironrun/blob/9794795e0f4de675d452d5769718ef0c14491e87/docs/PAPER_REVIEW.md)

@@ -81,7 +81,7 @@ ironrun filters intercepted command output before it reaches the agent. This red
 │  2. Resolve its encrypted environment entries               │
 │  3. Run the command with those secrets injected             │
 │  4. Stream output through a redactor:                       │
-│        any secret value that appears  →  [REDACTED]         │
+│        registered matches  →  [REDACTED]                    │
 │  5. Hand back exit code + cleaned output                    │
 │                                                             │
 │  Agent sees:   exit_code=0, stdout="ok  tests passed"      │
@@ -364,8 +364,9 @@ ironrun trust revoke trust_abc123
 Trusted sessions are pinned to the MCP session, project, and environment. A
 server restart creates a new session; an old grant cannot transfer. The default
 scope is the current `dev` environment, and `staging` and `prod` require a
-separate explicit grant. Commands run in a trusted session get the same
-default-deny network isolation as secret-bearing policy commands. A trusted
+separate explicit grant. Approved workspace commands have normal network access,
+as shown in the approval screen. Saved policy commands keep their individual
+network settings and default isolation for secret-bearing commands. A trusted
 session runs arbitrary argv — including `ironrun` itself, which can approve
 requests — so treat a grant as authority over the whole project and revoke it
 when you are done. Ironrun protects agent context, logs, and routine output; it
@@ -535,7 +536,7 @@ commands:
 
 - **Syscall filter** — on Linux the command runs under a seccomp denylist that blocks `ptrace`/`process_vm_readv` and similar memory-snooping syscalls. It is fail-closed: if the filter cannot be installed, the run is refused rather than silently unprotected. Control it per command with `seccomp: false`, or policy-wide with `seccomp_default: false`. There is deliberately no environment kill-switch (an agent-reachable `IRONRUN_SECCOMP=off` would let a compromised agent disarm the filter).
 - **Encoded-secret redaction** — base64 (at every byte alignment, so `Authorization: Basic` headers are covered), hex, URL- and JSON-escaped forms of a secret are redacted alongside the literal value, as are partial prints and line-oriented dumps (`xxd`, `od -c`) of longer secrets. A warn-only entropy scan flags high-entropy tokens that slip through.
-- **Audit log** — when enabled, the runner attempts to append a hash-chained record (command + argv + secret *names*, never values) to `$XDG_STATE_HOME/ironrun/audit.log`. Opening the logger verifies the existing chain; later append failures warn without failing the command. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
+- **Audit log** — when enabled, the runner attempts to append a hash-chained record (command, argv scrubbed for registered matches, and secret names) to `$XDG_STATE_HOME/ironrun/audit.log`. Opening the logger verifies the existing chain; later append failures warn without failing the command. Check it with `ironrun audit verify`; redirect it or disable it with the top-level `audit_log:` field (`audit_log: off` disables auditing). The legacy `IRONRUN_AUDIT_LOG` env var is **no longer honored** — it was agent-reachable (`IRONRUN_AUDIT_LOG=off` could silently kill the audit trail), so setting it now emits a loud SECURITY WARNING telling you to use the policy field instead.
 
 ```bash
 ironrun lint      # security review of the policy (shell argv, missing ttl, secrets + open egress, …)

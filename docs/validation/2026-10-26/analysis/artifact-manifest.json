@@ -1,0 +1,115 @@
+{
+  "scope": "Compact current-source code graph and REA evidence. Full graph, mirrors, dependencies, binary and installation downloads omitted. Manifest excludes itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7108,
+      "sha256": "cae0b563e44ce44e1bf479b1c7196dcd211618556be3fbba44093d94f14757c5"
+    },
+    {
+      "path": "authorization-network-subgraph.json",
+      "bytes": 33019,
+      "sha256": "70e62fdcc1b2d44b62ac0d03eac3a6a313b3d55e990a37eea1bbc537a1d6d060"
+    },
+    {
+      "path": "graph-inputs.json",
+      "bytes": 32077,
+      "sha256": "12ac85ac7d449fa8b38d8cab622bd7e1b20bb77fa4ff4bb14521920752c8b042"
+    },
+    {
+      "path": "graphify-dependency-provenance.json",
+      "bytes": 16300,
+      "sha256": "f6706724f0dab23317c192f6705739924bf8a1b354953489c296ccc16d8bef65"
+    },
+    {
+      "path": "graphify-diagnose.result.json",
+      "bytes": 795,
+      "sha256": "17ecbefe69d8178026480f4d999c2e4296683f1c990f32fb065ca25283a788fc"
+    },
+    {
+      "path": "graphify-extract.log",
+      "bytes": 730,
+      "sha256": "f44cc1f01c52a426c65003300622d82c555471811c45397c5603cabab9b18624"
+    },
+    {
+      "path": "graphify-extract.result.json",
+      "bytes": 976,
+      "sha256": "1f17042042aedb153741acb38cfa67f2a050169dddc47abb2ed25daea18caed1"
+    },
+    {
+      "path": "graphify-multigraph-diagnostic.json",
+      "bytes": 5292,
+      "sha256": "f60cae9edb4cd0ef61a28f0d605ad785b1c08d83e0734f229c2f399b0c6541ce"
+    },
+    {
+      "path": "graphify-package-versions.txt",
+      "bytes": 824,
+      "sha256": "1655471e8ec38483c5910f3b5a4befbdf30c5d7b4daf58e1525814a48f41b779"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 1746,
+      "sha256": "d624faefa42b98526e5c7549485a5c9f999ed1c327f4fab0cfd7176584562581"
+    },
+    {
+      "path": "rea-commands.json",
+      "bytes": 2571,
+      "sha256": "066d53e54d29bde2a3be327c1d38daa4bf4b5206727093033160ca24d847a836"
+    },
+    {
+      "path": "rea-elf-layout.json",
+      "bytes": 1029,
+      "sha256": "4acf72e5f396530dfe7b73a753a0f8939e9775d9fa7031a674682eef2fa13160"
+    },
+    {
+      "path": "rea-elf-layout.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rea-go-binary.json",
+      "bytes": 21713,
+      "sha256": "62fa4a73c48e6dd3245074f94abcbe556ad06268f26a1aa34d7cd055c621bad0"
+    },
+    {
+      "path": "rea-go-binary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rea-objdump-file-headers.json",
+      "bytes": 2567,
+      "sha256": "a734c1a489466382ec514324b447e3abf2104b2707de31aad1ad9ec933746e54"
+    },
+    {
+      "path": "rea-objdump-file-headers.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "rea-providers.json",
+      "bytes": 30467,
+      "sha256": "89be4d3588079b951d8f1f119f1b9f89e3753c11bae2cc500d8951b83dd3186a"
+    },
+    {
+      "path": "rea-providers.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "source-excerpts.json",
+      "bytes": 15785,
+      "sha256": "bdf690ff03a84a91875b6711a30442723a4bf7fe1966e7588b1732511f889063"
+    },
+    {
+      "path": "source-preservation.json",
+      "bytes": 213,
+      "sha256": "e67abbd31a6edbed48718e9c0dc2f778b4853871c3c08593ab4b71b8e8a99e48"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 3133,
+      "sha256": "dbb875f49d99cdf8bd4c2ccc3fdeb81d9839bde4061d1db38b672ca2e64e2949"
+    }
+  ]
+}

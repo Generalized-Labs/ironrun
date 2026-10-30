@@ -1,0 +1,7 @@
+{"type":"thread.started","thread_id":"01a17d19-0dfa-7c30-a832-3b713e94ff70"}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Model metadata for `fixture-model` not found. Defaulting to fallback metadata; this can degrade performance and cause issues."}}
+{"type":"turn.started"}
+{"type":"item.started","item":{"id":"item_1","type":"mcp_tool_call","server":"ironrun","tool":"run_sealed","arguments":{"argv":["/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100154842480305/bin/secret-tool","http","http://127.0.0.1:40319/probe"]},"result":null,"error":null,"status":"in_progress"}}
+{"type":"item.completed","item":{"id":"item_1","type":"mcp_tool_call","server":"ironrun","tool":"run_sealed","arguments":{"argv":["/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100154842480305/bin/secret-tool","http","http://127.0.0.1:40319/probe"]},"result":{"content":[{"type":"text","text":"exit_code: 0\nduration_ms: 6\n\n--- stdout ---\nPROBE_STARTED\ncredential=[REDACTED]\nLOOPBACK_RESPONSE [REDACTED]\nDIAL_OK\n\n--- stderr ---\n"}],"structured_content":null},"error":null,"status":"completed"}}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"LOCAL_FIXTURE_COMPLETE"}}
+{"type":"turn.completed","usage":{"input_tokens":2,"cached_input_tokens":0,"cache_write_input_tokens":0,"output_tokens":2,"reasoning_output_tokens":0}}

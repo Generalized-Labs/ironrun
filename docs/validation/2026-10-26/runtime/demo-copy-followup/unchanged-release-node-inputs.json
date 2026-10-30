@@ -1,0 +1,9 @@
+{
+  "recorded_at_utc": "2026-10-30T03:30:52.357607+00:00",
+  "prior_manifest": "../verification-inputs.json",
+  "current_hash_comparison_count": 204,
+  "changed_paths": [
+    "cmd/ironrun/init.go"
+  ],
+  "interpretation": "Release/installer/Node test and implementation/configuration inputs match the preceding successful 11-release/19-Node checks. Those suites were not repeated for the guided-demo/README copy corrections. This is input continuity, not a new test execution."
+}

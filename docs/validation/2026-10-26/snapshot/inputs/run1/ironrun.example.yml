@@ -1,0 +1,32 @@
+version: "1"
+provider: 1password   # also: env | passthrough
+
+commands:
+  # Run tests — no secrets needed
+  - id: test
+    argv: [go, test, ./...]
+    ttl: 10m
+    max_bytes: 10485760   # 10MB cap on output
+
+  # Build the binary
+  - id: build
+    argv: [go, build, -o, bin/ironrun, ./cmd/ironrun]
+    ttl: 5m
+
+  # Deploy — injects secrets below agent visibility
+  - id: deploy
+    argv: [./scripts/deploy.sh]
+    ttl: 30m
+    no_network: false   # set true to block outbound network (Linux/macOS)
+    env:
+      DEPLOY_TOKEN:   "op://prod/deploy/token"
+      DATABASE_URL:   "op://prod/db/url"
+      AWS_ACCESS_KEY: "op://prod/aws/access_key_id"
+      AWS_SECRET_KEY: "op://prod/aws/secret_access_key"
+
+  # Integration tests with live credentials
+  - id: integration-test
+    argv: [go, test, -tags=integration, ./...]
+    ttl: 20m
+    env:
+      TEST_API_KEY: "op://dev/api/test_key"

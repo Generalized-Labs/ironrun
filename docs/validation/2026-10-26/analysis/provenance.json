@@ -1,0 +1,31 @@
+{
+  "recorded_at_utc": "2026-10-30T03:20:15.049206+00:00",
+  "graphify": {
+    "version": "0.9.93",
+    "source_repository": "https://github.com/Graphify-Labs/graphify",
+    "source_commit": "b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+    "source_archive_url": "https://codeload.github.com/Graphify-Labs/graphify/tar.gz/b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+    "source_archive_sha256": "695afe85a8e36abe8a67ebdd5acfaede4cb7b3ef23b9a7ec668de62b1f91b8ab",
+    "installed_code_sha256": {
+      "cli.py": "fd18c6d2b144570388b89386265eff5c97d68bda68be677e486166a4461181d8",
+      "extract.py": "62d4150876d03c8ad2ca4a9545f0c01fb7ef2938fcecc66ead3650ea9136a59b"
+    },
+    "prior_provenance_match": "Installed cli.py/extract.py hashes match docs/validation/2026-10-21/source-followup/graph-provenance.json.",
+    "resolved_dependencies": "graphify-dependency-provenance.json"
+  },
+  "rea": {
+    "version": "6.7.0",
+    "package_json_sha256": "3f6c47fb12c8388f291a21e7f99a876495d03aee671b3b6a0708dd12d6ebb570",
+    "cli_path": "/workspace/ironrun-product-tools/rea/node_modules/rea-agents/scripts/rea.mjs",
+    "cli_sha256": "ed06cee49505b95a3cc5fceb1b4b279167e26df86227c644bb366ffffdbaf738",
+    "installation_lock_sha256": "ce867aaa0192210c216c959e39e55133aabfcb03b3212a674f60cea768b6453a",
+    "observed_local_providers": "rea-providers.json"
+  },
+  "analysis_input": "graph-inputs.json",
+  "full_graph": {
+    "path": "/workspace/ironrun-product-research/launch-20261026/analysis/graphify/graphify-out/graph.json",
+    "bytes": 1757221,
+    "sha256": "94f603ce1dd3466946cafed1ba0bd49d41e88a6ea8563c39d718988b3807c083",
+    "retention": "Full local graph excluded from compact archive; selected raw nodes/edges and diagnostic retained."
+  }
+}
