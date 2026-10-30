@@ -1,6 +1,8 @@
 package pending_test
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -54,5 +56,58 @@ func TestPath(t *testing.T) {
 	want := filepath.Join("proj", ".ironrun", "pending.yml")
 	if got != want {
 		t.Errorf("Path = %q, want %q", got, want)
+	}
+}
+
+func TestCreatePreservesImmutableContentAndOriginalTimestamp(t *testing.T) {
+	path := filepath.Join(t.TempDir(), ".ironrun", "pending.yml")
+	original := pending.Proposal{ID: "reviewed", Argv: []string{"echo", "original"}, Reason: "fixture", ProposedAt: "first", Status: "pending"}
+	if _, err := pending.Create(path, original); err != nil {
+		t.Fatal(err)
+	}
+	repeat := original
+	repeat.ProposedAt = "later"
+	got, err := pending.Create(path, repeat)
+	if err != nil || got.ProposedAt != "first" {
+		t.Fatalf("repeat = %#v, %v", got, err)
+	}
+	changed := original
+	changed.Argv = []string{"echo", "changed"}
+	if _, err := pending.Create(path, changed); !errors.Is(err, pending.ErrConflict) {
+		t.Fatalf("conflicting creation = %v", err)
+	}
+	store, err := pending.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pending.ReviewDigest(*store.Find("reviewed")) != pending.ReviewDigest(original) {
+		t.Fatal("reviewed proposal changed")
+	}
+}
+
+func TestConcurrentCreatesPreserveDifferentIDs(t *testing.T) {
+	path := filepath.Join(t.TempDir(), ".ironrun", "pending.yml")
+	const callers = 20
+	start := make(chan struct{})
+	errors := make(chan error, callers)
+	for i := range callers {
+		go func() {
+			<-start
+			_, err := pending.Create(path, pending.Proposal{ID: fmt.Sprintf("id-%d", i), Argv: []string{"echo", "fixture"}, Status: "pending"})
+			errors <- err
+		}()
+	}
+	close(start)
+	for range callers {
+		if err := <-errors; err != nil {
+			t.Fatal(err)
+		}
+	}
+	store, err := pending.Load(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(store.Proposals) != callers {
+		t.Fatalf("stored %d proposals; want %d", len(store.Proposals), callers)
 	}
 }

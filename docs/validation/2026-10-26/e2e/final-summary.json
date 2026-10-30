@@ -1,0 +1,145 @@
+{
+  "base_commit": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+  "decision": "Maintainer explicitly chose normal network for approved trusted workspace, saved commands retain own policies.",
+  "production_change": "Workspace branch sets AllowWorkspaceNetwork:true only after authorization. run_sealed catalog copy describes known-value/supported-encoding filtering and its transformation/file/network limits.",
+  "source_sha256": {
+    "mcp/server.go": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+    "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+    "mcp/workspace_network_linux_test.go": "5be4b63f3976550fe25b9d07aa3f1d6d438a5f828db7582c1dbc6a2185b32b0f",
+    "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+  },
+  "results": {
+    "network-contract-red": {
+      "argv": [
+        "go",
+        "test",
+        "-overlay=/workspace/ironrun-product-research/launch-20261026/e2e-audit/overlay.json",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^TestAuditTrustedWorkspaceNormalNetworkContract$",
+        "-v"
+      ],
+      "exit_code": 1,
+      "scope": "Read-only source overlay adds one assertion to an existing callback-level trusted-workspace test; no repository file changed and actual network/native-store path is not exercised.",
+      "source_sha256": "729f9470fc319251a7311f70ab90a6fb3068830989e09b991167925920ad7e96",
+      "overlay_sha256": "4c3f00208a5345eecf82dd4af26841ceccc959f5c6dff5454b101627c950c9d2",
+      "expected": "Current implementation fails because advertised normal network is not forwarded to executeWorkspace."
+    },
+    "workspace-real-red": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+        "-v"
+      ],
+      "exit_code": 1,
+      "scope": "Two regression tests on unchanged production code: handler contract and real local stdio/v2 encrypted-vault/loopback path with a synthetic native root-key adapter."
+    },
+    "workspace-real-red-outside-sandbox": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+        "-v"
+      ],
+      "exit_code": 1,
+      "scope": "Synthetic local loopback/v2 encrypted-vault integration outside additional filesystem sandbox, still with real Ironrun containment; fake native root-key adapter only."
+    },
+    "workspace-cli-red": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+        "-v"
+      ],
+      "exit_code": 1,
+      "scope": "Exact final regression tests before the production fix; actual CLI trust grant and synthetic encrypted-vault/stdio/loopback path, outside additional filesystem sandbox."
+    },
+    "workspace-cli-green-race": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant|TestMCPTrustedWorkspaceLoopbackAndRevocation|TestMCPLeaseRequiredApproveRunAndRevoke|TestMCPLeaseDoesNotTransferAcrossServerSessions|TestMCPRunCreatesMissingSecretRequestAndResumesRedacted)$",
+        "-v"
+      ],
+      "exit_code": 0,
+      "scope": "Authorized normal-network workspace: exact regression plus strict policy network isolation, real CLI approval/revoke/deny, synthetic v2 vault/redaction/local HTTP, and existing lease/secret-resume regressions. Fake native root-key adapter only; no real host/store proof.",
+      "source_sha256": {
+        "mcp/server.go": "c5fd0d12905e9d5373446ce68658f3862fb1fcb8c3c210bd7049d240b24deace",
+        "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+        "mcp/workspace_network_linux_test.go": "774595eb63de0d8b54734030666347d32e6150308abfb6234f2c9cdc883c6d3e",
+        "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+      }
+    },
+    "workspace-final-green-race": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant|TestMCPTrustedWorkspaceLoopbackAndRevocation|TestMCPLeaseRequiredApproveRunAndRevoke|TestMCPLeaseDoesNotTransferAcrossServerSessions|TestMCPRunCreatesMissingSecretRequestAndResumesRedacted)$",
+        "-v"
+      ],
+      "exit_code": 0,
+      "scope": "Final source: approved normal network; bounded 100ms no-request observation while pending, actual local HTTP success with encrypted synthetic v2 entry, default-deny strict child attempted/blocked, actual CLI revoke+deny; native root-key adapter remains synthetic.",
+      "source_sha256": {
+        "mcp/server.go": "c5fd0d12905e9d5373446ce68658f3862fb1fcb8c3c210bd7049d240b24deace",
+        "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+        "mcp/workspace_network_linux_test.go": "5be4b63f3976550fe25b9d07aa3f1d6d438a5f828db7582c1dbc6a2185b32b0f",
+        "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+      }
+    },
+    "workspace-catalog-final-green-race": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./mcp",
+        "-run",
+        "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant|TestMCPTrustedWorkspaceLoopbackAndRevocation|TestMCPLeaseRequiredApproveRunAndRevoke|TestMCPLeaseDoesNotTransferAcrossServerSessions|TestMCPRunCreatesMissingSecretRequestAndResumesRedacted)$",
+        "-v"
+      ],
+      "exit_code": 0,
+      "scope": "Final frozen source including bounded run_sealed catalog description. Six focused race tests covering normal-network authorization, real local HTTP and encrypted synthetic v2 secret, redaction, strict blocked-dial, CLI revoke/deny, leases and secret-resume. Native root-key adapter remains synthetic.",
+      "source_sha256": {
+        "mcp/server.go": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+        "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+        "mcp/workspace_network_linux_test.go": "5be4b63f3976550fe25b9d07aa3f1d6d438a5f828db7582c1dbc6a2185b32b0f",
+        "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+      }
+    }
+  },
+  "final_focused_tests_pass": 6,
+  "strict_probe_observation": "Actual child started and emitted DIAL_BLOCKED; no skip or setup failure in the final strict probe.",
+  "limitations": [
+    "Synthetic native root-key adapter; real encrypted v2 vault/CLI/MCP/runner/redactor/loopback path.",
+    "No real Secret Service/Keychain, agent-host/model session, user study, installer, or external network evidence.",
+    "Final100ms preapproval observation is bounded and not a timing benchmark.",
+    "Initial filesystem-sandbox attempt failed on read-only filesystem before network behavior and is retained separately.",
+    "Full-suite validation remains supervisor-owned after the combined patch."
+  ],
+  "final_focused_log": "workspace-catalog-final-green-race.log",
+  "final_focused_package_seconds": 3.376,
+  "source_frozen": true
+}

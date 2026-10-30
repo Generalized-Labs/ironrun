@@ -35,9 +35,9 @@ func main() {
 	root := &cobra.Command{
 		Use:   "ironrun",
 		Short: "Sealed command execution for AI agents",
-		Long: `ironrun runs trusted commands with secrets injected below agent visibility.
-Secrets are resolved from your secret manager, injected into the child process
-environment, and redacted from all stdout/stderr output before the agent sees it.`,
+		Long: `ironrun resolves configured credentials for authorized child commands.
+Captured stdout/stderr is filtered for known values and supported encodings.
+Matching has limits; see SECURITY.md for partial disclosure and containment scope.`,
 		SilenceUsage: true,
 		// Errors print through reportError (errors.go) so every failure gets
 		// a teaching hint; cobra must not print them first.
@@ -150,8 +150,9 @@ func mcpCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "mcp",
 		Short: "Start MCP stdio server (for Claude Code, Cursor, etc.)",
-		Long: `Starts an MCP server over stdio. AI agents can call the run_sealed tool
-to execute policy-authorized commands without seeing raw secret values.
+		Long: `Starts an MCP server over stdio. AI agents can call run_sealed with a saved
+command ID or exact argv after workspace approval. Returned command output is
+filtered for known values and supported encodings; no secret-reveal API is exposed.
 
 Add to your Claude Code or Cursor MCP config:
   {

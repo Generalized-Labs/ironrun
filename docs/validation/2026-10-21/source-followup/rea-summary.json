@@ -1,0 +1,105 @@
+{
+  "source_head": "803aa420d35af969ca4ff858a374a7dcdf20796d",
+  "source_tree": "adeec135084b4979c8ae98da69224d13273b0c8a",
+  "clean_at_analysis_time": true,
+  "tool": {
+    "name": "REA",
+    "version": "6.7.0",
+    "mode": "inert JavaScript syntax and Go build metadata; no native decompilation"
+  },
+  "go": {
+    "artifact_sha256": "87e01d39496885e1ad284e520f0363710765e1c6f35399c76dbd03faa1e5e056",
+    "artifact_bytes": 31008898,
+    "go_version": "go1.26.10",
+    "build_settings": [
+      {
+        "key": "-buildmode",
+        "value": "exe"
+      },
+      {
+        "key": "-compiler",
+        "value": "gc"
+      },
+      {
+        "key": "-trimpath",
+        "value": "true"
+      },
+      {
+        "key": "CGO_ENABLED",
+        "value": "0"
+      },
+      {
+        "key": "GOARCH",
+        "value": "amd64"
+      },
+      {
+        "key": "GOOS",
+        "value": "linux"
+      },
+      {
+        "key": "GOAMD64",
+        "value": "v1"
+      },
+      {
+        "key": "vcs",
+        "value": "git"
+      },
+      {
+        "key": "vcs.revision",
+        "value": "803aa420d35af969ca4ff858a374a7dcdf20796d"
+      },
+      {
+        "key": "vcs.time",
+        "value": "2026-10-21T21:31:37Z"
+      },
+      {
+        "key": "vcs.modified",
+        "value": "false"
+      }
+    ],
+    "dependencies": 51,
+    "build_command": "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o /workspace/ironrun-analysis/followup-803aa42/rea/ironrun-linux-amd64 ./cmd/ironrun",
+    "compiler_binary_sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5",
+    "release_build": false,
+    "limitations": [
+      "Embedded build metadata is observed file content, not proof of compiler identity, dependency authenticity or runtime behavior.",
+      "Only Go build information is inspected; function names, source mappings, type metadata and decompiled code are not recovered.",
+      "Resource guards bound stable artifact reads and cumulative header searches to 256 MiB each, aggregate embedded strings to 1 MiB, structural table decoding to 16 MiB and complete metadata payloads to 8 MiB; these are not operating-system memory or CPU limits."
+    ]
+  },
+  "npm": {
+    "statistics": {
+      "relevant_files": 13,
+      "nested_asar_containers": 0,
+      "text_bytes_read": 41511,
+      "invalid_utf8_files": 0,
+      "parsed_javascript_files": 11,
+      "skipped_javascript_files": 0,
+      "visited_ast_nodes": 5864,
+      "findings": 153,
+      "modules": 0,
+      "parse_failures": 0
+    },
+    "declared_integrity_contradictions": 0,
+    "application_graph_coverage": "partial",
+    "semantic_graph_coverage": "unknown",
+    "semantic_unknowns": 1628,
+    "manifest_guard_expected_refusal": true,
+    "manifest_guard_exit_code": 1,
+    "limitations": [
+      "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+      "Graph coverage is incomplete; unavailable facts remain explicit and must not be read as absence.",
+      "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+      "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+      "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+      "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+    ]
+  },
+  "raw_evidence_sha256": {
+    "go-binary.json": "edfd894c7e79d42ad953a9676028cafd1c49e8eee2499472851d8cd70a88b992",
+    "npm-analysis.json": "a7bb1df981af741a53040bc496be390c5fc0809353a7824c59c29f1c76340352",
+    "source-provenance.json": "8db5a79c8e9c2205517db49b05990491582d571a57f842fb1c83c1755165cc20",
+    "go-version-m.txt": "bb824423c6478c244d050facf3d66685f021287ab34714cc5dbde8f45d56cd86"
+  },
+  "note": "The original provenance key go_binary_sha256 identifies the Go compiler executable; this summary distinguishes it from the analyzed Ironrun artifact. Later paper/docs edits do not change this captured source snapshot."
+}

@@ -1,0 +1,75 @@
+TAP version 13
+# Subtest: manifest builder validates archives before updating publication metadata
+ok 1 - manifest builder validates archives before updating publication metadata
+  ---
+  duration_ms: 218.522533
+  ...
+# Subtest: launcher verifies cold download, uses warm cache offline, and repairs corruption
+ok 2 - launcher verifies cold download, uses warm cache offline, and repairs corruption
+  ---
+  duration_ms: 230.413893
+  ...
+# Subtest: launcher rejects a tampered archive without executing it
+ok 3 - launcher rejects a tampered archive without executing it
+  ---
+  duration_ms: 84.940074
+  ...
+# Subtest: concurrent cold launches share one verified download
+ok 4 - concurrent cold launches share one verified download
+  ---
+  duration_ms: 182.887831
+  ...
+# Subtest: launcher preserves child exit code and independently raised signal
+ok 5 - launcher preserves child exit code and independently raised signal
+  ---
+  duration_ms: 138.536651
+  ...
+# Subtest: launcher forwards termination requested by its caller
+ok 6 - launcher forwards termination requested by its caller
+  ---
+  duration_ms: 87.870066
+  ...
+# Subtest: cold offline launch fails without executing a binary
+ok 7 - cold offline launch fails without executing a binary
+  ---
+  duration_ms: 61.076051
+  ...
+# Subtest: archive hash alone is insufficient: extracted binary must match too
+ok 8 - archive hash alone is insufficient: extracted binary must match too
+  ---
+  duration_ms: 89.066486
+  ...
+# Subtest: platform mapping is explicit
+ok 9 - platform mapping is explicit
+  ---
+  duration_ms: 1.171093
+  ...
+# Subtest: verified cache rejects modified and truncated files
+ok 10 - verified cache rejects modified and truncated files
+  ---
+  duration_ms: 5.203722
+  ...
+# Subtest: complete stable and prerelease manifests are accepted
+ok 11 - complete stable and prerelease manifests are accepted
+  ---
+  duration_ms: 1.482525
+  ...
+# Subtest: unprepared checkout and mismatched releases cannot be published
+ok 12 - unprepared checkout and mismatched releases cannot be published
+  ---
+  duration_ms: 0.346113
+  ...
+# Subtest: malformed versions and artifact metadata are rejected
+ok 13 - malformed versions and artifact metadata are rejected
+  ---
+  duration_ms: 1.201809
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 939.04698

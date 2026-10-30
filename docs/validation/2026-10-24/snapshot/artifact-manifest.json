@@ -1,0 +1,281 @@
+{
+  "algorithm": "sha256",
+  "scope": "Selected retained files; excludes this manifest itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 996,
+      "sha256": "5aaadd50efa50f71da8a13e6e93cfcd4b36fa22dd69630d07b360cd400725efa"
+    },
+    {
+      "path": "REPORT.md",
+      "bytes": 2888,
+      "sha256": "c024aa15f4e57a2ec5ef55da57fedd6ee57c7c33a9f946ea68900acb3dcf7485"
+    },
+    {
+      "path": "archive-metadata-comparison.json",
+      "bytes": 2107,
+      "sha256": "167b49db0e7b7732f5dded692c9a8ef34e455388f468cb356f2342fbe571c871"
+    },
+    {
+      "path": "binary-go-version-m.txt",
+      "bytes": 5003,
+      "sha256": "369d65c685f6b9fdb4b53b2087a12e34309ee68ee9caa064dae5663c3fbdca5d"
+    },
+    {
+      "path": "build_snapshot.py",
+      "bytes": 3792,
+      "sha256": "d5488d24dbd5885d68105691e16c0ddda56c287eb2ca3fc59d0a659f0d7d0e52"
+    },
+    {
+      "path": "config-run1.yml",
+      "bytes": 4656,
+      "sha256": "d0c30772b35fc4553a7e660ce3f42fabf9e5919633608066351da47b217a0655"
+    },
+    {
+      "path": "config-run2.yml",
+      "bytes": 4656,
+      "sha256": "749639227185699be14c0ef1bbcd93588b60b5508f0bfcdebba0ed49be549869"
+    },
+    {
+      "path": "dist-run1/artifacts.json",
+      "bytes": 5647,
+      "sha256": "ceb7d3a49ad8f01795231dd65a5de00d02430ee5c4f173393f3bf90c1d2b0674"
+    },
+    {
+      "path": "dist-run1/checksums.txt",
+      "bytes": 869,
+      "sha256": "94f8c7a9402ade4c5fba1c48568fd087baa74dafdb523fd84ebd8c7a064326d0"
+    },
+    {
+      "path": "dist-run1/config.yaml",
+      "bytes": 7457,
+      "sha256": "7b6dd2c528f000ef477752e33e7547175778ad19e8965b36076aa135e93448b3"
+    },
+    {
+      "path": "dist-run1/homebrew/Casks/ironrun.rb",
+      "bytes": 1261,
+      "sha256": "d69eac1f0a38a767dd34a7ebfdf559545cd5dd5378a287466bbc32f135d55870"
+    },
+    {
+      "path": "dist-run1/metadata.json",
+      "bytes": 218,
+      "sha256": "dcb04e7516d133fcaa70392e521735ce45a2b9aacef5cc1a4fad60437c16981f"
+    },
+    {
+      "path": "dist-run2/artifacts.json",
+      "bytes": 5647,
+      "sha256": "645ecaee65bd703fdccf04c7497f4593070510eb3a179b05cf329f947d6b20ac"
+    },
+    {
+      "path": "dist-run2/checksums.txt",
+      "bytes": 869,
+      "sha256": "78747203dd8403f182af4802e4f3993e5d414e8e1fd788448f3060a9a7050b61"
+    },
+    {
+      "path": "dist-run2/config.yaml",
+      "bytes": 7457,
+      "sha256": "77fc1bea76cc447d5d8340bdfbd69901f4cd4a96151bfe862a07aad832331615"
+    },
+    {
+      "path": "dist-run2/homebrew/Casks/ironrun.rb",
+      "bytes": 1261,
+      "sha256": "735ed93fbd44550a1ec9302b47f6e2117e6e13ce9823fd41bea1dc6338ec59c7"
+    },
+    {
+      "path": "dist-run2/ironrun_Darwin_arm64.tar.gz.sbom.json",
+      "bytes": 82907,
+      "sha256": "b003985ebf032487102c59f99e7a92b0fc15f96ab02ec33abf2a4192d0153214"
+    },
+    {
+      "path": "dist-run2/ironrun_Darwin_x86_64.tar.gz.sbom.json",
+      "bytes": 82965,
+      "sha256": "1fc9e8879effc8cf797683bf2818e74742e70c42ddcb3b09915d94d00f26c7ab"
+    },
+    {
+      "path": "dist-run2/ironrun_Linux_arm64.tar.gz.sbom.json",
+      "bytes": 82849,
+      "sha256": "fdd9a5494d24b11d1bc23466ad9315d9e8bdae3b1cd19f2fe1efb9d00c8fd7c9"
+    },
+    {
+      "path": "dist-run2/ironrun_Linux_x86_64.tar.gz.sbom.json",
+      "bytes": 82907,
+      "sha256": "e5ad0ab0fafd1078c53db2546f00ab1e6aaf705a6ff9e9ac1608d78ee42f3f37"
+    },
+    {
+      "path": "dist-run2/metadata.json",
+      "bytes": 218,
+      "sha256": "fad1dabcfb315a95f09a18678739fb421164a49540ee9504f27c15b4609475c1"
+    },
+    {
+      "path": "file-ironrun_darwin_amd64_v1.txt",
+      "bytes": 159,
+      "sha256": "488f88e7c6b6e3d312ae81f16a989ab7051624e983114978249b3c5a4dbe91d8"
+    },
+    {
+      "path": "file-ironrun_darwin_arm64_v8.0.txt",
+      "bytes": 160,
+      "sha256": "8ef3ede6d1c3e2cb3d29d020e5097ac8946c927b8b5b13f26e8a149a6e36f1ad"
+    },
+    {
+      "path": "file-ironrun_linux_amd64_v1.txt",
+      "bytes": 336,
+      "sha256": "838e4c1c992d233a2bd5c13c1b0e846c7287b296486d37959480011a7b70e1c3"
+    },
+    {
+      "path": "file-ironrun_linux_arm64_v8.0.txt",
+      "bytes": 343,
+      "sha256": "6a8725d9c0d03b4a56c986368b6a6e27602b979736d295834023fce4aea2bc78"
+    },
+    {
+      "path": "full-workspace-inventory.json",
+      "bytes": 12681,
+      "sha256": "c0c9c4d959d5135ae45b19abe3ca69b7984dc69a0afd38d0a829876efff97cf0"
+    },
+    {
+      "path": "goreleaser-check.log",
+      "bytes": 144,
+      "sha256": "35fee5e99442219dd6ec91aebeed51a63711992518e130e4ee1aa6d62a968c2e"
+    },
+    {
+      "path": "goreleaser-check.result.json",
+      "bytes": 533,
+      "sha256": "d4ee8cb4e3e67f13dc7ffa0c5e1410f65cd676df42f08d6490e50f03d39e26ca"
+    },
+    {
+      "path": "goreleaser-check.stderr.txt",
+      "bytes": 144,
+      "sha256": "35fee5e99442219dd6ec91aebeed51a63711992518e130e4ee1aa6d62a968c2e"
+    },
+    {
+      "path": "goreleaser-check.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 1253,
+      "sha256": "d56278670531197c47a0a8f63ca11ce51397dc2d9874743606504f4a9281d3bd"
+    },
+    {
+      "path": "smoke-doctor-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "smoke-doctor-help.stdout.txt",
+      "bytes": 765,
+      "sha256": "27bc8768ac259c4f335a09682558e75fadc489484531773750e7ae548cf6e38f"
+    },
+    {
+      "path": "smoke-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "smoke-help.stdout.txt",
+      "bytes": 2927,
+      "sha256": "2c626f6c0cefd7ec59f18f934d43442dcdfc7228c4d5de20b3aad6265cc43430"
+    },
+    {
+      "path": "smoke-setup-help.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "smoke-setup-help.stdout.txt",
+      "bytes": 648,
+      "sha256": "ffc80cba2b2d92846646706fae5a375873f620a908dacb1d3da30fa1c16c9974"
+    },
+    {
+      "path": "smoke-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "smoke-version.stdout.txt",
+      "bytes": 20,
+      "sha256": "760e7cd5765bb7b3669fd9e74e2b1b6db6958d897ad090c869e2bb03ae79884e"
+    },
+    {
+      "path": "snapshot-run1.result.json",
+      "bytes": 748,
+      "sha256": "edfe117c797a700cfdce6abbea32bf13dc3750e37671c267e39780491f190449"
+    },
+    {
+      "path": "snapshot-run1.stderr.txt",
+      "bytes": 2740,
+      "sha256": "033630998e1c34f3a268559937c8f63b9652be5cf60855e461382f16ae18f92c"
+    },
+    {
+      "path": "snapshot-run1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "snapshot-run2.result.json",
+      "bytes": 748,
+      "sha256": "6df5d073c4c5d2243ed7554d328d2871f7318bbad2bc65af6e738fb7c41ebf67"
+    },
+    {
+      "path": "snapshot-run2.stderr.txt",
+      "bytes": 2717,
+      "sha256": "5080dd276ffc31ec0be19da420afb1435a0db7a39888723e821f1fccc8ca5276"
+    },
+    {
+      "path": "snapshot-run2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "source-manifest-after-run1.json",
+      "bytes": 30490,
+      "sha256": "7e3b394cd1cc8b6de05d53ab59e9bc5ac1da7aeb2470b997a642e132162c5982"
+    },
+    {
+      "path": "source-manifest-after-run2.json",
+      "bytes": 30490,
+      "sha256": "7e3b394cd1cc8b6de05d53ab59e9bc5ac1da7aeb2470b997a642e132162c5982"
+    },
+    {
+      "path": "source-manifest-before.json",
+      "bytes": 30490,
+      "sha256": "7e3b394cd1cc8b6de05d53ab59e9bc5ac1da7aeb2470b997a642e132162c5982"
+    },
+    {
+      "path": "tooling/goreleaser-checksums.txt",
+      "bytes": 5271,
+      "sha256": "0818c962a5a5e49abb7f721f4fef851d92aca7253821c1eb5496338e812c0a47"
+    },
+    {
+      "path": "tooling/goreleaser-provenance.json",
+      "bytes": 665,
+      "sha256": "38dc329e7823f92e2bd237f5735a1c37173dff73105c2e88b22db34b856263a0"
+    },
+    {
+      "path": "tooling/syft-checksums.txt",
+      "bytes": 2690,
+      "sha256": "aba5ac8ee870bb93fd3b2058471ffe7e57492ba673b5e0bcbfca92006c2f4dc7"
+    },
+    {
+      "path": "tooling/syft-provenance.json",
+      "bytes": 653,
+      "sha256": "2c2ddf342515366a4fd7495e5ed2de59ac29fab6d43d505828d335963920787d"
+    },
+    {
+      "path": "tooling/syft-release-selection.json",
+      "bytes": 212,
+      "sha256": "6788b15ab6c44119d0b4d024b97e866587afba098da4f9d609c9df056975471c"
+    },
+    {
+      "path": "verification-summary.json",
+      "bytes": 14037,
+      "sha256": "22ae0a76ee777316e856546fe7e22a2633a63f1439825746b287b55f17502923"
+    },
+    {
+      "path": "verify_outputs.py",
+      "bytes": 1955,
+      "sha256": "286c2ab98d4c928c635e04205b02151b18b61085ad85b48a64d16df91cf980a8"
+    }
+  ]
+}

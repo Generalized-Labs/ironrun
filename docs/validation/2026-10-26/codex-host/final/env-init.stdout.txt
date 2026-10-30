@@ -1,0 +1,3 @@
+Project registered: /workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project
+Active environment: dev
+Secure store: Ironrun encrypted vault (root key in Linux Secret Service)

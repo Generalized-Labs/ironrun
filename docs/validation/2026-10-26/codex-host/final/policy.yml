@@ -1,0 +1,8 @@
+version: "2"
+commands:
+  - id: strict-loopback
+    argv: ["/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/secret-tool", "http", "http://127.0.0.1:43283/probe"]
+    secrets: [IRONRUN_E2E_TOKEN]
+    ttl: 5s
+
+environment_set: active

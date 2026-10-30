@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant|TestMCPTrustedWorkspaceLoopbackAndRevocation|TestMCPLeaseRequiredApproveRunAndRevoke|TestMCPLeaseDoesNotTransferAcrossServerSessions|TestMCPRunCreatesMissingSecretRequestAndResumesRedacted)$",
+    "-v"
+  ],
+  "exit_code": 0,
+  "scope": "Final frozen source including bounded run_sealed catalog description. Six focused race tests covering normal-network authorization, real local HTTP and encrypted synthetic v2 secret, redaction, strict blocked-dial, CLI revoke/deny, leases and secret-resume. Native root-key adapter remains synthetic.",
+  "source_sha256": {
+    "mcp/server.go": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+    "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+    "mcp/workspace_network_linux_test.go": "5be4b63f3976550fe25b9d07aa3f1d6d438a5f828db7582c1dbc6a2185b32b0f",
+    "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+  }
+}

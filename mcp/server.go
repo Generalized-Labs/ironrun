@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"strings"
 	"syscall"
@@ -107,8 +106,8 @@ func registeredTools(f *policy.File, policyPath, sessionID string, auditLog *aud
 	runTool := mcplib.NewTool("run_sealed",
 		mcplib.WithDescription(
 			"Execute either a policy-authorized command by command_id or argv in a human-trusted workspace session. "+
-				"Secrets are injected below agent visibility and redacted from all output. "+
-				"The agent never sees raw secret values.",
+				"Configured secrets are injected into the child process without being returned as tool inputs. "+
+				"Output filtering masks known secret values and supported encodings; it cannot prevent disclosure through arbitrary transformations, files, or network access.",
 		),
 		mcplib.WithString("command_id", mcplib.Description("Legacy policy command ID (strict mode)")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Exact argv for the current human-trusted workspace session")),
@@ -121,7 +120,7 @@ func registeredTools(f *policy.File, policyPath, sessionID string, auditLog *aud
 	add(workspaceStatusTool, makeWorkspaceStatusHandler(policyPath, sessionID))
 
 	requestWorkspaceTool := mcplib.NewTool("request_workspace_access",
-		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary, revocable, and never includes secret values in MCP."),
+		mcplib.WithDescription("Ask the human to trust this MCP session for the current project's selected environment. Access is temporary and revocable; this request returns metadata rather than secret-value fields."),
 		mcplib.WithString("reason", mcplib.Required(), mcplib.Description("Brief task reason shown to the human")),
 		mcplib.WithArray("argv", mcplib.WithStringItems(), mcplib.Description("Optional first command for human context; it is not executed by this request")),
 	)
@@ -222,6 +221,7 @@ func makeRunHandler(f *policy.File, auditLog *audit.Logger, sessionID string, po
 			}
 			res, runErr := executeWorkspace(ctx, projectRoot(policyPath), environment, argv, execution.Options{
 				Stdout: os.Stderr, Stderr: os.Stderr, Audit: auditLog, SessionID: sessionID,
+				AllowWorkspaceNetwork: true, // The approved workspace grant promises normal network access.
 			})
 			if runErr != nil {
 				return mcplib.NewToolResultError(fmt.Sprintf("workspace execution error: %v", runErr)), nil
@@ -436,7 +436,7 @@ func makeRequestWorkspaceHandler(f *policy.File, policyPath, sessionID string) f
 		if err != nil {
 			return mcplib.NewToolResultError("could not create trusted workspace request"), nil
 		}
-		return mcplib.NewToolResultText(fmt.Sprintf("Trusted workspace request %s is pending for environment %q. A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant %s`. The request expires in %s.", request.ID, environment, request.ID, access.DefaultWorkspaceTTL)), nil
+		return mcplib.NewToolResultText(fmt.Sprintf("Trusted workspace request %s is pending for environment %q. A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant %s`. Review deadline: %s. Requested access duration if approved: %s.", request.ID, environment, request.ID, request.ExpiresAt.UTC().Format(time.RFC3339), request.RequestedTTL)), nil
 	}
 }
 
@@ -798,10 +798,6 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 		}
 
 		path := pending.Path(policyPath)
-		store, err := pending.Load(path)
-		if err != nil {
-			return mcplib.NewToolResultError("could not read the pending store"), nil
-		}
 		proposalEnv := coerceEnv(req.GetArguments()["env"])
 		if current.UsesEnvironmentEntries() {
 			for _, name := range optionalStringSlice(req, "secrets") {
@@ -824,17 +820,12 @@ func makeProposeHandler(f *policy.File, policyPath string) func(context.Context,
 			ProposedAt: time.Now().UTC().Format(time.RFC3339), // server-side; agent time is untrusted
 			Status:     "pending",
 		}
-		// A pending proposal is immutable: approval (TUI or `approve --yes`)
-		// binds to the id, so letting the agent swap the content of an id the
-		// human is already reviewing would approve something they never saw.
-		if existing := store.Find(id); existing != nil {
-			if !reflect.DeepEqual(existing.Argv, proposal.Argv) || !reflect.DeepEqual(existing.Env, proposal.Env) || existing.Reason != proposal.Reason {
+		// Creation and immutability checks share a cross-process transaction;
+		// concurrent MCP workers must never swap an ID under human review.
+		if _, err := pending.Create(path, proposal); err != nil {
+			if errors.Is(err, pending.ErrConflict) {
 				return mcplib.NewToolResultError(fmt.Sprintf("%q is already pending with different content; propose under a new id (the user can `ironrun reject %s`)", id, id)), nil
 			}
-			proposal.ProposedAt = existing.ProposedAt
-		}
-		store.Upsert(proposal)
-		if err := pending.Save(path, store); err != nil {
 			return mcplib.NewToolResultError("could not save the proposal"), nil
 		}
 		return mcplib.NewToolResultText(fmt.Sprintf(

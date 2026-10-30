@@ -1,0 +1,61 @@
+{
+  "affinity_cpus": [
+    0,
+    1,
+    2
+  ],
+  "cgroup": {
+    "cpu.max": "200000 100000",
+    "cpu.stat": "usage_usec 191374874\nuser_usec 152290034\nsystem_usec 39084839\nnice_usec 0\nnr_periods 28994\nnr_throttled 556\nthrottled_usec 48217134\nnr_bursts 0\nburst_usec 0",
+    "cpuset.cpus.effective": "0-2",
+    "memory.current": "1896927232",
+    "memory.high": "max",
+    "memory.max": "8589934592",
+    "pids.max": "max"
+  },
+  "cgroup_membership": "0::/",
+  "commit": "a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d",
+  "cpu_details": [
+    "model name\t: INTEL(R) XEON(R) PLATINUM 8573C",
+    "cpu MHz\t\t: 2299.998",
+    "siblings\t: 3",
+    "cpu cores\t: 3"
+  ],
+  "created_utc": "2026-10-22T13:47:32.929257+00:00",
+  "credential_policy": "synthetic harness fixtures only; no provider calls or environment-file reads",
+  "driver_sha256": "0f368d4d48118f04d68351595d7eece3df5cfa7ca00f9e9558710fe78ce84161",
+  "explicit_settings": {
+    "GOCACHE": "/workspace/ironrun-product-tools/go-cache",
+    "GOFLAGS": "-buildvcs=false",
+    "GOMODCACHE": "/workspace/ironrun-product-tools/go-modules",
+    "GOPATH": "/workspace/ironrun-product-tools/gopath",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "GOTOOLCHAIN": "local",
+    "PATH": "/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin",
+    "TMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/test-cache",
+    "XDG_STATE_HOME": "/workspace/ironrun-product-research/test-state"
+  },
+  "git_status": "",
+  "go_binary_sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5",
+  "load_average_before": [
+    0.0390625,
+    0.16796875,
+    0.10205078125
+  ],
+  "logical_cpu_count": 3,
+  "os_release": "PRETTY_NAME=\"Debian GNU/Linux 13 (trixie)\"\nNAME=\"Debian GNU/Linux\"\nVERSION_ID=\"13\"\nVERSION=\"13 (trixie)\"\nVERSION_CODENAME=trixie\nDEBIAN_VERSION_FULL=13.6\nID=debian\nHOME_URL=\"https://www.debian.org/\"\nSUPPORT_URL=\"https://www.debian.org/support\"\nBUG_REPORT_URL=\"https://bugs.debian.org/\"",
+  "repository": "/workspace/ironrun-product-review",
+  "scope": "fresh shared-host diagnostic, not reconstruction of historical performance or FP tables",
+  "toolchain": "go version go1.26.10 linux/amd64",
+  "uname": [
+    "Linux",
+    "5eaa8082b0a7",
+    "6.18.55",
+    "#1 SMP Wed Oct 14 19:45:18 UTC 2026",
+    "x86_64",
+    ""
+  ]
+}

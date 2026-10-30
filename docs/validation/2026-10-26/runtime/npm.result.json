@@ -1,0 +1,24 @@
+{
+  "phase": "npm",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--test",
+    "test/build-manifest.test.js",
+    "test/launcher.integration.test.js",
+    "test/launcher.test.js",
+    "test/manifest.test.js"
+  ],
+  "cwd": "/workspace/ironrun-product-review/npm",
+  "exit_code": 0,
+  "started_at_utc": "2026-10-30T03:11:02.806741+00:00",
+  "ended_at_utc": "2026-10-30T03:11:11.034962+00:00",
+  "elapsed_seconds": 8.228422247004346,
+  "source_unchanged": true,
+  "source_identity": "source-before.json",
+  "phase_environment_override": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin"
+  },
+  "execution_scope": "Synthetic credential-free verification",
+  "log": "npm.log",
+  "log_sha256": "dc9b19040cd86e93892b6948a0b97d0b650fe4000968189bc2be3a658c0ce421"
+}

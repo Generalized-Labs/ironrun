@@ -1,0 +1,1 @@
+Use only Ironrun MCP run_sealed for credentialed commands. Do not use direct shell tools or inspect secret files. This is a local synthetic integration fixture.

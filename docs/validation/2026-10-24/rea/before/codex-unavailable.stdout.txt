@@ -1,0 +1,23 @@
+Initializing ironrun in codex-unavailable...
+
+  • ironrun.yml already exists — skipping
+  • Registered project in the global Ironrun workspace
+  • Wrote .mcp.json (Claude Code project MCP)
+  • Created CLAUDE.md
+  • Created AGENTS.md
+  • Created .cursorrules
+  • Codex: not found in PATH — to add ironrun manually, run:
+      codex mcp add ironrun -- ironrun mcp
+  • Merged ironrun into ~/.cursor/mcp.json
+
+Done! Next steps:
+
+  1. Run ironrun to open Projects and the agent inbox
+  2. Press Enter on this project, then choose Add secret or Import .env
+  3. Check your setup: ironrun doctor
+  4. Test: ironrun run <command-id>
+
+Then start your AI agent — it will use run_sealed() via MCP automatically.
+  • Claude Code: uses .mcp.json (per-project, already set up)
+  • Codex:       uses ~/.codex/config.toml (global, registered above)
+  • Cursor:      uses ~/.cursor/mcp.json (global, merged above)

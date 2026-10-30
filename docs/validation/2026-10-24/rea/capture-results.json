@@ -1,0 +1,53 @@
+[
+  {
+    "name": "malformed-and-codex-failure",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "capture-process",
+      "/workspace/ironrun-product-research/launch-20261024/rea/malformed-and-codex-failure.scenario.json",
+      "--json"
+    ],
+    "rea_cli_exit_code": 0
+  },
+  {
+    "name": "stale-registration",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "capture-process",
+      "/workspace/ironrun-product-research/launch-20261024/rea/stale-registration.scenario.json",
+      "--json"
+    ],
+    "rea_cli_exit_code": 0
+  },
+  {
+    "name": "codex-unavailable",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "capture-process",
+      "/workspace/ironrun-product-research/launch-20261024/rea/codex-unavailable.scenario.json",
+      "--json"
+    ],
+    "rea_cli_exit_code": 0
+  },
+  {
+    "name": "write-only-config",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "capture-process",
+      "/workspace/ironrun-product-research/launch-20261024/rea/write-only-config.scenario.json",
+      "--json"
+    ],
+    "rea_cli_exit_code": 0
+  },
+  {
+    "name": "workspace-expiry",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "capture-process",
+      "/workspace/ironrun-product-research/launch-20261024/rea/workspace-expiry.scenario.json",
+      "--json"
+    ],
+    "rea_cli_exit_code": 0,
+    "fresh_fixture_binary_digest_asserted": true
+  }
+]

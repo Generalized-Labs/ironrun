@@ -1,0 +1,19 @@
+▶ real launcher proxy transport on Node 24.19.0
+  ▶ valid proxied HTTPS redirect
+    ✔ warm cache works without a usable proxy (77.358845ms)
+  ✔ valid proxied HTTPS redirect (309.854437ms)
+  ✔ no startup opt-in (85.117086ms)
+  ✔ npm proxy configuration alone (82.311634ms)
+  ✔ NO_PROXY bypass (77.06851ms)
+  ✔ tampered archive (153.341362ms)
+  ✔ untrusted certificate (97.802906ms)
+  ✔ failed proxy (89.733514ms)
+✔ real launcher proxy transport on Node 24.19.0 (995.61739ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 999.01578

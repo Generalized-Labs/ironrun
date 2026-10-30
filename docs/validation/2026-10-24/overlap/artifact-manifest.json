@@ -1,0 +1,26 @@
+{
+  "algorithm": "sha256",
+  "scope": "All retained files except this manifest.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2861,
+      "sha256": "39481096b84372ac94089ec6044266730ca28230faa72d01555b21c4a72ffdf6"
+    },
+    {
+      "path": "main.go.txt",
+      "bytes": 641,
+      "sha256": "8ed671f9d480bb86771a67de3764d76c880025629df6469e34096960f4e0883c"
+    },
+    {
+      "path": "result.json",
+      "bytes": 817,
+      "sha256": "d317a2a0052ae807915139396dc4e3b3198132af876d2bf685189ec4b7fb97de"
+    },
+    {
+      "path": "source-hashes.json",
+      "bytes": 172,
+      "sha256": "d0069e9b60a51e49b497bccbd2ebfbdecad2482fd8faa9fc34b8526aa83e1931"
+    }
+  ]
+}

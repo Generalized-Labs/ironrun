@@ -651,3 +651,80 @@ func TestRun_SeccompStatusPerRun(t *testing.T) {
 		t.Errorf("seal-only run must report installed=false, got detail %q", b.res.SeccompDetail)
 	}
 }
+
+// A project-local executable must resolve from the child's working directory,
+// even when the CLI or MCP server was started elsewhere.
+func TestRun_RelativeExecutableUsesChildWorkDir(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix executable fixture")
+	}
+	for _, mode := range []string{"project", "relative command directory", "absolute command directory"} {
+		t.Run(mode, func(t *testing.T) {
+			root := t.TempDir()
+			target := root
+			cmd := makeCmd("local-script", "", "./greet")
+			if mode != "project" {
+				target = filepath.Join(root, "nested")
+				if err := os.Mkdir(target, 0700); err != nil {
+					t.Fatal(err)
+				}
+				cmd.WorkDir = "nested"
+				if mode == "absolute command directory" {
+					cmd.WorkDir = target
+				}
+			}
+			if err := os.WriteFile(filepath.Join(target, "greet"), []byte("#!/bin/sh\nprintf 'project-local-ok\\n'\n"), 0700); err != nil {
+				t.Fatal(err)
+			}
+			var out bytes.Buffer
+			res, err := runner.Run(context.Background(), cmd, runner.Options{WorkDir: root, Stdout: &out, Stderr: &bytes.Buffer{}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if res.ExitCode != 0 || strings.TrimSpace(out.String()) != "project-local-ok" {
+				t.Fatalf("exit=%d output=%q", res.ExitCode, out.String())
+			}
+		})
+	}
+}
+
+// Small output remains buffered until the final flush. A sink failure at that
+// point must still fail Run, after both streams and secret cleanup are handled.
+func TestRun_FinalFlushFailure(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("uses a Unix shell fixture")
+	}
+	for _, stream := range []string{"stdout", "stderr"} {
+		t.Run(stream, func(t *testing.T) {
+			sinkErr := errors.New("fixture sink unavailable")
+			failing := writerFunc(func([]byte) (int, error) { return 0, sinkErr })
+			var out, errOut bytes.Buffer
+			cleaned := false
+			opts := runner.Options{
+				Stdout: &out, Stderr: &errOut, AllowShell: true,
+				Secrets: map[string]string{"IRONRUN_FIXTURE_SECRET": "synthetic-secret-for-holdback"},
+				Cleanup: func() error { cleaned = true; return nil },
+			}
+			if stream == "stdout" {
+				opts.Stdout = failing
+			} else {
+				opts.Stderr = failing
+			}
+			cmd := makeCmd("flush-failure", "", "sh", "-c", "printf stdout-ok; printf stderr-ok >&2")
+			cmd.AllowNetwork = true
+			_, err := runner.Run(context.Background(), cmd, opts)
+			if !errors.Is(err, sinkErr) {
+				t.Fatalf("expected sink error from final flush, got %v", err)
+			}
+			if !cleaned {
+				t.Error("cleanup did not run")
+			}
+			if stream == "stdout" && errOut.String() != "stderr-ok" {
+				t.Errorf("stderr was not flushed after stdout failed: %q", errOut.String())
+			}
+			if stream == "stderr" && out.String() != "stdout-ok" {
+				t.Errorf("stdout output = %q", out.String())
+			}
+		})
+	}
+}

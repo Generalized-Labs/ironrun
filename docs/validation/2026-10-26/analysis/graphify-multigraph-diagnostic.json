@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "summary": {
+    "node_count": 1919,
+    "unverified_node_count": 0,
+    "raw_edge_count": 5540,
+    "non_object_edges": 0,
+    "missing_endpoint_edges": 0,
+    "dangling_endpoint_edges": 0,
+    "external_reference_edges": 0,
+    "self_loop_edges": 4,
+    "valid_candidate_edges": 5540,
+    "exact_duplicate_edges": 0,
+    "directed_unique_endpoint_pairs": 5532,
+    "directed_same_endpoint_collapsed_edges": 8,
+    "undirected_unique_endpoint_pairs": 5530,
+    "undirected_same_endpoint_collapsed_edges": 10,
+    "same_endpoint_group_count": 8,
+    "relation_variant_groups": 8,
+    "source_file_variant_groups": 0,
+    "source_location_variant_groups": 0,
+    "context_variant_groups": 0,
+    "post_build_graph_type": "DiGraph",
+    "post_build_node_count": 1919,
+    "post_build_edge_count": 5532,
+    "post_build_error": "",
+    "input_path": "/workspace/ironrun-product-research/launch-20261026/analysis/graphify/graphify-out/graph.json",
+    "effective_directed": true
+  },
+  "examples": [
+    {
+      "source": "npm_test_launcher_integration_test",
+      "target": "npm_test_launcher_integration_test_fixture",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "npm/test/launcher.integration.test.js"
+      ],
+      "source_locations": [
+        "L12",
+        "L83"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "npm_test_launcher_integration_test_fixture",
+      "target": "npm_test_launcher_integration_test_fixture_run",
+      "edge_count": 2,
+      "relations": [
+        "contains",
+        "indirect_call"
+      ],
+      "source_files": [
+        "npm/test/launcher.integration.test.js"
+      ],
+      "source_locations": [
+        "L66",
+        "L79"
+      ],
+      "contexts": [
+        "",
+        "collection"
+      ]
+    },
+    {
+      "source": "npm_test_launcher_integration_test",
+      "target": "npm_test_launcher_integration_test_terminatewaitpromptly",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "npm/test/launcher.integration.test.js"
+      ],
+      "source_locations": [
+        "L123",
+        "L148"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "npm_test_manifest_test",
+      "target": "npm_test_manifest_test_fixture",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "npm/test/manifest.test.js"
+      ],
+      "source_locations": [
+        "L20",
+        "L5"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    },
+    {
+      "source": "npm_test_proxy_audit",
+      "target": "npm_test_proxy_audit_listen",
+      "edge_count": 2,
+      "relations": [
+        "calls",
+        "contains"
+      ],
+      "source_files": [
+        "npm/test/proxy-audit.mjs"
+      ],
+      "source_locations": [
+        "L21",
+        "L81"
+      ],
+      "contexts": [
+        "",
+        "call"
+      ]
+    }
+  ],
+  "producer_suppression": {
+    "path": "/workspace/ironrun-product-tools/graphify-env/lib/python3.12/site-packages/graphify/extract.py",
+    "total_sites": 12,
+    "sites": [
+      {
+        "line": 1813,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2377,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 2379,
+        "name": "seen_doc_refs",
+        "tuple_arity": 0,
+        "sample": "seen_doc_refs: set[str] = set()"
+      },
+      {
+        "line": 3046,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = {n[\"id\"] for n in nodes}"
+      },
+      {
+        "line": 3193,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids = {n.get(\"id\") for n in nodes}"
+      },
+      {
+        "line": 4203,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 4389,
+        "name": "seen_keys",
+        "tuple_arity": 0,
+        "sample": "seen_keys: set[tuple] = set()"
+      },
+      {
+        "line": 7641,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 7749,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 7828,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8343,
+        "name": "seen_ids",
+        "tuple_arity": 0,
+        "sample": "seen_ids: set[str] = set()"
+      },
+      {
+        "line": 8344,
+        "name": "seen_edges",
+        "tuple_arity": 4,
+        "sample": "seen_edges: set[tuple[str, str, str, str | None]] = set()"
+      }
+    ],
+    "error": ""
+  },
+  "notes": [
+    "Diagnostics are read-only.",
+    "A normal graph.json is already post-build and cannot recover raw producer edges.",
+    "Producer suppression sites are heuristic source-code evidence."
+  ]
+}

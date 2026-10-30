@@ -11,6 +11,7 @@ import (
 	"charm.land/lipgloss/v2"
 
 	"github.com/generalized-labs/ironrun/internal/envset"
+	"github.com/generalized-labs/ironrun/internal/pending"
 )
 
 func TestDashboardMasksSecretInputAndRendersMetadataOnly(t *testing.T) {
@@ -150,5 +151,49 @@ func TestWorkspaceNeverRendersStoredValues(t *testing.T) {
 	}
 	if strings.Contains(view, "never-render-this") {
 		t.Fatal("workspace rendered a value")
+	}
+}
+
+func TestProposalConfirmationSurvivesReorderingButRejectsChangedContent(t *testing.T) {
+	root := t.TempDir()
+	path := filepath.Join(root, "ironrun.yml")
+	if err := os.WriteFile(path, []byte("version: \"1\"\nprovider: passthrough\ncommands:\n  - id: greet\n    argv: [echo, hello]\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	reviewed := pending.Proposal{ID: "z-reviewed", Argv: []string{"echo", "reviewed"}, Status: "pending"}
+	if _, err := pending.Create(pending.Path(path), reviewed); err != nil {
+		t.Fatal(err)
+	}
+	m, err := New(root, path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m.page, m.commandCursor = pageRun, len(m.policy.Commands)
+	m.beginPageAction()
+	if m.mode != modeApproveCommand {
+		t.Fatal("proposal confirmation did not open")
+	}
+	if _, err := pending.Create(pending.Path(path), pending.Proposal{ID: "a-new", Argv: []string{"echo", "new"}, Status: "pending"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.reload(); err != nil {
+		t.Fatal(err)
+	}
+	if m.mode != modeApproveCommand || m.selectedProposal().ID != reviewed.ID || pending.ReviewDigest(m.reviewedProposal) != pending.ReviewDigest(reviewed) {
+		t.Fatal("adding an earlier sorted proposal changed the item under confirmation")
+	}
+	if err := pending.Update(pending.Path(path), func(store *pending.Store) error {
+		replacement := reviewed
+		replacement.Argv = []string{"echo", "replacement"}
+		store.Upsert(replacement)
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := m.reload(); err != nil {
+		t.Fatal(err)
+	}
+	if m.mode != modeNormal || !strings.Contains(m.message, "changed since review") {
+		t.Fatal("changed proposal remained approvable without a new review")
 	}
 }

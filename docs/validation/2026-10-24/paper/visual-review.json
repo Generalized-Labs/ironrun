@@ -1,0 +1,92 @@
+{
+  "pdf_sha256": "d73e18d9141cfdded1cd35b539237f4c6f10af71ceb3de59beefba3123775733",
+  "method": "pdftoppm -scale-to 1350 -png and view_image inspection; pages1-7 unchanged from inspected images; final pages8-14 viewed after short RQ4 edit",
+  "pages": [
+    {
+      "page": 1,
+      "rendered_sha256": "f173a89e2dcdfb037b923efcd08f72436ddf4831866eac27a5dd89a200f98a62",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 2,
+      "rendered_sha256": "42360994e33224ec5250903b7494de3f01364f039d36a49ef7fa38687fb8dc72",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 3,
+      "rendered_sha256": "f162e12c6a1412e4737a4cb8460771688d30a677e1a72c2e66d65c3b3a3f284b",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 4,
+      "rendered_sha256": "b327d053130f6e5ebe4b81470c3918dbe35683f5363c75f79810ecd8f0bd57ac",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 5,
+      "rendered_sha256": "9364c94fe1d8ebd7aea6870b440fc7fb2b1b48c7ec4c6fdd7b15f95c6b3d55ad",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 6,
+      "rendered_sha256": "92f95f490518f02047b77091a82084aeb9d72a0a2cb6e2c7ac0ea1d7087f365e",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 7,
+      "rendered_sha256": "95acd30e505eedcf53607b2199824f10f54665e63fc76c546975d9b55fba4c8d",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": true
+    },
+    {
+      "page": 8,
+      "rendered_sha256": "652495b2bdfa6d7f3652e89dbef3b3019103b08d0023f0c6a3f3f3d9cc203f6a",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 9,
+      "rendered_sha256": "665908e4c9d6de2290fddc4049d568024f16365234824e8bec7cc676ae1b9450",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 10,
+      "rendered_sha256": "091ce54f27b4b73c5c69682d20d47bb6b14a30eff6c2fb794d75f6a84aa6ec99",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 11,
+      "rendered_sha256": "db73b48d278089b9f1d43bcfa76308df914b0939d08c419f5a9794d4211f9135",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 12,
+      "rendered_sha256": "30af30e9b38a43255f81eddf4c6dcf5780a94c6b344bcb52d3f979307a1ddb63",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 13,
+      "rendered_sha256": "2b9c2bef8a565cc9c144b09714c71aa3f447c0fb6ebf04cd3c84d96a147f4baa",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    },
+    {
+      "page": 14,
+      "rendered_sha256": "b77b665291a031743fa93374ec2dd83a1fb758822d6a8179cab1857029380084",
+      "inspected": true,
+      "unchanged_from_first_inspected_render": false
+    }
+  ],
+  "findings": "Orphaned word at column break removed; no remaining clipped/overlapping figures, tables, text, or bibliography found in visual inspection.",
+  "limits": "Visual inspection does not establish absence of all typographical or semantic errors; rendered images remain local rather than duplicated in source control."
+}

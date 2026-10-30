@@ -1,0 +1,331 @@
+{
+  "scope": "Resolved dependency versions/download URLs/digests from pip --report. Tool source pinned to official GitHub commit; this is not a signature verification.",
+  "pip_report_version": "1",
+  "packages": [
+    {
+      "name": "graphifyy",
+      "version": "0.9.93",
+      "download_url": "file:///workspace/ironrun-product-tools/graphify-b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+      "archive_info": null
+    },
+    {
+      "name": "networkx",
+      "version": "3.7",
+      "download_url": "https://files.pythonhosted.org/packages/7e/cd/fe58041e9011f307c490e3e17dd48cc516448f7c698a3f2d9d9d65d7e6a8/networkx-3.7-py3-none-any.whl",
+      "archive_info": {
+        "hash": "sha256=e3fd2c13a7814cee3746340d8d7f8598a67f16a58bf47fb7f8793fab6efca1b0",
+        "hashes": {
+          "sha256": "e3fd2c13a7814cee3746340d8d7f8598a67f16a58bf47fb7f8793fab6efca1b0"
+        }
+      }
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "download_url": "https://files.pythonhosted.org/packages/43/a3/c799c62e19c337e6d3770b08e475887fb30ce8477d3c09efca6b2f0228a6/numpy-2.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=fbde6962867ee75b48b0ee29b2b9372ec5d617799dbaf38e82dc0596f2f7738a",
+        "hashes": {
+          "sha256": "fbde6962867ee75b48b0ee29b2b9372ec5d617799dbaf38e82dc0596f2f7738a"
+        }
+      }
+    },
+    {
+      "name": "RapidFuzz",
+      "version": "3.14.6",
+      "download_url": "https://files.pythonhosted.org/packages/13/da/49ab137f788a0e03e872d4c6b3d5c9c6c6bed4e4ccea381f69c4d186341b/rapidfuzz-3.14.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=0debb5f43662ea84d2f0228a0c7407ff647f9c3d13f3b692efff0cde46eebce0",
+        "hashes": {
+          "sha256": "0debb5f43662ea84d2f0228a0c7407ff647f9c3d13f3b692efff0cde46eebce0"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter",
+      "version": "0.25.2",
+      "download_url": "https://files.pythonhosted.org/packages/39/d1/b95f545e9fc5001b8a78636ef942a4e4e536580caa6a99e73dd0a02e87aa/tree_sitter-0.25.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=b43a9e4c89d4d0839de27cd4d6902d33396de700e9ff4c5ab7631f277a85ead9",
+        "hashes": {
+          "sha256": "b43a9e4c89d4d0839de27cd4d6902d33396de700e9ff4c5ab7631f277a85ead9"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-bash",
+      "version": "0.25.1",
+      "download_url": "https://files.pythonhosted.org/packages/d7/22/9f70bc3d3b942ab9fc0f89c1dc9e087519a3a94f64ae6b7377aae3a7a0f0/tree_sitter_bash-0.25.1-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=3f484c4bb8796cde7a87ca351e6116f09653edac0eb3c6d238566359dd28b117",
+        "hashes": {
+          "sha256": "3f484c4bb8796cde7a87ca351e6116f09653edac0eb3c6d238566359dd28b117"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-c",
+      "version": "0.24.2",
+      "download_url": "https://files.pythonhosted.org/packages/e9/8c/0dfb88d726f8821d1c4c36042f092be974a800afd734307a595b8604190c/tree_sitter_c-0.24.2-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=5041ef67eb68ce6bc8bb0b1f8ef3a5585ce523dae0c7eec109ab0627dd75aede",
+        "hashes": {
+          "sha256": "5041ef67eb68ce6bc8bb0b1f8ef3a5585ce523dae0c7eec109ab0627dd75aede"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-c-sharp",
+      "version": "0.23.5",
+      "download_url": "https://files.pythonhosted.org/packages/41/5a/a8855cbb5bbab28adb29c2c7f0e7be5a9f1d21450c13b3c3e613190d9b8c/tree_sitter_c_sharp-0.23.5-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=aa88a780204cd153c4c1ae2d59c654cee1402212fa0d069823d6d34301587438",
+        "hashes": {
+          "sha256": "aa88a780204cd153c4c1ae2d59c654cee1402212fa0d069823d6d34301587438"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-cpp",
+      "version": "0.23.4",
+      "download_url": "https://files.pythonhosted.org/packages/6a/4d/23e390234d2acd351f5563b1079c515d7c1fe13ddb7392cee543be74dda3/tree_sitter_cpp-0.23.4-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=773d2cafc08bbc0f998687fa33f42f378c1a371cdb582870c4d13abb06092706",
+        "hashes": {
+          "sha256": "773d2cafc08bbc0f998687fa33f42f378c1a371cdb582870c4d13abb06092706"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-elixir",
+      "version": "0.3.5",
+      "download_url": "https://files.pythonhosted.org/packages/31/35/78c94e164542ad08098b83cb7e046261f3ab2edade96e29727dd209bfa35/tree_sitter_elixir-0.3.5-cp39-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=ebfe3491a3d00ac50b12a3bfcabb1c564f3809ed8a095099fe87f49d6b3987e6",
+        "hashes": {
+          "sha256": "ebfe3491a3d00ac50b12a3bfcabb1c564f3809ed8a095099fe87f49d6b3987e6"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-fortran",
+      "version": "0.6.0",
+      "download_url": "https://files.pythonhosted.org/packages/57/86/0923f061e36f229d99660a8f53f8e3b57da459e08512c09e256de820c472/tree_sitter_fortran-0.6.0-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=ac4800b4abc1b25e6e7ab4a3f2eae274c5b19107beb18d3a473c0f67509c7486",
+        "hashes": {
+          "sha256": "ac4800b4abc1b25e6e7ab4a3f2eae274c5b19107beb18d3a473c0f67509c7486"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-go",
+      "version": "0.25.0",
+      "download_url": "https://files.pythonhosted.org/packages/86/fb/b30d63a08044115d8b8bd196c6c2ab4325fb8db5757249a4ef0563966e2e/tree_sitter_go-0.25.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=04b3b3cb4aff18e74e28d49b716c6f24cb71ddfdd66768987e26e4d0fa812f74",
+        "hashes": {
+          "sha256": "04b3b3cb4aff18e74e28d49b716c6f24cb71ddfdd66768987e26e4d0fa812f74"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-groovy",
+      "version": "0.1.2",
+      "download_url": "https://files.pythonhosted.org/packages/c6/b7/451ac5e158f2418fea7eb0744254dd27238359c070420d69d711aaf06356/tree_sitter_groovy-0.1.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=9e938e9c2cd5fdb08fd1b28d7d621d15ea959a17a4bc0b77833e07a94fe7d263",
+        "hashes": {
+          "sha256": "9e938e9c2cd5fdb08fd1b28d7d621d15ea959a17a4bc0b77833e07a94fe7d263"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-java",
+      "version": "0.23.5",
+      "download_url": "https://files.pythonhosted.org/packages/29/09/e0d08f5c212062fd046db35c1015a2621c2631bc8b4aae5740d7adb276ad/tree_sitter_java-0.23.5-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=370b204b9500b847f6d0c5ad584045831cee69e9a3e4d878535d39e4a7e4c4f1",
+        "hashes": {
+          "sha256": "370b204b9500b847f6d0c5ad584045831cee69e9a3e4d878535d39e4a7e4c4f1"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-javascript",
+      "version": "0.25.0",
+      "download_url": "https://files.pythonhosted.org/packages/5f/c4/7da74ecdcd8a398f88bd003a87c65403b5fe0e958cdd43fbd5fd4a398fcf/tree_sitter_javascript-0.25.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=9dc04ba91fc8583344e57c1f1ed5b2c97ecaaf47480011b92fbeab8dda96db75",
+        "hashes": {
+          "sha256": "9dc04ba91fc8583344e57c1f1ed5b2c97ecaaf47480011b92fbeab8dda96db75"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-json",
+      "version": "0.24.8",
+      "download_url": "https://files.pythonhosted.org/packages/77/08/10001992526670e0d6f24c571b179f0ece90e5e014a4b98a3ce076884f32/tree_sitter_json-0.24.8-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=85cca779872f7278f3a74eb38533d34b9c4de4fd548615e3361fa64fe350ad0a",
+        "hashes": {
+          "sha256": "85cca779872f7278f3a74eb38533d34b9c4de4fd548615e3361fa64fe350ad0a"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-julia",
+      "version": "0.23.1",
+      "download_url": "https://files.pythonhosted.org/packages/0b/4c/09534d31ab95c3da2284f538bb134bf6fe064770c0bf6fe4fb6f2b028d9e/tree_sitter_julia-0.23.1-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=7d4f6ae938198fc0be9b6ea76313ade24fcdb89be01a791e0cc90c88fae5743d",
+        "hashes": {
+          "sha256": "7d4f6ae938198fc0be9b6ea76313ade24fcdb89be01a791e0cc90c88fae5743d"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-kotlin",
+      "version": "1.1.0",
+      "download_url": "https://files.pythonhosted.org/packages/65/bd/0f3aac45eb88b6b3173ac9c23bc41d8865943cbbe1caaafc001cd1b73c90/tree_sitter_kotlin-1.1.0-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=9a92afe24b634cf914c5812af0f5c53184b1c18bdf6ee5505c83afac81f6bf6c",
+        "hashes": {
+          "sha256": "9a92afe24b634cf914c5812af0f5c53184b1c18bdf6ee5505c83afac81f6bf6c"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-lua",
+      "version": "0.5.0",
+      "download_url": "https://files.pythonhosted.org/packages/45/2b/1edfd9bef9a1cc11047cd87ca9c60707b8425080cfc0498a7d3bc762d783/tree_sitter_lua-0.5.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=5ec448c854fea32414a0449147d648bc5baddf7a0357008c4abe3269db35370a",
+        "hashes": {
+          "sha256": "5ec448c854fea32414a0449147d648bc5baddf7a0357008c4abe3269db35370a"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-objc",
+      "version": "3.0.2",
+      "download_url": "https://files.pythonhosted.org/packages/60/cd/a153a4268b9b405a69ee3e427f19fc570a3c63d4b4d7766bee5a7ba28744/tree_sitter_objc-3.0.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=e71282ac9c096a966bf2fa6a4ecdbea4bd037d3e01ea4aa9bbc64d9a4c0022f6",
+        "hashes": {
+          "sha256": "e71282ac9c096a966bf2fa6a4ecdbea4bd037d3e01ea4aa9bbc64d9a4c0022f6"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-php",
+      "version": "0.24.1",
+      "download_url": "https://files.pythonhosted.org/packages/9a/c6/fd863a7a779d0ab67688939eba0e08bff7b1ffe731288d3d3610df21217b/tree_sitter_php-0.24.1-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=7a1404a30f2972498ace040b0029738b8dac45d0a12932ccb8b605eb94bafbe4",
+        "hashes": {
+          "sha256": "7a1404a30f2972498ace040b0029738b8dac45d0a12932ccb8b605eb94bafbe4"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-powershell",
+      "version": "0.26.4",
+      "download_url": "https://files.pythonhosted.org/packages/de/ff/5bba5fef4b3808ade114512ebf44e0c192050cc825cdcf42fa2043e5abd0/tree_sitter_powershell-0.26.4-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=56508e4ac7aad1e3b26f2ef96b8d2b60b149c4efa0c23742e91e809a11db73ee",
+        "hashes": {
+          "sha256": "56508e4ac7aad1e3b26f2ef96b8d2b60b149c4efa0c23742e91e809a11db73ee"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-python",
+      "version": "0.25.0",
+      "download_url": "https://files.pythonhosted.org/packages/aa/cb/d9b0b67d037922d60cbe0359e0c86457c2da721bc714381a63e2c8e35eba/tree_sitter_python-0.25.0-cp310-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=86f118e5eecad616ecdb81d171a36dde9bef5a0b21ed71ea9c3e390813c3baf5",
+        "hashes": {
+          "sha256": "86f118e5eecad616ecdb81d171a36dde9bef5a0b21ed71ea9c3e390813c3baf5"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-ruby",
+      "version": "0.23.1",
+      "download_url": "https://files.pythonhosted.org/packages/23/dd/1171b5dd25da10f768732a20fb62d2e3ae66e3b42329351f2ce5bf723abb/tree_sitter_ruby-0.23.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=f7bcd93972b4ca2803856d4fe0fbd04123ff29c4592bbb9f12a27528bd252341",
+        "hashes": {
+          "sha256": "f7bcd93972b4ca2803856d4fe0fbd04123ff29c4592bbb9f12a27528bd252341"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-rust",
+      "version": "0.24.2",
+      "download_url": "https://files.pythonhosted.org/packages/ca/45/a051bbd3045a61182dde25b93ae9a33d2677c935b16952283e12eaf46051/tree_sitter_rust-0.24.2-cp39-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=e033c5a93b57c88e0a835880de39fc802909ff69f57aaff6000211c196ea5190",
+        "hashes": {
+          "sha256": "e033c5a93b57c88e0a835880de39fc802909ff69f57aaff6000211c196ea5190"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-scala",
+      "version": "0.26.3",
+      "download_url": "https://files.pythonhosted.org/packages/8c/8f/0e10b6f4f944ef7204c033d3251b1af96707443c001e0d974de5f05ab21d/tree_sitter_scala-0.26.3-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=a66b803409bb76ae6a03b696969594d3da64bc93af375ddafcdb7c7bcc718cc2",
+        "hashes": {
+          "sha256": "a66b803409bb76ae6a03b696969594d3da64bc93af375ddafcdb7c7bcc718cc2"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-swift",
+      "version": "0.7.4",
+      "download_url": "https://files.pythonhosted.org/packages/9c/d1/05bcef72968411fefb7d6a0a2ccfb5bb3d248600949fe01fb80c6c3db57a/tree_sitter_swift-0.7.4-cp38-abi3-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=d11d15a479d7d3b14c7fc526b4daab107995feca5752936fec5c60cc7fa6fe4d",
+        "hashes": {
+          "sha256": "d11d15a479d7d3b14c7fc526b4daab107995feca5752936fec5c60cc7fa6fe4d"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-typescript",
+      "version": "0.23.2",
+      "download_url": "https://files.pythonhosted.org/packages/49/d1/a71c36da6e2b8a4ed5e2970819b86ef13ba77ac40d9e333cb17df6a2c5db/tree_sitter_typescript-0.23.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=e96d36b85bcacdeb8ff5c2618d75593ef12ebaf1b4eace3477e2bdb2abb1752c",
+        "hashes": {
+          "sha256": "e96d36b85bcacdeb8ff5c2618d75593ef12ebaf1b4eace3477e2bdb2abb1752c"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-verilog",
+      "version": "1.0.3",
+      "download_url": "https://files.pythonhosted.org/packages/2a/c1/8782535dbb6ea1f3556eb2bc473f5f131339739278775171fc42b0a57536/tree_sitter_verilog-1.0.3-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=747dd7d4bc95fb389bc37225f82d16f0c40549856e9a244be3ff9d7bfe62b730",
+        "hashes": {
+          "sha256": "747dd7d4bc95fb389bc37225f82d16f0c40549856e9a244be3ff9d7bfe62b730"
+        }
+      }
+    },
+    {
+      "name": "tree-sitter-zig",
+      "version": "1.1.2",
+      "download_url": "https://files.pythonhosted.org/packages/78/02/275523eb05108d83e154f52c7255763bac8b588ae14163563e19479322a7/tree_sitter_zig-1.1.2-cp39-abi3-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+      "archive_info": {
+        "hash": "sha256=e924509dcac5a6054da357e3d6bcf37ea82984ee1d2a376569753d32f61ea8bb",
+        "hashes": {
+          "sha256": "e924509dcac5a6054da357e3d6bcf37ea82984ee1d2a376569753d32f61ea8bb"
+        }
+      }
+    }
+  ]
+}

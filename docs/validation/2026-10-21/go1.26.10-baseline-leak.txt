@@ -1,0 +1,23 @@
+% leak experiment: transformation & class & leaked/secrets & mean recovered % & entropy-flagged
+printenv line                & accidental & 0/6 &   6.2\% & 0 \\
+xtrace (set -x)              & accidental & 0/6 &   7.3\% & 0 \\
+JSON (Go encoder)            & accidental & 1/6 &  20.7\% & 0 \\
+URL query param              & accidental & 0/6 &   5.7\% & 0 \\
+HTTP Basic auth              & accidental & 6/6 & 100.0\% & 6 \\
+k8s Secret (base64)          & accidental & 0/6 &   5.7\% & 0 \\
+printenv | base64            & accidental & 6/6 &  86.7\% & 6 \\
+xxd hexdump                  & accidental & 6/6 & 100.0\% & 0 \\
+ANSI-highlighted             & accidental & 1/6 &  19.6\% & 0 \\
+pty wrap (CRLF)              & accidental & 0/6 &   5.7\% & 0 \\
+UTF-16LE                     & accidental & 0/6 &   5.7\% & 0 \\
+truncated log (first 60%)    & accidental & 1/6 &  12.6\% & 0 \\
+hex                          & deliberate & 0/6 &   5.7\% & 0 \\
+base64 at offset 1           & deliberate & 6/6 & 100.0\% & 6 \\
+double base64                & deliberate & 0/6 &   5.7\% & 0 \\
+gzip | base64                & deliberate & 6/6 & 100.0\% & 6 \\
+reversed                     & deliberate & 6/6 & 100.0\% & 5 \\
+ROT13                        & deliberate & 6/6 & 100.0\% & 5 \\
+one char per line            & deliberate & 0/6 &   5.7\% & 0 \\
+split with separator         & deliberate & 1/6 &  11.3\% & 0 \\
+upper-cased                  & deliberate & 6/6 & 100.0\% & 5 \\
+% total: 52/126 pairs leak >=50% of the secret; entropy warnings on the 74 non-leaking pairs: 0

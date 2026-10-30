@@ -1,0 +1,5 @@
+% perf: secrets & patterns & MB/s (4 MiB, 32 KiB writes)
+1 & 18 & 34 \\
+10 & 180 & 21 \\
+50 & 900 & 9 \\
+error: isolated probe: execution failed: runner: exec error: fork/exec /workspace/ironrun-product-research/fresh-pilot/eval: read-only file system

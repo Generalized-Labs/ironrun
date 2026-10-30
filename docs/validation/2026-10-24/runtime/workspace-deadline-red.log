@@ -1,0 +1,8 @@
+--- FAIL: TestMCPWorkspaceRequestReportsStoredDeadlineAndAccessDuration (0.02s)
+    access_test.go:264: response must distinguish the stored review deadline "Review deadline: 2026-10-24T06:35:34Z" from access duration "Requested access duration if approved: 2h0m0s":
+        Trusted workspace request req_0d5e6acbef0005666709ebd4 is pending for environment "default". A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant req_0d5e6acbef0005666709ebd4`. The request expires in 2h0m0s.
+    access_test.go:304: response must distinguish the stored review deadline "Review deadline: 2026-10-24T06:22:34Z" from access duration "Requested access duration if approved: 45m0s":
+        Trusted workspace request req_0d5e6acbef0005666709ebd4 is pending for environment "default". A human can approve it in Ironrun's Agent Access screen or with `ironrun trust grant req_0d5e6acbef0005666709ebd4`. The request expires in 2h0m0s.
+FAIL
+FAIL	github.com/generalized-labs/ironrun/mcp	1.463s
+FAIL

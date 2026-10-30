@@ -1,0 +1,183 @@
+{
+  "created_at_utc": "2026-10-24T23:25:47.098495+00:00",
+  "synthetic_only": true,
+  "rea_cli_version": "6.7.0",
+  "runtime_binary": "/workspace/ironrun-product-tools/ironrun-setup-fixed",
+  "runtime_binary_sha256": "2d75777c7f9bd44c0b8e42be50384d3d54cc5d05d66c792c0044c4ec0b8e4df7",
+  "source_identity": "runtime-source-sha256.json",
+  "captures": [
+    {
+      "scenario": "malformed-and-codex-failure",
+      "capture": "malformed-and-codex-failure.capture.json",
+      "capture_sha256": "fa0316819954be92534c4957506f5323b79b341e5abce7373c0b47afc3ef6cce",
+      "evidence_id": "ev_815a68d27eca405e943e6ff3030f30b884587488fb767ad26faa4d494c00e4d1",
+      "exit": {
+        "code": 0,
+        "signal": 0,
+        "reason": "exited"
+      },
+      "settlement": {
+        "state": "quiesced",
+        "elapsed_ms": 62,
+        "cleanup_outcome": "not_required"
+      },
+      "truncated": false,
+      "filesystem_hash_omissions": {
+        "filesystem_before": [],
+        "filesystem_after": []
+      },
+      "selected_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "selected_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "driver": "/workspace/ironrun-product-research/launch-20261024/rea/replay.py",
+      "driver_sha256": "de9727b342d57d9bb433ecf182e323a75959681d19fa00e7bac8e1f491c18590"
+    },
+    {
+      "scenario": "stale-registration",
+      "capture": "stale-registration.capture.json",
+      "capture_sha256": "edd6675bc8656942292f74ff3364022d49c0492036d5d4926bb60f13cc6f6107",
+      "evidence_id": "ev_834c6201f979068a801e746d3eb77290583d4e07f0aa380e54b19daf11bca76f",
+      "exit": {
+        "code": 0,
+        "signal": 0,
+        "reason": "exited"
+      },
+      "settlement": {
+        "state": "quiesced",
+        "elapsed_ms": 71,
+        "cleanup_outcome": "not_required"
+      },
+      "truncated": false,
+      "filesystem_hash_omissions": {
+        "filesystem_before": [],
+        "filesystem_after": []
+      },
+      "selected_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "selected_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "driver": "/workspace/ironrun-product-research/launch-20261024/rea/replay.py",
+      "driver_sha256": "de9727b342d57d9bb433ecf182e323a75959681d19fa00e7bac8e1f491c18590"
+    },
+    {
+      "scenario": "codex-unavailable",
+      "capture": "codex-unavailable.capture.json",
+      "capture_sha256": "b249b902c4ec09dd676022bb5bc50e693f7530160ae0e21d4dbaab6f0a04235d",
+      "evidence_id": "ev_bfd31ad6f03a5c703e1bd41960ce16bafa6ba7bafe6aba4ff7ca7d0f7b6a87da",
+      "exit": {
+        "code": 0,
+        "signal": 0,
+        "reason": "exited"
+      },
+      "settlement": {
+        "state": "quiesced",
+        "elapsed_ms": 61,
+        "cleanup_outcome": "not_required"
+      },
+      "truncated": false,
+      "filesystem_hash_omissions": {
+        "filesystem_before": [],
+        "filesystem_after": []
+      },
+      "selected_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "selected_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "driver": "/workspace/ironrun-product-research/launch-20261024/rea/replay.py",
+      "driver_sha256": "de9727b342d57d9bb433ecf182e323a75959681d19fa00e7bac8e1f491c18590"
+    },
+    {
+      "scenario": "write-only-config",
+      "capture": "write-only-config.capture.json",
+      "capture_sha256": "e2d6f83ff3ffcdcaa4fe76874b47896df5349f78b3e3f9a07121b80fe428cd20",
+      "evidence_id": "ev_b33af244d9a2aecc928d754da311ae316d459a73369de4f6c935ee2ed2627a3a",
+      "exit": {
+        "code": 0,
+        "signal": 0,
+        "reason": "exited"
+      },
+      "settlement": {
+        "state": "quiesced",
+        "elapsed_ms": 64,
+        "cleanup_outcome": "not_required"
+      },
+      "truncated": true,
+      "filesystem_hash_omissions": {
+        "filesystem_before": [
+          {
+            "path": "root_0:.mcp.json",
+            "size_bytes": 120,
+            "remaining_budget_bytes": 200000,
+            "reason": "file_unavailable",
+            "system_code": "EACCES"
+          },
+          {
+            "path": "root_0:home/.cursor/mcp.json",
+            "size_bytes": 120,
+            "remaining_budget_bytes": 200000,
+            "reason": "file_unavailable",
+            "system_code": "EACCES"
+          }
+        ],
+        "filesystem_after": [
+          {
+            "path": "root_0:.mcp.json",
+            "size_bytes": 120,
+            "remaining_budget_bytes": 198608,
+            "reason": "file_unavailable",
+            "system_code": "EACCES"
+          },
+          {
+            "path": "root_0:home/.cursor/mcp.json",
+            "size_bytes": 120,
+            "remaining_budget_bytes": 195824,
+            "reason": "file_unavailable",
+            "system_code": "EACCES"
+          }
+        ]
+      },
+      "selected_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "selected_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "driver": "/workspace/ironrun-product-research/launch-20261024/rea/replay.py",
+      "driver_sha256": "de9727b342d57d9bb433ecf182e323a75959681d19fa00e7bac8e1f491c18590"
+    },
+    {
+      "scenario": "workspace-expiry",
+      "capture": "workspace-expiry.capture.json",
+      "capture_sha256": "24e1c5abb931529e8032ec2014479bf6600f7fd41cef97ca7cbddb2c15f4fe42",
+      "evidence_id": "ev_27591d739aa11c4c51389bdbcdfe367127cb0c47d590220a8ec890afc4af7441",
+      "exit": {
+        "code": 0,
+        "signal": 0,
+        "reason": "exited"
+      },
+      "settlement": {
+        "state": "quiesced",
+        "elapsed_ms": 75,
+        "cleanup_outcome": "not_required"
+      },
+      "truncated": false,
+      "filesystem_hash_omissions": {
+        "filesystem_before": [],
+        "filesystem_after": []
+      },
+      "selected_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+      "selected_executable_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "driver": "/workspace/ironrun-product-research/launch-20261024/rea/mcp-probe.py",
+      "driver_sha256": "fa2da8a6923c9d8af3bed7aa67303784cd3590febc18a423fbec57ced258b6fd"
+    }
+  ],
+  "setup_assertions": "All four setup scenarios exit0 and report per-client status without claiming a verified host connection; all pre-existing malformed, stale, and unreadable client config bytes and modes are preserved.",
+  "preservation_results": "preservation-results.json",
+  "workspace_deadline_assertions": {
+    "pending_review_ttl_seconds": 900,
+    "requested_grant_ttl_seconds": 7200,
+    "message_deadline_equals_persisted_expiry_to_RFC3339_seconds": true,
+    "result": "mcp/workspace-expiry.result.json"
+  },
+  "limitations": [
+    "REA selected executable is Python, not Ironrun. Both wrappers assert the separate Ironrun binary SHA256 before running it; path digest samples are not atomic operating-system image bindings.",
+    "Setup wrappers run the product with stdin as a pipe (nonTTY) so these captures exercise noninteractive setup only. They do not exercise native-store prompts or the TUI.",
+    "The wrapper invokes Ironrun with an explicit synthetic HOME, PATH, IRONRUN_HOME and XDG directories. REA itself reports inherited ambient environment as unknown. No project credentials or actual host configs were used.",
+    "Process observations are sampled, not complete fork tracing. Filesystem observations are before/after snapshots, not syscall traces, so these do not prove absence of transient writes.",
+    "Write-only0200 config files are unreadable to UID1000. REA reports truncated filesystem evidence with EACCES hash omissions in both snapshots. Separate post-capture inspection temporarily adds owner-read, verifies bytes against precomputed fixture hashes, and restores0200; those byte checks are outside REA capture.",
+    "No actual Claude Code, Codex, or Cursor host-to-MCP connection, model invocation, network observation or human usability session is established. Codex behavior in these setup cases uses controlled fixture scripts.",
+    "The initial MCP capture lacked a driver binary digest assertion. It is retained separately under mcp-initial-capture; the final top-level workspace-expiry capture is a fresh fixture run with digest and exact response assertions.",
+    "Before-state records under /workspace/ironrun-product-research/launch-flow-audit2 are historical reproductions, not a formal replay-equivalence claim over identical binary/scenario identity."
+  ]
+}

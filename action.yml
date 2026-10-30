@@ -97,7 +97,7 @@ runs:
         COSIGN_SHA256_DARWIN_ARM64="edfc761b27ced77f0f9ca288ff4fac7caa898e1e9db38f4dfdf72160cdf8e638"
 
         # Expected keyless Sigstore identity: the ironrun release workflow
-        # signing from a tag (see .github/workflows/release.yml).
+        # signing from the requested tag (completed after version validation).
         SIGSTORE_IDENTITY_REGEXP='^https://github\.com/[Gg]eneralized-[Ll]abs/ironrun/\.github/workflows/release\.yml@refs/tags/'
         SIGSTORE_OIDC_ISSUER='https://token.actions.githubusercontent.com'
 
@@ -116,9 +116,11 @@ runs:
         # The version ends up in download URLs: refuse anything but a plain
         # release tag, end-anchored (a trailing `*` in a case pattern would
         # admit `v1.2.3;evil`). Pre-release tags like v0.4.1-rc.1 are allowed.
-        if ! printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$'; then
+        if ! printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[-0-9A-Za-z.]+)?$'; then
           echo "::error::refusing suspicious version string: $VERSION (want a full tag like v0.4.1, or \"latest\")"; exit 1
         fi
+        VERSION_PATTERN="$(printf '%s' "$VERSION" | sed 's/\./\\./g')"
+        SIGSTORE_IDENTITY_REGEXP="${SIGSTORE_IDENTITY_REGEXP}${VERSION_PATTERN}$"
 
         # --- detect platform ---
         OS="$(uname -s)"

@@ -1,0 +1,21 @@
+{
+  "phase": "race",
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./..."
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "exit_code": 0,
+  "started_at_utc": "2026-10-30T03:27:43.625793+00:00",
+  "ended_at_utc": "2026-10-30T03:28:12.888983+00:00",
+  "elapsed_seconds": 29.26319606600009,
+  "source_unchanged": true,
+  "source_identity": "source-before.json",
+  "phase_environment_override": {},
+  "execution_scope": "Outside extra filesystem sandbox, real containment still exercised",
+  "log": "race.log",
+  "log_sha256": "068d83f93609017d34cce87b086500d9231057d9142b5541ca8303bbff97380c"
+}

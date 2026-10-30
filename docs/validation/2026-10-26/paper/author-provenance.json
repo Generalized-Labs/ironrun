@@ -1,0 +1,18 @@
+{
+  "confirmed_author_order": [
+    "Stephen Keehn",
+    "Mihir Gupta"
+  ],
+  "affiliations": "omitted; none confirmed",
+  "manuscript_delta": "author order in header and PDF metadata; remove unconfirmed affiliation line",
+  "body_abstract_bibliography_and_results_unchanged_in_tex": true,
+  "old_tex_sha256": "d72676d5099027137f5ed9ed0308ccbbc5c1d7ba3f14ff00778789250816d42b",
+  "new_tex_sha256": "a8e03aebe1c6a75a2dddb467f4a28f515c204341816843fcfa6700eaac851854",
+  "old_pdf_sha256": "2e2173facaaac0d8a2b384b740f5ed2cea1dbefd9f79689715e37c8af0ac3406",
+  "new_pdf_sha256": "586bd7765db2af3e3bf42a6bf6657cefcebe8b7d8cde2327d8ddb0d38db51208",
+  "old_evidence": "earlier-method-revision/summary.json",
+  "new_evidence": "summary.json",
+  "layout_note": "Removing the affiliation reduces author-block height and reflows later pages; previous page inspection does not automatically apply. All14 new pages were rendered and inspected.",
+  "license": "CC BY4.0 remains proposed; all-author consent unconfirmed",
+  "submission": "none performed"
+}

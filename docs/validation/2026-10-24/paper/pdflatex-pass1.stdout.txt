@@ -1,0 +1,1019 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2025/dev/Debian) (preloaded format=pdflatex)
+entering extended mode
+(./ironrun.tex
+LaTeX2e <2024-11-01> patch level 2
+L3 programming layer <2025-01-18>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2024/06/29 v1.4n Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/inputenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsmath.sty
+For additional information on amsmath, use the `?' option.
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amstext.sty
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsgen.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsbsy.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/amsmath/amsopn.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/libertine.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifxetex.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty))
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifluatex.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/keyval.tex))))
+(/usr/share/texlive/texmf-dist/tex/latex/base/textcomp.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/fontaxes/fontaxes.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/LinLibertine_I.tex)
+) (/workspace/ironrun-product-tools/texmf/tex/latex/newtx/newtxmath.sty
+`newtxmath' v1.754, 2024/09/22 Math macros based originally on txfonts (msharpe
+) (/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/centernot.sty)
+(/workspace/ironrun-product-tools/texmf/tex/generic/kastrup/binhex.tex)
+amsthm NOT loaded
+) (/workspace/ironrun-product-tools/texmf/tex/latex/inconsolata/inconsolata.sty
+`inconsolata-zi4' v1.12, 2019/05/17 Text macros for Inconsolata (msharpe))
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.sty
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype-pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/microtype/microtype.cfg))
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/pdftex.def)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/mathcolor.ltx))
+(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/threeparttable/threeparttable.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithms/algorithm.sty
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty))
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithmicx/algpseudocode.st
+y
+(/workspace/ironrun-product-tools/texmf/tex/latex/algorithmicx/algorithmicx.sty
+Document Style algorithmicx 1.2 - a greatly improved `algorithmic' style
+)
+Document Style - pseudocode environments for use with the `algorithmicx' style
+) (/usr/share/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfrcs.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/pgf.revision.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgfcore.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeyslibraryfiltered
+.code.tex)) (/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-pdftex.def
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsys-common-pdf.de
+f)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.
+tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonomet
+ric.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerari
+thmetics.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfint.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathconstruct.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathusage.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorescopes.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformation
+s.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.
+code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarypositioning.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryfit.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarybackgrounds.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarycalc.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryshapes.geometric.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/shapes/pgflibraryshape
+s.geometric.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathreplacing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.cod
+e.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathreplacing.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgfplots/pgfplots.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.revision.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscore.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgfplotssysgeneric.code
+.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgfplotslibrary.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldp
+gfsupp_loader.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfpu.code.tex
+)
+Package pgfplots: loading complementary utilities for your pgf version...
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/oldpgfcompatib/pgfplotsoldp
+gfsupp_pgfutil-common-lists.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructure.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotslists
+tructureext.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsarray
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsmatri
+x.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/numtable/pgfplotstableshare
+d.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/liststructure/pgfplotsdeque
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.code.te
+x
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsbinary.data.co
+de.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotsutil.verb.code
+.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/pgflibrarypgfplots.sur
+fshading.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/sys/pgflibrarypgfplots.surf
+shading.pgfsys-pdftex.def)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolormap.code.
+tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/util/pgfplotscolor.code.tex
+))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsstackedplots.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsplothandlers.code.t
+ex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplothandler.cod
+e.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsmeshplotimage.code.
+tex)))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.scaling.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotscoordprocessing.cod
+e.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.errorbars.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.markers.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplotsticks.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/pgfplots.paths.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarydecorations.pathmorphing.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/decorations/pgflibrary
+decorations.pathmorphing.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgfplots/libs/tikzlibrarypgfplots.co
+ntourlua.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibraryplotmarks.code.tex
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplotmarks.co
+de.tex))) (/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+(/usr/share/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hpdftex.def
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/xurl/xurl.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/cleveref/cleveref.sty)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/T1LinuxLibertineT-T
+LF.fd) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def)
+
+No file ironrun.aux.
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/omlnxlmi.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxexa.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/lmsntxsy.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/lmxntxexx.fd)
+(/usr/share/texlive/texmf-dist/tex/latex/upquote/upquote.sty)
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+(/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+) (/usr/share/texlive/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+
+Package epstopdf Warning: Shell escape feature is not enabled.
+
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg))
+Package pgfplots notification 'compat/show suggested version=true': you might b
+enefit from \pgfplotsset{compat=1.18} (current compat level: 1.17).
+
+
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/OT1LinuxLibertineT-
+TLF.fd) (/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxmia.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxsym.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/newtx/untxsyc.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/inconsolata/t1zi4.fd)
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/T1LinuxBiolinumT-TL
+F.fd)
+
+Package natbib Warning: Citation `cc_issue64326' on page 1 undefined on input l
+ine 119.
+
+
+Package natbib Warning: Citation `cc_issue32523' on page 1 undefined on input l
+ine 119.
+
+
+Package natbib Warning: Citation `chen2026skillsleak' on page 1 undefined on in
+put line 122.
+
+
+Package natbib Warning: Citation `panfilov2026reasoning' on page 1 undefined on
+ input line 125.
+
+
+Package natbib Warning: Citation `onepassword_oprun' on page 1 undefined on inp
+ut line 128.
+
+
+Package natbib Warning: Citation `doppler_cli' on page 1 undefined on input lin
+e 128.
+
+
+Package natbib Warning: Citation `infisical_run' on page 1 undefined on input l
+ine 128.
+
+
+Package natbib Warning: Citation `munis2025knostic' on page 1 undefined on inpu
+t line 131.
+
+
+Package natbib Warning: Citation `eve2026env' on page 1 undefined on input line
+ 131.
+
+
+Package natbib Warning: Citation `claudecode_permissions' on page 1 undefined o
+n input line 132.
+
+
+Package natbib Warning: Citation `claudecode_sandboxing' on page 1 undefined on
+ input line 132.
+
+
+Package natbib Warning: Citation `onepassword2026unified' on page 1 undefined o
+n input line 133.
+
+
+Package natbib Warning: Citation `bitwarden2026agentaccess' on page 1 undefined
+ on input line 133.
+
+
+Package natbib Warning: Citation `claudecode_sandboxing' on page 1 undefined on
+ input line 136.
+
+
+Package natbib Warning: Citation `infisical_agentproxy' on page 1 undefined on 
+input line 136.
+
+
+Package natbib Warning: Citation `flyio_tokenizer' on page 1 undefined on input
+ line 136.
+
+
+Package natbib Warning: Citation `cyberark_secretless' on page 1 undefined on i
+nput line 137.
+
+
+Package natbib Warning: Citation `githubrunner2019encoders' on page 1 undefined
+ on input line 139.
+
+
+Package natbib Warning: Citation `github2026secureuse' on page 1 undefined on i
+nput line 139.
+
+
+Package natbib Warning: Citation `fnox_mcp' on page 1 undefined on input line 1
+41.
+
+
+Package natbib Warning: Citation `prismor2026' on page 1 undefined on input lin
+e 141.
+
+
+Package natbib Warning: Citation `prismor_decisions' on page 1 undefined on inp
+ut line 142.
+
+
+Package natbib Warning: Citation `prismor_approvals' on page 1 undefined on inp
+ut line 142.
+
+
+[1{/workspace/ironrun-product-tools/texmf-var/fonts/map/pdftex/updmap/pdftex.ma
+p}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_nh77jq
+.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_76g
+pa5.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/inconsolata/i4-
+t1-0.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn
+_25tcsq.enc}{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/l
+btn_7grukw.enc}]
+(/workspace/ironrun-product-tools/texmf/tex/latex/libertine/TS1LinuxLibertineT-
+TLF.fd)
+
+LaTeX Warning: Reference `sec:threat' on page 1 undefined on input line 160.
+
+
+LaTeX Warning: Reference `sec:impl' on page 1 undefined on input line 164.
+
+
+LaTeX Warning: Reference `sec:design' on page 1 undefined on input line 164.
+
+
+Underfull \hbox (badness 1122) in paragraph at lines 161--165
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) ter-faces, session-bound tiered au-tho-riz
+a-tion with in-
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 167.
+
+
+LaTeX Warning: Reference `sec:eval' on page 1 undefined on input line 171.
+
+
+Package natbib Warning: Citation `mcp2026spec' on page 2 undefined on input lin
+e 180.
+
+
+LaTeX Warning: Reference `sec:eval' on page 1 undefined on input line 199.
+
+
+Underfull \hbox (badness 1831) in paragraph at lines 193--200
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) em-bed-ded pass-word; (2) \T1/zi4/m/n/10 c
+url -v -u deploy:$TOKEN
+
+
+Package natbib Warning: Citation `greshake2023youve' on page 2 undefined on inp
+ut line 218.
+
+
+LaTeX Warning: Reference `sec:interfaces' on page 1 undefined on input line 231
+.
+
+
+LaTeX Warning: Reference `sec:auditlog' on page 1 undefined on input line 244.
+
+
+LaTeX Warning: Reference `obs:arbitrary' on page 1 undefined on input line 249.
+
+
+
+LaTeX Warning: Reference `sec:discussion' on page 1 undefined on input line 261
+.
+
+
+[2{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_naooyc
+.enc}]
+
+LaTeX Warning: Reference `fig:arch' on page 1 undefined on input line 267.
+
+
+LaTeX Warning: Reference `tab:tools' on page 1 undefined on input line 330.
+
+
+
+LaTeX Warning: Reference `fig:seq' on page 1 undefined on input line 401.
+
+
+LaTeX Warning: Reference `fig:keys' on page 1 undefined on input line 438.
+
+
+LaTeX Warning: Reference `sec:align' on page 1 undefined on input line 491.
+
+
+[3]
+Underfull \vbox (badness 10000) has occurred while \output is active
+
+Underfull \vbox (badness 1796) has occurred while \output is active
+[4{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_oexx6f
+.enc}]
+
+LaTeX Warning: Reference `fig:buffer' on page 1 undefined on input line 515.
+
+
+LaTeX Warning: Reference `alg:redact' on page 1 undefined on input line 515.
+
+
+
+Package natbib Warning: Citation `githubrunner2019encoders' on page 5 undefined
+ on input line 606.
+
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 607.
+
+
+Package natbib Warning: Citation `man_userns' on page 5 undefined on input line
+ 620.
+
+
+Package natbib Warning: Citation `man_netns' on page 5 undefined on input line 
+620.
+
+
+Package natbib Warning: Citation `blazakis2011apple' on page 5 undefined on inp
+ut line 622.
+
+
+Package natbib Warning: Citation `apple_sandboxexec' on page 5 undefined on inp
+ut line 623.
+
+
+Underfull \hbox (badness 1629) in paragraph at lines 618--626
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) un-less the pol-icy opts out. On Linux \T1
+/LinuxBiolinumT-TLF/m/n/10 (+20) iron-run \T1/LinuxLibertineT-TLF/m/n/10 (+20) 
+en-
+
+Underfull \hbox (badness 1859) in paragraph at lines 618--626
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) ters fresh user and net-work names-paces [
+\T1/LinuxLibertineT-TLF/b/n/10 (+20) ? ? \T1/LinuxLibertineT-TLF/m/n/10 (+20) ]
+
+
+Package natbib Warning: Citation `linux_seccomp' on page 5 undefined on input l
+ine 627.
+
+
+Underfull \hbox (badness 2042) in paragraph at lines 626--632
+\T1/zi4/m/n/10 process_vm_writev\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/
+m/n/10 kcmp\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/m/n/10 perf_event_ope
+n\T1/LinuxLibertineT-TLF/m/n/10 (+20) , \T1/zi4/m/n/10 bpf\T1/LinuxLibertineT-T
+LF/m/n/10 (+20) , and
+
+[5{/workspace/ironrun-product-tools/texmf/fonts/enc/dvips/libertine/lbtn_ncsllp
+.enc}]
+
+Package natbib Warning: Citation `lobacevski2021pwn' on page 6 undefined on inp
+ut line 645.
+
+
+Package natbib Warning: Citation `koishybayev2022ci' on page 6 undefined on inp
+ut line 645.
+
+
+Underfull \hbox (badness 5475) in paragraph at lines 643--647
+[]\T1/LinuxLibertineT-TLF/b/n/10 (+20) CI. \T1/LinuxLibertineT-TLF/m/n/10 (+20)
+ In GitHub Ac-tions, Git-Lab CI, Cir-cleCI, and
+
+Underfull \hbox (badness 2644) in paragraph at lines 643--647
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) Jenk-ins, runs trig-gered by fork pull re-
+quests (and
+
+Underfull \hbox (badness 6316) in paragraph at lines 647--651
+[]\T1/LinuxLibertineT-TLF/b/n/10 (+20) Operator-only switches. \T1/LinuxLiberti
+neT-TLF/m/n/10 (+20) Ex-plicit over-rides for
+
+Underfull \hbox (badness 5711) in paragraph at lines 647--651
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) sec-comp, the core-dump seal, en-tropy sca
+n, and
+
+Package natbib Warning: Citation `schneier1999audit' on page 6 undefined on inp
+ut line 664.
+
+
+Package natbib Warning: Citation `crosby2009tamper' on page 6 undefined on inpu
+t line 665.
+
+
+LaTeX Warning: Reference `sec:discussion' on page 1 undefined on input line 666
+.
+
+
+Package natbib Warning: Citation `newman2022sigstore' on page 6 undefined on in
+put line 677.
+
+
+
+LaTeX Warning: Reference `sec:eval' on page 1 undefined on input line 719.
+
+
+Underfull \hbox (badness 1629) in paragraph at lines 724--731
+\T1/LinuxLibertineT-TLF/b/n/10 (+20) tempted.[] \T1/LinuxLibertineT-TLF/m/n/10 
+(+20) The []net-work re-gres-sion[] re-quires a dis-tinct
+
+Underfull \hbox (badness 4634) in paragraph at lines 736--748
+\T1/zi4/m/n/10 a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d\T1/LinuxLibertineT-TLF/
+m/n/10 (+20) , Go 1.26.10,
+
+[6]
+
+LaTeX Warning: Reference `tab:leak' on page 1 undefined on input line 807.
+
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 811.
+
+
+
+LaTeX Warning: Reference `tab:fp' on page 1 undefined on input line 846.
+
+
+[7]
+
+LaTeX Warning: Reference `fig:throughput' on page 1 undefined on input line 889
+.
+
+
+LaTeX Warning: Reference `prop:chunk' on page 1 undefined on input line 918.
+
+
+Package natbib Warning: Citation `claudecode_sandboxing' on page 8 undefined on
+ input line 929.
+
+
+Package natbib Warning: Citation `infisical_agentproxy' on page 8 undefined on 
+input line 929.
+
+
+Package natbib Warning: Citation `onecli2026' on page 8 undefined on input line
+ 929.
+
+
+Package natbib Warning: Citation `cyberark_secretless' on page 8 undefined on i
+nput line 930.
+
+
+
+LaTeX Warning: Reference `obs:arbitrary' on page 1 undefined on input line 936.
+
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 944--951
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) State in-tegrity against A2.[] \T1/Linu
+xLibertineT-TLF/m/n/10 (+20) Au-tho-riza-tion state
+
+LaTeX Warning: Reference `tab:fp' on page 1 undefined on input line 966.
+
+
+Underfull \hbox (badness 1789) in paragraph at lines 964--974
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) printed partially---say its first seven ch
+aracters---is not
+
+[8]
+
+Package natbib Warning: Citation `greshake2023youve' on page 9 undefined on inp
+ut line 984.
+
+
+Package natbib Warning: Citation `perez2022ignore' on page 9 undefined on input
+ line 984.
+
+
+Package natbib Warning: Citation `liu2024formalizing' on page 9 undefined on in
+put line 985.
+
+
+Package natbib Warning: Citation `debenedetti2024agentdojo' on page 9 undefined
+ on input line 985.
+
+
+Package natbib Warning: Citation `zhan2024injecagent' on page 9 undefined on in
+put line 985.
+
+
+Package natbib Warning: Citation `nasr2025attacker' on page 9 undefined on inpu
+t line 987.
+
+
+Package natbib Warning: Citation `willison2025trifecta' on page 9 undefined on 
+input line 988.
+
+
+Package natbib Warning: Citation `meta2025ruleoftwo' on page 9 undefined on inp
+ut line 989.
+
+
+Package natbib Warning: Citation `debenedetti2025camel' on page 9 undefined on 
+input line 994.
+
+
+Package natbib Warning: Citation `beurerkellner2025design' on page 9 undefined 
+on input line 995.
+
+
+Package natbib Warning: Citation `costa2025fides' on page 9 undefined on input 
+line 996.
+
+
+Package natbib Warning: Citation `wu2024fsecure' on page 9 undefined on input l
+ine 996.
+
+
+Package natbib Warning: Citation `shi2025progent' on page 9 undefined on input 
+line 997.
+
+
+Package natbib Warning: Citation `wu2025isolategpt' on page 9 undefined on inpu
+t line 997.
+
+
+Package natbib Warning: Citation `willison2023dual' on page 9 undefined on inpu
+t line 998.
+
+
+Package natbib Warning: Citation `rashidi2026balkanization' on page 9 undefined
+ on input line 1004.
+
+
+Package natbib Warning: Citation `hou2025mcplandscape' on page 9 undefined on i
+nput line 1008.
+
+
+Package natbib Warning: Citation `hasan2025mcpfirstglance' on page 9 undefined 
+on input line 1008.
+
+
+Package natbib Warning: Citation `zhao2026parasites' on page 9 undefined on inp
+ut line 1008.
+
+
+Package natbib Warning: Citation `guo2025mcpmeasurement' on page 9 undefined on
+ input line 1008.
+
+
+Package natbib Warning: Citation `chen2026rethinkingmcp' on page 9 undefined on
+ input line 1008.
+
+
+Package natbib Warning: Citation `zhou2026mcpauth' on page 9 undefined on input
+ line 1008.
+
+
+Package natbib Warning: Citation `invariant2025toolpoisoning' on page 9 undefin
+ed on input line 1009.
+
+
+Package natbib Warning: Citation `wang2026mcptox' on page 9 undefined on input 
+line 1009.
+
+
+Package natbib Warning: Citation `radosevich2025mcpsafety' on page 9 undefined 
+on input line 1010.
+
+
+Package natbib Warning: Citation `hou2026unsafeflow' on page 9 undefined on inp
+ut line 1011.
+
+
+Package natbib Warning: Citation `xie2025toolleak' on page 9 undefined on input
+ line 1012.
+
+
+Package natbib Warning: Citation `meli2019git' on page 9 undefined on input lin
+e 1016.
+
+
+Package natbib Warning: Citation `huang2024codesecret' on page 9 undefined on i
+nput line 1016.
+
+
+Package natbib Warning: Citation `gitguardian2025sprawl' on page 9 undefined on
+ input line 1018.
+
+
+Package natbib Warning: Citation `gitguardian2026sprawl' on page 9 undefined on
+ input line 1018.
+
+
+Package natbib Warning: Citation `basak2023comparative' on page 9 undefined on 
+input line 1019.
+
+
+Package natbib Warning: Citation `basak2023secretbench' on page 9 undefined on 
+input line 1019.
+
+
+Package natbib Warning: Citation `kenney2026vault' on page 9 undefined on input
+ line 1023.
+
+
+Package natbib Warning: Citation `xia2026slotguard' on page 9 undefined on inpu
+t line 1024.
+
+
+Package natbib Warning: Citation `chen2026skillsleak' on page 9 undefined on in
+put line 1026.
+
+
+
+Package natbib Warning: Citation `githubrunner2019encoders' on page 9 undefined
+ on input line 1030.
+
+
+Package natbib Warning: Citation `github2026secureuse' on page 9 undefined on i
+nput line 1031.
+
+
+LaTeX Warning: Reference `sec:audit' on page 1 undefined on input line 1035.
+
+
+Package natbib Warning: Citation `onepassword_oprun' on page 9 undefined on inp
+ut line 1038.
+
+
+Package natbib Warning: Citation `doppler_cli' on page 9 undefined on input lin
+e 1038.
+
+
+Package natbib Warning: Citation `infisical_run' on page 9 undefined on input l
+ine 1038.
+
+
+Package natbib Warning: Citation `onepassword2026unified' on page 9 undefined o
+n input line 1040.
+
+
+Package natbib Warning: Citation `bitwarden2026agentaccess' on page 9 undefined
+ on input line 1040.
+
+
+Package natbib Warning: Citation `doppler_mcp' on page 9 undefined on input lin
+e 1041.
+
+
+Package natbib Warning: Citation `infisical_mcp' on page 9 undefined on input l
+ine 1042.
+
+
+Package natbib Warning: Citation `claudecode_sandboxing' on page 9 undefined on
+ input line 1044.
+
+
+Package natbib Warning: Citation `infisical_agentproxy' on page 9 undefined on 
+input line 1044.
+
+
+Package natbib Warning: Citation `onecli2026' on page 9 undefined on input line
+ 1044.
+
+
+Package natbib Warning: Citation `flyio_tokenizer' on page 9 undefined on input
+ line 1044.
+
+
+Package natbib Warning: Citation `cyberark_secretless' on page 9 undefined on i
+nput line 1045.
+
+
+Package natbib Warning: Citation `fnox_mcp' on page 9 undefined on input line 1
+048.
+
+
+Package natbib Warning: Citation `prismor2026' on page 9 undefined on input lin
+e 1050.
+
+
+Package natbib Warning: Citation `prismor_decisions' on page 9 undefined on inp
+ut line 1050.
+
+
+Package natbib Warning: Citation `prismor_approvals' on page 9 undefined on inp
+ut line 1050.
+
+
+Package natbib Warning: Citation `ggshield_aihook' on page 9 undefined on input
+ line 1054.
+
+
+Package natbib Warning: Citation `truefoundry_secrets' on page 9 undefined on i
+nput line 1054.
+
+
+Package natbib Warning: Citation `mcpguard2026' on page 9 undefined on input li
+ne 1054.
+
+
+Package natbib Warning: Citation `redactmcp2026' on page 9 undefined on input l
+ine 1054.
+
+
+Package natbib Warning: Citation `langwatch_redaction' on page 9 undefined on i
+nput line 1055.
+
+
+Package natbib Warning: Citation `agentsweep2026' on page 9 undefined on input 
+line 1056.
+
+
+Package natbib Warning: Citation `claudecode_hooks' on page 9 undefined on inpu
+t line 1057.
+
+
+Package natbib Warning: Citation `claudecode_sandboxing' on page 9 undefined on
+ input line 1058.
+
+
+Package natbib Warning: Citation `anthropic_srt' on page 9 undefined on input l
+ine 1058.
+
+
+Package natbib Warning: Citation `young2019gvisor' on page 9 undefined on input
+ line 1064.
+
+
+Package natbib Warning: Citation `agache2020firecracker' on page 9 undefined on
+ input line 1064.
+
+
+Package natbib Warning: Citation `bubblewrap' on page 9 undefined on input line
+ 1065.
+
+
+Package natbib Warning: Citation `newman2022sigstore' on page 9 undefined on in
+put line 1068.
+
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 1088--1096
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) Availability.[] \T1/LinuxLibertineT-TLF
+/m/n/10 (+20) The eval-u-a-tion har-ness (\T1/zi4/m/n/10 go run
+
+Underfull \hbox (badness 2245) in paragraph at lines 1088--1096
+\T1/zi4/m/n/10 ./paper/eval\T1/LinuxLibertineT-TLF/m/n/10 (+20) ) runs leak-age
+, false-positive, and per-for-
+
+Underfull \hbox (badness 4454) in paragraph at lines 1088--1096
+\T1/zi4/m/n/10 paper/REPRODUCING.md \T1/LinuxLibertineT-TLF/m/n/10 (+20) gives 
+com-mands, source/artifact
+
+Underfull \hbox (badness 1337) in paragraph at lines 1088--1096
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) base-line. Paired leak-age re-sults and ho
+st records are
+
+Underfull \hbox (badness 10000) in paragraph at lines 1088--1096
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) and both per-for-mance at-tempts are re-ta
+ined un-der
+
+Underfull \hbox (badness 1960) in paragraph at lines 1097--1101
+ []\T1/LinuxLibertineT-TLF/b/n/10 (+20) Disclosure.[] \T1/LinuxLibertineT-TLF/m
+/n/10 (+20) Code re-view, ex-per-i-ment ex-e-cu-tion, and
+(./ironrun.bbl
+Underfull \hbox (badness 10000) in paragraph at lines 42--47
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Anthropic.  Hooks ref-er-ence (Post-Too-
+lUse
+
+
+[10]
+
+Underfull \hbox (badness 2626) in paragraph at lines 269--276
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Kai Gre-shake, Sa-har Ab-delnabi, Shaile
+sh Mishra,
+
+[11]
+Underfull \hbox (badness 1377) in paragraph at lines 371--377
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Linux man-pages project.  user_namespace
+s(7) ---
+
+
+Underfull \hbox (badness 1107) in paragraph at lines 424--429
+\T1/LinuxLibertineT-TLF/m/n/10 (+20) in AI cod-ing agent his-to-ries.  GitHub r
+epos-i-tory
+
+Underfull \hbox (badness 3657) in paragraph at lines 433--440
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Milad Nasr, Nicholas Car-lini, Chawin Si
+tawarin,
+
+[12]
+Underfull \hbox (badness 4518) in paragraph at lines 513--518
+[]\T1/LinuxLibertineT-TLF/m/n/10 (+20) Mohammadreza Rashidi.  The balka-niza-ti
+on of
+
+
+[13])
+
+Package natbib Warning: There were undefined citations.
+
+
+
+[14] (./ironrun.aux
+
+Package natbib Warning: Citation(s) may have changed.
+(natbib)                Rerun to get citations correct.
+
+)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `ironrun.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+ )
+(see the transcript file for additional information)</workspace/ironrun-product
+-tools/texmf/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></workspace/ir
+onrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI.pfb></worksp
+ace/ironrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI5.pfb><
+/workspace/ironrun-product-tools/texmf/fonts/type1/public/newtx/LibertineMathMI
+7.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public/libertine/LinB
+iolinumT.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public/liberti
+ne/LinBiolinumTB.pfb></workspace/ironrun-product-tools/texmf/fonts/type1/public
+/libertine/LinLibertineT.pfb></workspace/ironrun-product-tools/texmf/fonts/type
+1/public/libertine/LinLibertineTB.pfb></workspace/ironrun-product-tools/texmf/f
+onts/type1/public/libertine/LinLibertineTI.pfb></workspace/ironrun-product-tool
+s/texmf/fonts/type1/public/newtx/NewTXMI.pfb></workspace/ironrun-product-tools/
+texmf/fonts/type1/public/newtx/txexs.pfb></workspace/ironrun-product-tools/texm
+f/fonts/type1/public/newtx/txmiaX.pfb></workspace/ironrun-product-tools/texmf/f
+onts/type1/public/newtx/txsym.pfb></workspace/ironrun-product-tools/texmf/fonts
+/type1/public/newtx/txsys.pfb>
+Output written on ironrun.pdf (14 pages, 526593 bytes).
+Transcript written on ironrun.log.

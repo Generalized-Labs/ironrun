@@ -1,0 +1,69 @@
+{
+  "recorded_at_utc": "2026-10-30T03:29:00.382043+00:00",
+  "binary_sha256": "809e6fe0ee5335ce26b09fb9153a28c74966a8789620d94167e1e20bc6e1c612",
+  "binary_bytes": 31221065,
+  "source_identity": "source-before.json",
+  "init_go_sha256": "ccf08e39b4ceb7cc80aa2657b6d280b999738704caa1ad9bdf8981c2ea2d9d0a",
+  "embedded_strings": {
+    "new_strings": [
+      {
+        "text": "Values are injected into child environments or private temporary files.",
+        "present": true
+      },
+      {
+        "text": "Intercepted stdout and stderr filter known values and supported encodings.",
+        "present": true
+      },
+      {
+        "text": "Other transformations, files, and network traffic can still disclose values.",
+        "present": true
+      }
+    ],
+    "old_strings": [
+      {
+        "text": "Values resolve into the child process's environment only",
+        "present": false
+      },
+      {
+        "text": "never your shell, never the agent's context, never disk.",
+        "present": false
+      },
+      {
+        "text": "Everything the child prints is redacted before anyone sees it.",
+        "present": false
+      }
+    ]
+  },
+  "smoke_commands": [
+    {
+      "argv": [
+        "/workspace/ironrun-product-tools/ironrun-demo-copy-fixed",
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "help.stdout.txt",
+      "stderr": "help.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/ironrun-product-tools/ironrun-demo-copy-fixed",
+        "version"
+      ],
+      "exit_code": 0,
+      "stdout": "version.stdout.txt",
+      "stderr": "version.stderr.txt"
+    }
+  ],
+  "environment_constants": {
+    "PATH": "/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/smoke-state/home",
+    "IRONRUN_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/smoke-state/ironrun",
+    "XDG_CONFIG_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/smoke-state/config",
+    "XDG_STATE_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/smoke-state/state",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261026/runtime-checks/demo-copy-followup/smoke-state/cache",
+    "GITHUB_ACTIONS": "false"
+  },
+  "scope": "CLI compiled from exact current source; three corrected guided-demo literals present and prior overclaims absent; --help and version subcommand execute successfully. The guided demo itself was not run and no native vault/provider was exercised.",
+  "binary_digest_unchanged_through_smoke": true,
+  "state_file_inventory": []
+}

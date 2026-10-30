@@ -1,0 +1,18 @@
+{
+  "phase": "staticcheck",
+  "argv": [
+    "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+    "./..."
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "exit_code": 1,
+  "started_at_utc": "2026-10-30T03:25:41.752982+00:00",
+  "ended_at_utc": "2026-10-30T03:26:29.843261+00:00",
+  "elapsed_seconds": 48.09028689400293,
+  "source_unchanged": true,
+  "source_identity": "source-before.json",
+  "phase_environment_override": {},
+  "execution_scope": "Synthetic credential-free verification",
+  "log": "staticcheck.log",
+  "log_sha256": "54435bb4b74e654fd94e676489e6276eb9551ed2f10c7f876f99c833465c9193"
+}

@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/ironrun-doctor-fixed",
+    "setup",
+    "--yes"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-flow-audit2/stale-registration",
+  "exit_code": 0,
+  "stdout": "Initializing ironrun in stale-registration...\n\n  \u2022 ironrun.yml already exists \u2014 skipping\n  \u2022 Registered project in the global Ironrun workspace\n  \u2022 Claude Code: ironrun already in .mcp.json \u2014 skipping\n  \u2022 Created CLAUDE.md\n  \u2022 Created AGENTS.md\n  \u2022 Created .cursorrules\n  \u2022 Codex: ironrun already registered \u2014 skipping\n  \u2022 Cursor: ironrun already in ~/.cursor/mcp.json \u2014 skipping\n\nDone! Next steps:\n\n  1. Run ironrun to open Projects and the agent inbox\n  2. Press Enter on this project, then choose Add secret or Import .env\n  3. Check your setup: ironrun doctor\n  4. Test: ironrun run <command-id>\n\nThen start your AI agent \u2014 it will use run_sealed() via MCP automatically.\n  \u2022 Claude Code: uses .mcp.json (per-project, already set up)\n  \u2022 Codex:       uses ~/.codex/config.toml (global, registered above)\n  \u2022 Cursor:      uses ~/.cursor/mcp.json (global, merged above)\n",
+  "stderr": "",
+  "before": {
+    ".mcp.json": {
+      "bytes": 133,
+      "sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+    },
+    "bin/codex": {
+      "bytes": 128,
+      "sha256": "17c362c0aa7710697193c2288dbc1e25f1055c11c1e005efba1fc696397ea047"
+    },
+    "home/.cursor/mcp.json": {
+      "bytes": 133,
+      "sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+    },
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "after": {
+    ".cursorrules": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    ".mcp.json": {
+      "bytes": 133,
+      "sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+    },
+    "AGENTS.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "CLAUDE.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "bin/codex": {
+      "bytes": 128,
+      "sha256": "17c362c0aa7710697193c2288dbc1e25f1055c11c1e005efba1fc696397ea047"
+    },
+    "home/.cursor/mcp.json": {
+      "bytes": 133,
+      "sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+    },
+    "home/ironrun/projects.json": {
+      "bytes": 368,
+      "sha256": "c0ddf0dc837bbe71db4fb0160e37bc41e95ee3e19fb9f57d3a102fb64241dcc0"
+    },
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "synthetic_only": true
+}

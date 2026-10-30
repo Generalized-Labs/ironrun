@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+    "-v"
+  ],
+  "exit_code": 1,
+  "scope": "Two regression tests on unchanged production code: handler contract and real local stdio/v2 encrypted-vault/loopback path with a synthetic native root-key adapter."
+}

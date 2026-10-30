@@ -1,0 +1,23 @@
+=== RUN   TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv
+--- PASS: TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv (0.01s)
+=== RUN   TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant
+--- PASS: TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant (0.11s)
+=== RUN   TestMCPLeaseRequiredApproveRunAndRevoke
+hello
+--- PASS: TestMCPLeaseRequiredApproveRunAndRevoke (0.25s)
+=== RUN   TestMCPLeaseDoesNotTransferAcrossServerSessions
+--- PASS: TestMCPLeaseDoesNotTransferAcrossServerSessions (0.14s)
+=== RUN   TestMCPRunCreatesMissingSecretRequestAndResumesRedacted
+[REDACTED]
+--- PASS: TestMCPRunCreatesMissingSecretRequestAndResumesRedacted (0.13s)
+=== RUN   TestMCPTrustedWorkspaceLoopbackAndRevocation
+PROBE_STARTED
+credential=[REDACTED]
+LOOPBACK_RESPONSE [REDACTED]
+DIAL_OK
+PROBE_STARTED
+credential=[REDACTED]
+DIAL_BLOCKED
+--- PASS: TestMCPTrustedWorkspaceLoopbackAndRevocation (0.76s)
+PASS
+ok  	github.com/generalized-labs/ironrun/mcp	3.376s

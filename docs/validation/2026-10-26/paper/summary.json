@@ -1,0 +1,199 @@
+{
+  "pages": 14,
+  "figures": 5,
+  "tables": 4,
+  "abstract_ascii": true,
+  "abstract_characters": 1815,
+  "abstract_matches": true,
+  "bundle_members": [
+    "ironrun.tex",
+    "ironrun.bbl",
+    "references.bib"
+  ],
+  "source_members_identical": true,
+  "pdflatex_only_passes": 3,
+  "shell_escape": false,
+  "extracted_pdf_text_identical": true,
+  "final_log_findings": {
+    "review": [],
+    "bundle": []
+  },
+  "allowed_notices": {
+    "review": [],
+    "bundle": [
+      "Package epstopdf Warning: Shell escape feature is not enabled."
+    ]
+  },
+  "underfull_box_notices": {
+    "review": [
+      "Underfull \\hbox (badness 1831) in paragraph at lines 194--201",
+      "Underfull \\hbox (badness 1629) in paragraph at lines 638--646",
+      "Underfull \\hbox (badness 4441) in paragraph at lines 638--646",
+      "Underfull \\hbox (badness 2042) in paragraph at lines 646--652",
+      "Underfull \\hbox (badness 5475) in paragraph at lines 663--667",
+      "Underfull \\hbox (badness 2644) in paragraph at lines 663--667",
+      "Underfull \\hbox (badness 6316) in paragraph at lines 667--671",
+      "Underfull \\hbox (badness 5711) in paragraph at lines 667--671",
+      "Underfull \\hbox (badness 1629) in paragraph at lines 744--751",
+      "Underfull \\hbox (badness 4634) in paragraph at lines 756--770",
+      "Underfull \\hbox (badness 2698) in paragraph at lines 787--787",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1000--1007",
+      "Underfull \\hbox (badness 1789) in paragraph at lines 1020--1030",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 2245) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 4454) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 1337) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 1960) in paragraph at lines 1153--1157",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 42--47",
+      "Underfull \\hbox (badness 2626) in paragraph at lines 269--276",
+      "Underfull \\hbox (badness 1377) in paragraph at lines 371--377",
+      "Underfull \\hbox (badness 1107) in paragraph at lines 424--429",
+      "Underfull \\hbox (badness 3657) in paragraph at lines 433--440",
+      "Underfull \\hbox (badness 4518) in paragraph at lines 513--518"
+    ],
+    "bundle": [
+      "Underfull \\hbox (badness 1831) in paragraph at lines 194--201",
+      "Underfull \\hbox (badness 1629) in paragraph at lines 638--646",
+      "Underfull \\hbox (badness 4441) in paragraph at lines 638--646",
+      "Underfull \\hbox (badness 2042) in paragraph at lines 646--652",
+      "Underfull \\hbox (badness 5475) in paragraph at lines 663--667",
+      "Underfull \\hbox (badness 2644) in paragraph at lines 663--667",
+      "Underfull \\hbox (badness 6316) in paragraph at lines 667--671",
+      "Underfull \\hbox (badness 5711) in paragraph at lines 667--671",
+      "Underfull \\hbox (badness 1629) in paragraph at lines 744--751",
+      "Underfull \\hbox (badness 4634) in paragraph at lines 756--770",
+      "Underfull \\hbox (badness 2698) in paragraph at lines 787--787",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1000--1007",
+      "Underfull \\hbox (badness 1789) in paragraph at lines 1020--1030",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 2245) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 4454) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 1337) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 1144--1152",
+      "Underfull \\hbox (badness 1960) in paragraph at lines 1153--1157",
+      "Underfull \\hbox (badness 10000) in paragraph at lines 42--47",
+      "Underfull \\hbox (badness 2626) in paragraph at lines 269--276",
+      "Underfull \\hbox (badness 1377) in paragraph at lines 371--377",
+      "Underfull \\hbox (badness 1107) in paragraph at lines 424--429",
+      "Underfull \\hbox (badness 3657) in paragraph at lines 433--440",
+      "Underfull \\hbox (badness 4518) in paragraph at lines 513--518"
+    ]
+  },
+  "artifacts": {
+    "/workspace/ironrun-product-review/paper/ironrun.tex": {
+      "sha256": "a8e03aebe1c6a75a2dddb467f4a28f515c204341816843fcfa6700eaac851854",
+      "bytes": 66365
+    },
+    "/workspace/ironrun-product-review/paper/references.bib": {
+      "sha256": "189ea3e5bde9aee34422af6096fec44ab8fbeb6ed484609c9888fe58ed10cb14",
+      "bytes": 31376
+    },
+    "/workspace/ironrun-product-review/paper/ironrun.bbl": {
+      "sha256": "7d73b66199b74bd4cdaa0c31ae734983413f064b47dbc85184489ee6a572560b",
+      "bytes": 28857
+    },
+    "/workspace/ironrun-product-review/paper/ironrun.pdf": {
+      "sha256": "586bd7765db2af3e3bf42a6bf6657cefcebe8b7d8cde2327d8ddb0d38db51208",
+      "bytes": 539704
+    },
+    "/workspace/ironrun-product-review/paper/ironrun-arxiv.tar.gz": {
+      "sha256": "7518d96a28a20a7736275dddce98157c733fda807dc12e46799d46a9430a481f",
+      "bytes": 41639
+    },
+    "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup/ironrun.pdf": {
+      "sha256": "8f10b2df4fcba6094c86dea9e57d885f94d07f4d1f20ddf61b1e0e720b9fed43",
+      "bytes": 539704
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "make",
+        "-C",
+        "paper",
+        "arxiv"
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "returncode": 0,
+      "stdout": "make-arxiv.stdout.txt",
+      "stderr": "make-arxiv.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdflatex",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "ironrun.tex"
+      ],
+      "cwd": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup",
+      "returncode": 0,
+      "stdout": "pdflatex-pass1.stdout.txt",
+      "stderr": "pdflatex-pass1.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdflatex",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "ironrun.tex"
+      ],
+      "cwd": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup",
+      "returncode": 0,
+      "stdout": "pdflatex-pass2.stdout.txt",
+      "stderr": "pdflatex-pass2.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdflatex",
+        "-no-shell-escape",
+        "-interaction=nonstopmode",
+        "-halt-on-error",
+        "ironrun.tex"
+      ],
+      "cwd": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup",
+      "returncode": 0,
+      "stdout": "pdflatex-pass3.stdout.txt",
+      "stderr": "pdflatex-pass3.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdftotext",
+        "/workspace/ironrun-product-review/paper/ironrun.pdf",
+        "-"
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "returncode": 0,
+      "stdout": "review-pdf-text.stdout.txt",
+      "stderr": "review-pdf-text.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdftotext",
+        "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup/ironrun.pdf",
+        "-"
+      ],
+      "cwd": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/fresh-bundle-krnp3cup",
+      "returncode": 0,
+      "stdout": "bundle-pdf-text.stdout.txt",
+      "stderr": "bundle-pdf-text.stderr.txt"
+    },
+    {
+      "argv": [
+        "pdfinfo",
+        "/workspace/ironrun-product-review/paper/ironrun.pdf"
+      ],
+      "cwd": "/workspace/ironrun-product-review",
+      "returncode": 0,
+      "stdout": "pdfinfo.stdout.txt",
+      "stderr": "pdfinfo.stderr.txt"
+    }
+  ],
+  "limitations": [
+    "Local TeX build is not arXiv server processing or moderation.",
+    "PDF byte identity is not expected because build metadata differs.",
+    "Visual page review is recorded separately after rendering."
+  ]
+}

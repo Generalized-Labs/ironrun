@@ -1,0 +1,84 @@
+{
+  "scope": "Targeted bibliographic metadata; not full-paper replication or exhaustive claim proof",
+  "new_search_calls": 0,
+  "new_primary_fetches": "one Exa batch5URLs; directCrossref6requests(5success1HTTP429); directS&PacceptedHTMLsuccess",
+  "entries": [
+    {
+      "key": "shi2025progent",
+      "status": "version-difference-resolved",
+      "finding": "Current bibliography title is correct for arXiv v3; retained abs extraction was v2. Authors match. Year2025 is initial submission year, v3 revised2026-05-14.",
+      "evidence": [
+        "https://arxiv.org/html/2504.11703v3"
+      ],
+      "recommendation": "Optional: pin URL/version to v3 and add revision date; retain earlier-title note. Do not change title back to v2."
+    },
+    {
+      "key": "zhao2026parasites",
+      "status": "publication-title-confirmed",
+      "finding": "2026S&P accepted-papers page confirms Parasites in the Toolchain title and all9authors. arXiv retains Mind Your Server title; this is a version/publication distinction, not a fabricated citation.",
+      "evidence": [
+        "https://sp2026.ieee-security.org/accepted-papers.html",
+        "https://ieeexplore.ieee.org/abstract/document/11573638"
+      ],
+      "recommendation": "Optional: add publication DOI10.1109/SP63933.2026.00154 orpublisherURL; existingtitle/venue/yearsupported. Crossref request returned429, retained as failed fetch."
+    },
+    {
+      "key": "wang2026mcptox",
+      "status": "metadata-confirmed",
+      "finding": "AAAI primarypage andCrossref confirm title,9authors,2026,volume40issue42,pages35811-35819,DOI10.1609/aaai.v40i42.40895.",
+      "evidence": [
+        "https://ojs.aaai.org/index.php/AAAI/article/view/40895",
+        "https://api.crossref.org/works/10.1609%2Faaai.v40i42.40895"
+      ],
+      "recommendation": "No correction required."
+    },
+    {
+      "key": "basak2023comparative",
+      "status": "metadata-confirmed",
+      "finding": "Crossref confirms title,SetuKumarBasak/JamisonCox/BradleyReaves/LaurieWilliams,ESEM2023,pages1-12,DOI10.1109/ESEM56168.2023.10304853.",
+      "evidence": [
+        "https://api.crossref.org/works/10.1109%2FESEM56168.2023.10304853"
+      ],
+      "recommendation": "No correction required."
+    },
+    {
+      "key": "basak2023secretbench",
+      "status": "metadata-confirmed",
+      "finding": "Crossref confirms title,SetuKumarBasak/LorenzoNeil/BradleyReaves/LaurieWilliams,MSR2023,pages347-351,DOI10.1109/MSR59073.2023.00053.",
+      "evidence": [
+        "https://api.crossref.org/works/10.1109%2FMSR59073.2023.00053"
+      ],
+      "recommendation": "No correction required."
+    },
+    {
+      "key": "huang2024codesecret",
+      "status": "metadata-confirmed-with-field-limit",
+      "finding": "Crossref confirms title,5authors,PACMSoftwareEngineering2024,volume1issueFSE,pages2515-2537,DOI10.1145/3660818. Crossref does not expose article-number111, so that field was not independently reconfirmed here.",
+      "evidence": [
+        "https://api.crossref.org/works/10.1145%2F3660818",
+        "https://dl.acm.org/doi/full/10.1145/3660818"
+      ],
+      "recommendation": "No correction to confirmed fields. Retain article-number111 only on separate publisher evidence, or omit unused field."
+    },
+    {
+      "key": "newman2022sigstore",
+      "status": "metadata-confirmed",
+      "finding": "Publisher page confirms full title Sigstore:SoftwareSigningforEverybody,threeauthors,CCS2022. Crossref confirms authors/year/pages2353-2367 but uses shortenedtitle Sigstore; publisherfulltitleisvalid.",
+      "evidence": [
+        "https://dl.acm.org/doi/10.1145/3548606.3560596",
+        "https://api.crossref.org/works/10.1145%2F3548606.3560596"
+      ],
+      "recommendation": "No correction required; do not shorten title solely to match Crossref."
+    },
+    {
+      "key": "apple_sandboxexec",
+      "status": "partially-corroborated",
+      "finding": "macOS manual mirrors confirm command title and DEPRECATED status. Linux audit cannot independently verify prior note CheckedonmacOS26.4 or originalaccessdate. Bibliographic2026 identifiesaccesscontext, not originalmanualpublicationdate (mirrorshows2017).",
+      "evidence": [
+        "https://keith.github.io/xcode-man-pages/sandbox-exec.1.html",
+        "https://man.freebsd.org/cgi/man.cgi?manpath=macOS+26.3&query=sandbox-exec&sektion=1"
+      ],
+      "recommendation": "Add a retrievable manual mirrorURL ifdesired and clearlydescribe2026asaccessyear; do not infer currentmacOSfunctionalvalidation frommirror."
+    }
+  ]
+}

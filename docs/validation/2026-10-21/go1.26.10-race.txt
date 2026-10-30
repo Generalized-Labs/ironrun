@@ -1,0 +1,28 @@
+ok  	github.com/generalized-labs/ironrun/cmd/ironrun	(cached)
+ok  	github.com/generalized-labs/ironrun/internal/access	1.328s
+ok  	github.com/generalized-labs/ironrun/internal/audit	1.078s
+?   	github.com/generalized-labs/ironrun/internal/buildinfo	[no test files]
+ok  	github.com/generalized-labs/ironrun/internal/capsule	1.017s
+ok  	github.com/generalized-labs/ironrun/internal/daemon	1.012s
+ok  	github.com/generalized-labs/ironrun/internal/envset	1.054s
+ok  	github.com/generalized-labs/ironrun/internal/execution	1.064s
+ok  	github.com/generalized-labs/ironrun/internal/ghprotect	1.016s
+ok  	github.com/generalized-labs/ironrun/internal/githooks	1.148s
+ok  	github.com/generalized-labs/ironrun/internal/localapi	1.156s
+ok  	github.com/generalized-labs/ironrun/internal/migration	1.024s
+ok  	github.com/generalized-labs/ironrun/internal/pending	(cached)
+ok  	github.com/generalized-labs/ironrun/internal/policy	1.019s
+ok  	github.com/generalized-labs/ironrun/internal/project	1.038s
+ok  	github.com/generalized-labs/ironrun/internal/provider	7.142s
+ok  	github.com/generalized-labs/ironrun/internal/redact	15.269s
+?   	github.com/generalized-labs/ironrun/internal/remote	[no test files]
+ok  	github.com/generalized-labs/ironrun/internal/runner	10.247s
+ok  	github.com/generalized-labs/ironrun/internal/scrub	1.033s
+ok  	github.com/generalized-labs/ironrun/internal/sealedexec	6.100s
+ok  	github.com/generalized-labs/ironrun/internal/secrets	1.015s
+ok  	github.com/generalized-labs/ironrun/internal/shellguard	1.019s
+ok  	github.com/generalized-labs/ironrun/internal/tui	(cached)
+ok  	github.com/generalized-labs/ironrun/internal/vault	1.171s
+ok  	github.com/generalized-labs/ironrun/mcp	(cached)
+ok  	github.com/generalized-labs/ironrun/paper/eval	1.014s
+ok  	github.com/generalized-labs/ironrun/tests	5.856s

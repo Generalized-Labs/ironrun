@@ -1,0 +1,8 @@
+{
+  "scope": "Archive transport filename mapping only; original evidence bytes and historical manifest paths remain unchanged.",
+  "reason": "A retained Go test overlay must not become a compilable package under go test ./....",
+  "original_to_archive": {
+    "server_internal_overlay_test.go": "server_internal_overlay_test.go.txt"
+  },
+  "replay": "When adapting overlay.json for replay, point Replace at the retained .go.txt file. Go overlay replacement content can be read from that file; the original absolute path records where the historical command actually read it."
+}

@@ -1,0 +1,150 @@
+[
+  {
+    "path": "ironrun_Darwin_arm64.tar.gz",
+    "byte_identical": false,
+    "member_differences": [
+      {
+        "path": "README.md",
+        "changes": {
+          "sha256": {
+            "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+            "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+          },
+          "bytes": {
+            "run1": 34916,
+            "run2": 34934
+          },
+          "mtime": {
+            "run1": 1793068036,
+            "run2": 1793101250
+          }
+        }
+      },
+      {
+        "path": "ironrun",
+        "changes": {
+          "sha256": {
+            "run1": "c2f98be30c5f4f3b3e72ad5f065d4e62a348073355d5b458a1b26dfa14594cf1",
+            "run2": "72ac301f3e837014958a1c47092cdc25a44bc923a6ff242ca67946f386df3378"
+          },
+          "mtime": {
+            "run1": 1793100872,
+            "run2": 1793101407
+          }
+        }
+      }
+    ],
+    "member_contents_identical": false
+  },
+  {
+    "path": "ironrun_Darwin_x86_64.tar.gz",
+    "byte_identical": false,
+    "member_differences": [
+      {
+        "path": "README.md",
+        "changes": {
+          "sha256": {
+            "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+            "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+          },
+          "bytes": {
+            "run1": 34916,
+            "run2": 34934
+          },
+          "mtime": {
+            "run1": 1793068036,
+            "run2": 1793101250
+          }
+        }
+      },
+      {
+        "path": "ironrun",
+        "changes": {
+          "sha256": {
+            "run1": "f5dcc9b9e5015dc391a08d1d902c5ce96b267a93712bc4a6a06f7f792bbece36",
+            "run2": "f6f81481a60b3e98813a0f7d48dc65d4d76deaf0921661df4a1116fe677f36e8"
+          },
+          "mtime": {
+            "run1": 1793100872,
+            "run2": 1793101407
+          }
+        }
+      }
+    ],
+    "member_contents_identical": false
+  },
+  {
+    "path": "ironrun_Linux_arm64.tar.gz",
+    "byte_identical": false,
+    "member_differences": [
+      {
+        "path": "README.md",
+        "changes": {
+          "sha256": {
+            "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+            "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+          },
+          "bytes": {
+            "run1": 34916,
+            "run2": 34934
+          },
+          "mtime": {
+            "run1": 1793068036,
+            "run2": 1793101250
+          }
+        }
+      },
+      {
+        "path": "ironrun",
+        "changes": {
+          "sha256": {
+            "run1": "e23e6127599acd120cb8444f0c0439de646d15be3910ff1fae79c79076660241",
+            "run2": "876290ee2e9aa43986ae539fa7c38278f50b61ac32ac6069a9196cb70a41b378"
+          },
+          "mtime": {
+            "run1": 1793100870,
+            "run2": 1793101404
+          }
+        }
+      }
+    ],
+    "member_contents_identical": false
+  },
+  {
+    "path": "ironrun_Linux_x86_64.tar.gz",
+    "byte_identical": false,
+    "member_differences": [
+      {
+        "path": "README.md",
+        "changes": {
+          "sha256": {
+            "run1": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+            "run2": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+          },
+          "bytes": {
+            "run1": 34916,
+            "run2": 34934
+          },
+          "mtime": {
+            "run1": 1793068036,
+            "run2": 1793101250
+          }
+        }
+      },
+      {
+        "path": "ironrun",
+        "changes": {
+          "sha256": {
+            "run1": "93210d9f332a3b6dcdae7e7f7209ed6de0ee4a7a25ca51c9ed6499173804c2c5",
+            "run2": "659e3862f64c5379892190f09dd4e92b35190ded4b8be20bde9a03f3e0cf2054"
+          },
+          "mtime": {
+            "run1": 1793100870,
+            "run2": 1793101404
+          }
+        }
+      }
+    ],
+    "member_contents_identical": false
+  }
+]

@@ -1,0 +1,22 @@
+Title:           Sealed Execution: Letting LLM Coding Agents Use Credentials Without Seeing Them
+Subject:         
+Keywords:        
+Author:          Mihir Gupta, Stephen Keehn
+Creator:         LaTeX with hyperref
+Producer:        pdfTeX-1.40.26
+CreationDate:    Sat Oct 24 23:28:52 2026 UTC
+ModDate:         Sat Oct 24 23:28:52 2026 UTC
+Custom Metadata: yes
+Metadata Stream: no
+Tagged:          no
+UserProperties:  no
+Suspects:        no
+Form:            none
+JavaScript:      no
+Pages:           14
+Encrypted:       no
+Page size:       612 x 792 pts (letter)
+Page rot:        0
+File size:       533594 bytes
+Optimized:       no
+PDF version:     1.7

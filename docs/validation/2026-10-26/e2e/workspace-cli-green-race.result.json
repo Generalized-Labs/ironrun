@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestRunHandlerTrustedWorkspaceWaitsAndResumesAfterGrant|TestMCPTrustedWorkspaceLoopbackAndRevocation|TestMCPLeaseRequiredApproveRunAndRevoke|TestMCPLeaseDoesNotTransferAcrossServerSessions|TestMCPRunCreatesMissingSecretRequestAndResumesRedacted)$",
+    "-v"
+  ],
+  "exit_code": 0,
+  "scope": "Authorized normal-network workspace: exact regression plus strict policy network isolation, real CLI approval/revoke/deny, synthetic v2 vault/redaction/local HTTP, and existing lease/secret-resume regressions. Fake native root-key adapter only; no real host/store proof.",
+  "source_sha256": {
+    "mcp/server.go": "c5fd0d12905e9d5373446ce68658f3862fb1fcb8c3c210bd7049d240b24deace",
+    "mcp/server_internal_test.go": "6838655846e3321980a99040e483900d5572d51ceb5bb0d0607d57f0a265d13a",
+    "mcp/workspace_network_linux_test.go": "774595eb63de0d8b54734030666347d32e6150308abfb6234f2c9cdc883c6d3e",
+    "mcp/testdata/workspaceprobe/main.go": "b569a35f6485e621bab0f900fe54fda41fa0c8d57aa00ea9e88ea4f551b324ff"
+  }
+}

@@ -8,9 +8,16 @@
 package pending
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -110,4 +117,68 @@ func (s *Store) Remove(id string) (Proposal, bool) {
 		}
 	}
 	return Proposal{}, false
+}
+
+// ErrConflict means an existing immutable ID has different reviewable content.
+var ErrConflict = errors.New("pending proposal already exists with different content")
+
+// ReviewDigest binds approval to the complete proposal shown to the human,
+// including its server-generated creation time. JSON sorts map keys, so env
+// insertion order cannot affect the digest.
+func ReviewDigest(p Proposal) string {
+	data, _ := json.Marshal(p)
+	digest := sha256.Sum256(data)
+	return hex.EncodeToString(digest[:])
+}
+
+// Create atomically creates an immutable pending ID. Identical repeats retain
+// the original timestamp; conflicting content can never replace a reviewed ID.
+func Create(path string, proposal Proposal) (Proposal, error) {
+	var result Proposal
+	err := Update(path, func(store *Store) error {
+		if existing := store.Find(proposal.ID); existing != nil {
+			if !reflect.DeepEqual(existing.Argv, proposal.Argv) || !reflect.DeepEqual(existing.Env, proposal.Env) || existing.Reason != proposal.Reason {
+				return ErrConflict
+			}
+			result = *existing
+			return nil
+		}
+		store.Upsert(proposal)
+		result = proposal
+		return nil
+	})
+	return result, err
+}
+
+// Update serializes read-modify-write transactions across CLI and MCP processes.
+// A lock is never stolen based on age: a slow live approval must not lose its
+// lock. An abandoned lock fails closed and must be removed by the operator.
+func Update(path string, fn func(*Store) error) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		return err
+	}
+	lock := path + ".lock"
+	deadline := time.Now().Add(5 * time.Second)
+	for {
+		err := os.Mkdir(lock, 0700)
+		if err == nil {
+			break
+		}
+		if !os.IsExist(err) {
+			return err
+		}
+		if !time.Now().Before(deadline) {
+			return fmt.Errorf("pending store is locked (%s); recover an abandoned lock only after its owner exits", lock)
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	defer os.Remove(lock)
+	store, err := Load(path)
+	if err != nil {
+		return err
+	}
+	if err := fn(store); err != nil {
+		return err
+	}
+	return Save(path, store)
 }

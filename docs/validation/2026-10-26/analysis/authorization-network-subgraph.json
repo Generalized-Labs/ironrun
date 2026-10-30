@@ -1,0 +1,1092 @@
+{
+  "scope": "Unmodified Graphify nodes and outgoing calls/references for named authorization/network seeds. This is a partial AST navigation graph, with no data-flow or security proof. Manual source bridges are separate in README/source-excerpts.json.",
+  "parent_graph_sha256": "94f603ce1dd3466946cafed1ba0bd49d41e88a6ea8563c39d718988b3807c083",
+  "seed_ids": [
+    "access_manager_approveworkspace",
+    "access_manager_authorizeworkspace",
+    "access_manager_revokeworkspace",
+    "internal_execution_execution_run",
+    "internal_execution_execution_runworkspace",
+    "internal_runner_runner_applynetworkisolation",
+    "internal_runner_runner_run",
+    "mcp_server_awaitrunauthorization",
+    "mcp_server_awaitworkspaceauthorization",
+    "mcp_server_internal_test_testrunhandlertrustedworkspacepinsenvironmentandargv",
+    "mcp_server_makerunhandler",
+    "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+    "policy_command_effectivenonetwork"
+  ],
+  "nodes": [
+    {
+      "id": "access_manager_approveworkspace",
+      "label": ".ApproveWorkspace()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L325",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "access_manager_authorizeworkspace",
+      "label": ".AuthorizeWorkspace()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L440",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "access_manager_load",
+      "label": ".load()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L532",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "access_manager_mutate",
+      "label": ".mutate()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L556",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "access_manager_resolverequest",
+      "label": ".resolveRequest()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L357",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "access_manager_revokeworkspace",
+      "label": ".RevokeWorkspace()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L515",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "execution_fileworkspace_close",
+      "label": ".Close()",
+      "file_type": "code",
+      "source_file": "internal/execution/files.go",
+      "source_location": "L78",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "execution_fileworkspace_materialize",
+      "label": ".Materialize()",
+      "file_type": "code",
+      "source_file": "internal/execution/files.go",
+      "source_location": "L47",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "execution_options",
+      "label": "Options",
+      "file_type": "code",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L23",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_context_context",
+      "label": "context.Context",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_generalized_labs_ironrun_internal_audit_logger",
+      "label": "github.com/generalized-labs/ironrun/internal/audit.Logger",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_generalized_labs_ironrun_internal_policy_command",
+      "label": "github.com/generalized-labs/ironrun/internal/policy.Command",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_generalized_labs_ironrun_internal_policy_file",
+      "label": "github.com/generalized-labs/ironrun/internal/policy.File",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_generalized_labs_ironrun_internal_runner_result",
+      "label": "github.com/generalized-labs/ironrun/internal/runner.Result",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_mark3labs_mcp_go_mcp_calltoolrequest",
+      "label": "github.com/mark3labs/mcp-go/mcp.CallToolRequest",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_github_com_mark3labs_mcp_go_mcp_calltoolresult",
+      "label": "github.com/mark3labs/mcp-go/mcp.CallToolResult",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_os_exec_cmd",
+      "label": "os/exec.Cmd",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_testing_t",
+      "label": "testing.T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "go_type_time_duration",
+      "label": "time.Duration",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_access_access_go_access_workspacegrant",
+      "label": "WorkspaceGrant",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L71",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_access_access_randomid",
+      "label": "randomID()",
+      "file_type": "code",
+      "source_file": "internal/access/access.go",
+      "source_location": "L689",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_execution_execution_emitgithubmasks",
+      "label": "emitGitHubMasks()",
+      "file_type": "code",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L218",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_execution_execution_resolveseccomp",
+      "label": "resolveSeccomp()",
+      "file_type": "code",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L72",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_execution_execution_run",
+      "label": "Run()",
+      "file_type": "code",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L85",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_execution_execution_runworkspace",
+      "label": "RunWorkspace()",
+      "file_type": "code",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L265",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_execution_files_newfileworkspace",
+      "label": "newFileWorkspace()",
+      "file_type": "code",
+      "source_file": "internal/execution/files.go",
+      "source_location": "L20",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_applydarwinnetworkisolation",
+      "label": "applyDarwinNetworkIsolation()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L708",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_applynetworkisolation",
+      "label": "applyNetworkIsolation()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L691",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_buildenv",
+      "label": "buildEnv()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L556",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_checkcitrust",
+      "label": "CheckCITrust()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L579",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_go_runner_result",
+      "label": "Result",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L28",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_processstateexitcode",
+      "label": "processStateExitCode()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L781",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "internal_runner_runner_run",
+      "label": "Run()",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L106",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_access_test_waitforpendingrequest",
+      "label": "waitForPendingRequest()",
+      "file_type": "code",
+      "source_file": "mcp/access_test.go",
+      "source_location": "L149",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_mcp_test_extracttooltext",
+      "label": "extractToolText()",
+      "file_type": "code",
+      "source_file": "mcp/mcp_test.go",
+      "source_location": "L180",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_mcp_test_startmcp",
+      "label": "startMCP()",
+      "file_type": "code",
+      "source_file": "mcp/mcp_test.go",
+      "source_location": "L70",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_awaitrunauthorization",
+      "label": "awaitRunAuthorization()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L278",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_awaitworkspaceauthorization",
+      "label": "awaitWorkspaceAuthorization()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L375",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_currentpolicy",
+      "label": "currentPolicy()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L534",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_internal_test_testrunhandlertrustedworkspacepinsenvironmentandargv",
+      "label": "TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv()",
+      "file_type": "code",
+      "source_file": "mcp/server_internal_test.go",
+      "source_location": "L118",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_makerunhandler",
+      "label": "makeRunHandler()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_projectroot",
+      "label": "projectRoot()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L756",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_requestmissingsecrets",
+      "label": "requestMissingSecrets()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L470",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_runresult",
+      "label": "runResult()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L249",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_server_waitforchange",
+      "label": "waitForChange()",
+      "file_type": "code",
+      "source_file": "mcp/server.go",
+      "source_location": "L523",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+      "label": "TestMCPTrustedWorkspaceLoopbackAndRevocation()",
+      "file_type": "code",
+      "source_file": "mcp/workspace_network_linux_test.go",
+      "source_location": "L24",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "policy_command_effectivenonetwork",
+      "label": ".EffectiveNoNetwork()",
+      "file_type": "code",
+      "source_file": "internal/policy/policy.go",
+      "source_location": "L106",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "policy_command_hassecrets",
+      "label": ".HasSecrets()",
+      "file_type": "code",
+      "source_file": "internal/policy/policy.go",
+      "source_location": "L97",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "runner_options",
+      "label": "Options",
+      "file_type": "code",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L44",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast"
+    }
+  ],
+  "edges": [
+    {
+      "source": "access_manager_approveworkspace",
+      "target": "go_type_time_duration",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L325",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_approveworkspace",
+      "target": "internal_access_access_go_access_workspacegrant",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L325",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_authorizeworkspace",
+      "target": "internal_access_access_go_access_workspacegrant",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L440",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_approveworkspace",
+      "target": "access_manager_resolverequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L327",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_approveworkspace",
+      "target": "internal_access_access_randomid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L337",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_authorizeworkspace",
+      "target": "access_manager_load",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L441",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "access_manager_revokeworkspace",
+      "target": "access_manager_mutate",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/access/access.go",
+      "source_location": "L516",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_policy_file",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "execution_options",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_runner_result",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L85",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_runworkspace",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L265",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_runworkspace",
+      "target": "execution_options",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L265",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_runworkspace",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_runner_result",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L265",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "internal_execution_execution_resolveseccomp",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L186",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "internal_execution_execution_emitgithubmasks",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L192",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_runworkspace",
+      "target": "internal_execution_execution_run",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L293",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "policy_command_effectivenonetwork",
+      "target": "policy_command_hassecrets",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/policy/policy.go",
+      "source_location": "L113",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_policy_command",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "runner_options",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "internal_runner_runner_go_runner_result",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_applynetworkisolation",
+      "target": "go_type_os_exec_cmd",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L691",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "internal_runner_runner_checkcitrust",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L116",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "internal_runner_runner_buildenv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L229",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "internal_runner_runner_applynetworkisolation",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L244",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_run",
+      "target": "internal_runner_runner_processstateexitcode",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L366",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_runner_runner_applynetworkisolation",
+      "target": "internal_runner_runner_applydarwinnetworkisolation",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "internal/runner/runner.go",
+      "source_location": "L696",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_policy_file",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_audit_logger",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "go_type_github_com_mark3labs_mcp_go_mcp_calltoolrequest",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "go_type_github_com_mark3labs_mcp_go_mcp_calltoolresult",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L210",
+      "weight": 1.0,
+      "context": "return_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L278",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_policy_file",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L278",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitworkspaceauthorization",
+      "target": "go_type_context_context",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L375",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitworkspaceauthorization",
+      "target": "go_type_github_com_generalized_labs_ironrun_internal_policy_file",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L375",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "mcp_server_awaitworkspaceauthorization",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L218",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "mcp_server_projectroot",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L222",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "mcp_server_runresult",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L229",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_makerunhandler",
+      "target": "mcp_server_awaitrunauthorization",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L231",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "mcp_server_projectroot",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L279",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "mcp_server_currentpolicy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L298",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "mcp_server_waitforchange",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L322",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitrunauthorization",
+      "target": "mcp_server_requestmissingsecrets",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L332",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitworkspaceauthorization",
+      "target": "mcp_server_projectroot",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L376",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitworkspaceauthorization",
+      "target": "mcp_server_currentpolicy",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L381",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_awaitworkspaceauthorization",
+      "target": "mcp_server_waitforchange",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server.go",
+      "source_location": "L406",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_internal_test_testrunhandlertrustedworkspacepinsenvironmentandargv",
+      "target": "go_type_testing_t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/server_internal_test.go",
+      "source_location": "L118",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+      "target": "go_type_testing_t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "mcp/workspace_network_linux_test.go",
+      "source_location": "L24",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "internal_execution_files_newfileworkspace",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L155",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_server_internal_test_testrunhandlertrustedworkspacepinsenvironmentandargv",
+      "target": "mcp_server_makerunhandler",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "mcp/server_internal_test.go",
+      "source_location": "L155",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+      "target": "mcp_mcp_test_startmcp",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "mcp/workspace_network_linux_test.go",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+      "target": "mcp_mcp_test_extracttooltext",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "mcp/workspace_network_linux_test.go",
+      "source_location": "L78",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "mcp_workspace_network_linux_test_testmcptrustedworkspaceloopbackandrevocation",
+      "target": "mcp_access_test_waitforpendingrequest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "mcp/workspace_network_linux_test.go",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "execution_fileworkspace_close",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "internal_execution_execution_run",
+      "target": "execution_fileworkspace_materialize",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "internal/execution/execution.go",
+      "source_location": "L160",
+      "weight": 1.0,
+      "_origin": "ast"
+    }
+  ]
+}

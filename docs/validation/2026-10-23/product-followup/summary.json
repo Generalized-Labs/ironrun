@@ -1,0 +1,200 @@
+{
+  "scope": "verification packaging only; no new tests or benchmarks run by packager",
+  "source": {
+    "base_commit": "a4ab72e475bb6d3ed548e0dd7569294a1b3a0e8d",
+    "state": "uncommitted reviewed doctor changes at packaging; hashes bind exact source bytes",
+    "files": {
+      "cmd/ironrun/doctor.go": {
+        "bytes": 10333,
+        "sha256": "c5ba34043eb3634ff139e11eb65f634f324db5d95ba5074ad0056eec389ce7e2"
+      },
+      "internal/envset/inspect.go": {
+        "bytes": 1014,
+        "sha256": "2b96876e2cb9a51960f7af930cf9741d297ef4e2f21c586f48e4c4f7fec35f00"
+      },
+      "internal/envset/inspect_test.go": {
+        "bytes": 2960,
+        "sha256": "5553a10db97ffee5fb4ae984bacf5f6678b5cac97c1836189d5c3d1e86a208d0"
+      },
+      "tests/doctor_test.go": {
+        "bytes": 14654,
+        "sha256": "02790ef41eb6822df5f910959215c36661da7537aaf1baf26bab4f4fc4b1b0a6"
+      },
+      "go.mod": {
+        "bytes": 2659,
+        "sha256": "c89f7ba72251b558248f77d8eb05bb4c9139746fee427017501caaa6344d640d"
+      },
+      "go.sum": {
+        "bytes": 14052,
+        "sha256": "6cb2a977cb18e4f0d254c0c498bb920caa917970dffc435fb6215818d17f2de6"
+      }
+    }
+  },
+  "toolchain": {
+    "go": "1.26.10 linux/amd64",
+    "go_executable": {
+      "bytes": 15456399,
+      "sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5"
+    },
+    "go_build_flags": "-buildvcs=false",
+    "dependency_fetching": "disabled for final checks (GOPROXY=off, GOSUMDB=off, GOTOOLCHAIN=local)"
+  },
+  "checks": [
+    {
+      "command": "go test ./tests -run '^TestDoctor_(Local|V1Active|V2Without)' -count=1",
+      "exit_code": 1,
+      "result_source": "supervising implementation agent observed result",
+      "log": "doctor-red.log",
+      "scope": "expected red against original doctor before implementation"
+    },
+    {
+      "command": "go test -race ./tests ./internal/envset -run '^(TestDoctor_|TestInspectMetadata)' -count=1",
+      "exit_code": 0,
+      "result_source": "supervising implementation agent observed result",
+      "log": "doctor-green-race.log",
+      "scope": "initial implementation; superseded by padded-name repair"
+    },
+    {
+      "exit_code": 1,
+      "result_source": "supervising implementation agent observed result",
+      "log": "doctor-padding-red.log",
+      "scope": "expected red for complete and incomplete padded-name metadata before compatibility repair; exact command not retained in raw log"
+    },
+    {
+      "command": "go test -race ./tests ./internal/envset -run '^(TestDoctor_|TestInspectMetadata)' -count=1",
+      "exit_code": 0,
+      "result_source": "supervising implementation agent observed result",
+      "log": "doctor-padding-green-race.log",
+      "scope": "final doctor and metadata focused race checks"
+    },
+    {
+      "command": "go test -race -count=1 ./...",
+      "exit_code": 0,
+      "result_source": "supervising parent observed result",
+      "log": "final-race.log",
+      "scope": "all packages, synthetic values, namespace tests outside agent filesystem sandbox"
+    },
+    {
+      "command": "go vet ./...",
+      "exit_code": 0,
+      "result_source": "supervising parent observed result",
+      "log": "final-vet.log",
+      "scope": "all packages; no output"
+    }
+  ],
+  "rea": {
+    "version": "6.7.0",
+    "same_fixture": true,
+    "fixture_policy": "fixture-policy.yml",
+    "before": {
+      "capture": "rea-doctor-before.json",
+      "scenario": "rea-doctor-before-scenario.json",
+      "program_exit_code": 0,
+      "executable_sha256": "498aa64616872e4147a13b6c6528e55bac0a4693cda2d43ee29fe9c112d1874a",
+      "observation": "false green: All checks passed"
+    },
+    "final": {
+      "capture": "rea-doctor-final.json",
+      "scenario": "rea-doctor-final-scenario.json",
+      "program_exit_code": 1,
+      "executable_sha256": "b817d8a0d716cf2466d7df4147ff0e4067873665a181ec4014bb9deaf99a6f0d",
+      "observed_filesystem_entries": 6,
+      "changed_entries": 0,
+      "truncated": false,
+      "cleanup": {
+        "owned_process_group": "verified",
+        "temporary_root": "removed"
+      },
+      "observation": "missing metadata diagnosed with ironrun env init dev recovery and vault-access scope statement"
+    },
+    "earlier_attempt": {
+      "capture": "rea-cleanup-failure.json",
+      "cli_exit_code": 1,
+      "error_code": "cleanup_incomplete",
+      "reason": "REA could not verify owned process cleanup because ownership-token access returned EACCES inside filesystem sandbox",
+      "scope": "partial observation; not a successful full capture; retained separately"
+    },
+    "limitations": [
+      "The executable digest is a prelaunch file sample; matching path metadata immediately after spawn does not prove an atomic operating-system image binding.",
+      "Process trees are sampled and may omit short-lived descendants.",
+      "Filesystem observations are before/after snapshots, not syscall traces.",
+      "Inherited host environment variables are not recorded and may affect results."
+    ]
+  },
+  "paper": {
+    "pages": 13,
+    "figures": 5,
+    "tables": 3,
+    "ascii_abstract_characters": 1812,
+    "files": {
+      "paper/ironrun.tex": {
+        "bytes": 61270,
+        "sha256": "b53f1c0b3a7e3b47bfe6ab119cfabfcb4f528c7197591c84e6655a6e96047b22"
+      },
+      "paper/ironrun.bbl": {
+        "bytes": 28680,
+        "sha256": "3ce0bd6e230a5c182f934cdf3b4f01cdddfd848165523a55ffee73ab42d820bd"
+      },
+      "paper/references.bib": {
+        "bytes": 31210,
+        "sha256": "3f928197a9966c8ee84fff786c9bd63a771d417ed237e784ea3f627063367a8c"
+      },
+      "paper/ironrun.pdf": {
+        "bytes": 531348,
+        "sha256": "e5595c7aa1b030e69b83f1c6bd682b6537e000a4ce1a4ae63e471e38aaa3d488"
+      },
+      "paper/ironrun-arxiv.tar.gz": {
+        "bytes": 39888,
+        "sha256": "f8ea044591a02b35223b76a203988c7c67ddefb10a5414f540683f3cc42b54d4"
+      }
+    },
+    "bundle_contents": [
+      "ironrun.tex",
+      "ironrun.bbl",
+      "references.bib"
+    ],
+    "copied_source_bundle": "paper-source.tar.gz",
+    "sources_match_extracted_bundle": true,
+    "pdf_text_matches_extracted_build": true,
+    "source_build_log": "paper-build.log",
+    "bundle_build_log": "bundle-build-latexmk.log",
+    "make_arxiv_exit_code": 0,
+    "extracted_bundle_build_exit_code": 0,
+    "result_source": "supervising parent observed execution results; packager verified source bytes, text equality and log contents",
+    "warnings": {
+      "undefined_citations_or_references": 0,
+      "font_substitution": 0,
+      "overfull_boxes": 0,
+      "underfull_boxes": "retained typographic diagnostics, not overflowing content"
+    },
+    "final_visual_review": {
+      "status": "completed",
+      "source": "supervising parent report",
+      "scope": "all 13 final PDF pages at 1350px; diagrams/tables readable, no clipping/overlap observed; samepage keeps chunking property together on page 5"
+    },
+    "final_bundle_without_bibtex": {
+      "verified": true,
+      "fresh_extraction_directory": "/workspace/ironrun-product-research/arxiv-final-pdflatex",
+      "extracted_files": [
+        "ironrun.tex",
+        "ironrun.bbl",
+        "references.bib"
+      ],
+      "command": "pdflatex -interaction=nonstopmode -halt-on-error ironrun.tex",
+      "passes": 3,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "bibtex_invoked": false,
+      "result_record": "bundle-pdflatex.result.json",
+      "final_log": "bundle-pdflatex-pass3.log",
+      "sources_match_final_bundle": true,
+      "pdf_text_matches_tracked_pdf": "supervising parent verified exact extracted text equality after final source edit",
+      "scope": "fresh directory initially containing only the three shipped source files; pdflatex only"
+    }
+  },
+  "timing_metadata": "No outer start/end timestamps or walltime invented. Capture manifests retain their own recorded timestamps; raw logs retain their emitted durations.",
+  "publication": "No release, merge, tag, registry publication, or arXiv submission is represented by this archive."
+}

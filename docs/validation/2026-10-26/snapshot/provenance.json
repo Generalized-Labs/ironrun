@@ -1,0 +1,28 @@
+{
+  "source_scope": "uncommitted reviewed source at hash-listed paths; base HEAD alone is not its identity",
+  "base_head": "64308e62eb553716f7ef0c5e8bfcd7205a698696",
+  "settings": {
+    "PATH": "/workspace/ironrun-product-tools/release-bin:/workspace/ironrun-product-tools/go/bin:/usr/local/bin:/usr/bin:/bin",
+    "GOPATH": "/workspace/ironrun-product-tools/gopath",
+    "GOMODCACHE": "/workspace/ironrun-product-tools/go-modules",
+    "GOCACHE": "/workspace/ironrun-product-tools/go-cache",
+    "GOTMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "TMPDIR": "/workspace/ironrun-product-tools/go-tmp",
+    "GOFLAGS": "-buildvcs=false",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "SYFT_CHECK_FOR_APP_UPDATE": "false",
+    "GITHUB_ACTIONS": "false"
+  },
+  "goreleaser_config_original_sha256": "a2a19329fba334f167c3c8c404c4c1dfaee7699c7f8f209d88a60faba80153b7",
+  "snapshot_scope": "diagnostic, unpublished; no final release version chosen; local tags include v0.5.0",
+  "skips": [
+    "before hooks",
+    "signing",
+    "publication",
+    "snapshot validation"
+  ],
+  "sbom": "enabled with pinned Syft",
+  "tool_checksum_verification": "official checksum files, signatures on tool checksum files not independently checked"
+}

@@ -1,0 +1,8 @@
+fuzz: elapsed: 0s, gathering baseline coverage: 0/27 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 27/27 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 5839 (1946/sec), new interesting: 6 (total: 33)
+fuzz: elapsed: 6s, execs: 11134 (1765/sec), new interesting: 11 (total: 38)
+fuzz: elapsed: 9s, execs: 16438 (1768/sec), new interesting: 13 (total: 40)
+fuzz: elapsed: 11s, execs: 22581 (3061/sec), new interesting: 17 (total: 44)
+PASS
+ok  	github.com/generalized-labs/ironrun/internal/redact	11.010s

@@ -1,0 +1,76 @@
+{
+  "algorithm": "sha256",
+  "scope": "Selected retained files; excludes this manifest itself.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3909,
+      "sha256": "8fae93b189cf11637945ed5b8e7d469a4b6f0271d8c2824a9fd3c79bad7a06ac"
+    },
+    {
+      "path": "final-race.log",
+      "bytes": 1805,
+      "sha256": "00213c831ab68f2dd10cbf499cc65a183259ecdacece45b02798b61355b3422f"
+    },
+    {
+      "path": "final-vet.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "npm-node24.log",
+      "bytes": 1612,
+      "sha256": "6e5bc2fbf2ab33328e6f1179453dda9c7841c508dad00e48cc043cb3377377ac"
+    },
+    {
+      "path": "release-regressions.log",
+      "bytes": 1397,
+      "sha256": "250bf289109a2f3f410292968b91f507062bdb3a9861fa0e66a232611fa806a6"
+    },
+    {
+      "path": "results.json",
+      "bytes": 2764,
+      "sha256": "156d1d6641301857b60a15890891d05c6ffd9be8e02c0a87e7b93b521374a970"
+    },
+    {
+      "path": "setup-green-race.log",
+      "bytes": 114,
+      "sha256": "65a88f6f5a19c6b7df6d2eec545321c6df729ae6cb216a60dd648b02dddec5a8"
+    },
+    {
+      "path": "setup-json-transport-red.log",
+      "bytes": 394,
+      "sha256": "a018cf8da19ec374b23ee8c93f655d2c390acd940bc4062f8eeb56deb59b37f5"
+    },
+    {
+      "path": "setup-record-shape-red.log",
+      "bytes": 6878,
+      "sha256": "0c5a4597ac808d5e7ff09a6e1b8ef883606786e449c32560ca60d9571fccfbd6"
+    },
+    {
+      "path": "setup-red.log",
+      "bytes": 23289,
+      "sha256": "32167be89781799d2e5cf9bcd38861cdcb4a8ffa05635310cd960f702f1c6c70"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 33183,
+      "sha256": "e69f5be6174c1b40b9141a93587a2e11cc8623d61a584893b6b1e0bb37d1886a"
+    },
+    {
+      "path": "tool-identities.json",
+      "bytes": 520,
+      "sha256": "4c009f2340cf60c72dfa11884dfb8f67ddcc37f54556a10c9b12e0bd0905efa1"
+    },
+    {
+      "path": "workspace-deadline-green-race.log",
+      "bytes": 116,
+      "sha256": "da8b1e4554ca4be72cac8edc326d5adcfa95e6da5375f51ec989efdd2a339608"
+    },
+    {
+      "path": "workspace-deadline-red.log",
+      "bytes": 1011,
+      "sha256": "0166c2a346a09923d10a06ce995b8829e548961e51755330c113adc8327137a2"
+    }
+  ]
+}

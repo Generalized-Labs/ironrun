@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/go/bin/go",
+    "build",
+    "-o",
+    "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/ironrun",
+    "./cmd/ironrun"
+  ],
+  "cwd": "/workspace/ironrun-product-review",
+  "exit_code": 0,
+  "stdout": "build-ironrun.stdout.txt",
+  "stderr": "build-ironrun.stderr.txt"
+}

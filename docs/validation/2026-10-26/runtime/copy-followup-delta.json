@@ -1,0 +1,13 @@
+{
+  "earlier_source": "../source-before.json",
+  "earlier_server_go_sha256": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+  "final_source": "source-before.json",
+  "final_server_go_sha256": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2",
+  "changed_extended_input_paths": [
+    ".goreleaser.yml",
+    "cmd/ironrun/init.go",
+    "cmd/ironrun/main.go",
+    "mcp/server.go"
+  ],
+  "interpretation": "Final copy/help/setup-label/release-description corrections followed the previous behavioral check. This fresh suite is bound to final source; earlier records remain identified by their actual hashes."
+}

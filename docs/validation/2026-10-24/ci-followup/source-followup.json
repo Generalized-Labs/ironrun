@@ -1,0 +1,26 @@
+{
+  "parent_commit": "5320554323194d4c481a17eb2e8cb75f1a226914",
+  "scope": "Only two error-message strings changed; conditions and side effects unchanged.",
+  "file": "cmd/ironrun/mcp_registration.go",
+  "before_sha256": "622fee774bc19cb4169689cd903d451225e58820fe373547f9ccd1ed4514f6b1",
+  "after_sha256": "8483a14be0d24e65b712df06a7e512e962b2345a5d8f8b143e341116ab921069",
+  "patch_sha256": "b7126cc248bae2c65041f7914fc4121c9ea4d7012c0fc0e8c87361002caca73b",
+  "validation": {
+    "focused_setup_race": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./cmd/ironrun",
+        "./tests",
+        "-run",
+        "TestMCPRegistration|TestInit_"
+      ],
+      "exit_code": 0,
+      "scope": "Focused setup regressions after only two error-message wording changes; permission checks may skip root, with prior UID1000 REA preserved separately."
+    },
+    "staticcheck_summary": "staticcheck-summary.json"
+  },
+  "prior_evidence": "Earlier runtime/REA/snapshot source manifests remain measurements of their original bytes, not the final wording revision."
+}

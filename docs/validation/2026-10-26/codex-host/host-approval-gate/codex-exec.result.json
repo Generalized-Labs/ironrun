@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/codex/bin/codex",
+    "--no-daemon",
+    "exec",
+    "--skip-git-repo-check",
+    "--ephemeral",
+    "--json",
+    "--color",
+    "never",
+    "-C",
+    "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/project",
+    "This is a local integration fixture. Respond with LOCAL_FIXTURE_COMPLETE. Do not execute shell commands."
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793100105862893015/project",
+  "exit_code": 0,
+  "stdout": "codex-exec.stdout.txt",
+  "stderr": "codex-exec.stderr.txt"
+}

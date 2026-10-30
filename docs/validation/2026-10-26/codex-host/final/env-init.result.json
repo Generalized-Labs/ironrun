@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/ironrun",
+    "env",
+    "init",
+    "dev"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project",
+  "exit_code": 0,
+  "stdout": "env-init.stdout.txt",
+  "stderr": "env-init.stderr.txt"
+}

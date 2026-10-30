@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/ironrun",
+    "trust",
+    "grant",
+    "req_74d67277c4902ad60024ff72",
+    "--ttl",
+    "1m"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project",
+  "exit_code": 0,
+  "stdout": "trust-grant.stdout.txt",
+  "stderr": "trust-grant.stderr.txt"
+}

@@ -1,0 +1,63 @@
+ironrun resolves configured credentials for authorized child commands.
+Captured stdout/stderr is filtered for known values and supported encodings.
+Matching has limits; see SECURITY.md for partial disclosure and containment scope.
+
+Usage:
+  ironrun [flags]
+  ironrun [command]
+
+Everyday commands:
+  add         Add a secret to the active environment
+  dashboard   Open the Ironrun local vault and agent-access control room
+  env         Manage project-scoped environment sets without exposing values
+  envs        List environments without showing values
+  file        Encrypt a file secret in the active environment
+  import      Preview and encrypt selected dotenv keys into the active environment
+  inbox       Open the global waiting-request inbox
+  new         Create and activate a persistent environment
+  open        Register or open a project workspace
+  run         Execute a sealed command by its policy ID
+  session     Create and activate an expiring session environment
+  status      Show a value-blind project summary
+  use         Switch the active environment
+
+Agents and sharing:
+  agents      Review agent requests and manage revocable session leases
+  api         Serve the value-blind local API over an owner-only Unix socket
+  daemon      Manage the value-blind per-user Ironrun service
+  mcp         Start MCP stdio server (for Claude Code, Cursor, etc.)
+  share       Create chat-safe, one-use encrypted secret capsules
+  trust       Manage trusted agent workspace sessions
+
+Setup and safety:
+  doctor      Diagnose your ironrun setup (policy, environment, provider, commands)
+  lint        Run security checks over the policy file
+  migrate     Preview or apply a reversible policy-v2 migration
+  setup       Initialize ironrun in the current project
+  validate    Validate a policy file without executing anything
+
+Advanced commands:
+  approve     Approve a proposed command and add it to ironrun.yml
+  audit       Inspect the tamper-evident audit log
+  projects    Repair or remove registered project paths
+  reject      Reject a proposed command
+  review      Review commands agents have proposed for your approval
+  secrets     Store and manage host-side secret values
+  version     Print version
+
+Leak prevention:
+  agent-scrub Scrub vault values from AI agent session logs (dry-run by default)
+  gh          Harden GitHub repos against secret leaks via the gh CLI
+  git         Git leak prevention: install blocking hooks, scan diffs
+  history     Purge managed secret values from shell history files
+  shell       Shell history hygiene: guard snippets for your rc files
+
+Additional Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+
+Flags:
+  -h, --help            help for ironrun
+  -p, --policy string   Path to policy file (default "ironrun.yml")
+
+Use "ironrun [command] --help" for more information about a command.

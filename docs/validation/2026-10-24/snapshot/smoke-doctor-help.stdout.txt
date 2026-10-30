@@ -1,0 +1,19 @@
+Runs read-only checks against your ironrun setup:
+  • the policy file parses and is a supported version
+  • local environment metadata matches this project, is selected and unexpired,
+    and contains required entry names (for policies using local entries)
+  • the legacy secret provider is installed and authenticated where checkable
+  • the redaction engine actually strips a known secret from output
+  • each command's binary resolves on PATH
+
+Exits non-zero if any check fails. Saved commands are not executed and no secret
+values are resolved. Local vault access and decryption are not checked.
+
+Usage:
+  ironrun doctor [flags]
+
+Flags:
+  -h, --help   help for doctor
+
+Global Flags:
+  -p, --policy string   Path to policy file (default "ironrun.yml")

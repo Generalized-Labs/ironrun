@@ -1,0 +1,26 @@
+--- before/cmd/ironrun/init.go
++++ after/cmd/ironrun/init.go
+@@ -213,9 +213,9 @@
+ 	fmt.Println()
+ 	fmt.Println("Step 3 of 3 — that's the whole model:")
+ 	fmt.Println("  • Secrets live encrypted at rest; ironrun.yml holds only names.")
+-	fmt.Println("  • Values resolve into the child process's environment only —")
+-	fmt.Println("    never your shell, never the agent's context, never disk.")
+-	fmt.Println("  • Everything the child prints is redacted before anyone sees it.")
++	fmt.Println("  • Values are injected into child environments or private temporary files.")
++	fmt.Println("  • Intercepted stdout and stderr filter known values and supported encodings.")
++	fmt.Println("    Other transformations, files, and network traffic can still disclose values.")
+ 	fmt.Println()
+ 	fmt.Println("  Clean up the demo:   ironrun env delete dev DEMO_TOKEN")
+ 	fmt.Println("  Store a real secret: ironrun env set API_KEY   (masked prompt)")
+--- before/README.md
++++ after/README.md
+@@ -81,7 +81,7 @@
+ │  2. Resolve its encrypted environment entries               │
+ │  3. Run the command with those secrets injected             │
+ │  4. Stream output through a redactor:                       │
+-│        any secret value that appears  →  [REDACTED]         │
++│        registered matches  →  [REDACTED]                    │
+ │  5. Hand back exit code + cleaned output                    │
+ │                                                             │
+ │  Agent sees:   exit_code=0, stdout="ok  tests passed"      │

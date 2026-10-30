@@ -1,0 +1,22 @@
+Official sources retrieved for the local host fixture:
+https://developers.openai.com/codex/config-reference/
+https://developers.openai.com/codex/config-advanced/
+https://developers.openai.com/codex/mcp/
+
+- `mcp_servers`
+Codex and ChatGPT Work no longer support `approval_policy = "untrusted"`. Remove the setting or choose a supported policy. Project entries with `trust_level = "untrusted"` in user-level `~/.codex/config.toml` remain supported. See Migrate from the retired `untrusted` approval policy for examples and approval tradeoffs.
+| `apps._default.default_tools_approval_mode` | `auto | prompt | writes | approve` | Default approval behavior for app tools without per-app or per-tool overrides. |
+| `apps..default_tools_approval_mode` | `auto | prompt | writes | approve` | Default approval behavior for tools in this app unless a per-tool override exists. |
+| `apps..tools..approval_mode` | `auto | prompt | writes | approve` | Per-tool approval behavior override for a single app tool. |
+- Keys can use dot notation to set nested values (for example, `mcp_servers.context7.enabled=false`).
+model_provider = "proxy"
+wire_api = "responses"
+The auth command receives no `stdin` and must print the token to stdout. Codex trims surrounding whitespace, treats an empty token as an error, and refreshes proactively at `refresh_interval_ms`; set `refresh_interval_ms = 0` to refresh only after an authentication retry. Don’t combine `[model_providers..auth]` with `env_key`, `experimental_bearer_token`, or `requires_openai_auth`.
+wire_api = "responses"
+In Local computer access with Work Cloud, the enterprise `mcp_servers` TOML requirement in Agent Security applies to local executors. Cloud containers retain Work Cloud policies. Local MCP servers and transports may not be available in the cloud; check connectivity and authentication separately.
+Configure each MCP server with a `[mcp_servers.]` table in the configuration file.
+- `startup_timeout_sec` (optional): Timeout (seconds) for the server to start. Default: `10`.
+- `tool_timeout_sec` (optional): Timeout (seconds) for the server to run a tool. Default: `60`.
+- `default_tools_approval_mode` (optional): Default approval behavior for tools from this server. Supported values are `auto`, `prompt`, `writes`, and `approve`. The `writes` mode prompts for tools that aren’t marked read-only.
+- `tools..approval_mode` (optional): Per-tool approval behavior override.
+The top-level `mcp_optional_startup_grace_ms` setting controls how long Codex waits for optional MCP servers when building the initial tool catalog. It defaults to `1000` milliseconds. Set it to `0` to wait for each server’s `startup_timeout_sec` instead. Required servers still use their startup timeouts.

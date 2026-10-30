@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-research/fresh-pilot/eval",
+    "-only",
+    "perf"
+  ],
+  "cpu_stat_after": "usage_usec 198081943\nuser_usec 158083141\nsystem_usec 39998802\nnice_usec 0\nnr_periods 29103\nnr_throttled 557\nthrottled_usec 48286743\nnr_bursts 0\nburst_usec 0",
+  "cpu_stat_before": "usage_usec 194098126\nuser_usec 154099323\nsystem_usec 39998802\nnice_usec 0\nnr_periods 29063\nnr_throttled 557\nthrottled_usec 48286743\nnr_bursts 0\nburst_usec 0",
+  "cwd": "/workspace/ironrun-product-review",
+  "end_utc": "2026-10-22T13:48:09.649008+00:00",
+  "exit_code": 1,
+  "load_average_after": [
+    0.18115234375,
+    0.18115234375,
+    0.1064453125
+  ],
+  "load_average_before": [
+    0.0224609375,
+    0.150390625,
+    0.09619140625
+  ],
+  "phase": "perf",
+  "start_utc": "2026-10-22T13:48:05.662011+00:00",
+  "stderr_bytes": 0,
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 252,
+  "stdout_sha256": "af4e3e385d8759b84632d60c2fce3cf26b0999459f21a584f58ef948c19b5dc5",
+  "wall_ns": 3986924976
+}

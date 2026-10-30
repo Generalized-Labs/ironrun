@@ -1,0 +1,41 @@
+{
+  "observed_at_utc": "2026-10-27T11:41:48.081036+00:00",
+  "rows": [
+    {
+      "path": "cmd/ironrun/main.go",
+      "before_sha256": "7ceba67c8b423c8704e84dc01400be2d96144c9ab6260676567f5c11c2801418",
+      "current_sha256": "5bf69f51fcfd115749ba440b070abe1dbc07a6303f989fd418bfa29118e8e8c5"
+    },
+    {
+      "path": "cmd/ironrun/init.go",
+      "before_sha256": "1663af9c2dd5678bc085e6f281b58786f167711551b69e6dd638561c9280faa3",
+      "current_sha256": "4bbcdbf3e6acb1939dc7ad484db37c8ec54ede39cb937e82caaf56d8541fd7da"
+    },
+    {
+      "path": "cmd/ironrun/instructions.go",
+      "before_sha256": "bb5e3f074081e35eb2c5a3ddeddbf25abf8b7bd06611794bc0db52a924a0c2f1",
+      "current_sha256": "bb5e3f074081e35eb2c5a3ddeddbf25abf8b7bd06611794bc0db52a924a0c2f1"
+    },
+    {
+      "path": "mcp/server.go",
+      "before_sha256": "9efac5434d4c74ebb8adbc26cd66fceb374c09e52aeecfceecbc77add72c0dd4",
+      "current_sha256": "c585b0004ea56fa2de402987269ed1caa0446795b19648dab2caaa47dc0464d2"
+    },
+    {
+      "path": ".goreleaser.yml",
+      "before_sha256": "a2a19329fba334f167c3c8c404c4c1dfaee7699c7f8f209d88a60faba80153b7",
+      "current_sha256": "edd5602f650aea3717880489085f6ae7eed46280f2f29c6c88962f093ab7e626"
+    },
+    {
+      "path": "README.md",
+      "before_sha256": "855182e2d14b93ad12956eddfb07ec8954f2aa26bfa9a3c9ca81f5cb11fe5312",
+      "current_sha256": "b60b5540a0a01b7c9fb3db1bda8a8c74edf6d22d019d4484a0a7b619bebd2e63"
+    },
+    {
+      "path": "SECURITY.md",
+      "before_sha256": null,
+      "current_sha256": "e95b04ba6124950a74fe7ca244058b19089f933b142e2b319903c8c08b6a8ea8"
+    }
+  ],
+  "phase": "Run1 native compilation/archive completed; SBOM generation in progress. Parent informed subsequent copy-only changes are expected."
+}

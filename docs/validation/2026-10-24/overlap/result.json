@@ -1,0 +1,19 @@
+{
+  "scope": "synthetic overlap counterexample; not a general leakage experiment",
+  "go": "1.26.10 linux/amd64",
+  "command": "GO111MODULE=off go run main.go redact.go encodings.go",
+  "exit_code": 0,
+  "observed_stdout": {
+    "chunked_equal": true,
+    "output": "[REDACTED]abcdefghijklmnopqrstuv",
+    "second_value_bytes": 23,
+    "second_value_contiguous_residual_bytes": 22,
+    "values": [
+      "prefix-X",
+      "Xabcdefghijklmnopqrstuv"
+    ]
+  },
+  "pattern_construction": "each literal plus Encodings(value,8), matching runner registration thresholds for these values",
+  "source": "unmodified current redact.go/encodings.go except package changed from redact to main; SHA256 of original bytes in source-hashes.json",
+  "limitations": "one hand-built overlap; no new universal residual bound inferred"
+}

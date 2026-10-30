@@ -1,0 +1,73 @@
+[
+  {
+    "name": "rea-go-binary",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "inspect-go-binary",
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "--format",
+      "json",
+      "--full-output"
+    ],
+    "exit_code": 0,
+    "started_at_utc": "2026-10-30T03:19:05.989894+00:00",
+    "ended_at_utc": "2026-10-30T03:19:07.321492+00:00",
+    "elapsed_seconds": 1.331605318999209,
+    "output": "rea-go-binary.json",
+    "output_sha256": "62fa4a73c48e6dd3245074f94abcbe556ad06268f26a1aa34d7cd055c621bad0",
+    "stderr": "rea-go-binary.stderr.txt"
+  },
+  {
+    "name": "rea-elf-layout",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "inspect-binary-layout",
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "--format",
+      "json",
+      "--full-output"
+    ],
+    "exit_code": 1,
+    "started_at_utc": "2026-10-30T03:19:07.321557+00:00",
+    "ended_at_utc": "2026-10-30T03:19:08.960237+00:00",
+    "elapsed_seconds": 1.638728332996834,
+    "output": "rea-elf-layout.json",
+    "output_sha256": "4acf72e5f396530dfe7b73a753a0f8939e9775d9fa7031a674682eef2fa13160",
+    "stderr": "rea-elf-layout.stderr.txt"
+  },
+  {
+    "name": "rea-objdump-file-headers",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "inspect-with-objdump",
+      "/workspace/ironrun-product-research/launch-20261026/snapshot/dist-run2/ironrun_linux_amd64_v1/ironrun",
+      "file_headers",
+      "--format",
+      "json",
+      "--full-output"
+    ],
+    "exit_code": 0,
+    "started_at_utc": "2026-10-30T03:19:08.960304+00:00",
+    "ended_at_utc": "2026-10-30T03:19:10.535791+00:00",
+    "elapsed_seconds": 1.5754981499994756,
+    "output": "rea-objdump-file-headers.json",
+    "output_sha256": "a734c1a489466382ec514324b447e3abf2104b2707de31aad1ad9ec933746e54",
+    "stderr": "rea-objdump-file-headers.stderr.txt"
+  },
+  {
+    "name": "rea-providers",
+    "argv": [
+      "/workspace/ironrun-product-tools/rea/node_modules/.bin/rea",
+      "providers",
+      "--format",
+      "json"
+    ],
+    "exit_code": 0,
+    "started_at_utc": "2026-10-30T03:19:10.535842+00:00",
+    "ended_at_utc": "2026-10-30T03:19:11.858628+00:00",
+    "elapsed_seconds": 1.322800609996193,
+    "output": "rea-providers.json",
+    "output_sha256": "89be4d3588079b951d8f1f119f1b9f89e3753c11bae2cc500d8951b83dd3186a",
+    "stderr": "rea-providers.stderr.txt"
+  }
+]

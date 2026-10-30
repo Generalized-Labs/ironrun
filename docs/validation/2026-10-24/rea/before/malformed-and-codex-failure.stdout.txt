@@ -1,0 +1,26 @@
+Initializing ironrun in malformed-and-codex-failure...
+
+  • ironrun.yml already exists — skipping
+  • Registered project in the global Ironrun workspace
+  ⚠  Could not update .mcp.json: could not parse .mcp.json: unexpected end of JSON input
+  • CLAUDE.md already exists — skipping
+  • AGENTS.md already exists — skipping
+  • .cursorrules already exists — skipping
+  ⚠  Codex: failed to register ironrun
+     Error: exit status 23
+synthetic registration failure
+
+     To add manually: codex mcp add ironrun -- ironrun mcp
+  ⚠  Could not update ~/.cursor/mcp.json: could not parse ~/.cursor/mcp.json: unexpected end of JSON input
+
+Done! Next steps:
+
+  1. Run ironrun to open Projects and the agent inbox
+  2. Press Enter on this project, then choose Add secret or Import .env
+  3. Check your setup: ironrun doctor
+  4. Test: ironrun run <command-id>
+
+Then start your AI agent — it will use run_sealed() via MCP automatically.
+  • Claude Code: uses .mcp.json (per-project, already set up)
+  • Codex:       uses ~/.codex/config.toml (global, registered above)
+  • Cursor:      uses ~/.cursor/mcp.json (global, merged above)

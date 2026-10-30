@@ -1,0 +1,271 @@
+﻿2026-10-25T21:13:38.5230895Z Current runner version: '2.338.0'
+2026-10-25T21:13:38.5254411Z ##[group]Runner Image Provisioner
+2026-10-25T21:13:38.5255241Z Hosted Compute Agent
+2026-10-25T21:13:38.5255965Z Version: 20261021.618
+2026-10-25T21:13:38.5256957Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-10-25T21:13:38.5258343Z Build Date: 2026-10-21T00:45:21Z
+2026-10-25T21:13:38.5259569Z Worker ID: {d1d79340-e739-49c9-a326-21fd3373cff7}
+2026-10-25T21:13:38.5260830Z Region: southcentralus
+2026-10-25T21:13:38.5262046Z Cloud: Azure
+2026-10-25T21:13:38.5263369Z ##[endgroup]
+2026-10-25T21:13:38.5265624Z ##[group]Operating System
+2026-10-25T21:13:38.5266820Z Ubuntu
+2026-10-25T21:13:38.5267772Z 24.04.5
+2026-10-25T21:13:38.5268826Z LTS
+2026-10-25T21:13:38.5269826Z ##[endgroup]
+2026-10-25T21:13:38.5271015Z ##[group]Runner Image
+2026-10-25T21:13:38.5272111Z Image: ubuntu-24.04
+2026-10-25T21:13:38.5273535Z Version: 20261012.334.1
+2026-10-25T21:13:38.5275908Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261012.334/images/ubuntu/Ubuntu2404-Readme.md
+2026-10-25T21:13:38.5278823Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261012.334
+2026-10-25T21:13:38.5280584Z ##[endgroup]
+2026-10-25T21:13:38.5283022Z ##[group]GITHUB_TOKEN Permissions
+2026-10-25T21:13:38.5285989Z Contents: read
+2026-10-25T21:13:38.5286988Z Metadata: read
+2026-10-25T21:13:38.5288101Z Packages: read
+2026-10-25T21:13:38.5289046Z ##[endgroup]
+2026-10-25T21:13:38.5291811Z Secret source: Actions
+2026-10-25T21:13:38.5293890Z Cache mode: write
+2026-10-25T21:13:38.5295318Z Prepare workflow directory
+2026-10-25T21:13:38.5658059Z Prepare all required actions
+2026-10-25T21:13:38.5704677Z Getting action download info
+2026-10-25T21:13:38.8592803Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-25T21:13:38.9521006Z Download action repository 'actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff' (SHA:40f1582b2485089dde7abd97c1529aa768e1baff)
+2026-10-25T21:13:39.6408147Z Complete job name: Lint
+2026-10-25T21:13:39.7258191Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-10-25T21:13:39.7259256Z with:
+2026-10-25T21:13:39.7259714Z   repository: Generalized-Labs/ironrun
+2026-10-25T21:13:39.7263619Z   token: ***
+2026-10-25T21:13:39.7264056Z   ssh-strict: true
+2026-10-25T21:13:39.7264501Z   ssh-user: git
+2026-10-25T21:13:39.7264962Z   persist-credentials: true
+2026-10-25T21:13:39.7265459Z   clean: true
+2026-10-25T21:13:39.7265911Z   sparse-checkout-cone-mode: true
+2026-10-25T21:13:39.7266477Z   fetch-depth: 1
+2026-10-25T21:13:39.7266917Z   fetch-tags: false
+2026-10-25T21:13:39.7267362Z   show-progress: true
+2026-10-25T21:13:39.7267820Z   lfs: false
+2026-10-25T21:13:39.7268238Z   submodules: false
+2026-10-25T21:13:39.7268703Z   set-safe-directory: true
+2026-10-25T21:13:39.7269220Z   allow-unsafe-pr-checkout: false
+2026-10-25T21:13:39.7270014Z ##[endgroup]
+2026-10-25T21:13:39.8324513Z Syncing repository: Generalized-Labs/ironrun
+2026-10-25T21:13:39.8326730Z ##[group]Getting Git version info
+2026-10-25T21:13:39.8327487Z Working directory is '/home/runner/work/ironrun/ironrun'
+2026-10-25T21:13:39.8329198Z [command]/usr/bin/git version
+2026-10-25T21:13:39.8442168Z git version 2.55.0
+2026-10-25T21:13:39.8463613Z ##[endgroup]
+2026-10-25T21:13:39.8480736Z Temporarily overriding HOME='/home/runner/work/_temp/b9034588-99d5-4727-88ae-eb0d14725e13' before making global git config changes
+2026-10-25T21:13:39.8483274Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T21:13:39.8486003Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ironrun/ironrun
+2026-10-25T21:13:39.8542955Z Deleting the contents of '/home/runner/work/ironrun/ironrun'
+2026-10-25T21:13:39.8549165Z ##[group]Initializing the repository
+2026-10-25T21:13:39.8553354Z [command]/usr/bin/git init /home/runner/work/ironrun/ironrun
+2026-10-25T21:13:39.8689991Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-25T21:13:39.8695130Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-25T21:13:39.8697441Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-25T21:13:39.8699271Z hint: call:
+2026-10-25T21:13:39.8700423Z hint:
+2026-10-25T21:13:39.8701678Z hint: 	git config --global init.defaultBranch <name>
+2026-10-25T21:13:39.8703373Z hint:
+2026-10-25T21:13:39.8704818Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-25T21:13:39.8706465Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-25T21:13:39.8707731Z hint:
+2026-10-25T21:13:39.8708374Z hint: 	git branch -m <name>
+2026-10-25T21:13:39.8709141Z hint:
+2026-10-25T21:13:39.8710198Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-25T21:13:39.8711729Z Initialized empty Git repository in /home/runner/work/ironrun/ironrun/.git/
+2026-10-25T21:13:39.8714819Z [command]/usr/bin/git remote add origin https://github.com/Generalized-Labs/ironrun
+2026-10-25T21:13:39.8774744Z ##[endgroup]
+2026-10-25T21:13:39.8776298Z ##[group]Disabling automatic garbage collection
+2026-10-25T21:13:39.8778411Z [command]/usr/bin/git config --local gc.auto 0
+2026-10-25T21:13:39.8811405Z ##[endgroup]
+2026-10-25T21:13:39.8812945Z ##[group]Setting up auth
+2026-10-25T21:13:39.8818784Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T21:13:39.8854209Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T21:13:39.9235512Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T21:13:39.9271050Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T21:13:39.9489289Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T21:13:39.9524986Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T21:13:39.9743643Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-25T21:13:39.9784302Z ##[endgroup]
+2026-10-25T21:13:39.9792976Z ##[group]Fetching the repository
+2026-10-25T21:13:39.9794755Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +c3499de7c5800df6955f9f47945bbb08db2ebd87:refs/remotes/pull/16/merge
+2026-10-25T21:13:40.5909733Z From https://github.com/Generalized-Labs/ironrun
+2026-10-25T21:13:40.5912723Z  * [new ref]         c3499de7c5800df6955f9f47945bbb08db2ebd87 -> pull/16/merge
+2026-10-25T21:13:40.5928311Z ##[endgroup]
+2026-10-25T21:13:40.5931269Z ##[group]Determining the checkout info
+2026-10-25T21:13:40.5935223Z ##[endgroup]
+2026-10-25T21:13:40.5937497Z [command]/usr/bin/git sparse-checkout disable
+2026-10-25T21:13:40.5995262Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-25T21:13:40.6031358Z ##[group]Checking out the ref
+2026-10-25T21:13:40.6034490Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/16/merge
+2026-10-25T21:13:40.6438347Z Note: switching to 'refs/remotes/pull/16/merge'.
+2026-10-25T21:13:40.6439578Z 
+2026-10-25T21:13:40.6440467Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-10-25T21:13:40.6442747Z changes and commit them, and you can discard any commits you make in this
+2026-10-25T21:13:40.6444808Z state without impacting any branches by switching back to a branch.
+2026-10-25T21:13:40.6445965Z 
+2026-10-25T21:13:40.6447211Z If you want to create a new branch to retain commits you create, you may
+2026-10-25T21:13:40.6449887Z do so (now or later) by using -c with the switch command. Example:
+2026-10-25T21:13:40.6451759Z 
+2026-10-25T21:13:40.6452362Z   git switch -c <new-branch-name>
+2026-10-25T21:13:40.6453605Z 
+2026-10-25T21:13:40.6454195Z Or undo this operation with:
+2026-10-25T21:13:40.6455115Z 
+2026-10-25T21:13:40.6455701Z   git switch -
+2026-10-25T21:13:40.6456448Z 
+2026-10-25T21:13:40.6457731Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-10-25T21:13:40.6459546Z 
+2026-10-25T21:13:40.6461408Z HEAD is now at c3499de Merge 5320554323194d4c481a17eb2e8cb75f1a226914 into 8e3c354d95db18d91af029c9081b4da4825d2680
+2026-10-25T21:13:40.6467124Z ##[endgroup]
+2026-10-25T21:13:40.6493822Z [command]/usr/bin/git log -1 --format=%H
+2026-10-25T21:13:40.6519214Z c3499de7c5800df6955f9f47945bbb08db2ebd87
+2026-10-25T21:13:40.6957302Z ##[group]Run actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+2026-10-25T21:13:40.7023296Z with:
+2026-10-25T21:13:40.7024627Z   go-version-file: go.mod
+2026-10-25T21:13:40.7025795Z   cache: true
+2026-10-25T21:13:40.7026753Z   check-latest: false
+2026-10-25T21:13:40.7036852Z   token: ***
+2026-10-25T21:13:40.7037775Z ##[endgroup]
+2026-10-25T21:13:40.8330825Z Setup go version spec 1.26.10
+2026-10-25T21:13:40.8343020Z Attempting to download 1.26.10...
+2026-10-25T21:13:40.8449718Z (node:2432) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:13:40.8453832Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:13:41.7330867Z matching 1.26.10...
+2026-10-25T21:13:41.7364350Z Acquiring 1.26.10 from https://github.com/actions/go-versions/releases/download/1.26.10-39437851726/go-1.26.10-linux-x64.tar.gz
+2026-10-25T21:13:42.3422278Z Extracting Go...
+2026-10-25T21:13:42.3551444Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/7152061c-8a4a-45cf-b824-1cc51de2361f -f /home/runner/work/_temp/b2177b0c-0086-4d0b-96ed-1d087e34aa90
+2026-10-25T21:13:43.9563367Z Successfully extracted go to /home/runner/work/_temp/7152061c-8a4a-45cf-b824-1cc51de2361f
+2026-10-25T21:13:43.9564667Z Adding to the cache ...
+2026-10-25T21:13:49.0579981Z Successfully cached go to /opt/hostedtoolcache/go/1.26.10/x64
+2026-10-25T21:13:49.0582969Z Added go to the path
+2026-10-25T21:13:49.0586126Z Successfully set up Go version 1.26.10
+2026-10-25T21:13:49.0819238Z [command]/opt/hostedtoolcache/go/1.26.10/x64/bin/go env GOMODCACHE
+2026-10-25T21:13:49.0868694Z [command]/opt/hostedtoolcache/go/1.26.10/x64/bin/go env GOCACHE
+2026-10-25T21:13:49.0918780Z /home/runner/go/pkg/mod
+2026-10-25T21:13:49.0935814Z /home/runner/.cache/go-build
+2026-10-25T21:13:49.2443074Z Cache hit for: setup-go-Linux-x64-ubuntu24-go-1.26.10-4fa4422de50d68c8855ad99954a1a10ab5db09452145f68ee3334aaa8c852ae4
+2026-10-25T21:13:49.2548403Z (node:2432) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-10-25T21:13:50.4145377Z Received 83886080 of 169919506 (49.4%), 79.5 MBs/sec
+2026-10-25T21:13:51.4155540Z Received 134217728 of 169919506 (79.0%), 63.8 MBs/sec
+2026-10-25T21:13:51.5936385Z Received 169919506 of 169919506 (100.0%), 74.2 MBs/sec
+2026-10-25T21:13:51.5939337Z Cache Size: ~162 MB (169919506 B)
+2026-10-25T21:13:51.5973472Z [command]/usr/bin/tar -xf /home/runner/work/_temp/2f68b205-a5d3-474a-ad50-f09a58516141/cache.tzst -P -C /home/runner/work/ironrun/ironrun --use-compress-program unzstd
+2026-10-25T21:13:52.9908889Z Cache restored successfully
+2026-10-25T21:13:52.9989132Z Cache restored from key: setup-go-Linux-x64-ubuntu24-go-1.26.10-4fa4422de50d68c8855ad99954a1a10ab5db09452145f68ee3334aaa8c852ae4
+2026-10-25T21:13:53.0016746Z go version go1.26.10 linux/amd64
+2026-10-25T21:13:53.0017076Z 
+2026-10-25T21:13:53.0017526Z ##[group]go env
+2026-10-25T21:13:53.0170244Z AR='ar'
+2026-10-25T21:13:53.0170631Z CC='gcc'
+2026-10-25T21:13:53.0171039Z CGO_CFLAGS='-O2 -g'
+2026-10-25T21:13:53.0171859Z CGO_CPPFLAGS=''
+2026-10-25T21:13:53.0172318Z CGO_CXXFLAGS='-O2 -g'
+2026-10-25T21:13:53.0172996Z CGO_ENABLED='1'
+2026-10-25T21:13:53.0173378Z CGO_FFLAGS='-O2 -g'
+2026-10-25T21:13:53.0173724Z CGO_LDFLAGS='-O2 -g'
+2026-10-25T21:13:53.0174064Z CXX='g++'
+2026-10-25T21:13:53.0174381Z GCCGO='gccgo'
+2026-10-25T21:13:53.0174717Z GO111MODULE=''
+2026-10-25T21:13:53.0175053Z GOAMD64='v1'
+2026-10-25T21:13:53.0175376Z GOARCH='amd64'
+2026-10-25T21:13:53.0175728Z GOAUTH='netrc'
+2026-10-25T21:13:53.0176051Z GOBIN=''
+2026-10-25T21:13:53.0176408Z GOCACHE='/home/runner/.cache/go-build'
+2026-10-25T21:13:53.0176868Z GOCACHEPROG=''
+2026-10-25T21:13:53.0177209Z GODEBUG=''
+2026-10-25T21:13:53.0177568Z GOENV='/home/runner/.config/go/env'
+2026-10-25T21:13:53.0177985Z GOEXE=''
+2026-10-25T21:13:53.0178581Z GOEXPERIMENT=''
+2026-10-25T21:13:53.0178975Z GOFIPS140='off'
+2026-10-25T21:13:53.0179297Z GOFLAGS=''
+2026-10-25T21:13:53.0180443Z GOGCCFLAGS='-fPIC -m64 -pthread -Wl,--no-gc-sections -fmessage-length=0 -ffile-prefix-map=/tmp/go-build552617775=/tmp/go-build -gno-record-gcc-switches'
+2026-10-25T21:13:53.0181609Z GOHOSTARCH='amd64'
+2026-10-25T21:13:53.0181971Z GOHOSTOS='linux'
+2026-10-25T21:13:53.0182308Z GOINSECURE=''
+2026-10-25T21:13:53.0182982Z GOMOD='/home/runner/work/ironrun/ironrun/go.mod'
+2026-10-25T21:13:53.0183527Z GOMODCACHE='/home/runner/go/pkg/mod'
+2026-10-25T21:13:53.0183972Z GONOPROXY=''
+2026-10-25T21:13:53.0184310Z GONOSUMDB=''
+2026-10-25T21:13:53.0184629Z GOOS='linux'
+2026-10-25T21:13:53.0184964Z GOPATH='/home/runner/go'
+2026-10-25T21:13:53.0185342Z GOPRIVATE=''
+2026-10-25T21:13:53.0185773Z GOPROXY='https://proxy.golang.org,direct'
+2026-10-25T21:13:53.0186328Z GOROOT='/opt/hostedtoolcache/go/1.26.10/x64'
+2026-10-25T21:13:53.0186812Z GOSUMDB='sum.golang.org'
+2026-10-25T21:13:53.0187213Z GOTELEMETRY='local'
+2026-10-25T21:13:53.0187661Z GOTELEMETRYDIR='/home/runner/.config/go/telemetry'
+2026-10-25T21:13:53.0188167Z GOTMPDIR=''
+2026-10-25T21:13:53.0188490Z GOTOOLCHAIN='auto'
+2026-10-25T21:13:53.0189096Z GOTOOLDIR='/opt/hostedtoolcache/go/1.26.10/x64/pkg/tool/linux_amd64'
+2026-10-25T21:13:53.0189726Z GOVCS=''
+2026-10-25T21:13:53.0190061Z GOVERSION='go1.26.10'
+2026-10-25T21:13:53.0190426Z GOWORK=''
+2026-10-25T21:13:53.0190767Z PKG_CONFIG='pkg-config'
+2026-10-25T21:13:53.0191016Z 
+2026-10-25T21:13:53.0191423Z ##[endgroup]
+2026-10-25T21:13:53.0407024Z ##[group]Run python3 -m unittest discover -s tests -p release_test.py -v
+2026-10-25T21:13:53.0407631Z [36;1mpython3 -m unittest discover -s tests -p release_test.py -v[0m
+2026-10-25T21:13:53.0695019Z shell: /usr/bin/bash -e {0}
+2026-10-25T21:13:53.0695335Z ##[endgroup]
+2026-10-25T21:13:53.4780950Z test_different_signed_release_is_rejected (release_test.InstallerTests.test_different_signed_release_is_rejected) ... ok
+2026-10-25T21:13:53.8150401Z test_hyphenated_prerelease_identity_is_end_anchored (release_test.InstallerTests.test_hyphenated_prerelease_identity_is_end_anchored) ... ok
+2026-10-25T21:13:54.6425738Z test_matching_prereleases_install (release_test.InstallerTests.test_matching_prereleases_install) ... ok
+2026-10-25T21:13:55.0459029Z test_matching_release_installs (release_test.InstallerTests.test_matching_release_installs) ... ok
+2026-10-25T21:13:55.3286358Z test_missing_bundle_is_rejected (release_test.InstallerTests.test_missing_bundle_is_rejected) ... ok
+2026-10-25T21:13:55.6674544Z test_missing_checksum_is_rejected (release_test.InstallerTests.test_missing_checksum_is_rejected) ... ok
+2026-10-25T21:13:56.0102221Z test_tampered_archive_is_rejected (release_test.InstallerTests.test_tampered_archive_is_rejected) ... ok
+2026-10-25T21:13:57.0136272Z test_version_dots_are_literal_and_tag_is_end_anchored (release_test.InstallerTests.test_version_dots_are_literal_and_tag_is_end_anchored) ... ok
+2026-10-25T21:13:57.0140960Z test_all_prereleases_route_to_next (release_test.ReleaseConfigurationTests.test_all_prereleases_route_to_next) ... ok
+2026-10-25T21:13:57.0144425Z test_release_is_draft_until_signing_finishes (release_test.ReleaseConfigurationTests.test_release_is_draft_until_signing_finishes) ... ok
+2026-10-25T21:13:57.0146108Z test_release_stamp_uses_commit_date (release_test.ReleaseConfigurationTests.test_release_stamp_uses_commit_date) ... ok
+2026-10-25T21:13:57.0146613Z 
+2026-10-25T21:13:57.0146807Z ----------------------------------------------------------------------
+2026-10-25T21:13:57.0153361Z Ran 11 tests in 3.878s
+2026-10-25T21:13:57.0153628Z 
+2026-10-25T21:13:57.0153758Z OK
+2026-10-25T21:13:57.0279770Z ##[group]Run out="$(gofmt -l .)"
+2026-10-25T21:13:57.0280110Z [36;1mout="$(gofmt -l .)"[0m
+2026-10-25T21:13:57.0280365Z [36;1mif [ -n "$out" ]; then[0m
+2026-10-25T21:13:57.0280655Z [36;1m  echo "These files are not gofmt-clean:"[0m
+2026-10-25T21:13:57.0280955Z [36;1m  echo "$out"[0m
+2026-10-25T21:13:57.0281173Z [36;1m  exit 1[0m
+2026-10-25T21:13:57.0281366Z [36;1mfi[0m
+2026-10-25T21:13:57.0344893Z shell: /usr/bin/bash -e {0}
+2026-10-25T21:13:57.0345152Z ##[endgroup]
+2026-10-25T21:13:57.1045238Z ##[group]Run go vet ./...
+2026-10-25T21:13:57.1045635Z [36;1mgo vet ./...[0m
+2026-10-25T21:13:57.1106926Z shell: /usr/bin/bash -e {0}
+2026-10-25T21:13:57.1107188Z ##[endgroup]
+2026-10-25T21:14:16.2512076Z ##[group]Run go install honnef.co/go/tools/cmd/staticcheck@latest
+2026-10-25T21:14:16.2512896Z [36;1mgo install honnef.co/go/tools/cmd/staticcheck@latest[0m
+2026-10-25T21:14:16.2513269Z [36;1mstaticcheck ./...[0m
+2026-10-25T21:14:16.2574668Z shell: /usr/bin/bash -e {0}
+2026-10-25T21:14:16.2574931Z ##[endgroup]
+2026-10-25T21:14:16.5986854Z go: downloading honnef.co/go/tools v0.8.2
+2026-10-25T21:14:16.9473728Z go: downloading golang.org/x/tools v0.51.0
+2026-10-25T21:14:17.4303945Z go: downloading golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678
+2026-10-25T21:14:17.4356840Z go: downloading github.com/BurntSushi/toml v1.4.1-0.20240526193622-a339e1f7089c
+2026-10-25T21:14:17.4474323Z go: downloading golang.org/x/mod v0.41.0
+2026-10-25T21:14:17.5154048Z go: downloading golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
+2026-10-25T21:14:34.7341243Z ##[error]cmd/ironrun/mcp_registration.go:162:16: error strings should not be capitalized (ST1005)
+2026-10-25T21:14:34.7348703Z ##[error]cmd/ironrun/mcp_registration.go:170:17: error strings should not be capitalized (ST1005)
+2026-10-25T21:14:34.7364338Z ##[error]Process completed with exit code 1.
+2026-10-25T21:14:34.7532990Z Post job cleanup.
+2026-10-25T21:14:34.8360674Z [command]/usr/bin/git version
+2026-10-25T21:14:34.8404123Z git version 2.55.0
+2026-10-25T21:14:34.8443215Z Temporarily overriding HOME='/home/runner/work/_temp/709884f5-a156-438e-b89b-8c8fb29eb51a' before making global git config changes
+2026-10-25T21:14:34.8445018Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T21:14:34.8448986Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/ironrun/ironrun
+2026-10-25T21:14:34.8488542Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T21:14:34.8535549Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T21:14:34.8780489Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T21:14:34.8809005Z http.https://github.com/.extraheader
+2026-10-25T21:14:34.8820724Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-25T21:14:34.8855780Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T21:14:34.9116051Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T21:14:34.9155375Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T21:14:34.9545538Z Cleaning up orphan processes
+2026-10-25T21:14:34.9914378Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

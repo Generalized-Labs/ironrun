@@ -1,0 +1,27 @@
+Initializing ironrun in malformed-and-codex-failure...
+
+  • ironrun.yml already exists — skipping
+  • Registered project in the global Ironrun workspace
+  • Created CLAUDE.md
+  • Created AGENTS.md
+  • Created .cursorrules
+
+Setup files prepared. Client configuration (host connections not checked):
+  • Claude Code: needs attention (.mcp.json)
+    could not parse client configuration: unexpected end of JSON input
+    Next: Inspect .mcp.json and rerun ironrun setup after resolving the configuration issue.
+  • Codex: needs attention (~/.codex/config.toml)
+    could not add Codex registration: exit status 23
+    Next: Run codex mcp add ironrun -- ironrun mcp after resolving the Codex error.
+  • Cursor: needs attention (~/.cursor/mcp.json)
+    could not parse client configuration: unexpected end of JSON input
+    Next: Inspect ~/.cursor/mcp.json and rerun ironrun setup after resolving the configuration issue.
+
+Next steps:
+
+  1. Run ironrun to open Projects and the agent inbox
+  2. Press Enter on this project, then choose Add secret or Import .env
+  3. Check your setup: ironrun doctor
+  4. Test: ironrun run <command-id>
+
+Open or restart your selected agent, then verify Ironrun in its MCP tools before running commands.

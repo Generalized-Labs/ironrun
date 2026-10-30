@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^(TestRunHandlerTrustedWorkspacePinsEnvironmentAndArgv|TestMCPTrustedWorkspaceLoopbackAndRevocation)$",
+    "-v"
+  ],
+  "exit_code": 1,
+  "scope": "Exact final regression tests before the production fix; actual CLI trust grant and synthetic encrypted-vault/stdio/loopback path, outside additional filesystem sandbox."
+}

@@ -1,0 +1,35 @@
+{
+  "review_completed_utc": "2026-10-24T06:28:27.022282+00:00",
+  "reviewed_manuscript_commit": "bccf7547280804c8cef915a3510b099c99e38cfd",
+  "bib_entries": 86,
+  "cited_entries": 82,
+  "uncited_entries": [
+    "cc_issue65122",
+    "cc_issue6699",
+    "cc_issue8961",
+    "claburn2026register"
+  ],
+  "cited_primary_url_excerpts": 78,
+  "additional_publisher_metadata_entries": 3,
+  "manual_mirror_entries": 1,
+  "claim_assessment_counts": {
+    "scoped_background_supported": 31,
+    "current_documentation_supported": 21,
+    "reported_attack_background": 1,
+    "metadata_and_abstract_supported": 2,
+    "source_code_supported_with_history_limit": 1,
+    "reported_measurement_supported": 2,
+    "specific_statistic_supported": 1,
+    "specific_channel_supported": 1,
+    "secondary_systematization_supported": 1,
+    "current_vendor_claim_supported": 2,
+    "requires_scope_correction": 4,
+    "reported_incident_only": 2,
+    "dated_report_only": 2,
+    "technical_background_only": 8,
+    "manual_mirror_only": 1,
+    "technical_background_with_scope_limit": 2
+  },
+  "scope": "All 82 cited reference identities and citation contexts are accounted for. Checking excerpts/abstracts/metadata is not independent replication of external studies, exhaustive verification of every bibliographic field, or proof of Ironrun correctness.",
+  "search_work": "Reused 10 prior numbered Exa search responses, 7 numbered batch-fetch responses, critical-fetch and product fetches. Completion added no new search calls, one Exa batch of five URLs, six Crossref requests (five success, one HTTP 429), and one official S&P HTML request. Prior requested numResults totals are not retained; no sources-reviewed count is invented."
+}

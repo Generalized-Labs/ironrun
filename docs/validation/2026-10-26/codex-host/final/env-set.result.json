@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/bin/ironrun",
+    "env",
+    "set",
+    "dev",
+    "IRONRUN_E2E_TOKEN",
+    "--from-stdin",
+    "--unsafe"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-20261026/codex-host/mcp-1793101315525752139/project",
+  "exit_code": 0,
+  "stdout": "env-set.stdout.txt",
+  "stderr": "env-set.stderr.txt"
+}

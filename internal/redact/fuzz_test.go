@@ -7,6 +7,8 @@
 //     registered value (>= fragmentMinSecretLen) survives in the output —
 //     this is the fragment-matching guarantee: truncated/pasted fragments
 //     of long secrets are always redacted.
+//  3. Chunked output equals a single Write followed by Flush for the same
+//     fixed patterns and successful underlying writer (chunking invariance).
 //
 // Inputs are written in deterministic uneven chunks to exercise secrets
 // straddling Write boundaries, including whitespace/control-tolerant matches
@@ -147,6 +149,17 @@ func FuzzRedact(f *testing.F) {
 			t.Fatal(err)
 		}
 		out := buf.Bytes()
+		var batch bytes.Buffer
+		wb := New(&batch, all, 0)
+		if _, err := wb.Write(data); err != nil {
+			t.Fatal(err)
+		}
+		if err := wb.Flush(); err != nil {
+			t.Fatal(err)
+		}
+		if !bytes.Equal(out, batch.Bytes()) {
+			t.Fatalf("chunked output differs from batch: chunked=%q batch=%q", out, batch.Bytes())
+		}
 		for _, v := range all {
 			if bytes.Contains(out, []byte(v)) {
 				t.Errorf("registered value leaked: %q in output %q", v, out)

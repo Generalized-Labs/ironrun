@@ -1,0 +1,30 @@
+--- FAIL: TestDoctor_PaddedEnvironmentNames (2.43s)
+    --- FAIL: TestDoctor_PaddedEnvironmentNames/missing=false (2.41s)
+        doctor_test.go:328: runtime-valid padded environment was rejected: exit=1
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ○ Run environment repair commands from "/workspace/ironrun-product-tools/go-tmp/TestDoctor_PaddedEnvironmentNamesmissing=false269787679/001"
+              ✓ project identity matches environment metadata
+              ✗ selected environment metadata is invalid; restore its name and selection in .ironrun/environments.json from your backup
+              ○ Secret values and vault access were not checked
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build1626331191/b001/tests.test" resolves
+            
+            Some checks failed. See above.
+    --- FAIL: TestDoctor_PaddedEnvironmentNames/missing=true (0.03s)
+        doctor_test.go:325: padded environment repair lost argument boundaries: exit=1
+            ironrun doctor
+            
+              ✓ ironrun.yml valid (v2, 1 command(s))
+              ○ Run environment repair commands from "/workspace/ironrun-product-tools/go-tmp/TestDoctor_PaddedEnvironmentNamesmissing=true2473092324/001"
+              ✓ project identity matches environment metadata
+              ✗ selected environment metadata is invalid; restore its name and selection in .ironrun/environments.json from your backup
+              ○ Secret values and vault access were not checked
+              ✓ redaction self-test passed
+              ✓ command "test": "/workspace/ironrun-product-tools/go-tmp/go-build1626331191/b001/tests.test" resolves
+            
+            Some checks failed. See above.
+FAIL
+FAIL	github.com/generalized-labs/ironrun/tests	5.489s
+FAIL

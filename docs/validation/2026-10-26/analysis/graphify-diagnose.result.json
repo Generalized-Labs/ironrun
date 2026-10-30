@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/graphify-env/bin/graphify",
+    "diagnose",
+    "multigraph",
+    "--graph",
+    "/workspace/ironrun-product-research/launch-20261026/analysis/graphify/graphify-out/graph.json",
+    "--json"
+  ],
+  "environment_constants": {
+    "PATH": "/workspace/ironrun-product-tools/graphify-env/bin:/usr/local/bin:/usr/bin:/bin",
+    "HOME": "/workspace/ironrun-product-research/launch-20261026/analysis/isolated-home",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261026/analysis/cache"
+  },
+  "exit_code": 0,
+  "started_at_utc": "2026-10-30T03:21:45.666494+00:00",
+  "ended_at_utc": "2026-10-30T03:21:46.141570+00:00",
+  "elapsed_seconds": 0.47508044600544963,
+  "output": "graphify-multigraph-diagnostic.json",
+  "stderr": ""
+}

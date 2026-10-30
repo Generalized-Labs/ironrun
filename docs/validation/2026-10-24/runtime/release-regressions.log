@@ -1,0 +1,16 @@
+test_different_signed_release_is_rejected (release_test.InstallerTests.test_different_signed_release_is_rejected) ... ok
+test_hyphenated_prerelease_identity_is_end_anchored (release_test.InstallerTests.test_hyphenated_prerelease_identity_is_end_anchored) ... ok
+test_matching_prereleases_install (release_test.InstallerTests.test_matching_prereleases_install) ... ok
+test_matching_release_installs (release_test.InstallerTests.test_matching_release_installs) ... ok
+test_missing_bundle_is_rejected (release_test.InstallerTests.test_missing_bundle_is_rejected) ... ok
+test_missing_checksum_is_rejected (release_test.InstallerTests.test_missing_checksum_is_rejected) ... ok
+test_tampered_archive_is_rejected (release_test.InstallerTests.test_tampered_archive_is_rejected) ... ok
+test_version_dots_are_literal_and_tag_is_end_anchored (release_test.InstallerTests.test_version_dots_are_literal_and_tag_is_end_anchored) ... ok
+test_all_prereleases_route_to_next (release_test.ReleaseConfigurationTests.test_all_prereleases_route_to_next) ... ok
+test_release_is_draft_until_signing_finishes (release_test.ReleaseConfigurationTests.test_release_is_draft_until_signing_finishes) ... ok
+test_release_stamp_uses_commit_date (release_test.ReleaseConfigurationTests.test_release_stamp_uses_commit_date) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 4.266s
+
+OK

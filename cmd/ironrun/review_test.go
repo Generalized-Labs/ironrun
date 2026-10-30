@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -76,6 +78,59 @@ func TestAppendCommandCannotInjectPolicyYAML(t *testing.T) {
 				if c.ID != "test" && c.ID != "vet" {
 					data, _ := os.ReadFile(path)
 					t.Fatalf("proposal smuggled command %q into the policy:\n%s", c.ID, data)
+				}
+			}
+		})
+	}
+}
+
+func TestApproveBindsToReviewedProposalDigest(t *testing.T) {
+	for _, changed := range []bool{false, true} {
+		t.Run(fmt.Sprintf("changed-%v", changed), func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "ironrun.yml")
+			originalPolicy := []byte("version: \"1\"\nprovider: passthrough\ncommands:\n  - id: existing\n    argv: [echo, existing]\n")
+			if err := os.WriteFile(path, originalPolicy, 0600); err != nil {
+				t.Fatal(err)
+			}
+			oldPath := policyPath
+			policyPath = path
+			t.Cleanup(func() { policyPath = oldPath })
+			p := pending.Proposal{ID: "reviewed", Argv: []string{"echo", "reviewed"}, Reason: "fixture", ProposedAt: "original", Status: "pending"}
+			digest := pending.ReviewDigest(p)
+			if changed {
+				p.Argv = []string{"echo", "replacement"}
+				p.ProposedAt = "replacement"
+			}
+			if _, err := pending.Create(pending.Path(path), p); err != nil {
+				t.Fatal(err)
+			}
+			cmd := approveCmd()
+			cmd.SetOut(io.Discard)
+			cmd.SetErr(io.Discard)
+			cmd.SetArgs([]string{"reviewed", "--yes", "--expected-digest", digest})
+			err := cmd.Execute()
+			if changed {
+				if err == nil || !strings.Contains(err.Error(), "changed since review") {
+					t.Fatalf("stale approval = %v", err)
+				}
+				data, _ := os.ReadFile(path)
+				if string(data) != string(originalPolicy) {
+					t.Fatal("stale approval changed policy")
+				}
+				store, err := pending.Load(pending.Path(path))
+				if err != nil || store.Find("reviewed") == nil {
+					t.Fatalf("stale approval consumed replacement: %v", err)
+				}
+			} else {
+				if err != nil {
+					t.Fatal(err)
+				}
+				f, err := policy.Load(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if _, err := f.Lookup("reviewed"); err != nil {
+					t.Fatal(err)
 				}
 			}
 		})

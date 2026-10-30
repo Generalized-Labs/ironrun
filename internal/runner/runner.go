@@ -129,8 +129,26 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		}
 	}
 
-	// Resolve binary path.
-	bin, err := exec.LookPath(cmd.Argv[0])
+	// Resolve explicit relative executable paths from the same directory the
+	// child will use, not from the CLI or MCP server's current directory.
+	workDir := opts.WorkDir
+	switch {
+	case cmd.WorkDir != "" && filepath.IsAbs(cmd.WorkDir):
+		workDir = cmd.WorkDir
+	case cmd.WorkDir != "" && opts.WorkDir != "":
+		workDir = filepath.Join(opts.WorkDir, cmd.WorkDir)
+	case cmd.WorkDir != "":
+		workDir = cmd.WorkDir
+	}
+	binaryName := cmd.Argv[0]
+	if workDir != "" && !filepath.IsAbs(binaryName) && (strings.ContainsRune(binaryName, '/') || strings.ContainsRune(binaryName, filepath.Separator)) {
+		var err error
+		binaryName, err = filepath.Abs(filepath.Join(workDir, binaryName))
+		if err != nil {
+			return nil, fmt.Errorf("runner: resolve executable directory: %w", err)
+		}
+	}
+	bin, err := exec.LookPath(binaryName)
 	if err != nil {
 		return nil, fmt.Errorf("runner: binary %q not found: %w", cmd.Argv[0], err)
 	}
@@ -215,19 +233,7 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	c.Env = childEnv
 	c.Stdout = stdoutW
 	c.Stderr = stderrW
-	// A relative workdir is resolved against the project root (opts.WorkDir),
-	// NOT ironrun's own process cwd — otherwise `ironrun -p /proj/ironrun.yml`
-	// invoked from an unrelated directory would run the command there.
-	switch {
-	case cmd.WorkDir != "" && filepath.IsAbs(cmd.WorkDir):
-		c.Dir = cmd.WorkDir
-	case cmd.WorkDir != "" && opts.WorkDir != "":
-		c.Dir = filepath.Join(opts.WorkDir, cmd.WorkDir)
-	case cmd.WorkDir != "":
-		c.Dir = cmd.WorkDir
-	case opts.WorkDir != "":
-		c.Dir = opts.WorkDir
-	}
+	c.Dir = workDir
 
 	// Apply network isolation. This is a security control, so it FAILS CLOSED:
 	// if isolation cannot be enforced (unsupported platform, missing sandbox-exec),
@@ -321,9 +327,10 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 		killProcessGroup(c.Process.Pid)
 	}
 
-	// Flush any buffered redaction.
-	_ = stdoutW.Flush()
-	_ = stderrW.Flush()
+	// Flush both streams even if one sink fails. Small outputs may not reach
+	// the sinks until this point, after c.Run has already returned success.
+	stdoutFlushErr := stdoutW.Flush()
+	stderrFlushErr := stderrW.Flush()
 	cleanupResult := ""
 	var cleanupErr error
 	if opts.Cleanup != nil {
@@ -458,8 +465,18 @@ func Run(ctx context.Context, cmd *policy.Command, opts Options) (*Result, error
 	if retErr != nil {
 		return nil, retErr
 	}
+	var finalErrs []error
+	if stdoutFlushErr != nil {
+		finalErrs = append(finalErrs, fmt.Errorf("runner: flush stdout: %w", stdoutFlushErr))
+	}
+	if stderrFlushErr != nil {
+		finalErrs = append(finalErrs, fmt.Errorf("runner: flush stderr: %w", stderrFlushErr))
+	}
 	if cleanupErr != nil {
-		return nil, fmt.Errorf("runner: temporary secret cleanup failed: %w", cleanupErr)
+		finalErrs = append(finalErrs, fmt.Errorf("runner: temporary secret cleanup failed: %w", cleanupErr))
+	}
+	if err := errors.Join(finalErrs...); err != nil {
+		return nil, err
 	}
 
 	return &Result{

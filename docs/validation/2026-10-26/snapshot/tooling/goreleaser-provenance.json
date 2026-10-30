@@ -1,0 +1,11 @@
+{
+  "name": "goreleaser",
+  "tag": "v2.18.2",
+  "archive_url": "https://github.com/goreleaser/goreleaser/releases/download/v2.18.2/goreleaser_Linux_x86_64.tar.gz",
+  "checksums_url": "https://github.com/goreleaser/goreleaser/releases/download/v2.18.2/checksums.txt",
+  "archive_bytes": 26666000,
+  "archive_sha256": "0a96edc9d9bc594e4a41cc4d59467c182062910ab24d9d1f6dd7b667d32606d3",
+  "checksums_sha256": "0818c962a5a5e49abb7f721f4fef851d92aca7253821c1eb5496338e812c0a47",
+  "binary_sha256": "d9fc6cdfaa7e8d44b072ade96e0d63b74857848d8890e4a52f8d69bcf5e49b7b",
+  "verification": "published checksum comparison; checksum-file signature not independently verified"
+}

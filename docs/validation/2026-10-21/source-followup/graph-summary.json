@@ -1,0 +1,192 @@
+{
+  "reviewed_utc": "2026-10-22T01:57:04.280707+00:00",
+  "source_head": "803aa420d35af969ca4ff858a374a7dcdf20796d",
+  "source_git_tree": "adeec135084b4979c8ae98da69224d13273b0c8a",
+  "source_clean_before_and_after": true,
+  "tool": {
+    "name": "Graphify",
+    "version": "0.9.93",
+    "source_commit": "b90b9df7949bd04a15b40a1624af85d0a9cfdf04",
+    "mode": "local AST code-only, no entity deduplication; clustering without model labels",
+    "model_backend_used": false,
+    "model_token_cost": 0
+  },
+  "current": {
+    "nodes": 1849,
+    "raw_links": 6593,
+    "confidence_counts_raw": {
+      "EXTRACTED": 6139,
+      "INFERRED": 454
+    },
+    "undirected_unique_endpoint_pairs": 6564,
+    "confidence_counts_unique_pair_last_relation": {
+      "EXTRACTED": 6110,
+      "INFERRED": 454
+    },
+    "communities": 73,
+    "represented_source_files": 192,
+    "directed": false,
+    "multigraph": true
+  },
+  "prior": {
+    "nodes": 1840,
+    "raw_links": 6474,
+    "confidence_counts_raw": {
+      "EXTRACTED": 6020,
+      "INFERRED": 454
+    },
+    "undirected_unique_endpoint_pairs": 6474,
+    "confidence_counts_unique_pair_last_relation": {
+      "EXTRACTED": 6020,
+      "INFERRED": 454
+    },
+    "communities": 75,
+    "represented_source_files": 191,
+    "directed": false,
+    "multigraph": false,
+    "path": "/workspace/ironrun-analysis/graphify/graphify-out/graph.json",
+    "embedded_commit": "9794795e0f4de675d452d5769718ef0c14491e87"
+  },
+  "comparison": {
+    "node_delta": 9,
+    "raw_link_delta": 119,
+    "undirected_unique_pair_delta": 90,
+    "note": "Prior is a simple undirected graph; current JSON preserves a multigraph. Raw-link counts are not a like-for-like architecture comparison. Symbol IDs also changed for some aliases."
+  },
+  "corpus": {
+    "code_files_scanned": 198,
+    "non_code_skipped": 85,
+    "docs_skipped": 84,
+    "papers_skipped": 1,
+    "unclassified_files_skipped": 16,
+    "code_files_without_symbols": [
+      "go.mod",
+      "npm/bin/ironrun.js",
+      "npm/scripts/postinstall.mjs",
+      "npm/test/build-manifest.test.js",
+      "npm/test/launcher.test.js"
+    ]
+  },
+  "critical_source_sha256": {
+    "npm/bin/ironrun.js": "bc8e1289f25d142937bbb8fb5f40edc7daaab624a56fe13e6ffd01be0b12cdc5",
+    "npm/lib/launcher.js": "38a4b08b9f751e92a294f2e6d5b3fa34de6ff8a72deb39546246eaa43ce3db14",
+    "npm/lib/manifest.js": "1a3f1da2653b9f25df346879cef03b511080f756ab82a67db884ed309f8572b0",
+    "npm/test/launcher.integration.test.js": "ffbee6b35c3c5e82b20e9ab5325adf88be6e5fa19bcac62a0774755fef7cabb2",
+    "npm/test/proxy-audit.mjs": "a5130b2dfea289bcfb48b37a00da4e80b85300293ccbf305fb330f5ed61933e3",
+    "mcp/server.go": "092437fe1baea9092890c35361efef7a1d099e4dae3d2d5ec8779a0541e31e90",
+    "internal/pending/pending.go": "95f5a5f699b1fd8565fcb6c30989648419e5d46d0293c0bf42971e0c9b44a983",
+    "cmd/ironrun/review.go": "8910a33d1f7c06ec076c0c4b3d8abb7041cca34fdf2d8c8bfbc9b092cc3cf368",
+    "cmd/ironrun/main.go": "7ceba67c8b423c8704e84dc01400be2d96144c9ab6260676567f5c11c2801418",
+    "internal/policy/policy.go": "0a6905faf3ea045832bf542670b069ff07637f12f7058b22da9222df51057ab2",
+    "internal/execution/execution.go": "3f187c3a4d31c813e62fde96c5353ddd176cfff4c4e42e5beb2e057664e39e60",
+    "internal/runner/runner.go": "c86d7c7016fd2f6c56756420bebffe83dff5e25825573c51b91b3c5905dd5e41",
+    "internal/redact/redact.go": "8d8f4dbf09431c0c27c7221ff95b1aa8631ca2ae46661e484e1dc983d965969f",
+    "internal/redact/encodings.go": "bb007c856ec7aa96a5b5d9fa0a0b4fe0ea60917779e5f5586b16b5e2ea4e2015"
+  },
+  "manually_verified_paths": [
+    {
+      "name": "npm verification to spawn and signal lifecycle",
+      "source": [
+        "npm/bin/ironrun.js:10",
+        "npm/lib/launcher.js:110",
+        "npm/lib/launcher.js:117",
+        "npm/lib/launcher.js:90",
+        "npm/lib/launcher.js:99",
+        "npm/lib/launcher.js:132",
+        "npm/lib/launcher.js:142",
+        "npm/lib/launcher.js:147",
+        "npm/lib/launcher.js:151",
+        "npm/lib/launcher.js:153",
+        "npm/lib/launcher.js:159"
+      ],
+      "graph_evidence": [
+        "EXTRACTED launch -> verifiedBinary at L133",
+        "EXTRACTED verifiedBinary -> loadRelease/verifyFile/acquireLock/downloadVerified at L111/L117/L119/L123"
+      ],
+      "omissions": [
+        "No spawn-call node/edge or complete signal listener/event ordering in graph",
+        "Entry point yields no symbols",
+        "Repeated call sites to verifyFile are represented by one calls edge rather than all call-site evidence"
+      ],
+      "runtime_claim": "No runtime test was run as part of this graph refresh."
+    },
+    {
+      "name": "proposal creation to human approval to policy execution",
+      "source": [
+        "mcp/server.go:768",
+        "mcp/server.go:824",
+        "internal/pending/pending.go:136",
+        "internal/pending/pending.go:156",
+        "cmd/ironrun/review.go:108",
+        "cmd/ironrun/review.go:135",
+        "cmd/ironrun/review.go:137",
+        "cmd/ironrun/review.go:140",
+        "cmd/ironrun/review.go:182",
+        "mcp/server.go:297",
+        "mcp/server.go:301",
+        "mcp/server.go:342",
+        "mcp/server.go:235",
+        "mcp/server.go:34",
+        "internal/execution/execution.go:85"
+      ],
+      "graph_evidence": [
+        "EXTRACTED makeProposeHandler -> pending.Create L824",
+        "EXTRACTED approveCmd -> ReviewDigest/Update/appendCommandToPolicy L108/L135/L140",
+        "EXTRACTED makeRunHandler -> awaitRunAuthorization L230"
+      ],
+      "omissions": [
+        "Persistent pending/policy state transition is manually traced, not a single graph call path",
+        "executeCommand function variable aliases execution.Run; alias invocation is missing from graph calls",
+        "A call/reference edge does not prove immutable approval, lease authorization, or transaction ordering"
+      ],
+      "runtime_claim": "Static source confirms the guarded branch structure, not an observed approval/execution session."
+    },
+    {
+      "name": "execution runner to streaming redactor",
+      "source": [
+        "internal/execution/execution.go:194",
+        "internal/runner/runner.go:183",
+        "internal/runner/runner.go:225",
+        "internal/runner/runner.go:234",
+        "internal/runner/runner.go:320",
+        "internal/runner/runner.go:332",
+        "internal/redact/redact.go:95",
+        "internal/redact/redact.go:111",
+        "internal/redact/redact.go:117"
+      ],
+      "graph_evidence": [
+        "EXTRACTED execution.Run -> runner.Run L194",
+        "EXTRACTED runner.Run -> redact.Encodings L183",
+        "EXTRACTED runner.Run -> redact.New L225"
+      ],
+      "omissions": [
+        "Go io.Writer assignment/implicit subprocess copying into Write is not a complete graph data-flow path",
+        "Separate stdout/stderr construction and flush call sites may be folded into one relation",
+        "Graph does not establish chunking invariance, gap bounds, output-sink error propagation, or process containment"
+      ],
+      "runtime_claim": "Static wiring only; proof and runtime regressions require their separate evidence."
+    }
+  ],
+  "limitations": [
+    "EXTRACTED means parser-derived syntax, not a verified security property. INFERRED links are kept separate.",
+    "Community labels are placeholders because model labeling was disabled; hub degree and community count are navigation signals.",
+    "No paper/document semantic review, live release verification, OS control testing, secret provider access, or credentials were used.",
+    "The interactive HTML loads vis-network 9.1.6 from unpkg.com when opened; the extraction and clustering themselves made no model calls.",
+    "Current JSON lacks an embedded built_at_commit field; clean source HEAD/tree and file hashes are recorded in the external provenance."
+  ],
+  "artifacts": {
+    "interactive_graph": "graphify/graphify-out/graph.html",
+    "graph_json": "graphify/graphify-out/graph.json",
+    "tool_report": "graphify/graphify-out/GRAPH_REPORT.md",
+    "provenance": "graphify/source-provenance.json",
+    "multigraph_diagnostic": "graphify/multigraph-diagnostic.json",
+    "review_markdown": "graph-review.md"
+  },
+  "commands": [
+    "env -i PATH=/usr/local/bin:/usr/bin:/bin XDG_CACHE_HOME=/workspace/ironrun-analysis/followup-803aa42/graphify/cache /tmp/ironrun-analysis-tools/graphify-env/bin/graphify extract /workspace/ironrun --code-only --no-dedup --no-cluster --out /workspace/ironrun-analysis/followup-803aa42/graphify",
+    "env -i PATH=/usr/local/bin:/usr/bin:/bin XDG_CACHE_HOME=/workspace/ironrun-analysis/followup-803aa42/graphify/cache /tmp/ironrun-analysis-tools/graphify-env/bin/graphify cluster-only /workspace/ironrun-analysis/followup-803aa42/graphify --no-label",
+    "env -i PATH=/usr/local/bin:/usr/bin:/bin XDG_CACHE_HOME=/workspace/ironrun-analysis/followup-803aa42/graphify/cache /tmp/ironrun-analysis-tools/graphify-env/bin/graphify diagnose multigraph --graph /workspace/ironrun-analysis/followup-803aa42/graphify/graphify-out/graph.json --json"
+  ],
+  "production_findings": "No production defect asserted from graph structure alone; this scoped pass documents verified source connections and graph omissions.",
+  "review_markdown_sha256": "65b7118794524a6f6a86bc9ae864d9e8dd0b17be4455d76c9cdf9a998e3f6174"
+}

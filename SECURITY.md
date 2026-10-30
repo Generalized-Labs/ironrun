@@ -28,8 +28,10 @@ Ironrun provides:
 - value-blind project, request, policy, daemon, and audit interfaces; and
 - owner-only local state and authenticated same-user daemon access.
 
-Secret values are intentionally not revealable, copyable, printable, or
-exportable through the CLI, TUI, MCP server, local API, daemon, or audit log.
+Agent-facing interfaces do not solicit plaintext secret values or expose reveal
+APIs. Trusted local input is a separate channel. The explicit operator flag
+`--emit-github-masks` prints escaped values in CI mask-registration commands;
+route those only to the intended CI parser, never an agent transcript.
 
 ## Threat boundary
 
@@ -45,9 +47,11 @@ exposes value-blind RPC schemas. The foreground native TUI writes masked input
 directly to the encrypted vault; secret values are never sent to the daemon.
 
 Trusted workspace sessions are deliberately broad: a human grants one MCP
-session arbitrary argv against the selected project environment. They reduce
-day-to-day approval friction but do not prevent a deliberately malicious trusted
-process from transforming and printing a secret, and because the session can run
+session arbitrary argv with normal network access against the selected project
+environment. Saved policy commands retain their own network settings. Workspace
+grants reduce day-to-day approval friction but do not prevent a deliberately
+malicious trusted process from sending a credential over the network or
+transforming and printing it, and because the session can run
 `ironrun` itself, a grant should be treated as authority over the whole project.
 Pause or revoke a session from the TUI or `ironrun trust` as soon as it is no
 longer needed.
@@ -63,22 +67,47 @@ on a property Ironrun does not provide:
 
 - **Redaction matches known values.** Literal, encoded (base64 at every
   alignment, hex, URL, JSON), whitespace-interleaved, and partial forms of
-  injected values are redacted. A process that applies an arbitrary
-  transformation (reversal, compression, encryption) before printing defeats it.
-  Partial prints of values shorter than 24 bytes are not covered, and when two
-  distinct values overlap in output the leftmost match wins.
+  injected values are supported under the matching policy. A process can evade
+  matching through a transformation whose result contains no registered match.
+  Partial raw prints of values shorter than 24 bytes are not generally covered.
+  Overlap and tier priority can leave most of a later value visible; chunking
+  invariance does not imply complete disclosure prevention.
 - **Agent-writable state.** Approval state (`ironrun.yml`, `.ironrun/`) lives in
   the project. An agent with unrestricted file-edit or shell tools can change it;
   pair Ironrun with the agent host's own permission rules or sandbox.
 - **Same-user credential stores.** On macOS, a keychain item created through
   `/usr/bin/security` can be read by any same-user process that invokes it. The
   legacy version-1 file store keeps its key beside its ciphertext.
-- **Rollback and truncation.** The vault manifest MAC and the audit hash chain
-  detect modification, not replacement with an older valid copy or deletion of
-  the newest audit records.
+- **Process lifetime.** Cleanup kills the original process group. Descendants
+  that detach with `setsid` can escape that group and retain injected values.
+  Use external process containment when whole-tree termination is required.
+- **Platform and side channels.** The syscall filter and core-dump seal are
+  Linux-only; macOS uses network-only Seatbelt protection. Network isolation
+  does not isolate writable files or all local IPC. Use host-level controls for
+  those channels.
+- **Audit availability and rewriting.** Auditing can be disabled by policy.
+  Opening the logger verifies the existing chain; a long-lived server does not
+  replay it before every run. Later append/sync errors warn without failing the
+  command. The unkeyed chain detects inconsistent edits but a file owner can
+  rewrite and rehash it, or truncate its tail.
+- **Vault rollback.** The vault manifest MAC authenticates data under its key
+  but does not prevent replacement with an older valid copy. Stronger history
+  guarantees need independently protected monotonic state.
 - **CI events.** Fork detection covers `pull_request`, `pull_request_review`,
   `pull_request_review_comment`, and `workflow_run` payloads; `issue_comment`
   workflows that check out pull-request code must gate themselves.
+
+## Pending approval integrity
+
+Pending proposal IDs are immutable until approved or rejected. CLI approval
+rechecks the reviewed content digest inside the same transaction lock used by
+proposal creation and rejection. The dashboard preserves the reviewed proposal
+across list refreshes and cancels confirmation if its contents change.
+
+An interrupted pending-store transaction can leave `.ironrun/pending.yml.lock`.
+If operations report that this lock is busy, first ensure no approval or proposal
+process is still running, then remove that lock directory and retry. Locks are
+never stolen based on age; a slow live transaction must retain exclusive access.
 
 ## File-secret limitations
 

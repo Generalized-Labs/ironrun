@@ -19,11 +19,12 @@ func renderAgentInstructions(cmds []DetectedCmd) string {
 
 ## Universal Rules: Handling Secrets & Credentials
 
-All commands that require credentials or environment variables MUST be run through ironrun.
-Ironrun encrypts all project secrets locally in an AES-256-GCM vault and redacts secrets
-from stdout/stderr so they never leak into model context windows or conversation logs.
+All commands that require credentials or project secret entries MUST be run through ironrun.
+Ironrun resolves configured credentials for child execution and filters known values and
+supported encodings from captured stdout/stderr. Matching has limits: avoid printing values,
+partial values, or transformed credentials, and never paste plaintext secrets into chat.
 
-### 1. Using MCP (Claude Code, Codex, Cursor, Hermes, Conductor)
+### 1. Using MCP (Claude Code, Codex, OpenCode, Cursor, Hermes, Conductor)
 - Use the **run_sealed** MCP tool instead of executing raw shell commands directly.
 - Call **request_workspace_access** or **run_sealed({argv: [...]})** to request temporary developer execution.
 - Available pre-approved commands in ironrun.yml:
@@ -39,8 +40,10 @@ from stdout/stderr so they never leak into model context windows or conversation
 ### 2. Using CLI / Shell (Grok, Pi Agent, HumanLayer, Terminal Agents)
 - If you execute terminal commands, ALWAYS prefix them with:
     ironrun run <command-id>
-  or during a trusted session:
+  or its saved-command alias:
     ironrun exec <command-id>
+- Trusted workspace argv access belongs to the approved MCP session. A separate
+  CLI invocation does not inherit that session's grant; use a reviewed saved command.
 - NEVER run "printenv", "cat .env", or "echo $SECRET_VAR" to read credentials.
 - NEVER hardcode secrets, API keys, or database URLs into source files.
 

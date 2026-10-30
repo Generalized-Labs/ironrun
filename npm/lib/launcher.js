@@ -131,14 +131,31 @@ export async function verifiedBinary() {
 
 export async function launch(args) {
   const binary = await verifiedBinary();
-  const child = spawn(binary, args, { stdio: "inherit", env: process.env });
-  for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"]) {
-    process.once(signal, () => child.kill(signal));
+  let child;
+  const pendingSignals = [];
+  const forwarders = ["SIGINT", "SIGTERM", "SIGHUP"].map((signal) => [signal, () => {
+    if (child) child.kill(signal);
+    else pendingSignals.push(signal);
+  }]);
+  // The native process may run before spawn returns. Install handlers first so
+  // a caller's immediate termination cannot leave that process orphaned.
+  for (const [signal, forward] of forwarders) {
+    process.once(signal, forward);
   }
-  const result = await new Promise((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => resolve({ code, signal }));
-  });
+  let result;
+  try {
+    child = spawn(binary, args, { stdio: "inherit", env: process.env });
+    result = await new Promise((resolve, reject) => {
+      child.once("error", reject);
+      child.once("exit", (code, signal) => resolve({ code, signal }));
+      for (const signal of pendingSignals) child.kill(signal);
+    });
+  } finally {
+    // Restore normal signal handling before mirroring the child's exit.
+    // Otherwise an independently signaled child leaves our once-handler
+    // installed: the self-signal is swallowed and the launcher exits zero.
+    for (const [signal, forward] of forwarders) process.removeListener(signal, forward);
+  }
   if (result.signal) {
     process.kill(process.pid, result.signal);
     return;

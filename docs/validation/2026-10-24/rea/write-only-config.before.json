@@ -1,0 +1,10 @@
+{
+  ".mcp.json": {
+    "mode": "0o200",
+    "expected_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744"
+  },
+  "home/.cursor/mcp.json": {
+    "mode": "0o200",
+    "expected_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744"
+  }
+}

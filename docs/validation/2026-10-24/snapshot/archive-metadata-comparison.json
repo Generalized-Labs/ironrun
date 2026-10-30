@@ -1,0 +1,74 @@
+[
+  {
+    "archive": "ironrun_Darwin_arm64.tar.gz",
+    "gzip_mtime_run1": 0,
+    "gzip_mtime_run2": 0,
+    "decompressed_sha256_run1": "231ea7ccdd0da572a78079ca53336f61f4d482697181ac63e5d0562f86abb2dc",
+    "decompressed_sha256_run2": "fe424240f669a17a0a80878db59642248e3e80869a4f2b3bb7cee39fa2b6fd83",
+    "member_metadata_differences": [
+      {
+        "member": "ironrun",
+        "differences": {
+          "mtime": {
+            "run1": 1792823908,
+            "run2": 1792824440
+          }
+        }
+      }
+    ]
+  },
+  {
+    "archive": "ironrun_Darwin_x86_64.tar.gz",
+    "gzip_mtime_run1": 0,
+    "gzip_mtime_run2": 0,
+    "decompressed_sha256_run1": "a1bb1a6cab508548bb358d05fac05db4c9bf8f9398b8ad639f4b1bacc477bcde",
+    "decompressed_sha256_run2": "7742b184ad4c9c2883ffcd2cd28055dc5b61876d1b1099d4204cb2781d349d96",
+    "member_metadata_differences": [
+      {
+        "member": "ironrun",
+        "differences": {
+          "mtime": {
+            "run1": 1792823903,
+            "run2": 1792824440
+          }
+        }
+      }
+    ]
+  },
+  {
+    "archive": "ironrun_Linux_arm64.tar.gz",
+    "gzip_mtime_run1": 0,
+    "gzip_mtime_run2": 0,
+    "decompressed_sha256_run1": "60191da734b72d901cf85826b5a3875492701008c60b3ff2a879a040c27d4d9f",
+    "decompressed_sha256_run2": "cf7500505a81031115af0dce218e393b7420474284fca7ee2e51334eb661ec9f",
+    "member_metadata_differences": [
+      {
+        "member": "ironrun",
+        "differences": {
+          "mtime": {
+            "run1": 1792823824,
+            "run2": 1792824438
+          }
+        }
+      }
+    ]
+  },
+  {
+    "archive": "ironrun_Linux_x86_64.tar.gz",
+    "gzip_mtime_run1": 0,
+    "gzip_mtime_run2": 0,
+    "decompressed_sha256_run1": "ae2bdbb3e47dbfb236840741ebec011113493ddcf4d598537055f10121e2dea6",
+    "decompressed_sha256_run2": "35c5364e2c7288fa9dcdff79ac6bb1a20a0cf58592beda7718f5b6305f1c8de0",
+    "member_metadata_differences": [
+      {
+        "member": "ironrun",
+        "differences": {
+          "mtime": {
+            "run1": 1792823824,
+            "run2": 1792824438
+          }
+        }
+      }
+    ]
+  }
+]

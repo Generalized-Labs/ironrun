@@ -1,0 +1,115 @@
+{
+  "reviewed_at_utc": "2026-10-30T03:17:23.692602+00:00",
+  "reviewer": "concepts_paper_archive subagent",
+  "method": "pdftoppm -scale-to1550 -png followed by view_image of all14 pages after author-only rebuild",
+  "pdf_path": "/workspace/ironrun-product-review/paper/ironrun.pdf",
+  "pdf_bytes": 539704,
+  "pdf_sha256": "586bd7765db2af3e3bf42a6bf6657cefcebe8b7d8cde2327d8ddb0d38db51208",
+  "tex_sha256": "a8e03aebe1c6a75a2dddb467f4a28f515c204341816843fcfa6700eaac851854",
+  "pages": [
+    {
+      "page": 1,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-01.png",
+      "rendered_sha256": "0eb933d7c3884d29356ddc53ed7559a1aa7570a4999f0dd41caec669e9c92e9f",
+      "inspected": true,
+      "observation": "Confirmed author order and no affiliation; title, repository URL, abstract, introduction fit."
+    },
+    {
+      "page": 2,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-02.png",
+      "rendered_sha256": "3437748b8a7f2cf109a5dd84bebda62e1a9ac8eb6c4588ab23976df00bae6102",
+      "inspected": true,
+      "observation": "Background and threat-model continuation readable; no clipping."
+    },
+    {
+      "page": 3,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-03.png",
+      "rendered_sha256": "542a29c19ed3f930c3cf13644d4f3045a1da45e137f321655ce082077c7a067c",
+      "inspected": true,
+      "observation": "MCP tool table, workspace normal network and continuation text fit."
+    },
+    {
+      "page": 4,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-04.png",
+      "rendered_sha256": "16298d18db756aa92ff207344c6d6e8d5c5480c47109d4669cc48839669b38fc",
+      "inspected": true,
+      "observation": "Architecture, request/revocation and vault diagrams fit; captions and arrows readable."
+    },
+    {
+      "page": 5,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-05.png",
+      "rendered_sha256": "408a5332007b94cef15641b260260edf8886a6605bc5d53765d79f0e9fd25ffe",
+      "inspected": true,
+      "observation": "Algorithm, lookahead diagram, property/proof continuation and alignment formula readable."
+    },
+    {
+      "page": 6,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-06.png",
+      "rendered_sha256": "c23af09af9dd28fb4198c7b280e0bf8b64d116b005d9021b281b5e3e41345c82",
+      "inspected": true,
+      "observation": "Containment/audit and regression case studies fit; no clipped code."
+    },
+    {
+      "page": 7,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-07.png",
+      "rendered_sha256": "1e741f46e0fe0752a003d291527c71aefab48fa83ea0cc2c70f65ae9af88912f",
+      "inspected": true,
+      "observation": "Provenance table, fixture method and recovery equation legible."
+    },
+    {
+      "page": 8,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-08.png",
+      "rendered_sha256": "cde22160ed472ee5a35993421b2f57b6b3c630169a17b754388351a513d2bbfe",
+      "inspected": true,
+      "observation": "Leakage and benign-corpus tables, throughput graph, RQ2/RQ3/RQ4 text fit."
+    },
+    {
+      "page": 9,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-09.png",
+      "rendered_sha256": "8141f824b293b7acb6ae26630f62d056074caa8d1142e31849f97d26bcfe0ac3",
+      "inspected": true,
+      "observation": "Streaming/discussion/related-work sections fit; no clipping."
+    },
+    {
+      "page": 10,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-10.png",
+      "rendered_sha256": "28cc85962e4555bf1881ca924941ce3c0f6c39c2ecb9e28a80dee4cb7899eb9f",
+      "inspected": true,
+      "observation": "Related work, conclusion, disclosure and start of bibliography readable."
+    },
+    {
+      "page": 11,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-11.png",
+      "rendered_sha256": "d94fd1d3d04c59943880f5d912d2799e9714cadd21d32176625bc4161dc5f784",
+      "inspected": true,
+      "observation": "Bibliography continuation, entries4\u201324, readable; URLs within columns."
+    },
+    {
+      "page": 12,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-12.png",
+      "rendered_sha256": "d7527edbbcf7f7a3795488c3d9ba34b9843b1616af8c36cd37471d30910c14b6",
+      "inspected": true,
+      "observation": "Bibliography continuation, entries25\u201346, readable; URLs within columns."
+    },
+    {
+      "page": 13,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-13.png",
+      "rendered_sha256": "9242a208f095a3391c8a77cc8c8c3f135dda8a6a11986145f224ff6bcb9fcb58",
+      "inspected": true,
+      "observation": "Bibliography continuation, entries47\u201368, readable; no overlapping entries."
+    },
+    {
+      "page": 14,
+      "rendered_path": "/workspace/ironrun-product-research/launch-20261026/paper/author-confirmation/page-14.png",
+      "rendered_sha256": "bd24a42f6471115dd57666ca6f863dd169c049161f693a94dcb24e4df91edf8c",
+      "inspected": true,
+      "observation": "Bibliography entries69\u201382 complete; final URLs and columns fit."
+    }
+  ],
+  "findings": "No material layout or visible content issue found in the14-page author-confirmed rebuild.",
+  "limits": [
+    "Scaled visual inspection cannot establish absence of every typo or semantic issue.",
+    "This follow-up changes only author metadata and affiliation removal in TeX; no empirical measurement is re-run or relabeled.",
+    "Rendered PNGs remain local; their hashes bind inspected images."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "go",
+    "test",
+    "-overlay=/workspace/ironrun-product-research/launch-20261026/e2e-audit/overlay.json",
+    "-race",
+    "-count=1",
+    "./mcp",
+    "-run",
+    "^TestAuditTrustedWorkspaceNormalNetworkContract$",
+    "-v"
+  ],
+  "exit_code": 1,
+  "scope": "Read-only source overlay adds one assertion to an existing callback-level trusted-workspace test; no repository file changed and actual network/native-store path is not exercised.",
+  "source_sha256": "729f9470fc319251a7311f70ab90a6fb3068830989e09b991167925920ad7e96",
+  "overlay_sha256": "4c3f00208a5345eecf82dd4af26841ceccc959f5c6dff5454b101627c950c9d2",
+  "expected": "Current implementation fails because advertised normal network is not forwarded to executeWorkspace."
+}

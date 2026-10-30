@@ -1,0 +1,1 @@
+The first diagnostic smoke attempted `ironrun --version`, which this CLI does not support (exit1). The actual `version` subcommand is listed in help and was then used successfully in the parent directory. This incorrect probe is not a product regression.

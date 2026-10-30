@@ -1,0 +1,6 @@
+{
+  "selection_url": "https://api.github.com/repos/anchore/syft/releases/latest",
+  "pinned_tag": "v1.55.0",
+  "archive_asset": "syft_1.55.0_linux_amd64.tar.gz",
+  "checksum_asset": "syft_1.55.0_checksums.txt"
+}

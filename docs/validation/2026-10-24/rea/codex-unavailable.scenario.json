@@ -1,0 +1,36 @@
+{
+  "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+  "arguments": [
+    "/workspace/ironrun-product-research/launch-20261024/rea/replay.py",
+    "setup",
+    "codex-unavailable"
+  ],
+  "working_directory": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable",
+  "environment": {
+    "PATH": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable/bin",
+    "HOME": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable/home",
+    "IRONRUN_HOME": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable/home/ironrun",
+    "XDG_STATE_HOME": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable/state",
+    "XDG_CACHE_HOME": "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable/cache"
+  },
+  "filesystem_observation_paths": [
+    "/workspace/ironrun-product-research/launch-20261024/rea/fixtures/codex-unavailable"
+  ],
+  "timeout_ms": 10000,
+  "idle_timeout_ms": 10000,
+  "settle_ms": 100,
+  "limits": {
+    "output_bytes": 40000,
+    "files": 100,
+    "file_bytes": 200000,
+    "processes": 20,
+    "filesystem_depth": 8
+  },
+  "normalization": {
+    "paths": true,
+    "pids": true,
+    "ports": true,
+    "time_bucket_ms": 10,
+    "patterns": []
+  }
+}

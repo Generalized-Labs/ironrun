@@ -1,0 +1,6 @@
+=== RUN   TestAuditTrustedWorkspaceNormalNetworkContract
+    server_internal_test.go:148: approved normal-network workspace reached execution with AllowWorkspaceNetwork=false
+--- FAIL: TestAuditTrustedWorkspaceNormalNetworkContract (0.01s)
+FAIL
+FAIL	github.com/generalized-labs/ironrun/mcp	1.669s
+FAIL

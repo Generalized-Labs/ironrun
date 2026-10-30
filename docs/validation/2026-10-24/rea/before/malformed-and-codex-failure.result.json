@@ -1,0 +1,80 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/ironrun-doctor-fixed",
+    "setup",
+    "--yes"
+  ],
+  "cwd": "/workspace/ironrun-product-research/launch-flow-audit2/malformed-and-codex-failure",
+  "exit_code": 0,
+  "stdout": "Initializing ironrun in malformed-and-codex-failure...\n\n  \u2022 ironrun.yml already exists \u2014 skipping\n  \u2022 Registered project in the global Ironrun workspace\n  \u26a0  Could not update .mcp.json: could not parse .mcp.json: unexpected end of JSON input\n  \u2022 CLAUDE.md already exists \u2014 skipping\n  \u2022 AGENTS.md already exists \u2014 skipping\n  \u2022 .cursorrules already exists \u2014 skipping\n  \u26a0  Codex: failed to register ironrun\n     Error: exit status 23\nsynthetic registration failure\n\n     To add manually: codex mcp add ironrun -- ironrun mcp\n  \u26a0  Could not update ~/.cursor/mcp.json: could not parse ~/.cursor/mcp.json: unexpected end of JSON input\n\nDone! Next steps:\n\n  1. Run ironrun to open Projects and the agent inbox\n  2. Press Enter on this project, then choose Add secret or Import .env\n  3. Check your setup: ironrun doctor\n  4. Test: ironrun run <command-id>\n\nThen start your AI agent \u2014 it will use run_sealed() via MCP automatically.\n  \u2022 Claude Code: uses .mcp.json (per-project, already set up)\n  \u2022 Codex:       uses ~/.codex/config.toml (global, registered above)\n  \u2022 Cursor:      uses ~/.cursor/mcp.json (global, merged above)\n",
+  "stderr": "",
+  "before": {
+    ".cursorrules": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    ".mcp.json": {
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    "AGENTS.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "CLAUDE.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "bin/codex": {
+      "bytes": 117,
+      "sha256": "273e548069628d9c53bc59afbabd155100b59f20f04f002895d85d89e49c5dbc"
+    },
+    "home/.cursor/mcp.json": {
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    "home/ironrun/projects.json": {
+      "bytes": 386,
+      "sha256": "a5144bcb21c0f5db0ffa701739fc8b6b440acc26751e26aa5ad5739f54988709"
+    },
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "after": {
+    ".cursorrules": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    ".mcp.json": {
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    "AGENTS.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "CLAUDE.md": {
+      "bytes": 1392,
+      "sha256": "fcfbd8811284b487323645a462415bcddbd4a2a25d9b71752025832203a2dfc7"
+    },
+    "bin/codex": {
+      "bytes": 117,
+      "sha256": "273e548069628d9c53bc59afbabd155100b59f20f04f002895d85d89e49c5dbc"
+    },
+    "home/.cursor/mcp.json": {
+      "bytes": 1,
+      "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+    },
+    "home/ironrun/projects.json": {
+      "bytes": 386,
+      "sha256": "a201b8633ae0796fd4bd6d4ffe3fc682e06db66aff691e8bd8cebfae97ae0c0d"
+    },
+    "ironrun.yml": {
+      "bytes": 64,
+      "sha256": "7a32c51620041dbfcdad1170fcb5972648da96083a589898e3d2ff3461f83490"
+    }
+  },
+  "synthetic_only": true
+}

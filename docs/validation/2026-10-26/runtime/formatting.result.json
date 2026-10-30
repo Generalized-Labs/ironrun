@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/ironrun-product-tools/go/bin/gofmt",
+    "-l",
+    "cmd/ironrun/init.go",
+    "cmd/ironrun/instructions.go",
+    "cmd/ironrun/main.go",
+    "mcp/server.go",
+    "mcp/server_internal_test.go",
+    "mcp/workspace_network_linux_test.go",
+    "mcp/testdata/workspaceprobe/main.go"
+  ],
+  "exit_code": 0,
+  "stdout": "",
+  "stderr": "",
+  "recorded_at_utc": "2026-10-30T03:13:03.872692+00:00"
+}

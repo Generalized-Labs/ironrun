@@ -1,0 +1,72 @@
+[
+  {
+    "directory": "mcp-1793100056924730772",
+    "summary_sha256": "ce7e20b8e4649af284c29cbd0345d182aec5a01d265fbc9afa4ee10548387278",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 1,
+    "tool_fixture_error": "Expected one Ironrun run_sealed tool; got ['exec_command', 'write_stdin', 'list_mcp_resources', 'list_mcp_resource_templates', 'read_mcp_resource', 'request_user_input', 'view_image', 'multi_agent_v1', 'mcp__ironrun', 'get_goal', 'create_goal', 'update_goal', None]",
+    "loopback_requests": 0,
+    "source_binding": "earlier limited source metadata"
+  },
+  {
+    "directory": "mcp-1793100105862893015",
+    "summary_sha256": "877e345207ba1be7e69ffce42aace168abc0cf727228f7ffb536727025022a0f",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 2,
+    "tool_fixture_error": null,
+    "loopback_requests": 0,
+    "source_binding": "earlier limited source metadata"
+  },
+  {
+    "directory": "mcp-1793100154842480305",
+    "summary_sha256": "a76851213104f6fb7165e10d09e86ca7b709dd8a6e5735b44dc67043e485c6ea",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 2,
+    "tool_fixture_error": null,
+    "loopback_requests": 1,
+    "source_binding": "earlier limited source metadata"
+  },
+  {
+    "directory": "mcp-1793100260770138951",
+    "summary_sha256": "591bef5e4f9ea24e308e60af7610b9df6200e092579e54f409f5c8746a28330f",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 2,
+    "tool_fixture_error": null,
+    "loopback_requests": 1,
+    "source_binding": "complete before/after Go/module manifest"
+  },
+  {
+    "directory": "mcp-1793100513398556026",
+    "summary_sha256": "5a450cda5bc223e54317bae381b573f8a8ae5cdbd954695c6f0989df1bc1d80d",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 2,
+    "tool_fixture_error": null,
+    "loopback_requests": 1,
+    "source_binding": "complete before/after Go/module manifest"
+  },
+  {
+    "directory": "mcp-1793101315525752139",
+    "summary_sha256": "bfc76a0a6d17a2171dd226f4bbdad4fd499b7ef8a0b33248a5aec73e8e7f56f1",
+    "mode": "mcp",
+    "codex_exit": 0,
+    "requests": 2,
+    "tool_fixture_error": null,
+    "loopback_requests": 1,
+    "source_binding": "complete before/after Go/module manifest"
+  },
+  {
+    "directory": "provider-1793099969537615265",
+    "summary_sha256": "4da83e510ffff6601229465ddc0e55aadc752d491fb46d5a4980e74151b6301d",
+    "mode": "provider",
+    "codex_exit": 0,
+    "requests": 1,
+    "tool_fixture_error": null,
+    "loopback_requests": null,
+    "source_binding": "earlier limited source metadata"
+  }
+]

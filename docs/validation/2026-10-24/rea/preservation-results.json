@@ -1,0 +1,103 @@
+{
+  "results": [
+    {
+      "name": "malformed-and-codex-failure",
+      "program_exit_code": 0,
+      "uid": 1000,
+      "preservation": [
+        {
+          "path": ".mcp.json",
+          "before": {
+            "mode": "0o600",
+            "expected_sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+          },
+          "after_sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "mode_after": "0o600",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        },
+        {
+          "path": "home/.cursor/mcp.json",
+          "before": {
+            "mode": "0o600",
+            "expected_sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96"
+          },
+          "after_sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "mode_after": "0o600",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        }
+      ],
+      "post_capture_permission_inspection": false
+    },
+    {
+      "name": "stale-registration",
+      "program_exit_code": 0,
+      "uid": 1000,
+      "preservation": [
+        {
+          "path": ".mcp.json",
+          "before": {
+            "mode": "0o600",
+            "expected_sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+          },
+          "after_sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd",
+          "mode_after": "0o600",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        },
+        {
+          "path": "home/.cursor/mcp.json",
+          "before": {
+            "mode": "0o600",
+            "expected_sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd"
+          },
+          "after_sha256": "b9d7633cca61f1d7939432e45f4bd23b60fe19c0633d6581fdba7aa68645facd",
+          "mode_after": "0o600",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        }
+      ],
+      "post_capture_permission_inspection": false
+    },
+    {
+      "name": "codex-unavailable",
+      "program_exit_code": 0,
+      "uid": 1000,
+      "preservation": [],
+      "post_capture_permission_inspection": false
+    },
+    {
+      "name": "write-only-config",
+      "program_exit_code": 0,
+      "uid": 1000,
+      "preservation": [
+        {
+          "path": ".mcp.json",
+          "before": {
+            "mode": "0o200",
+            "expected_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744"
+          },
+          "after_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744",
+          "mode_after": "0o200",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        },
+        {
+          "path": "home/.cursor/mcp.json",
+          "before": {
+            "mode": "0o200",
+            "expected_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744"
+          },
+          "after_sha256": "f83c5e188c4c7740fd9b959c111834edc283720acbe8c7a85af2a3baf2307744",
+          "mode_after": "0o200",
+          "preserved_bytes": true,
+          "preserved_mode": true
+        }
+      ],
+      "post_capture_permission_inspection": true
+    }
+  ],
+  "all_assertions_passed": true,
+  "inspection_note": "Unreadable fixturefiles were temporarily given owner read permission only after REA capture, then their original mode was restored; product execution occurred with original0200mode."
+}
