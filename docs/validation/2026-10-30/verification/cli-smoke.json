@@ -1,0 +1,23 @@
+{
+  "observed_at_utc": "2026-10-30T23:56:28.123010+00:00",
+  "binary_sha256": "809e6fe0ee5335ce26b09fb9153a28c74966a8789620d94167e1e20bc6e1c612",
+  "scope": "Diagnostic build startup/help only; does not exercise native root-key store or guided demo vault execution.",
+  "checks": [
+    {
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/verification/ironrun-current-check",
+        "--help"
+      ],
+      "exit_code": 0,
+      "log": "cli-help.log"
+    },
+    {
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/verification/ironrun-current-check",
+        "version"
+      ],
+      "exit_code": 0,
+      "log": "cli-version.log"
+    }
+  ]
+}

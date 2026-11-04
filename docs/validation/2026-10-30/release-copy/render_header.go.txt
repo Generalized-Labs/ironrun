@@ -1,0 +1,3 @@
+package main
+import("os";"text/template")
+func main(){t,e:=template.New("release-header").Option("missingkey=error").ParseFiles(os.Args[1]);if e!=nil{panic(e)};e=t.ExecuteTemplate(os.Stdout,"header-template.md",struct{Tag string}{os.Args[2]});if e!=nil{panic(e)}}

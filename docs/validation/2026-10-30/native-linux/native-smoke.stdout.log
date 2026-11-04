@@ -1,0 +1,1 @@
+{"secret_service_registered": true, "actual_store_lookup_clear": "passed", "backend": "gnome-keyring48.0 + libsecret secret-tool0.21.7", "existing_stores_accessed": false}

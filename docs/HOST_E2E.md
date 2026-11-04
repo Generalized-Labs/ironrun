@@ -33,6 +33,15 @@ regressions in [the MCP integration test](../mcp/workspace_network_linux_test.go
 also retain this distinction. Record exact identities with each new result;
 do not transfer a pass between hosts, architectures, builds, or install routes.
 
+A separate [actual Linux Secret Service probe](validation/2026-10-30/native-linux/README.md)
+now passes with real GNOME Keyring 48.0/libsecret 0.21.7, a new isolated DBus
+session and no native-store adapter. It exercises root-key save/reopen, encrypted
+vault use, MCP grant, authenticated loopback output filtering, strict denied
+dial, revoke/deny and recovery after a native-daemon restart. All 182 runtime
+inputs match merged `6e03c06`. This is headless Debian with scripted CLI approval;
+it does not fill any real desktop/agent-host/human row below. The macOS native
+Keychain CI check is separate and needs its own observed result.
+
 ## Before starting
 
 1. Record OS, architecture (`uname -m`), host version, terminal/shell, Ironrun
@@ -407,7 +416,7 @@ Pass, fail, blocked, or abandoned / error / help given / recovery:
 Evidence paths reviewed for values / follow-up owner:
 ```
 
-The research report may have a Cloudflare preview before this runtime matrix
+The research report may have a Vercel staging preview before this runtime matrix
 is complete. Label its evidence and pending gates accurately. Integrate it
 into the main ironrun.dev site only after the runtime readiness decision; a
 polished page does not close runtime or stable-release gates.

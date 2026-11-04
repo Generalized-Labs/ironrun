@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "FIRST_PROBE_NOTE.md",
+      "bytes": 816,
+      "sha256": "6063d6f2e56eb0e8b96ffec16c5198821bfb63dd748f3400870b198153c86ec3"
+    },
+    {
+      "path": "README.md",
+      "bytes": 4441,
+      "sha256": "1a3a96a50be7e969aacb751f04b52f67839ee8125bec81ffa059762d47bcca7d"
+    },
+    {
+      "path": "debian-InRelease.txt",
+      "bytes": 140421,
+      "sha256": "0584fba32e13e0ab8285fb16c27adea1ec03a73669c18702821094fd6ca86675"
+    },
+    {
+      "path": "debian-metadata-provenance.json",
+      "bytes": 706,
+      "sha256": "dde3dedc7f53e801413a31d99c241c44fe4234d7bfe35473f47f4956d3fdeadf"
+    },
+    {
+      "path": "final/access-deny.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/access-deny.stdout.log",
+      "bytes": 37,
+      "sha256": "69bf41f5bc1cae26ed49bbc8f10584e2503765aaf9f1aa95a3a11172f7deeb85"
+    },
+    {
+      "path": "final/after-daemon-restart.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/after-daemon-restart.stdout.log",
+      "bytes": 73,
+      "sha256": "f7ddee9d004fab3b97d112c6535bcf288c9934d535b1ead26b05d9a8b8504712"
+    },
+    {
+      "path": "final/daemon-first.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/daemon-first.stdout.log",
+      "bytes": 118,
+      "sha256": "1c373f56ebe6411a9a442c4c090a03ab9363949b45830aba3d51f2ac1448ee06"
+    },
+    {
+      "path": "final/daemon-restarted.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/daemon-restarted.stdout.log",
+      "bytes": 118,
+      "sha256": "1c373f56ebe6411a9a442c4c090a03ab9363949b45830aba3d51f2ac1448ee06"
+    },
+    {
+      "path": "final/doctor.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/doctor.stdout.log",
+      "bytes": 801,
+      "sha256": "6e11150b8fbb0f4670efd3a5e01cfcb3b4cfe23cae7e48e074e0c79698c4b295"
+    },
+    {
+      "path": "final/env-init.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/env-init.stdout.log",
+      "bytes": 200,
+      "sha256": "b6b13651fe3824118bf73e2fd867c98d4d6a7a9d972c451e2a86edb0fd9b4bac"
+    },
+    {
+      "path": "final/env-set.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/env-set.stdout.log",
+      "bytes": 58,
+      "sha256": "6ff24affbd0980486e0e80759418097feadb03a2ca40cd9906a51fb210dcf8c4"
+    },
+    {
+      "path": "final/mcp-responses.json",
+      "bytes": 11547,
+      "sha256": "7d286e918012f41d79533210f8a4470a4a97d9a8754c75a7820b3418c9832907"
+    },
+    {
+      "path": "final/mcp.stderr.log",
+      "bytes": 122,
+      "sha256": "047dbfab0d9cca31eee35fd9b16a85183e13d8263c190e44d4a7ee30e7d7ba41"
+    },
+    {
+      "path": "final/run.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/run.stdout.log",
+      "bytes": 296,
+      "sha256": "f571fbe852345dbdfc574ef93b81ba14a458a05b5cbe2e08785c17968a5388b9"
+    },
+    {
+      "path": "final/source-identity.json",
+      "bytes": 19133,
+      "sha256": "bfdc382eb3aa9b4f57fe75e13797f4960b5ff1c9fe2fe78156625002a81b727d"
+    },
+    {
+      "path": "final/summary.json",
+      "bytes": 4155,
+      "sha256": "cb51b72a6f2a38f6770f94b0557834b0dba4ad98a147d54ce9bbcd467ed9f856"
+    },
+    {
+      "path": "final/tool-catalog.json",
+      "bytes": 8904,
+      "sha256": "3f36086d08408709a615875409a9d055f90634395939525bdf46d95864a738bf"
+    },
+    {
+      "path": "final/trust-grant.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/trust-grant.stdout.log",
+      "bytes": 186,
+      "sha256": "b4ec8ef9161ea1213adbb543e10d9ce8c573842d4dd691de2641210ccb80d90a"
+    },
+    {
+      "path": "final/trust-revoke.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "final/trust-revoke.stdout.log",
+      "bytes": 87,
+      "sha256": "16f00674a6710ad7a99e4bba1a84191c56e580343521bf94260d80fa535952eb"
+    },
+    {
+      "path": "gnome-keyring-daemon-help.log",
+      "bytes": 914,
+      "sha256": "5e316d1946e74477254512d73b44c256a695423d1d6dd914493d7fac8b911f2c"
+    },
+    {
+      "path": "gnome-keyring-daemon-ldd.log",
+      "bytes": 1748,
+      "sha256": "064f137925fae0aba1d660682801aa766ec27331d55d673f73b9ce566a59338a"
+    },
+    {
+      "path": "inrelease-verification.log",
+      "bytes": 1619,
+      "sha256": "b9513c1aead215892b951217e0ac659db548b23f8a7857472bc70d0cd594a306"
+    },
+    {
+      "path": "ironrun-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-smoke.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-smoke.stdout.log",
+      "bytes": 172,
+      "sha256": "55e3fb7ab798c39e26a504f48a66f74a5a2ca01359f923e05348cabb835c1809"
+    },
+    {
+      "path": "native_e2e.first-path-assumption.py.txt",
+      "bytes": 14403,
+      "sha256": "94e04b51b9b068b7dc63f6621987d1c403c86a5015734ed9eb998a0d55dc28db"
+    },
+    {
+      "path": "native_e2e.py",
+      "bytes": 14441,
+      "sha256": "bb2a1b0fe23a0100d0b11ead241808d0b898a3e1a720aaaac959a8efd9806a21"
+    },
+    {
+      "path": "package-provenance.json",
+      "bytes": 1386,
+      "sha256": "042f02a81d9464e1864aeca633b899779e507a5a8007095e69ebee8346a23f33"
+    },
+    {
+      "path": "run.stderr.log",
+      "bytes": 665,
+      "sha256": "795649f80f48e09f143905ae88f45e41893123a4c407e230da794a9572703ebd"
+    },
+    {
+      "path": "run.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "secret-tool-help.log",
+      "bytes": 267,
+      "sha256": "b41cc6fe164d7443d854b1e5e5d97fd89af205503c19b6f9990484c0d9d05b8a"
+    },
+    {
+      "path": "secret-tool-ldd.log",
+      "bytes": 1322,
+      "sha256": "a7d332589ee16003665741d09ca7e10c5b4f5ba9996331789e32b8ee63de22b2"
+    },
+    {
+      "path": "selected-package-index.json",
+      "bytes": 6799,
+      "sha256": "b47f8fd4bedbb65976c53e3609b381bdbab77cc6cd962a348d86272fa6046722"
+    },
+    {
+      "path": "smoke_native.py",
+      "bytes": 1872,
+      "sha256": "4956a1e76a0f84fa5dce6d613ff27aab648bc9ac93e6dc7cfa67945ac6bdcefa"
+    },
+    {
+      "path": "tool-identities.json",
+      "bytes": 1542,
+      "sha256": "4b1033c124b9776195a4677e6b920c7d309c7bc8f6970519434af42c97cdf295"
+    },
+    {
+      "path": "workspaceprobe-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

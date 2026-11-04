@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2001,
+      "sha256": "3e6dc73a71005abd752ffc6866257ee584e97bae9846d26e595f808204ca9fbb"
+    },
+    {
+      "path": "build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build.result.json",
+      "bytes": 694,
+      "sha256": "8fd85babb042416e2e260608fbd424aad73d06b12b30337702cbf9a4211edf17"
+    },
+    {
+      "path": "cli-help.log",
+      "bytes": 2921,
+      "sha256": "ac59603b20c9b7b14de8203243adacc9152158aa896487c2c4cc6d0de5bf282f"
+    },
+    {
+      "path": "cli-smoke.json",
+      "bytes": 697,
+      "sha256": "b8ddb2944d4b57094ca78ca383648091dd2af259951e88c04ea6a143b2456da2"
+    },
+    {
+      "path": "cli-version.log",
+      "bytes": 13,
+      "sha256": "0bb6b5ca240b52dc8a56d0241d51df5b4ee59312ce988a63bcc4ba58a465606c"
+    },
+    {
+      "path": "environment-constants.json",
+      "bytes": 688,
+      "sha256": "8f1130b0dc60d5f8fc0d3766c222fa146db1c4632ccffb97d9ce49423a139c3f"
+    },
+    {
+      "path": "github-checks.json",
+      "bytes": 3363,
+      "sha256": "cc4cf26b39652bdd112834b1ba9a822ebc96267282ba267d19ce7fb27ca5d2ea"
+    },
+    {
+      "path": "npm.log",
+      "bytes": 1618,
+      "sha256": "8347af7a4bbac78a5128c0ba82de5245f657c3b8d13fbd8c472602f12a33e49a"
+    },
+    {
+      "path": "npm.result.json",
+      "bytes": 903,
+      "sha256": "42f37756e75908493db832f8ad7ea71fc587b0485fe51eb491d95602c0fdb831"
+    },
+    {
+      "path": "race.log",
+      "bytes": 1805,
+      "sha256": "94b917a092f7eb68add036f456feefa8a45a8685007bed469c4efb5be20f7e5d"
+    },
+    {
+      "path": "race.result.json",
+      "bytes": 620,
+      "sha256": "78761836228e84b2cb8246a6c517ce6d40b88c3d7f9974a266cd2075deed9e36"
+    },
+    {
+      "path": "release.log",
+      "bytes": 1398,
+      "sha256": "d36481493a11475df6b6c62cc9886035b25c89c872046093071753b43f3d6aad"
+    },
+    {
+      "path": "release.result.json",
+      "bytes": 657,
+      "sha256": "559b5fd1643443ff7e1e8c6e41e28d11f02cd959ae5e21741ccc9c8bdebbdefc"
+    },
+    {
+      "path": "run_checks.py",
+      "bytes": 4281,
+      "sha256": "65d27a1005f0e318e75ebc81e272d6fd560fe0ceb60fef6cfe4dddbe57f27906"
+    },
+    {
+      "path": "source-before.json",
+      "bytes": 30038,
+      "sha256": "12aace9f3bc94e18301ca8f413c94873cc8acc94d0a173d9571ac8ba2f6af8a4"
+    },
+    {
+      "path": "staticcheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "staticcheck.result.json",
+      "bytes": 616,
+      "sha256": "d1b1ed1c59a971e2c754fcd4574b51e2fa2c43bf6fd3fa31ce1c2dc28c840756"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 5535,
+      "sha256": "d4ca400d18f174471bfedf75aa41ec883b4356291e766be0c075cbc1f82af1fe"
+    },
+    {
+      "path": "tool-identities.json",
+      "bytes": 638,
+      "sha256": "144d1770cb87c37e815e991d7c9d5371b3d26759f51f503bb8c9f75fe778397a"
+    },
+    {
+      "path": "vet.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "vet.result.json",
+      "bytes": 559,
+      "sha256": "04996e87096c2d0da0b5c8bf67a92b0514280d4edd40aac6858be1e6aff1e0bd"
+    }
+  ],
+  "excluded": [
+    "artifact-manifest.json",
+    "ironrun-current-check",
+    "cache/",
+    "state/",
+    "isolated-cli-state/"
+  ]
+}

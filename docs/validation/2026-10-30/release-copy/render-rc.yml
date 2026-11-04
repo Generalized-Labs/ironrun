@@ -1,0 +1,43 @@
+version: 2
+project_name: ironrun
+builds:
+- id: render-only
+  skip: true
+changelog:
+  use: git
+release:
+  github:
+    owner: generalized-labs
+    name: ironrun
+  draft: true
+  prerelease: auto
+  extra_files:
+  - glob: ./install.sh
+  name_template: ironrun {{.Tag}}
+  header: "## ironrun {{.Tag}}\n\nLocal-first encrypted environment workspace for\
+    \ humans and AI coding agents.\nAgents receive approved capabilities and redacted\
+    \ output, never reveal APIs.\n\n### Install this release\n\nSupports Linux and\
+    \ macOS on amd64 and arm64. Requires `curl`, `tar`, and\n`sha256sum` or `shasum`.\
+    \ The installer uses `cosign` for signature verification;\nif it is absent, the\
+    \ installer downloads a pinned verifier and checks its\nSHA-256 before running\
+    \ it. Network access is needed for those downloads and\nSigstore verification.\n\
+    \n```bash\n# Pinned installer for this exact release. The script Sigstore-verifies\n\
+    # checksums.txt and the tarball, and SHA-256-verifies the tarball\n# against checksums.txt\
+    \ \u2014 it refuses to install on any failure.\ncurl -fsSL https://github.com/generalized-labs/ironrun/releases/download/{{.Tag}}/install.sh\
+    \ -o /tmp/install-ironrun.sh\nsh /tmp/install-ironrun.sh --version {{.Tag}}\n\n\
+    ```\n\n### Build from source\n\nWith the Go toolchain required by this tag:\n\n\
+    ```bash\ngo install github.com/generalized-labs/ironrun/cmd/ironrun@{{.Tag}}\n\
+    ```\n\nA Go source build is separate from the signed release binaries above.\n\
+    npm and Homebrew availability is managed separately: npm requires\n[package bootstrap](https://github.com/generalized-labs/ironrun/blob/{{.Tag}}/docs/NPM_BOOTSTRAP.md),\n\
+    and the Homebrew cask requires a verified\n[tap migration](https://github.com/generalized-labs/ironrun/blob/{{.Tag}}/docs/HOMEBREW_MIGRATION.md).\n\
+    This GitHub release does not establish that either channel is ready.\n\nPrefer\
+    \ the versioned `install.sh` above over `https://ironrun.dev/install.sh`,\nwhich\
+    \ can follow a newer release instead of pinning this tag. Every release\nartifact\
+    \ (`ironrun_<OS>_<arch>.tar.gz`, `checksums.txt`, `install.sh`)\nships with a\
+    \ `<file>.sigstore.json` bundle signed keylessly by the\nrelease workflow; see\
+    \ the\n[installation guide](https://github.com/generalized-labs/ironrun/blob/{{.Tag}}/docs/INSTALL.md)\n\
+    for manual verification and current channel requirements.\n"
+  footer: '**Full Changelog**: https://github.com/generalized-labs/ironrun/compare/{{.PreviousTag}}...{{.Tag}}
+
+    '
+dist: /workspace/ironrun-product-research/launch-20261030/release-copy/render-rc

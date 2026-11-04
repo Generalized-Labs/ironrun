@@ -14,8 +14,17 @@ ironrun collects no telemetry; see [telemetry.md](telemetry.md).
 
 ## Recommended install (pinned, verified)
 
-Download the installer that shipped with the release you want — this pins
-the *script itself*, not just the binary — then run it:
+Choose an already-published tag from the
+[release list](https://github.com/generalized-labs/ironrun/releases). Download
+the installer attached to that exact release, then run it with the same tag.
+An RC must be selected explicitly; it is not selected by the latest-stable URL.
+
+Requires `curl`, `tar`, and `sha256sum` or `shasum`, plus the standard Unix
+utilities used by the script. Signature verification needs `cosign`: the
+installer uses an existing copy or downloads its pinned verifier after checking
+the verifier's SHA-256. Network access is required for the release/verifier
+downloads and Sigstore verification. Do not bypass verification if a dependency
+or network request fails.
 
 ```bash
 VERSION=vX.Y.Z   # pick the release you want
@@ -40,13 +49,17 @@ Before touching your system the script:
 Flags: `--version vX.Y.Z` (or `IRONRUN_VERSION`), `--dir PATH`
 (or `IRONRUN_INSTALL_DIR`), `--help`.
 
-> Prefer this over `curl https://ironrun.dev/install.sh | sh`: ironrun.dev
-> currently redirects to the moving `main` branch, so the script you run can
-> change with any commit. The versioned asset above is immutable.
+> Prefer the versioned URL above over `curl https://ironrun.dev/install.sh | sh`:
+> the website URL can follow a newer release instead of selecting your intended
+> tag. A versioned URL fixes release selection; it is not an independent
+> signature check of the installer script before you execute it.
 
 ## Manual verification
 
-Everything the script does can be done by hand:
+To verify the downloaded release files manually, first install a compatible
+`cosign` from its [official distribution](https://docs.sigstore.dev/cosign/system_config/installation/).
+The commands below also require `curl`, `sha256sum`, `grep`, and `sed`. On macOS,
+use `shasum -a 256 -c -` in place of `sha256sum -c -`.
 
 ```bash
 VERSION=vX.Y.Z
@@ -79,13 +92,18 @@ cosign verify-blob --bundle "${TARBALL}.sigstore.json" \
   "${TARBALL}"
 ```
 
-## Other install methods
+## Other distribution channels
 
-| Method | Command | Verification |
+Publishing GitHub assets does not make npm or a Homebrew cask available.
+At the October 30, 2026 review, the npm package had not been bootstrapped and
+the live tap still carried the v0.5.0 formula. Use the pinned installer above
+for signed binary installation; check each channel before advertising it.
+
+| Method | Availability and version selection | Verification |
 |---|---|---|
-| Homebrew tap | `brew tap generalized-labs/tap && brew install ironrun` | URL + SHA-256 pin in the cask staged by GoReleaser’s draft tap PR; see [migration and install/upgrade checks](HOMEBREW_MIGRATION.md). Homebrew does not verify Sigstore bundles; use the installer for that |
-| npm / npx | `npx @generalized-labs/ironrun` | postinstall pre-warms the cache; every run re-verifies archive + binary size and SHA-256 against the release manifest (`npm/manifest.json`, built at release time by `npm/scripts/build-manifest.mjs`) |
-| Go | `go install github.com/generalized-labs/ironrun/cmd/ironrun@latest` | Go module checksum DB (`GONOSUMDB` off by default); binary prints its own VCS stamping via `ironrun version -v` |
+| Homebrew tap | The new cask is pending the reviewed [migration and native install/upgrade checks](HOMEBREW_MIGRATION.md). A generated draft tap PR is not a live installation channel; prereleases do not update the tap | Casks pin archive URLs and SHA-256. Homebrew does not verify Sigstore bundles; use the installer for that |
+| npm / npx | Requires [first-package bootstrap and trusted-publisher setup](NPM_BOOTSTRAP.md). Only after the exact version is published, select it explicitly with `npx @generalized-labs/ironrun@X.Y.Z` (or the full `X.Y.Z-rc.N` version for an RC) | Every run verifies archive/binary size and SHA-256 against the prepared release manifest; this does not replace the release-input signature checks |
+| Go | With the tag's required Go toolchain, `go install github.com/generalized-labs/ironrun/cmd/ironrun@vX.Y.Z`; use the full RC tag when applicable | Compiles source through the Go module system. This is not installation of the signed release binary; `ironrun version -v` reports the module version and available build metadata |
 
 For npm proxy opt-in, read-only cache behavior, and current package availability,
 see [npm runtime support](NPM_RUNTIME_SUPPORT.md).

@@ -1,0 +1,1 @@
+{"result": "passed", "native_backend": "GNOME Keyring48.0 via real libsecret secret-tool0.21.7", "mcp_tools": 12, "strict_network_observation": "child started and dial blocked", "native_daemon_restart_then_new_cli_vault_reopen": true, "merged_commit": "6e03c06aebff3040563a3d8d147875824af9d366"}

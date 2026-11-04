@@ -1,0 +1,14 @@
+ironrun doctor
+
+  ✓ ironrun.yml valid (v2, 2 command(s))
+  ○ Run environment repair commands from "/workspace/ironrun-product-research/launch-20261030/native-linux/final/e2e-project"
+  ✓ project identity matches environment metadata
+  ✓ selected environment "dev" (unexpired)
+  ✓ command "strict-loopback": required entry names are configured
+  ✓ command "native-reopen-network": required entry names are configured
+  ○ Secret values and vault access were not checked
+  ✓ redaction self-test passed
+  ✓ command "strict-loopback": "/workspace/ironrun-product-research/launch-20261030/native-linux/final/workspaceprobe" resolves
+  ✓ command "native-reopen-network": "/workspace/ironrun-product-research/launch-20261030/native-linux/final/workspaceprobe" resolves
+
+All checks passed.

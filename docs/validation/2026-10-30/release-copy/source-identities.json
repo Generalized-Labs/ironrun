@@ -1,0 +1,9 @@
+{
+  "parent": "6e03c06aebff3040563a3d8d147875824af9d366",
+  "branch": "launch/release-usability-20261030",
+  "files": {
+    ".goreleaser.yml": "710a07f8783647c872cddb7080b3f6b5c4f1bffa317c489d2443be7f295e259f",
+    "docs/INSTALL.md": "49f9577bbe3e228dc05b0e1deb55eaf42dbd114f3d756c8809915a8be1522d1e"
+  },
+  "observed_utc": "2026-10-31T00:01:29.305936+00:00"
+}
