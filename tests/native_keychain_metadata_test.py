@@ -1,9 +1,11 @@
 """Pure metadata-state checks; these do not simulate native Keychain success."""
 
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
-from native_keychain_test import parse_keychain_metadata
+from native_keychain_test import NativeKeychainCheck, parse_keychain_metadata
 
 
 class KeychainMetadataTests(unittest.TestCase):
@@ -49,6 +51,44 @@ class KeychainMetadataTests(unittest.TestCase):
             with self.subTest(output=output):
                 with self.assertRaisesRegex(RuntimeError, "metadata output is invalid"):
                     parse_keychain_metadata(self.result(stdout=output), "default")
+
+
+class FailureDiagnosticsTests(unittest.TestCase):
+    def test_isolation_failure_survives_cleanup_failure(self):
+        class CommandResultFixture(NativeKeychainCheck):
+            def security(self, label, *args, **kwargs):
+                self.stage = label
+                stdout = ""
+                stderr = ""
+                status = 0
+                if label in {"read default keychain metadata", "verify restored default"}:
+                    status = 1
+                    stderr = "security: SecKeychainCopyDomainDefault user: A default keychain could not be found."
+                elif label == "verify isolated default":
+                    stdout = f'"{self.keychain}"\n'
+                elif label == "verify isolated search list":
+                    stdout = f'"{self.keychain}"\n"/unexpected/metadata-only.keychain-db"\n'
+                elif label == "restore default keychain":
+                    status = 1
+                    stderr = "security: explicit fixture cleanup failure"
+                process = subprocess.CompletedProcess(["/usr/bin/security"], status, stdout, stderr)
+                if kwargs.get("expect_success", True) and status:
+                    raise RuntimeError(f"{label}: exit {status}")
+                return process
+
+            def cli(self, *args, **kwargs):
+                raise AssertionError("failed isolation must prevent every Ironrun invocation")
+
+        with tempfile.TemporaryDirectory() as directory:
+            check = CommandResultFixture(Path("/not-executed/ironrun"), Path(directory))
+            with self.assertRaisesRegex(RuntimeError, "credential search list is not isolated"):
+                check.execute()
+            self.assertEqual(check.primary_failure["stage"], "verify isolated search list")
+            self.assertEqual(check.cleanup_failures[0]["stage"], "restore default keychain")
+            self.assertIn("explicit fixture cleanup failure", check.cleanup_failures[0]["stderr"])
+            search = next(record for record in check.metadata_observations if record["stage"] == "verify isolated search list")
+            self.assertEqual(search["count"], 2)
+            self.assertEqual(search["paths"][1], "/unexpected/metadata-only.keychain-db")
 
 
 if __name__ == "__main__":

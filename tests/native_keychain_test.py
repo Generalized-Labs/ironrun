@@ -98,6 +98,10 @@ class NativeKeychainCheck:
         self.value = "ironrun-native-fixture-" + secrets.token_hex(32)
         self.stage = "initialization"
         self.failure_stage = None
+        self.primary_failure = None
+        self.cleanup_failures = []
+        self.cleanup_operations = []
+        self.metadata_observations = []
         self.observed = []
 
     def run(self, label, argv, *, input_text=None, expect_success=True):
@@ -125,7 +129,17 @@ class NativeKeychainCheck:
     def keychain_metadata(self, label, kind):
         command = "default-keychain" if kind == "default" else "list-keychains"
         process = self.security(label, command, "-d", "user", expect_success=False)
-        return parse_keychain_metadata(process, kind)
+        # These two commands query paths/preferences only: never a password,
+        # value or native key item. Keep their bounded output to diagnose CI
+        # preference-domain differences without opening any credential store.
+        record = {
+            "stage": label, "kind": kind, "returncode": process.returncode,
+            "stdout": process.stdout[:1000], "stderr": process.stderr[:500],
+        }
+        self.metadata_observations.append(record)
+        paths = parse_keychain_metadata(process, kind)
+        record.update({"paths": paths, "count": len(paths)})
+        return paths
 
     def execute(self):
         original_default = self.keychain_metadata("read default keychain metadata", "default")
@@ -192,11 +206,14 @@ class NativeKeychainCheck:
             if control.returncode == 0 or "NATIVE_MISSING" not in control.stdout or "NATIVE_OK" in control.stdout:
                 raise RuntimeError("control child did not detect missing injection")
             self.observed.append("control child starts and fails without injected credential")
-        except Exception:
+        except Exception as error:
             self.failure_stage = self.stage
+            self.primary_failure = {
+                "stage": self.stage, "error_type": type(error).__name__,
+                "reason": str(error) if isinstance(error, RuntimeError) else "native fixture operation failed",
+            }
             raise
         finally:
-            cleanup_failures = []
             # Attempt every restoration even if another cleanup step fails.
             for needed, label, args in [
                 # With no original path, Apple's documented -s form unsets it.
@@ -206,17 +223,36 @@ class NativeKeychainCheck:
             ]:
                 if needed:
                     try:
-                        self.security(label, *args)
-                    except Exception:
-                        cleanup_failures.append(label)
-            if cleanup_failures:
-                raise RuntimeError("keychain cleanup failed: " + ", ".join(cleanup_failures))
+                        # Only preference changes and deletion of this new
+                        # temporary keychain occur here. Their arguments/input
+                        # contain no password/root key, so metadata stderr is
+                        # safe to retain. Never apply this to item operations.
+                        process = self.security(label, *args, expect_success=False)
+                        record = {
+                            "stage": label, "returncode": process.returncode,
+                            "stdout": process.stdout[:1000], "stderr": process.stderr[:500],
+                        }
+                        self.cleanup_operations.append(record)
+                        if process.returncode:
+                            self.cleanup_failures.append(record)
+                    except Exception as error:
+                        self.cleanup_failures.append({"stage": label, "error_type": type(error).__name__})
             if keychain_attempted:
-                restored_default = self.keychain_metadata("verify restored default", "default")
-                restored_search = self.keychain_metadata("verify restored search list", "search")
-                if restored_default != original_default or restored_search != original_search:
-                    raise RuntimeError("keychain settings restoration did not match original metadata")
-                self.observed.append("original default and search list restored; new keychain deleted")
+                for kind, expected in [("default", original_default), ("search", original_search)]:
+                    label = "verify restored " + kind
+                    try:
+                        restored = self.keychain_metadata(label, kind)
+                        if restored != expected:
+                            self.cleanup_failures.append({"stage": label, "reason": "restored metadata differs", "expected_paths": expected, "observed_paths": restored})
+                    except Exception as error:
+                        self.cleanup_failures.append({"stage": label, "error_type": type(error).__name__, "reason": str(error) if isinstance(error, RuntimeError) else "metadata verification failed"})
+                if not self.cleanup_failures:
+                    self.observed.append("original default and search list restored; new keychain deleted")
+            # Preserve a primary isolation/product failure even when cleanup
+            # also fails. Both are reported; cleanup can never turn a pass on.
+            if self.cleanup_failures and self.primary_failure is None:
+                self.failure_stage = self.cleanup_failures[0]["stage"]
+                raise RuntimeError("keychain cleanup failed")
 
 
 def main():
@@ -237,12 +273,12 @@ def main():
         try:
             check.execute()
         except Exception as error:
-            # Never print subprocess args/output or exception repr: generated
-            # fixture credentials and native root-key material remain private.
+            # Never print subprocess args, item-operation output or exception
+            # repr. Only bounded password-free preference metadata is retained.
             reason = str(error) if isinstance(error, RuntimeError) else "native fixture operation failed"
-            print(json.dumps({"result": "failed", "stage": check.failure_stage or check.stage, "error_type": type(error).__name__, "reason": reason, "observed": check.observed}))
+            print(json.dumps({"result": "failed", "stage": check.failure_stage or check.stage, "error_type": type(error).__name__, "reason": reason, "primary_failure": check.primary_failure, "cleanup_failures": check.cleanup_failures, "metadata": check.metadata_observations, "cleanup_operations": check.cleanup_operations, "observed": check.observed}))
             return 1
-        print(json.dumps({"result": "passed", "backend": "actual macOS security CLI and dedicated new Keychain", "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(), "observed": check.observed, "limits": "synthetic values; saved-command CLI path; no actual model, agent host or human approval usability"}))
+        print(json.dumps({"result": "passed", "backend": "actual macOS security CLI and dedicated new Keychain", "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(), "observed": check.observed, "metadata": check.metadata_observations, "cleanup_operations": check.cleanup_operations, "limits": "synthetic values; saved-command CLI path; no actual model, agent host or human approval usability"}))
     return 0
 
 
