@@ -38,6 +38,39 @@ print(value, file=sys.stderr)
 '''
 
 
+def parse_keychain_metadata(process, kind):
+    """Parse password-free security metadata, preserving an absent default.
+
+    Apple documents `default-keychain -s` without a path as the unset operation.
+    A fresh HOME can therefore legitimately have no original default to restore.
+    Treat only its exact diagnostic as absence; other failures remain failures.
+    """
+    if kind not in {"default", "search"}:
+        raise ValueError("unknown keychain metadata kind")
+    diagnostic = process.stderr.strip()
+    if (
+        kind == "default"
+        and process.returncode == 1
+        and not process.stdout.strip()
+        and diagnostic == "security: SecKeychainCopyDomainDefault user: A default keychain could not be found."
+    ):
+        return []
+    if process.returncode != 0 or diagnostic:
+        # These queries have no password flag or input. Retain bounded metadata
+        # stderr so an unfamiliar platform failure is diagnosable, not ignored.
+        raise RuntimeError(
+            f"{kind} metadata query failed: exit {process.returncode}; "
+            f"stderr={json.dumps(diagnostic[:500])}"
+        )
+    try:
+        paths = shlex.split(process.stdout)
+    except ValueError:
+        raise RuntimeError(f"{kind} metadata output is invalid") from None
+    if kind == "default" and len(paths) > 1:
+        raise RuntimeError("default metadata output is invalid")
+    return paths
+
+
 class NativeKeychainCheck:
     def __init__(self, binary, root):
         self.binary = binary
@@ -56,6 +89,8 @@ class NativeKeychainCheck:
             # Ironrun must resolve the real Apple CLI, not a test wrapper.
             "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
             "GITHUB_ACTIONS": "false",
+            # Match the documented absence diagnostic deterministically.
+            "LC_ALL": "C",
         }
         self.env.pop(ENTRY, None)
         self.keychain = root / "native-test.keychain-db"
@@ -87,15 +122,15 @@ class NativeKeychainCheck:
             raise RuntimeError(f"{label}: full synthetic credential in CLI output")
         return process
 
+    def keychain_metadata(self, label, kind):
+        command = "default-keychain" if kind == "default" else "list-keychains"
+        process = self.security(label, command, "-d", "user", expect_success=False)
+        return parse_keychain_metadata(process, kind)
+
     def execute(self):
-        original_default = shlex.split(self.security(
-            "read default keychain metadata", "default-keychain", "-d", "user"
-        ).stdout)
-        original_search = shlex.split(self.security(
-            "read keychain search-list metadata", "list-keychains", "-d", "user"
-        ).stdout)
-        if len(original_default) != 1:
-            raise RuntimeError("expected one original default keychain")
+        original_default = self.keychain_metadata("read default keychain metadata", "default")
+        original_search = self.keychain_metadata("read keychain search-list metadata", "search")
+        self.observed.append("original keychain metadata captured; default " + ("present" if original_default else "absent"))
         keychain_attempted = False
         try:
             # create-keychain can itself add the item to the search list. From
@@ -106,8 +141,8 @@ class NativeKeychainCheck:
             self.security("unlock isolated keychain", "unlock-keychain", "-p", self.password, str(self.keychain))
             self.security("isolate search list", "list-keychains", "-d", "user", "-s", str(self.keychain))
             self.security("select isolated default", "default-keychain", "-d", "user", "-s", str(self.keychain))
-            selected = shlex.split(self.security("verify isolated default", "default-keychain", "-d", "user").stdout)
-            search = shlex.split(self.security("verify isolated search list", "list-keychains", "-d", "user").stdout)
+            selected = self.keychain_metadata("verify isolated default", "default")
+            search = self.keychain_metadata("verify isolated search list", "search")
             if len(selected) != 1 or Path(selected[0]).resolve() != self.keychain.resolve():
                 raise RuntimeError("temporary keychain is not the default")
             if len(search) != 1 or Path(search[0]).resolve() != self.keychain.resolve():
@@ -164,6 +199,7 @@ class NativeKeychainCheck:
             cleanup_failures = []
             # Attempt every restoration even if another cleanup step fails.
             for needed, label, args in [
+                # With no original path, Apple's documented -s form unsets it.
                 (keychain_attempted, "restore default keychain", ["default-keychain", "-d", "user", "-s", *original_default]),
                 (keychain_attempted, "restore keychain search list", ["list-keychains", "-d", "user", "-s", *original_search]),
                 (self.keychain.exists(), "delete isolated keychain", ["delete-keychain", str(self.keychain)]),
@@ -176,8 +212,8 @@ class NativeKeychainCheck:
             if cleanup_failures:
                 raise RuntimeError("keychain cleanup failed: " + ", ".join(cleanup_failures))
             if keychain_attempted:
-                restored_default = shlex.split(self.security("verify restored default", "default-keychain", "-d", "user").stdout)
-                restored_search = shlex.split(self.security("verify restored search list", "list-keychains", "-d", "user").stdout)
+                restored_default = self.keychain_metadata("verify restored default", "default")
+                restored_search = self.keychain_metadata("verify restored search list", "search")
                 if restored_default != original_default or restored_search != original_search:
                     raise RuntimeError("keychain settings restoration did not match original metadata")
                 self.observed.append("original default and search list restored; new keychain deleted")

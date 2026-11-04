@@ -52,6 +52,8 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+      - name: Verify native Keychain metadata-state parsing
+        run: python3 -m unittest discover -s tests -p native_keychain_metadata_test.py -v
       - name: Build the CLI for native-store verification
         run: go build -o "$RUNNER_TEMP/ironrun-native-keychain" ./cmd/ironrun
       - name: Verify actual Keychain persistence, child injection and output filtering
