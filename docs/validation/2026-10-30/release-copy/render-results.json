@@ -1,0 +1,68 @@
+{
+  "observed_utc": "2026-10-31T00:00:42.721313+00:00",
+  "results": [
+    {
+      "tag": "v0.5.1-rc.1",
+      "argv": [
+        "/workspace/ironrun-product-tools/release-bin/goreleaser",
+        "release",
+        "--clean",
+        "--config",
+        "/workspace/ironrun-product-research/launch-20261030/release-copy/render-rc.yml",
+        "--release-notes",
+        "/workspace/ironrun-product-research/launch-20261030/release-copy/diagnostic-body.md",
+        "--skip",
+        "before,archive,homebrew,sbom,sign,publish,announce,validate"
+      ],
+      "exit_code": 0,
+      "scope": "Actual GoReleaser2.18.2 template pipeline using identical release stanza, explicit tag context, skipped builds/signing/publication; no repository tag created.",
+      "rendered_header": {
+        "file": "header-rc.md",
+        "sha256": "bda6f5bf97aa494b51df07a0ba3b847e79c320903a9a8803cd8f64f56614b31a",
+        "assertions": {
+          "tagged_installer": true,
+          "tagged_binary": true,
+          "tagged_go_source": true,
+          "no_unconditional_brew": true,
+          "no_unconditional_npx": true,
+          "cosign_prerequisite": true,
+          "no_unexpanded_tag": true,
+          "balanced_code_fences": true
+        },
+        "engine": "Go1.26.10 standard text/template with identical release.header; its only action is .Tag. GoReleaser skipped publication and did not emit a header itself."
+      }
+    },
+    {
+      "tag": "v0.5.1",
+      "argv": [
+        "/workspace/ironrun-product-tools/release-bin/goreleaser",
+        "release",
+        "--clean",
+        "--config",
+        "/workspace/ironrun-product-research/launch-20261030/release-copy/render-stable.yml",
+        "--release-notes",
+        "/workspace/ironrun-product-research/launch-20261030/release-copy/diagnostic-body.md",
+        "--skip",
+        "before,archive,homebrew,sbom,sign,publish,announce,validate"
+      ],
+      "exit_code": 0,
+      "scope": "Actual GoReleaser2.18.2 template pipeline using identical release stanza, explicit tag context, skipped builds/signing/publication; no repository tag created.",
+      "rendered_header": {
+        "file": "header-stable.md",
+        "sha256": "c3b4fd617adce27688c48ff979db3fc08e92f2134a84a55a1ad96fdb983e4a59",
+        "assertions": {
+          "tagged_installer": true,
+          "tagged_binary": true,
+          "tagged_go_source": true,
+          "no_unconditional_brew": true,
+          "no_unconditional_npx": true,
+          "cosign_prerequisite": true,
+          "no_unexpanded_tag": true,
+          "balanced_code_fences": true
+        },
+        "engine": "Go1.26.10 standard text/template with identical release.header; its only action is .Tag. GoReleaser skipped publication and did not emit a header itself."
+      }
+    }
+  ],
+  "scope": "GoReleaser2.18.2 config and tag-context metadata validation; source-only Go text/template header rendering. No tag, builds, signatures, release binary archives or publication created; diagnostic metadata is retained."
+}

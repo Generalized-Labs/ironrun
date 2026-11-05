@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "archives": [
+    {
+      "archive": "native-linux",
+      "files": 46,
+      "bytes": 239369,
+      "manifest_sha256": "9ea3650854e82601f78a18d64c2680836d351ef34b8831fb869daf5a555dea5b"
+    },
+    {
+      "archive": "verification",
+      "files": 22,
+      "bytes": 59045,
+      "manifest_sha256": "945ee8ab618ee8b6a86e17203130f254de39991a9277565ecc3e1c8bc8cf11aa"
+    },
+    {
+      "archive": "release-copy",
+      "files": 25,
+      "bytes": 42686,
+      "manifest_sha256": "9e220c6d7dc3cc1aafe80b805d8e123c7edba8f02bc3021504401e23abd580a8"
+    }
+  ],
+  "runtime_inputs": 182,
+  "runtime_inputs_match_checkout": true,
+  "release_copy_inputs_match_checkout": true,
+  "scope": "Copied only existing manifest-selected files; original bytes, manifests and filesystem mtimes preserved. No binaries, caches, state or compilable Go source."
+}

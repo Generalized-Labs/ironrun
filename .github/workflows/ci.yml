@@ -42,6 +42,23 @@ jobs:
           name: coverage
           path: coverage.out
 
+  native-keychain:
+    name: "Native macOS Keychain"
+    runs-on: macos-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Verify native Keychain metadata-state parsing
+        run: python3 -m unittest discover -s tests -p native_keychain_metadata_test.py -v
+      - name: Build the CLI for native-store verification
+        run: go build -o "$RUNNER_TEMP/ironrun-native-keychain" ./cmd/ironrun
+      - name: Verify actual Keychain persistence, child injection and output filtering
+        run: python3 tests/native_keychain_test.py --binary "$RUNNER_TEMP/ironrun-native-keychain" --disposable-account
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

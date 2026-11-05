@@ -1,0 +1,21 @@
+  • starting release
+  • skipping announce, archive, before, homebrew, publish, sbom, sign, and validate...
+  • cleaning distribution directory
+  • loading environment variables
+  • getting and validating git state
+    • using tags                                     previous=v0.5.0 current=v0.5.1-rc.1
+    • pipe skipped or partially skipped              reason=validation is disabled
+  • parsing tag
+  • setting defaults
+  • ensuring distribution directory
+  • setting up metadata
+  • writing release metadata
+  • loading go mod information
+  • build prerequisites
+  • building binaries
+    • skip is set                                    id=render-only
+  • generating changelog
+  • calculating checksums
+  • writing artifacts metadata
+  • release succeeded after 0s
+  • thanks for using GoReleaser!

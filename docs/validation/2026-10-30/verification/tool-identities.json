@@ -1,0 +1,17 @@
+{
+  "go": {
+    "path": "/workspace/ironrun-product-tools/go/bin/go",
+    "sha256": "9c2a37ae5b21ba1d5a004bb9ab4d0c64de6fc5778e9d30487adccea62678b8b5",
+    "version": "go version go1.26.10 linux/amd64"
+  },
+  "staticcheck": {
+    "path": "/workspace/ironrun-product-tools/lint-bin/staticcheck",
+    "sha256": "afcc5b32d6d58afa86cfde53b3ef890ea4724676ff90eba4451d2f7a79f26517",
+    "version": "staticcheck 2026.2.2 (0.8.2)"
+  },
+  "node": {
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "version": "v24.19.0"
+  }
+}

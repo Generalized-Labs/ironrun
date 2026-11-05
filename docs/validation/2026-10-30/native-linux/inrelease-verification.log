@@ -1,0 +1,21 @@
+gpg: Signature made Sat Sep 12 07:56:18 2026 UTC
+gpg:                using RSA key 4CB50190207B4758A3F73A796ED0E7B82643E131
+gpg: /workspace/ironrun-product-tools/native-linux/gpg-public-verification/trustdb.gpg: trustdb created
+gpg: Good signature from "Debian Archive Automatic Signing Key (12/bookworm) <ftpmaster@debian.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: B8B8 0B5B 623E AB6A D877  5C45 B7C5 D7D6 3509 47F8
+     Subkey fingerprint: 4CB5 0190 207B 4758 A3F7  3A79 6ED0 E7B8 2643 E131
+gpg: Signature made Sat Sep 12 07:56:19 2026 UTC
+gpg:                using RSA key B8E5F13176D2A7A75220028078DBA3BC47EF2265
+gpg: Good signature from "Debian Archive Automatic Signing Key (13/trixie) <ftpmaster@debian.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 04B5 4C3C DCA7 9751 B16B  C6B5 2256 29DF 75B1 88BD
+     Subkey fingerprint: B8E5 F131 76D2 A7A7 5220  0280 78DB A3BC 47EF 2265
+gpg: Signature made Sat Sep 12 07:57:47 2026 UTC
+gpg:                using EDDSA key 41587F7DB8C774BCCF131416762F67A0B2C39DE4
+gpg: Good signature from "Debian Stable Release Key (13/trixie) <debian-release@lists.debian.org>" [unknown]
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 4158 7F7D B8C7 74BC CF13  1416 762F 67A0 B2C3 9DE4

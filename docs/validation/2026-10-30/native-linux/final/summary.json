@@ -1,0 +1,130 @@
+{
+  "result": "passed",
+  "started_at_utc": "2026-10-31T00:04:16.309262+00:00",
+  "ended_at_utc": "2026-10-31T00:04:17.815818+00:00",
+  "source_identity": "source-identity.json",
+  "merged_commit": "6e03c06aebff3040563a3d8d147875824af9d366",
+  "native_backend": "GNOME Keyring48.0 via real libsecret secret-tool0.21.7",
+  "synthetic_native_adapter_used": false,
+  "isolated_new_dbus_session_and_home": true,
+  "existing_user_stores_accessed": false,
+  "actual_cli_env_init_set_doctor": true,
+  "mcp_tools": 12,
+  "no_request_during_100ms_pending_observation": true,
+  "actual_cli_grant_then_loopback_delivery": true,
+  "full_synthetic_value_absent_from_mcp_output": true,
+  "strict_network_observation": "child started and dial blocked",
+  "actual_cli_revoke_and_deny_prevented_second_call": true,
+  "native_daemon_restart_then_new_cli_vault_reopen": true,
+  "loopback_requests": [
+    {
+      "credential_matches": true,
+      "observed_monotonic_ns": 698559269284
+    },
+    {
+      "credential_matches": true,
+      "observed_monotonic_ns": 698842771668
+    }
+  ],
+  "at_rest_files": [
+    {
+      "path": "e2e-home/data/keyrings/login.keyring",
+      "bytes": 488,
+      "mode": "0o600",
+      "sha256": "7f054de41f7b0fa4793a4d84d3cb44c2085921d223ae3a30cfe01aa50a5dce46",
+      "full_synthetic_value_present": false
+    },
+    {
+      "path": "e2e-home/.ironrun/vaults/d87e0783267838f45f4cda61b22a330d.irvault",
+      "bytes": 737,
+      "mode": "0o600",
+      "sha256": "b29c097859121da17e54754529a0144f63f553bab897c4096a68320fedaacae4",
+      "full_synthetic_value_present": false
+    }
+  ],
+  "binary_sha256": "809e6fe0ee5335ce26b09fb9153a28c74966a8789620d94167e1e20bc6e1c612",
+  "http_helper_sha256": "9eee16d7dcde7c1b434eba8d4d92de560eb617185abc9a8ebb4df0fb3eb074c7",
+  "secret_tool_sha256": "f7b9c6b4ff174323ef1839b79a93475f335db2710c92b249ab6b271c042cb13e",
+  "gnome_keyring_daemon_sha256": "93b44d40cbbc84872fc947186aa5f2fd9a8189377328d29322f514944900932b",
+  "commands": [
+    {
+      "label": "env-init",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "env",
+        "init",
+        "dev"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "env-set",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "env",
+        "set",
+        "dev",
+        "IRONRUN_E2E_TOKEN",
+        "--from-stdin",
+        "--unsafe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "doctor",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "doctor"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "trust-grant",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "trust",
+        "grant",
+        "req_8577cb467eb532c062fe10eb",
+        "--ttl",
+        "1m"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "trust-revoke",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "trust",
+        "revoke",
+        "trust_e5e9f5af6bfa066fbc5e2f86"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "access-deny",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "access",
+        "deny",
+        "req_e9752094a562376ffa27ef97"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "after-daemon-restart",
+      "argv": [
+        "/workspace/ironrun-product-research/launch-20261030/native-linux/final/ironrun",
+        "run",
+        "native-reopen-network"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "limits": [
+    "Headless password-unlocked brand-new test collection, not desktop login/PAM/keyring prompt UX.",
+    "Direct MCP protocol fixture, not a real agent host/model or human approval session.",
+    "Loopback authentication only, not an external provider.",
+    "No macOS Keychain, other host, installer or signed-release evidence.",
+    "At-rest byte absence is a bounded observation, not cryptographic validation."
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "downloads": [
+    {
+      "url": "https://deb.debian.org/debian/dists/trixie/InRelease",
+      "path": "/workspace/ironrun-product-tools/native-linux/InRelease",
+      "bytes": 140421,
+      "sha256": "0584fba32e13e0ab8285fb16c27adea1ec03a73669c18702821094fd6ca86675"
+    },
+    {
+      "url": "https://deb.debian.org/debian/dists/trixie/main/binary-amd64/Packages.xz",
+      "path": "/workspace/ironrun-product-tools/native-linux/Packages.xz",
+      "bytes": 9678380,
+      "sha256": "7778d3e3f303b7ddb8ce0fe7c8d57473a076c6bf2e8f241f75421d2396352498"
+    }
+  ],
+  "signature_verification_exit": 0,
+  "trusted_keyring": "/usr/share/keyrings/debian-archive-keyring.gpg",
+  "index_sha_verified": true
+}

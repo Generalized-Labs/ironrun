@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/ironrun-product-research/launch-20261030/native-linux/native_e2e.py", line 207, in <module>
+    if __name__=='__main__':main()
+                            ~~~~^^
+  File "/workspace/ironrun-product-research/launch-20261030/native-linux/native_e2e.py", line 193, in main
+    run_inner();return
+    ~~~~~~~~~^^
+  File "/workspace/ironrun-product-research/launch-20261030/native-linux/native_e2e.py", line 178, in run_inner
+    vault_files=list((Path.home()/'.ironrun/vaults').glob('*.json'));assert vault_files
+                                                                            ^^^^^^^^^^^
+AssertionError

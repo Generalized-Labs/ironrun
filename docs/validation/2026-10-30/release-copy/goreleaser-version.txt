@@ -1,0 +1,17 @@
+  ____       ____      _
+ / ___| ___ |  _ \ ___| | ___  __ _ ___  ___ _ __
+| |  _ / _ \| |_) / _ \ |/ _ \/ _` / __|/ _ \ '__|
+| |_| | (_) |  _ <  __/ |  __/ (_| \__ \  __/ |
+ \____|\___/|_| \_\___|_|\___|\__,_|___/\___|_|
+goreleaser: Release engineering, simplified.
+https://goreleaser.com
+
+GitVersion:    2.18.2
+GitCommit:     25a52e520f9c993711b93ea1111ed90c024e0528
+GitTreeState:  false
+BuildDate:     2026-09-17T01:44:28Z
+BuiltBy:       goreleaser
+GoVersion:     go1.27.1
+Compiler:      gc
+ModuleSum:     h1:mNyu2jFcuLlNFM90jzfQpz/IDZBsIgskHz02CHVoY/o=
+Platform:      linux/amd64

@@ -1,0 +1,41 @@
+{
+  "gnome-keyring-daemon": {
+    "path": "/workspace/ironrun-product-tools/native-linux/extracted/usr/bin/gnome-keyring-daemon",
+    "sha256": "93b44d40cbbc84872fc947186aa5f2fd9a8189377328d29322f514944900932b",
+    "version_exit": 0,
+    "version": [
+      "gnome-keyring-daemon: 48.0",
+      "testing: enabled"
+    ]
+  },
+  "dbus-daemon": {
+    "path": "/usr/bin/dbus-daemon",
+    "sha256": "32c90f7766d01081f0f052ef8a2879214a69fb8355d5034a07a8ce54c8e8e320",
+    "version_exit": 0,
+    "version": [
+      "D-Bus Message Bus Daemon 1.16.2",
+      "Copyright (C) 2002, 2003 Red Hat, Inc., CodeFactory AB, and others",
+      "This is free software; see the source for copying conditions."
+    ]
+  },
+  "gpg": {
+    "path": "/usr/bin/gpg",
+    "sha256": "7c9d2f9416aabcd10199e2984439f49612644a948279ac56bdf70d69c8958ddf",
+    "version_exit": 0,
+    "version": [
+      "gpg (GnuPG) 2.4.7",
+      "libgcrypt 1.11.0",
+      "Copyright (C) 2024 g10 Code GmbH"
+    ]
+  },
+  "secret-tool": {
+    "path": "/workspace/ironrun-product-tools/native-linux/extracted/usr/bin/secret-tool",
+    "sha256": "f7b9c6b4ff174323ef1839b79a93475f335db2710c92b249ab6b271c042cb13e",
+    "version": "Debian libsecret-tools0.21.7-1; package metadata+SHA authenticated via signed index."
+  },
+  "archive-keyring": {
+    "path": "/usr/share/keyrings/debian-archive-keyring.gpg",
+    "sha256": "506b815cbb32d9b6066b4a2aa524071e071761e7e7f68c3ac74f3061ba852017",
+    "scope": "Existing system Debian archive trust keyring, explicit gpg --no-default-keyring selector."
+  }
+}

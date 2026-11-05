@@ -1,9 +1,10 @@
 # Open-source launch readiness
 
-Updated October 29, 2026 (America/New_York). Repository baseline: `8e3c354`;
-review and repairs: [PR #16](https://github.com/Generalized-Labs/ironrun/pull/16).
+Updated November 3, 2026 (America/New_York). Repository baseline: `8e3c354`;
+review and repairs: [PR #16](https://github.com/Generalized-Labs/ironrun/pull/16),
+merged as `6e03c06aebff3040563a3d8d147875824af9d366`.
 
-**The reviewed repairs have source-bound automated evidence; real-host, native-store,
+**The reviewed repairs have source-bound automated evidence; real-host, remaining native-store,
 signed-installation, release, and arXiv gates remain open.** Consult each retained
 source manifest and the PR's current checks before transferring a result to a new
 build. Tests and bounded review do not certify security or perfect correctness.
@@ -80,6 +81,7 @@ before preview publication. Stable-release product gates remain open separately.
 | Fresh current-only paper diagnostics | Current leakage counts reproduce; frozen 1,209,966-byte corpus and raw outputs retained; shared-host performance medians and scanning measurements replace unsupported old timing claims |
 | Workspace networking regression | Six focused race tests pass at recorded server SHA `9efac543…`: actual CLI grant, encrypted v2 vault, stdio MCP, workspace loopback delivery, strict child `DIAL_BLOCKED`, revoke and deny. Native root-key storage alone is synthetic; the 100 ms preapproval observation is bounded |
 | Actual Codex host fixture | Codex CLI 0.159.2 on Linux connects to final server SHA `c585b000…`, discovers twelve tools, resumes `run_sealed` after actual local approval, and returns redacted output to the next scripted model request. The model and native-store adapter are synthetic; the isolated host tool is explicitly preapproved |
+| Actual Linux Secret Service | A separate headless Debian probe uses real GNOME Keyring 48.0/libsecret 0.21.7, with no substitute native-store adapter. Vault save/reopen, MCP grant/loopback/filtering, strict attempted-dial denial, revoke/deny and persisted recovery after daemon restart pass on 182 runtime inputs matching merged `6e03c06`. Desktop unlock, actual agent-host/model and human workflows remain untested |
 
 Raw results and source hashes are in [validation/2026-10-21](validation/2026-10-21/).
 Earlier Go 1.26.9 experiments remain in the prior evidence and commit history.
@@ -125,6 +127,14 @@ its MCP server is unchanged, and the later copy has separate runtime checks.
 The host archive records the delta without claiming another host capture.
 The archive directory retains the planned validation label; original UTC run
 timestamps are preserved in its records.
+
+The [native-storage follow-up](validation/2026-10-30/README.md) retains the fresh
+pre-merge checks, actual Linux native-store E2E and release-instruction rendering.
+The Linux result closes the substitute-key-store limitation for that specific
+headless probe, not for the earlier Codex fixture or other machines. The new
+real macOS Keychain CI job must have its own observed result; it cannot be
+inferred from cross-compilation, the fake-CLI unit tests or the Linux result.
+Its saved-command fixture also does not substitute for the human host matrix.
 
 ## Review scope
 
@@ -174,11 +184,21 @@ auto-approve host tools to imitate the scripted fixture.
    disclosure, tail/delivery latency, and actual developer usability remain
    research opportunities.
 
-This PR creates no release tag, registry package, external tap change, or arXiv
-submission. Reverting the PR restores the previous source; no data migration has
+The merged PR created no release tag, registry package, external tap change, or arXiv
+submission. Reverting the merge restores the previous source; no data migration has
 been performed. The original audit and interim findings remain available in
 [the first review commit](https://github.com/Generalized-Labs/ironrun/blob/9794795e0f4de675d452d5769718ef0c14491e87/docs/LAUNCH_READINESS.md).
 
-The research report and companion article can receive a separate Cloudflare
-preview with accurate draft/evidence labels. Integrate them into ironrun.dev only
-after the runtime readiness decision. A designed page does not close release gates.
+The proposed next preview candidate is `v0.5.1-rc.1`; it has not been tagged.
+Every `v*` tag triggers public GitHub release promotion after signing and
+verification, then attempts npm publication. Tagging is therefore held for the
+remaining native-host and installation readiness decision. The release copy now
+offers an exact-tag installer/source build without promising that npm or the
+new Homebrew cask is already available.
+
+The research report and companion article are being prepared for the existing
+Vercel site, replacing the earlier Cloudflare preview target. Keep staging and
+production promotion separate, with accurate draft/evidence labels and the
+existing landing and installer routes preserved. Integrate them into ironrun.dev
+only after the runtime readiness decision. A designed page does not close release
+gates.
