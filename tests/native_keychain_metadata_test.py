@@ -4,6 +4,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+import stat
 
 from native_keychain_test import NativeKeychainCheck, parse_keychain_metadata
 
@@ -62,8 +63,7 @@ class FailureDiagnosticsTests(unittest.TestCase):
                 stderr = ""
                 status = 0
                 if label in {"read default keychain metadata", "verify restored default"}:
-                    status = 1
-                    stderr = "security: SecKeychainCopyDomainDefault user: A default keychain could not be found."
+                    stdout = '"/previous/default.keychain-db"\n'
                 elif label == "verify isolated default":
                     stdout = f'"{self.keychain}"\n'
                 elif label == "verify isolated search list":
@@ -89,6 +89,49 @@ class FailureDiagnosticsTests(unittest.TestCase):
             search = next(record for record in check.metadata_observations if record["stage"] == "verify isolated search list")
             self.assertEqual(search["count"], 2)
             self.assertEqual(search["paths"][1], "/unexpected/metadata-only.keychain-db")
+
+    def test_fresh_home_contains_private_native_preference_parents(self):
+        with tempfile.TemporaryDirectory() as directory:
+            check = NativeKeychainCheck(Path("/not-executed/ironrun"), Path(directory))
+            for relative in ["Library", "Library/Preferences"]:
+                path = Path(check.env["HOME"]) / relative
+                self.assertTrue(path.is_dir())
+                self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o700)
+
+    def test_absent_default_is_restored_by_deleting_only_the_new_keychain(self):
+        class CommandResultFixture(NativeKeychainCheck):
+            labels = []
+
+            def security(self, label, *args, **kwargs):
+                self.stage = label
+                self.labels.append(label)
+                stdout, stderr, status = "", "", 0
+                if label == "create isolated keychain":
+                    self.keychain.touch(mode=0o600)
+                elif label in {"read default keychain metadata", "verify restored default"}:
+                    status = 1
+                    stderr = "security: SecKeychainCopyDomainDefault user: A default keychain could not be found."
+                elif label == "verify isolated default":
+                    stdout = f'"{self.keychain}"\n'
+                elif label == "verify isolated search list":
+                    stdout = f'"{self.keychain}"\n"/unexpected/metadata-only.keychain-db"\n'
+                elif label == "delete isolated keychain":
+                    self.keychain.unlink()
+                elif label == "restore default keychain":
+                    raise AssertionError("absent default must not use the broken null-keychain API")
+                return subprocess.CompletedProcess(["/usr/bin/security"], status, stdout, stderr)
+
+            def cli(self, *args, **kwargs):
+                raise AssertionError("failed isolation must prevent every Ironrun invocation")
+
+        with tempfile.TemporaryDirectory() as directory:
+            check = CommandResultFixture(Path("/not-executed/ironrun"), Path(directory))
+            with self.assertRaisesRegex(RuntimeError, "credential search list is not isolated"):
+                check.execute()
+            self.assertNotIn("restore default keychain", check.labels)
+            self.assertLess(check.labels.index("delete isolated keychain"), check.labels.index("restore keychain search list"))
+            self.assertFalse(check.cleanup_failures)
+            self.assertFalse(check.keychain.exists())
 
 
 if __name__ == "__main__":

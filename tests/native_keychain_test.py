@@ -7,8 +7,9 @@ This temporarily changes the user's default keychain and search-list settings.
 Ordinary completion, exceptions and subprocess timeouts attempt to restore them;
 forced termination cannot guarantee restoration. Do not use a primary account.
 The test deliberately fails on other platforms. It never substitutes security
-or opens existing credential values. After isolation is verified, its new
-temporary keychain is the only credential search target.
+or opens existing credential values. Its new temporary keychain is the only
+user-domain keychain after verification. Common/dynamic domains are unchanged;
+all credential item lookups use the freshly created project identity.
 """
 
 import argparse
@@ -79,6 +80,14 @@ class NativeKeychainCheck:
         home = root / "home"
         self.project.mkdir(mode=0o700)
         home.mkdir(mode=0o700)
+        # Apple's native preference writer opens the plist with O_CREAT but
+        # does not create parents and ignores write failures. A bare HOME can
+        # therefore make preference changes appear successful but not persist.
+        for directory in [home / "Library", home / "Library" / "Preferences"]:
+            directory.mkdir(mode=0o700)
+            info = directory.stat()
+            if directory.is_symlink() or info.st_uid != os.getuid() or info.st_mode & 0o077:
+                raise RuntimeError("isolated native preference directory is not private")
         self.env = {
             **os.environ,
             "HOME": str(home),
@@ -161,7 +170,7 @@ class NativeKeychainCheck:
                 raise RuntimeError("temporary keychain is not the default")
             if len(search) != 1 or Path(search[0]).resolve() != self.keychain.resolve():
                 raise RuntimeError("credential search list is not isolated")
-            self.observed.append("only new temporary keychain selected")
+            self.observed.append("only new temporary user-domain keychain selected")
 
             missing = self.security("confirm root-key item initially absent", "find-generic-password", "-s", "ironrun/env/vault-keys", expect_success=False)
             if missing.returncode == 0:
@@ -216,10 +225,13 @@ class NativeKeychainCheck:
         finally:
             # Attempt every restoration even if another cleanup step fails.
             for needed, label, args in [
-                # With no original path, Apple's documented -s form unsets it.
-                (keychain_attempted, "restore default keychain", ["default-keychain", "-d", "user", "-s", *original_default]),
-                (keychain_attempted, "restore keychain search list", ["list-keychains", "-d", "user", "-s", *original_search]),
+                # The native CLI's no-path -s form failed in observed CI.
+                # For original absence, delete only our new default keychain:
+                # Apple's removal implementation clears its matching default
+                # identifier. Verify absence below rather than ignoring errors.
+                (keychain_attempted and bool(original_default), "restore default keychain", ["default-keychain", "-d", "user", "-s", *original_default]),
                 (self.keychain.exists(), "delete isolated keychain", ["delete-keychain", str(self.keychain)]),
+                (keychain_attempted, "restore keychain search list", ["list-keychains", "-d", "user", "-s", *original_search]),
             ]:
                 if needed:
                     try:
