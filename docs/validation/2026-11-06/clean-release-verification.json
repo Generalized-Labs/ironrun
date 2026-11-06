@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "source_commit": "b5b0059fc088745296999ad84f5b0726a631f85f",
+  "source_tree": "ff248424f675a9f41969afe6ebec74c3cdf34185",
+  "version": "0.5.1-rc.1-diagnostic",
+  "tag_created": false,
+  "signed": false,
+  "published": false,
+  "artifact_verification": {
+    "result": "pass",
+    "source_commit": "b5b0059fc088745296999ad84f5b0726a631f85f",
+    "archives": [
+      {
+        "archive": "ironrun_Darwin_arm64.tar.gz",
+        "sha256": "68102b72c2fd2fab29d314cc5c20ee988e186c546895fa78770d8fc497d6a631",
+        "binary_sha256": "822921dbeb2e2a6f770b36e931ebf7b5ee34e18c5168522b9cbbfc6f7583cd22",
+        "spdx_packages": 54,
+        "archive_contents": [
+          "LICENSE",
+          "README.md",
+          "ironrun.example.yml",
+          "ironrun"
+        ]
+      },
+      {
+        "archive": "ironrun_Darwin_x86_64.tar.gz",
+        "sha256": "67aad8c0c120913aa7d0c00064c6e14ac911f3ee6d99c7ce697c64d06e8efe59",
+        "binary_sha256": "cc9738a1bacfbb47185cccd3ff41d62e00a33ef345f42450e31d60dd77226a13",
+        "spdx_packages": 54,
+        "archive_contents": [
+          "LICENSE",
+          "README.md",
+          "ironrun.example.yml",
+          "ironrun"
+        ]
+      },
+      {
+        "archive": "ironrun_Linux_arm64.tar.gz",
+        "sha256": "3ae7c2aed19bfb49fd7f7c1870b7c7ba724af0c28415a5fcb352d79b3f3fd94f",
+        "binary_sha256": "ffd2442584a6d3cf6e32e109f23e109f12794135df5eb3a756366aea7b406586",
+        "spdx_packages": 54,
+        "archive_contents": [
+          "LICENSE",
+          "README.md",
+          "ironrun.example.yml",
+          "ironrun"
+        ]
+      },
+      {
+        "archive": "ironrun_Linux_x86_64.tar.gz",
+        "sha256": "f6f3587ae42706dbd6ef70a10b99bf08cac974ad5ccb68a5e709e568b7a9fa83",
+        "binary_sha256": "1f5457786ccdc5aab009a143841486f28bc809d5c8b843bab2d30e68926d4ad0",
+        "spdx_packages": 54,
+        "archive_contents": [
+          "LICENSE",
+          "README.md",
+          "ironrun.example.yml",
+          "ironrun"
+        ]
+      }
+    ],
+    "checksum_entries_verified": 9,
+    "source_unchanged": true,
+    "native_execution": "Extracted Linux x86_64 diagnostic binary version/help only",
+    "limits": [
+      "No signature verification: snapshot is deliberately unsigned",
+      "No signed installer/network distribution pilot",
+      "No native macOS execution",
+      "No credential-store or real host usability claim"
+    ]
+  },
+  "source_invariance": {
+    "unchanged": true,
+    "build_error": null
+  },
+  "build": {
+    "argv": [
+      "/workspace/ironrun-product-tools/release-bin/goreleaser",
+      "release",
+      "--config",
+      "/workspace/ironrun-product-research/launch-20261106/clean-release/run-b5b0059fc088/diagnostic-config.yml",
+      "--snapshot",
+      "--clean",
+      "--skip=sign,publish",
+      "--parallelism=2",
+      "--timeout=25m"
+    ],
+    "cwd": "/workspace/ironrun-clean-rc-verification",
+    "started_utc": "2026-11-06T00:21:14.501408+00:00",
+    "ended_utc": "2026-11-06T00:23:28.043362+00:00",
+    "seconds": 133.542,
+    "exit_code": 0,
+    "timed_out": false
+  },
+  "native_linux_reproducibility": {
+    "argv": [
+      "/workspace/ironrun-product-tools/go/bin/go",
+      "build",
+      "-trimpath",
+      "-ldflags",
+      "-s -w -X github.com/generalized-labs/ironrun/internal/buildinfo.Version=0.5.1-rc.1-diagnostic -X github.com/generalized-labs/ironrun/internal/buildinfo.Commit=b5b0059fc088745296999ad84f5b0726a631f85f -X github.com/generalized-labs/ironrun/internal/buildinfo.Date=2026-11-06T00:20:57Z",
+      "-o",
+      "/workspace/ironrun-product-research/launch-20261106/clean-release/run-b5b0059fc088/native-reproducibility/ironrun",
+      "./cmd/ironrun"
+    ],
+    "started_utc": "2026-11-06T00:24:24.426302+00:00",
+    "ended_utc": "2026-11-06T00:25:02.991079+00:00",
+    "seconds": 38.565,
+    "exit_code": 0,
+    "source_commit": "b5b0059fc088745296999ad84f5b0726a631f85f",
+    "source_tree": "ff248424f675a9f41969afe6ebec74c3cdf34185",
+    "stamp_evidence": {
+      "version": "dist/metadata.json",
+      "commit": "dist/metadata.json + git HEAD",
+      "date": "git commit date, cross-checked with native-version.stdout.log",
+      "ldflags": ".goreleaser.yml builds[0].ldflags"
+    },
+    "environment_delta": {
+      "CGO_ENABLED": "0",
+      "GOOS": "linux",
+      "GOARCH": "amd64",
+      "GOAMD64": "v1",
+      "GOCACHE": "/workspace/ironrun-product-research/launch-20261106/clean-release/run-b5b0059fc088/native-reproducibility/empty-build-cache"
+    },
+    "source_unchanged": true,
+    "archive_binary_sha256": "1f5457786ccdc5aab009a143841486f28bc809d5c8b843bab2d30e68926d4ad0",
+    "repeat_binary_sha256": "1f5457786ccdc5aab009a143841486f28bc809d5c8b843bab2d30e68926d4ad0",
+    "toolchain": "Go1.26.10; same pinned executable as diagnostic release; initially empty separate build cache",
+    "scope": "Native Linux amd64 binary byte reproducibility only; not archive timestamps or other platforms",
+    "byte_identical": true
+  },
+  "host_archive": {
+    "path": "clean-host-smoke.tar.gz",
+    "bytes": 28394,
+    "sha256": "b52c19b509040189b06e1cb749d43a8626a35f8fec29e539d65005b96ac0bb5e"
+  },
+  "limits": [
+    "Unsigned diagnostic snapshots; no new public release or signed installation.",
+    "Native reproducibility covers Linux amd64 binary bytes only.",
+    "Fresh host smoke uses scripted local providers and native Linux Secret Service.",
+    "Historical lifecycle results retain their earlier diagnostic binary identity."
+  ]
+}

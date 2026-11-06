@@ -1,0 +1,24 @@
+{
+  "files": [
+    {
+      "path": "clean-host-smoke.tar.gz",
+      "bytes": 28394,
+      "sha256": "b52c19b509040189b06e1cb749d43a8626a35f8fec29e539d65005b96ac0bb5e"
+    },
+    {
+      "path": "clean-release-verification.json",
+      "bytes": 5513,
+      "sha256": "3658aa021cc3900fe9e77a578e1f0104313887ff3c146983d4c0c35c0abb147a"
+    },
+    {
+      "path": "linux-host-fixtures.tar.gz",
+      "bytes": 60714,
+      "sha256": "a7d4631e38e9f4050af96ae847ebbafd0284787b65b6e290f87857aaaee19b08"
+    },
+    {
+      "path": "module-normalization.json",
+      "bytes": 5151,
+      "sha256": "a45aa9068eee4bd520afe8f741f29a1b4bd02a177f1308f2989e0fca8fde87e2"
+    }
+  ]
+}
