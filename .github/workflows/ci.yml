@@ -70,6 +70,8 @@ jobs:
           cache: true
       - name: Release verification regression tests
         run: python3 -m unittest discover -s tests -p release_test.py -v
+      - name: Verify module metadata is tidy
+        run: go mod tidy -diff
       - name: gofmt
         run: |
           out="$(gofmt -l .)"
