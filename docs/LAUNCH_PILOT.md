@@ -4,6 +4,12 @@ This is a proposed validation protocol for developers and small teams. No human
 sessions or completion rates have been collected. It complements the required
 [release checklist](RELEASE_CHECKLIST.md), whose stable-release gates still apply.
 
+Updated November 6, 2026 (America/New_York). The
+[latest source-bound evidence](validation/2026-11-06/README.md) covers the tested
+`b5b0059` diagnostic candidate, actual disposable-runner macOS Keychain CI, and
+bounded Linux Claude Code/OpenCode fixtures. It does not close the human rows
+below. Documentation changes do not retarget that tested build.
+
 The maintainer selected a preview launch after readiness checks. Start with
 actual Mac sessions in Codex, Claude Code, and OpenCode, then Cursor's desktop
 editor on a Linux PC if a supported package and graphical session are available.
@@ -52,13 +58,26 @@ of what the participant expected. Confirm the command's actual outcome rather
 than treating setup success or a request ID as execution success. Inspect any
 shared recording for credentials before retaining it.
 
-Compare the setup summary with what the host actually loads. Current local
-evidence includes noninteractive synthetic setup, protocol regressions, and an
-actual Linux Codex CLI fixture using a scripted model and synthetic native
-root-key adapter. That fixture does not establish the human TUI, real model,
-native-store experience, default host approval, or other hosts. Keep source-build
-success separate from signed-install and Gatekeeper checks. Test interactive
-prompts, denial, expiry, cancellation, timeout, and continuation in real sessions.
+Compare the setup summary with what the host actually loads. Earlier Linux Codex
+CLI evidence uses a scripted model and synthetic native root-key adapter. Later
+Claude Code/OpenCode fixtures use actual Linux Secret Service: ten lifecycle
+cases on an earlier identified binary, then two fresh approval/resume cases on
+the clean `b5b0059` diagnostic archive member. Model responses and CLI approvals
+remain scripted. Actual macOS Keychain CI also passes on a disposable runner.
+None establishes human TUI use, real-model judgment, default host permission UX,
+or another host's result. Keep source-build success separate from signed-install
+and Gatekeeper checks. Test interactive prompts, denial, expiry, cancellation,
+timeout, and continuation in real sessions.
+
+To reduce setup effort, prepare one pinned source build and one disposable project
+per host. Start with real tool discovery, native-store use, approval and resumed
+execution; if that smoke fails, fix the concrete defect before repeating it.
+After a smoke passes, continue the complete per-host walkthrough with the same
+identified build. A quick smoke is not the full pilot. Keep approvals enabled,
+give the operator one requested UI action at a time, and preserve existing
+configuration and vaults. Never run the disposable-account Keychain CI fixture
+on the maintainer's primary Mac account. Record unsupported host controls as
+blocked; do not invent settings or fill missing observations with fixture results.
 
 ## Preview and stable decisions
 
@@ -67,8 +86,12 @@ signed-installation checks, review the per-host matrix and all failed cases,
 and state any remaining platform/host limitations explicitly. A source build,
 config registration, scripted host capture, or completed report design does
 not independently close these gates. The research report can first receive a
-Cloudflare preview with accurate evidence labels; main-site integration follows
-the runtime readiness decision.
+Vercel preview with accurate evidence labels; main-site integration follows
+the runtime readiness decision. The existing team's access grant and the PR's
+Hobby/private-organization deployment refusal are separate blockers. Restore
+access and inspect plan eligibility before deploying; do not make the repository
+public or change billing as an unreviewed workaround. Actual edge and browser
+checks must pass before site promotion.
 
 Fix any credential disclosure, configuration loss, or authorization bypass before
 expanding the pilot. Follow the checklist's five-project, seven-day dogfood,

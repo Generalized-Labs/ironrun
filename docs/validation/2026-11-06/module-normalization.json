@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "base_commit": "829099e4bb46247dc7abd324f18e870b6eb2cd9f",
+  "reviewed_head": "ad590d609f110a20c24ba33bc1c0e8daa8ebc0e2",
+  "merged_commit": "b5b0059fc088745296999ad84f5b0726a631f85f",
+  "pull_request": "https://github.com/Generalized-Labs/ironrun/pull/18",
+  "changed_module_files": [
+    "go.mod",
+    "go.sum"
+  ],
+  "unchanged_go_source_files": 180,
+  "selected_module_count": 106,
+  "selected_module_graph_unchanged": true,
+  "requirement_graph_comparison": {
+    "before": {
+      "exit_code": 0,
+      "lines": 444,
+      "sha256": "e7656ca2e44eb390e05a91d9d54fca0330acddb028edf156f6a6efc613058184"
+    },
+    "after": {
+      "exit_code": 0,
+      "lines": 444,
+      "sha256": "e7656ca2e44eb390e05a91d9d54fca0330acddb028edf156f6a6efc613058184"
+    },
+    "byte_identical": true
+  },
+  "hooks_leave_normalized_source_unchanged": true,
+  "race": {
+    "exit_code": 0,
+    "seconds": 86.385,
+    "all_recorded_source_hashes_unchanged": true
+  },
+  "checks": [
+    {
+      "name": "Graphify Formal Verification",
+      "status": "completed",
+      "conclusion": "neutral",
+      "details_url": "https://graphify.com"
+    },
+    {
+      "name": "CodeQL",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/runs/127623324079"
+    },
+    {
+      "name": "Macroscope - Correctness Check",
+      "status": "completed",
+      "conclusion": "skipped",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/pull/18/checks?check_run_id=127623085178"
+    },
+    {
+      "name": "Greptile Review",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://app.greptile.com/-/switch-tenant?tenant=cilow-ai&next=%2FGeneralized-Labs%2Fironrun%2Fpull%2F18"
+    },
+    {
+      "name": "Dogfood \u2014 CI runs sealed",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676617/job/127623065426"
+    },
+    {
+      "name": "Security \u2014 govulncheck",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623065066"
+    },
+    {
+      "name": "Test (ubuntu-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623065016"
+    },
+    {
+      "name": "Test (macos-latest)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623065004"
+    },
+    {
+      "name": "npm launcher (Node 24)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064976"
+    },
+    {
+      "name": "Security \u2014 stdout redaction",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064954"
+    },
+    {
+      "name": "npm launcher (Node 22)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064948"
+    },
+    {
+      "name": "npm launcher (Node 20)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064858"
+    },
+    {
+      "name": "Lint",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064809"
+    },
+    {
+      "name": "Native macOS Keychain",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135676495/job/127623064603"
+    },
+    {
+      "name": "Analyze (javascript-typescript)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135672142/job/127623057596"
+    },
+    {
+      "name": "Analyze (actions)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135672142/job/127623057344"
+    },
+    {
+      "name": "Analyze (python)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135672142/job/127623057198"
+    },
+    {
+      "name": "Analyze (go)",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/Generalized-Labs/ironrun/actions/runs/42135672142/job/127623057066"
+    }
+  ],
+  "limits": [
+    "No tag, publication or signed release artifact is created by this check.",
+    "Full candidate hooks must run against normalized committed source.",
+    "Parent owns a separate CI tidy guard; worker changed only go.mod/go.sum."
+  ]
+}

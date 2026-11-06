@@ -1,11 +1,17 @@
 # Open-source launch readiness
 
-Updated November 3, 2026 (America/New_York). Repository baseline: `8e3c354`;
-review and repairs: [PR #16](https://github.com/Generalized-Labs/ironrun/pull/16),
-merged as `6e03c06aebff3040563a3d8d147875824af9d366`.
+Updated November 6, 2026 (America/New_York). The tested runtime candidate is
+`b5b0059fc088745296999ad84f5b0726a631f85f`, after merged
+[PR #16](https://github.com/Generalized-Labs/ironrun/pull/16),
+[PR #17](https://github.com/Generalized-Labs/ironrun/pull/17), and
+[PR #18](https://github.com/Generalized-Labs/ironrun/pull/18).
+The [November 6 evidence index](validation/2026-11-06/README.md) separates this
+candidate from earlier measured builds. Documentation updates do not silently
+retarget that candidate or transfer its results to another commit or release tag.
 
-**The reviewed repairs have source-bound automated evidence; real-host, remaining native-store,
-signed-installation, release, and arXiv gates remain open.** Consult each retained
+**Source-bound CI, actual native-store checks, a clean four-platform diagnostic
+build, and bounded Linux host fixtures pass. Human Mac/Cursor workflows,
+signed installation, release, Vercel preview, and arXiv gates remain open.** Consult each retained
 source manifest and the PR's current checks before transferring a result to a new
 build. Tests and bounded review do not certify security or perfect correctness.
 
@@ -54,14 +60,28 @@ before preview publication. Stable-release product gates remain open separately.
 - Require Go 1.26.10 to address the reachable standard-library advisory
   [GO-2026-6809](https://pkg.go.dev/vuln/GO-2026-6809). Vulnerability scanning now
   blocks CI instead of suppressing failures.
+- Repair and observe the actual macOS Keychain CI fixture on a disposable runner,
+  including fresh-process credential use, output filtering, and preference cleanup.
+- Normalize module metadata so the real release hooks leave a clean checkout
+  unchanged, and enforce `go mod tidy -diff` in CI. All 180 Go source files,
+  106 selected modules, and the 444-line requirement graph remain unchanged.
 - Reject failed evaluation children and missing output sentinels. Correct the
   paper's proof, threat claims, signature-verification description, and citations.
   Repair fresh-checkout arXiv source packaging.
 
 ## Verification observed
 
+The first six rows are the latest checkpoint. Other rows retain their original
+measured source identities; a historical pass is not a new candidate result.
+
 | Check | Result and scope |
 | --- | --- |
+| PR #18 CI | All 16 substantive checks pass at reviewed head `ad590d609f110a20c24ba33bc1c0e8daa8ebc0e2`, including Linux/macOS race suites and actual macOS Keychain verification. Its tree matches merged candidate `b5b0059`. Optional Macroscope skipped; Graphify was neutral because this metadata-only PR changed no supported-language program code |
+| Actual macOS Keychain CI | PR #17's real disposable-runner job passes: native root-key persistence, two fresh CLI injections, both output streams filtered, and original preferences restored. PR #18 repeats the native job successfully. This is saved-command CLI evidence, not a human Mac agent-host pilot |
+| Clean four-platform diagnostic | Go 1.26.10 / GoReleaser 2.18.2 / Syft 1.55.0 build `b5b0059` with actual tidy/generate hooks enabled; every tracked byte/mode, HEAD/tree, and clean status stays unchanged. Four archive layouts, four SPDX archive-hash bindings, and nine checksum entries pass. No tag, signatures, publication, or target-platform execution is inferred |
+| Native Linux binary reproducibility | An independent exact-flags Go 1.26.10 build with an initially empty cache reproduces the diagnostic archive's Linux amd64 binary bytes. This does not establish archive-byte or cross-platform reproducibility |
+| Linux host lifecycle fixtures | Actual Claude Code 2.1.318 and OpenCode 1.19.5 each pass approval/resume, denial, short-grant expiry, revocation, and bounded pending SIGINT with native Linux Secret Service. These ten cases use the earlier diagnostic binary whose 182 recorded Go/module inputs match `829099e`; model providers and CLI approvals are scripted. No separate child-start sentinel or human host permission UX is observed |
+| Exact-candidate Linux host smokes | Two fresh approval/resume cases pass in actual Claude Code and OpenCode using the Linux diagnostic archive member built from `b5b0059`; native Secret Service, one matching loopback request, and redacted output in the next scripted-provider request are observed. These two cases do not inherit the older binary's lifecycle results |
 | Go 1.26.10 full race suite | Full uncached Linux race runs pass at their recorded source hashes; final-copy results and source identities are retained separately in the new runtime archive; namespace tests use synthetic values outside the additional filesystem sandbox |
 | Vet and staticcheck | Recorded vet and pinned staticcheck 0.8.2 runs pass; inspect the final-copy archive and current PR checks for the precise build under review |
 | Govulncheck 1.9.0 | Zero reachable vulnerabilities; one advisory remains in a required module outside imported/called code |
@@ -131,10 +151,11 @@ timestamps are preserved in its records.
 The [native-storage follow-up](validation/2026-10-30/README.md) retains the fresh
 pre-merge checks, actual Linux native-store E2E and release-instruction rendering.
 The Linux result closes the substitute-key-store limitation for that specific
-headless probe, not for the earlier Codex fixture or other machines. The new
-real macOS Keychain CI job must have its own observed result; it cannot be
-inferred from cross-compilation, the fake-CLI unit tests or the Linux result.
-Its saved-command fixture also does not substitute for the human host matrix.
+headless probe, not for the earlier Codex fixture or other machines. The actual
+macOS Keychain CI job subsequently passed in PR #17 and again in PR #18; its
+observed result is indexed in the [November 6 evidence](validation/2026-11-06/README.md).
+Its saved-command fixture does not substitute for the human host matrix, a
+primary-account desktop Keychain session, or signed-release installation.
 
 ## Review scope
 
@@ -158,6 +179,11 @@ Host tool approval and Ironrun authorization are independent; do not globally
 auto-approve host tools to imitate the scripted fixture.
 
 ## Gates before release or submission
+
+These apply to their respective runtime, distribution, website, or paper
+decisions. npm/Homebrew availability must be established before advertising
+those channels; a GitHub release does not establish either channel. Paper
+submission remains separate from the runtime release.
 
 1. Build the tagged final source, generate its SBOM, sign actual assets, and
    verify the real Sigstore bundles and downloads. Fixture verifiers are not
@@ -184,7 +210,7 @@ auto-approve host tools to imitate the scripted fixture.
    disclosure, tail/delivery latency, and actual developer usability remain
    research opportunities.
 
-The merged PR created no release tag, registry package, external tap change, or arXiv
+The merged repairs created no new release tag, registry package, external tap change, or arXiv
 submission. Reverting the merge restores the previous source; no data migration has
 been performed. The original audit and interim findings remain available in
 [the first review commit](https://github.com/Generalized-Labs/ironrun/blob/9794795e0f4de675d452d5769718ef0c14491e87/docs/LAUNCH_READINESS.md).
@@ -196,9 +222,18 @@ remaining native-host and installation readiness decision. The release copy now
 offers an exact-tag installer/source build without promising that npm or the
 new Homebrew cask is already available.
 
-The research report and companion article are being prepared for the existing
-Vercel site, replacing the earlier Cloudflare preview target. Keep staging and
-production promotion separate, with accurate draft/evidence labels and the
-existing landing and installer routes preserved. Integrate them into ironrun.dev
-only after the runtime readiness decision. A designed page does not close release
-gates.
+The research report and companion article are prepared in
+[site PR #2](https://github.com/Generalized-Labs/ironrun-site/pull/2) for the existing
+Vercel project. Local checks cover the explicit 33-file public build and Chromium
+reading/landing flows, not Vercel's actual edge. Two separate deployment blockers
+remain: project inspection returns 403 pending team-access consent, and the PR's
+Vercel status reports that a private GitHub organization repository cannot deploy
+on the Hobby plan. A team grant alone does not resolve the reported plan restriction;
+inspect the current project/plan after access is restored. No billing, repository
+visibility, project ownership, or DNS change has been made.
+
+Keep staging and production promotion separate, with accurate draft/evidence
+labels and existing landing/installer routes preserved. Verify the actual pinned
+preview's routes, headers, downloads and mobile behavior before integration into
+ironrun.dev, after the runtime readiness decision. A designed page does not close
+release gates.
